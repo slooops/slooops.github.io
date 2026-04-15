@@ -7,39 +7,39 @@
     <div class="title-left">
       <div class="quarter-filter">
         <label>Quarter:</label>
-        <div
-          class="quarter-dropdown-wrapper"
-          (click)="$event.stopPropagation()"
-        >
+        <div class="qtr-dropdown" (click)="$event.stopPropagation()">
           <button
             type="button"
-            class="quarter-dropdown-button"
+            class="qtr-trigger"
             (click)="toggleQuarterDropdown($event)"
           >
-            {{ selectedQuarterLabel }}
-            <span class="dropdown-arrow" [class.open]="showQuarterDropdown()"
-              >▾</span
+            <span class="qtr-trigger-label">{{ selectedQuarterLabel }}</span>
+            <svg
+              class="qtr-chevron"
+              [class.open]="showQuarterDropdown()"
+              width="12"
+              height="12"
+              viewBox="0 0 256 256"
+              fill="currentColor"
             >
+              <path
+                d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"
+              />
+            </svg>
           </button>
 
           @if (showQuarterDropdown()) {
-            <div class="quarter-dropdown-menu">
-              <div class="quarter-options">
-                @for (q of availableQuarters(); track q.value) {
-                  <div
-                    class="quarter-option"
-                    [class.selected]="q.value === selectedQuarter()"
-                    (click)="selectQuarter(q.value)"
-                  >
-                    <input
-                      type="radio"
-                      [checked]="q.value === selectedQuarter()"
-                      name="quarterRadio"
-                    />
-                    <span class="option-label">{{ q.label }}</span>
-                  </div>
-                }
-              </div>
+            <div class="qtr-menu">
+              @for (q of availableQuarters(); track q.value) {
+                <button
+                  type="button"
+                  class="qtr-option"
+                  [class.selected]="q.value === selectedQuarter()"
+                  (click)="selectQuarter(q.value)"
+                >
+                  {{ q.label }}
+                </button>
+              }
             </div>
           }
         </div>
@@ -54,7 +54,18 @@
         <span><b>Last Updated:</b> {{ periodInfo().lastUpdated }}</span>
       </div>
     }
-    <div class="title-right"></div>
+    <div class="title-right">
+      <button
+        class="theme-toggle"
+        (click)="isDarkMode = !isDarkMode"
+        [title]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+      >
+        <ng-icon
+          [name]="isDarkMode ? 'phosphorSunBold' : 'phosphorMoonBold'"
+          size="16"
+        />
+      </button>
+    </div>
   </div>
   <!-- KPI Metrics Bars (40% / 60%) -->
   <div class="kpi-bars">
@@ -69,25 +80,9 @@
           <span
             matTooltip="Transaction Exceptions > $1M."
             matTooltipPosition="right"
-            style="
-              cursor: pointer;
-              display: inline-flex;
-              align-items: center;
-              vertical-align: middle;
-            "
+            class="kpi-info-icon"
           >
-            <mat-icon
-              style="
-                color: gray;
-                font-size: 15px;
-                width: 15px;
-                height: 15px;
-                line-height: 15px;
-                overflow: visible;
-              "
-            >
-              info_outline
-            </mat-icon>
+            <mat-icon>info_outline</mat-icon>
           </span>
         </div>
       </div>
@@ -170,17 +165,77 @@
         }
       </div>
     </div>
-    <!-- Issue Distribution Pie Chart -->
+    <!-- Issue Distribution Donut -->
     <div class="chart-wrapper doughnut-wrapper">
       <h3 class="chart-title">Issue Distribution by Assignee</h3>
       <div class="doughnut-container">
         @if (issueDistributionLoading()) {
           <app-loading-symbol-small></app-loading-symbol-small>
         } @else {
-          <canvas
-            #issueDistributionCanvas
-            aria-label="Issue Distribution Doughnut"
-          ></canvas>
+          <div class="hm-donut">
+            <svg class="hm-donut-svg" viewBox="0 0 36 36">
+              <defs>
+                <linearGradient
+                  id="hmDonutGrad0"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop
+                    offset="0%"
+                    [attr.stop-color]="donutSlices()[0]?.color || '#6ebe4a'"
+                  />
+                  <stop
+                    offset="100%"
+                    [attr.stop-color]="donutSlices()[0]?.colorEnd || '#a8ec85'"
+                  />
+                </linearGradient>
+                <linearGradient
+                  id="hmDonutGrad1"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop
+                    offset="0%"
+                    [attr.stop-color]="donutSlices()[1]?.color || '#00bceb'"
+                  />
+                  <stop
+                    offset="100%"
+                    [attr.stop-color]="donutSlices()[1]?.colorEnd || '#33d4f5'"
+                  />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="18"
+                cy="18"
+                r="16"
+                fill="transparent"
+                class="hm-donut-ring-bg"
+                stroke-width="3.5"
+              />
+              @for (slice of donutSlices(); let i = $index; track slice.label) {
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="16"
+                  fill="transparent"
+                  [attr.stroke]="'url(#hmDonutGrad' + i + ')'"
+                  [attr.stroke-dasharray]="slice.dasharray"
+                  [attr.stroke-dashoffset]="slice.dashoffset"
+                  stroke-width="3.5"
+                  stroke-linecap="round"
+                  class="hm-donut-ring"
+                />
+              }
+            </svg>
+            <div class="hm-donut-center">
+              <span class="hm-donut-total">{{ donutTotal() }}</span>
+              <span class="hm-donut-label">Total Issues</span>
+            </div>
+          </div>
         }
       </div>
       @if (!issueDistributionLoading()) {
@@ -197,210 +252,209 @@
   </div>
   <!-- Issues List Table -->
   <div class="issues-table-section">
-    <div class="table-header-row metric-box">
+    <div class="table-header-row">
       <h3 class="table-title">High Priority Issues List</h3>
-      <button class="collapse-btn" (click)="toggleTableVisibility()">
-        <mat-icon>{{
-          isTableVisible() ? "expand_less" : "expand_more"
-        }}</mat-icon>
-      </button>
-    </div>
-    @if (isTableVisible()) {
-      <div>
-        <!-- Table Toolbar: search + filters -->
-        <div class="table-toolbar">
-          <div class="toolbar-left">
-            <div class="search-container">
-              <i class="fa fa-search home-search"></i>
-              <input
-                type="text"
-                class="search-input"
-                placeholder="Search this table"
-                [ngModel]="searchTerm()"
-                (ngModelChange)="searchTerm.set($event); applySearch()"
-              />
-            </div>
-
-            <div class="filters-container">
-              <button
-                class="filter-chip"
-                (click)="toggleFiltersDropdown($event)"
+      <div class="table-toolbar-row">
+        <div class="toolbar-left">
+          <div class="search-container">
+            <span class="search-icon-wrapper">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 256 256"
+                fill="currentColor"
               >
-                <mat-icon style="height: 13px">filter_list</mat-icon>
-                Filters
-                @if (hasActiveFilters()) {
-                  <span class="filter-count">{{ activeFilters().length }}</span>
-                }
-              </button>
+                <path
+                  d="M229.66,218.34l-50.07-50.07a88.11,88.11,0,1,0-11.31,11.31l50.07,50.07a8,8,0,0,0,11.31-11.31ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"
+                />
+              </svg>
+            </span>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search this table"
+              [ngModel]="searchTerm()"
+              (ngModelChange)="searchTerm.set($event); applySearch()"
+            />
+          </div>
 
-              @if (showFiltersDropdown()) {
-                <div
-                  class="filters-dropdown"
-                  (click)="$event.stopPropagation()"
-                  tabindex="0"
-                  aria-label="Active filters menu"
-                >
-                  <div class="filter-sections">
-                    @for (option of filterOptions(); track option) {
-                      <div class="filter-section">
-                        <div class="filter-section-title">
-                          {{ option.label }}
-                        </div>
-                        <div class="filter-options">
-                          @for (val of option.values; track val) {
-                            <label class="filter-option">
-                              <input
-                                type="checkbox"
-                                (change)="
-                                  addFilter(option.id, option.label, val)
-                                "
-                                [checked]="isFilterActive(option.id, val)"
-                              />
-                              <span class="checkmark"></span>
-                              {{ val }}
-                            </label>
-                          }
-                        </div>
-                      </div>
-                    }
-                  </div>
-                </div>
+          <div class="filters-container">
+            <button class="filter-chip" (click)="toggleFiltersDropdown($event)">
+              <ng-icon name="phosphorFunnelSimpleBold" size="13" />
+              Filters
+              @if (hasActiveFilters()) {
+                <span class="filter-count">{{ activeFilters().length }}</span>
               }
-            </div>
-
-            <span class="result-count">{{ resultCount() }} results</span>
-            <button
-              class="reset-link"
-              [class.disabled]="!hasActiveFilters()"
-              (click)="clearAllFilters()"
-              [disabled]="!hasActiveFilters()"
-            >
-              Reset filters
             </button>
 
-            @if (hasActiveFilters()) {
-              <div class="filter-tags">
-                @for (filter of activeFilters(); track filter) {
-                  <div class="filter-tag">
-                    <span class="filter-label">{{ filter.key }}</span>
-                    <span class="filter-value">{{ filter.value }}</span>
-                    <button
-                      class="remove-filter"
-                      (click)="removeFilter(filter.key, filter.value)"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                }
+            @if (showFiltersDropdown()) {
+              <div
+                class="filters-dropdown"
+                (click)="$event.stopPropagation()"
+                tabindex="0"
+                aria-label="Active filters menu"
+              >
+                <div class="filter-sections">
+                  @for (option of filterOptions(); track option) {
+                    <div class="filter-section">
+                      <div class="filter-section-title">
+                        {{ option.label }}
+                      </div>
+                      <div class="filter-options">
+                        @for (val of option.values; track val) {
+                          <label class="filter-option">
+                            <input
+                              type="checkbox"
+                              (change)="addFilter(option.id, option.label, val)"
+                              [checked]="isFilterActive(option.id, val)"
+                            />
+                            <span class="checkmark"></span>
+                            {{ val }}
+                          </label>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
               </div>
             }
           </div>
-          <div class="toolbar-right">
-            <!-- <button class="action-btn">Assign Users</button> -->
-            <button class="action-btn" (click)="exportIssuesToExcel()">
-              Download
-            </button>
-          </div>
+
+          <span class="result-count">{{ resultCount() }} results</span>
+          <button
+            class="reset-link"
+            [class.disabled]="!hasActiveFilters()"
+            (click)="clearAllFilters()"
+            [disabled]="!hasActiveFilters()"
+          >
+            Reset filters
+          </button>
+
+          @if (hasActiveFilters()) {
+            <div class="filter-tags-inline">
+              @for (filter of activeFilters(); track filter) {
+                <div class="filter-tag">
+                  <span class="filter-label">{{ filter.key }}</span>
+                  <span class="filter-value">{{ filter.value }}</span>
+                  <button
+                    class="remove-filter"
+                    (click)="removeFilter(filter.key, filter.value)"
+                  >
+                    ✕
+                  </button>
+                </div>
+              }
+            </div>
+          }
         </div>
 
-        <!-- Mat Table -->
-        @if (dataSource?.data?.length) {
-          <div class="table-container" style="overflow-y: hidden !important">
-            <table mat-table [dataSource]="dataSource" class="table-responsive">
-              <!-- Selection column -->
-              <!-- <ng-container matColumnDef="select">
+        <button class="action-btn" (click)="exportIssuesToExcel()">
+          <ng-icon name="phosphorCloudArrowDownBold" size="14" />
+          Download
+        </button>
+      </div>
+    </div>
+
+    <!-- Mat Table -->
+    @if (dataSource?.data?.length) {
+      <div class="table-container" style="overflow-y: hidden !important">
+        <table
+          mat-table
+          [dataSource]="paginatedDataSource"
+          class="table-responsive"
+        >
+          <!-- Selection column -->
+          <!-- <ng-container matColumnDef="select">
                 <th mat-header-cell *matHeaderCellDef class="checkbox-col"></th>
                 <td mat-cell *matCellDef="let element" class="checkbox-col">
                   <mat-checkbox></mat-checkbox>
                 </td>
               </ng-container> -->
 
-              @for (column of displayedColumns; track column) {
-                <ng-container [matColumnDef]="column">
-                  <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
-                    {{ replaceUnderscore(column) }}
-                  </th>
-                  <td mat-cell *matCellDef="let element">
-                    @if (column === displayedColumns[0]) {
-                      <!-- First column (ID) with warning icon if needed -->
-                      <div class="id-cell">
-                        @if (
-                          element.hasWarning ||
-                          element.WARNING ||
-                          element.HAS_WARNING
-                        ) {
-                          <mat-icon class="warning-icon">warning</mat-icon>
-                        }
-                        <span class="id-link">{{ element[column] }}</span>
-                      </div>
-                    } @else if (
-                      column.includes("ASSIGNED") || column.includes("ASSIGN")
+          @for (column of displayedColumns; track column) {
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
+                {{ replaceUnderscore(column) }}
+              </th>
+              <td mat-cell *matCellDef="let element">
+                @if (column === displayedColumns[0]) {
+                  <!-- First column (ID) with warning icon if needed -->
+                  <div class="id-cell">
+                    @if (
+                      element.hasWarning ||
+                      element.WARNING ||
+                      element.HAS_WARNING
                     ) {
-                      <!-- Assigned To column with icons -->
-                      @if (element[column] === "AI Agent") {
-                        <div class="assigned-cell">
-                          <mat-icon class="robot-icon">smart_toy</mat-icon>
-                          <span>AI Agent</span>
-                        </div>
-                      } @else if (
-                        !element[column] ||
-                        element[column] === "Unassigned" ||
-                        element[column] === ""
-                      ) {
-                        <a class="assign-link">Assign to</a>
-                      } @else {
-                        {{ element[column] }}
-                      }
-                    } @else if (column.includes("SOURCE")) {
-                      <span style="white-space: nowrap">
-                        {{ element[column] }}</span
-                      >
-                    } @else if (column.includes("DESCRIPTION")) {
-                      <span class="issue-description-cell">
-                        {{ element[column] }}</span
-                      >
-                    } @else if (column.includes("BILL_TOTAL")) {
-                      <span style="white-space: nowrap">
-                        {{
-                          element[column] | currency: "USD" : "symbol" : "1.2-2"
-                        }}</span
-                      >
-                    } @else {
-                      {{ element[column] }}
+                      <mat-icon class="warning-icon">warning</mat-icon>
                     }
-                  </td>
-                </ng-container>
-              }
-              <tr
-                mat-header-row
-                *matHeaderRowDef="displayedColumnsWithSelect"
-              ></tr>
-              <tr
-                mat-row
-                *matRowDef="let row; columns: displayedColumnsWithSelect"
-              ></tr>
-            </table>
-          </div>
-        }
-        @if (!dataSource?.data?.length) {
-          <div class="loading-container">
-            <app-loading-symbol></app-loading-symbol>
-            <div class="circle-subcaption"></div>
-            <br /><br /><br />
-          </div>
-        }
-
-        <mat-paginator
-          [pageSize]="10"
-          [length]="resultCount()"
-          [pageSizeOptions]="[]"
-          showFirstLastButtons
-          aria-label="Select page"
-        ></mat-paginator>
+                    <span class="id-link">{{ element[column] }}</span>
+                  </div>
+                } @else if (
+                  column.includes("ASSIGNED") || column.includes("ASSIGN")
+                ) {
+                  <!-- Assigned To column with icons -->
+                  @if (element[column] === "AI Agent") {
+                    <div class="assigned-cell">
+                      <mat-icon class="robot-icon">smart_toy</mat-icon>
+                      <span>AI Agent</span>
+                    </div>
+                  } @else if (
+                    !element[column] ||
+                    element[column] === "Unassigned" ||
+                    element[column] === ""
+                  ) {
+                    <a class="assign-link">Assign to</a>
+                  } @else {
+                    {{ element[column] }}
+                  }
+                } @else if (column.includes("SOURCE")) {
+                  <span style="white-space: nowrap">
+                    {{ element[column] }}</span
+                  >
+                } @else if (column.includes("DESCRIPTION")) {
+                  <span class="issue-description-cell">
+                    {{ element[column] }}</span
+                  >
+                } @else if (column.includes("BILL_TOTAL")) {
+                  <span style="white-space: nowrap">
+                    {{
+                      element[column] | currency: "USD" : "symbol" : "1.2-2"
+                    }}</span
+                  >
+                } @else {
+                  {{ element[column] }}
+                }
+              </td>
+            </ng-container>
+          }
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsWithSelect"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumnsWithSelect"
+          ></tr>
+        </table>
       </div>
+    }
+    @if (!dataSource?.data?.length) {
+      <div class="loading-container">
+        <app-loading-symbol></app-loading-symbol>
+        <div class="circle-subcaption"></div>
+        <br /><br /><br />
+      </div>
+    }
+
+    @if (resultCount() > 0) {
+      <app-pagination
+        [pageIndex]="currentPage"
+        [pageSize]="pageSize"
+        [totalItems]="resultCount()"
+        [pageSizeOptions]="[10, 25, 50]"
+        (pageChange)="onPageChange($event)"
+      ></app-pagination>
     }
   </div>
 </div>
+<br /><br /><br />
 <!-- } -->
 
 <!-- Loading Spinner -->

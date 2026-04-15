@@ -2,6 +2,7 @@ import {
   Component,
   ViewChild,
   ElementRef,
+  HostBinding,
   HostListener,
   OnDestroy,
   signal,
@@ -16,41 +17,54 @@ import { AuthenticationService } from '../providers/authentication.service';
 import { HomeDataService } from './home-data.service';
 import { ExportService } from '../monitoring-dashboard/providers/export.service';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { Chart, ChartConfiguration, Plugin } from 'chart.js/auto';
+import { Chart, ChartConfiguration } from 'chart.js/auto';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { PaginationComponent } from '../ui/atoms/pagination/pagination.component';
+import { PageChangeEvent } from '../ui';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import { LoadingSymbolSmallComponent } from '../loading-symbol-small/loading-symbol-small.component';
-import { provideIcons } from '@ng-icons/core';
-import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  phosphorSparkleBold,
+  phosphorFunnelSimpleBold,
+  phosphorCloudArrowDownBold,
+} from '@ng-icons/phosphor-icons/bold';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  providers: [DestroyManager, provideIcons({ phosphorSparkleBold })],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+      phosphorFunnelSimpleBold,
+      phosphorCloudArrowDownBold,
+    }),
+  ],
   imports: [
     CommonModule,
     FormsModule,
     MatIconModule,
     MatTableModule,
-    MatPaginatorModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
     LoadingSymbolComponent,
     LoadingSymbolSmallComponent,
+    PaginationComponent,
+    NgIcon,
   ],
   standalone: true,
 })
 export class HomeComponent implements OnDestroy {
+  @HostBinding('class.dark-theme') isDarkMode = false;
   constructor(
     private router: Router,
     private http: ApiHttpService,
@@ -80,18 +94,29 @@ export class HomeComponent implements OnDestroy {
   displayedColumns: string[] = [];
   displayedColumnsWithSelect: string[] = [];
   dataSource: any;
+  paginatedDataSource: any;
   searchTerm = signal<string>('');
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  currentPage = 0;
+  pageSize = 10;
   @ViewChild('transactionFailuresCanvas')
   transactionFailuresCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('espCasesCanvas') espCasesCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('issueDistributionCanvas')
-  issueDistributionCanvas!: ElementRef<HTMLCanvasElement>;
 
   // Chart instances
   private transactionFailuresChart?: Chart;
   private espCasesChart?: Chart;
-  private issueDistributionChart?: Chart;
+
+  // SVG Donut state
+  donutSlices = signal<
+    {
+      label: string;
+      dasharray: string;
+      dashoffset: number;
+      color: string;
+      colorEnd: string;
+    }[]
+  >([]);
+  donutTotal = signal<string>('0');
 
   // Issue distribution legends (dynamic)
   issueDistributionLegends = signal<
@@ -100,13 +125,7 @@ export class HomeComponent implements OnDestroy {
 
   // Computed signals
   hasActiveFilters = computed(() => this.activeFilters().length > 0);
-  resultCount = computed(() => {
-    // Use filteredData if filtering is active, otherwise use full data
-    if (this.dataSource?.filteredData) {
-      return this.dataSource.filteredData.length;
-    }
-    return this.dataSource?.data?.length || 0;
-  });
+  resultCount = signal(0);
 
   // Simple filters (extendable)
   showFiltersDropdown = signal<boolean>(false);
@@ -179,17 +198,15 @@ export class HomeComponent implements OnDestroy {
    */
   private buildChartWhenReady(
     buildFn: () => void,
-    chart: 'transactionFailures' | 'espCases' | 'issueDistribution',
+    chart: 'transactionFailures' | 'espCases',
     attempt = 0,
   ): void {
     let canvasEl: HTMLCanvasElement | null | undefined;
 
     if (chart === 'transactionFailures') {
       canvasEl = this.transactionFailuresCanvas?.nativeElement;
-    } else if (chart === 'espCases') {
-      canvasEl = this.espCasesCanvas?.nativeElement;
     } else {
-      canvasEl = this.issueDistributionCanvas?.nativeElement;
+      canvasEl = this.espCasesCanvas?.nativeElement;
     }
 
     if (canvasEl) {
@@ -622,16 +639,12 @@ export class HomeComponent implements OnDestroy {
       totalIssues,
     });
     this.issueDistributionLoading.set(false);
-    this.buildChartWhenReady(
-      () =>
-        this.buildIssueDistributionChart(
-          resolvedAgentPct,
-          resolvedOpsPct,
-          resolvedAgentCount,
-          resolvedOpsCount,
-          totalIssues,
-        ),
-      'issueDistribution',
+    this.buildIssueDistributionChart(
+      resolvedAgentPct,
+      resolvedOpsPct,
+      resolvedAgentCount,
+      resolvedOpsCount,
+      totalIssues,
     );
   }
 
@@ -660,12 +673,8 @@ export class HomeComponent implements OnDestroy {
 
     this.dataSource = new MatTableDataSource<any>(filtered);
     this.updateTableFilter();
-
-    setTimeout(() => {
-      if (this.paginator) {
-        this.dataSource.paginator = this.paginator;
-      }
-    }, 100);
+    this.currentPage = 0;
+    this.paginateTable();
   }
 
   /**
@@ -710,10 +719,25 @@ export class HomeComponent implements OnDestroy {
   }
 
   /**
-   * Handle page change
+   * Handle page change from app-pagination
    */
-  onMatPage(event: PageEvent) {
-    // Material Table handles pagination automatically
+  onPageChange(event: PageChangeEvent): void {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.paginateTable();
+  }
+
+  /**
+   * Slice filtered data for the current page
+   */
+  private paginateTable(): void {
+    if (!this.dataSource) return;
+    const filtered = this.dataSource.filteredData || this.dataSource.data || [];
+    this.resultCount.set(filtered.length);
+    const start = this.currentPage * this.pageSize;
+    this.paginatedDataSource = new MatTableDataSource<any>(
+      filtered.slice(start, start + this.pageSize),
+    );
   }
 
   navigateTo(page: string): void {
@@ -872,9 +896,8 @@ export class HomeComponent implements OnDestroy {
     // Trigger predicate; filter string content is ignored
     this.dataSource.filter = 'active';
 
-    if (this.paginator) {
-      this.paginator.firstPage();
-    }
+    this.currentPage = 0;
+    this.paginateTable();
   }
 
   /**
@@ -930,11 +953,10 @@ export class HomeComponent implements OnDestroy {
   }
 
   /**
-   * Trigger a redraw of the issue distribution chart so the
-   * center text plugin picks up the latest KPI values.
+   * No-op: kept for API compatibility. SVG donut is signal-driven.
    */
   private refreshIssueDistributionCenterText(): void {
-    this.issueDistributionChart?.update();
+    // SVG donut updates automatically via signals
   }
 
   specialWords: string[] = [
@@ -1000,11 +1022,9 @@ export class HomeComponent implements OnDestroy {
   }
 
   private buildTransactionFailuresChart(chartData: any): void {
-    console.log('buildTransactionFailuresChart called with:', chartData);
-
-    const ctx = this.transactionFailuresCanvas?.nativeElement?.getContext('2d');
-    if (!ctx) {
-      console.error('Transaction failures canvas not found');
+    const canvas = this.transactionFailuresCanvas?.nativeElement;
+    const ctx = canvas?.getContext('2d');
+    if (!ctx || !canvas) {
       return;
     }
 
@@ -1040,59 +1060,64 @@ export class HomeComponent implements OnDestroy {
       'en-US',
     )})`;
 
+    // Gradient fills for line datasets
+    const purpleGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    purpleGrad.addColorStop(0, 'rgba(153, 51, 255, 0.5)');
+    purpleGrad.addColorStop(1, 'rgba(153, 51, 255, 0)');
+
+    const greenGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    greenGrad.addColorStop(0, 'rgba(110, 190, 74, 0.5)');
+    greenGrad.addColorStop(1, 'rgba(110, 190, 74, 0)');
+
     this.transactionFailuresChart?.destroy();
     this.transactionFailuresChart = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: chartData.weeks,
         datasets: [
-          // 1. Total Issues (Bar)
           {
             type: 'bar',
             label: totalIssuesLabel,
             data: chartData.totalIssues,
-            backgroundColor: '#c0504d',
-            borderColor: '#c0504d',
+            backgroundColor: '#909ca8ef',
+            borderColor: '#d3d6d966',
             borderWidth: 1,
-            barPercentage: 0.5,
-            categoryPercentage: 0.7,
+            barPercentage: 0.7,
+            categoryPercentage: 0.8,
           },
-          // 2. In Progress (Bar)
           {
             type: 'bar',
             label: inProgressLabel,
             data: chartData.inProgress,
-            backgroundColor: '#f4a259',
-            borderColor: '#f4a259',
+            backgroundColor: '#f39c12',
+            borderColor: '#f39c12',
             borderWidth: 1,
-            barPercentage: 0.5,
-            categoryPercentage: 0.7,
+            barPercentage: 0.7,
+            categoryPercentage: 0.8,
           },
-          // 3. Resolved (Ops) (Line)
           {
             type: 'line',
             label: resolvedOpsLabel,
             data: chartData.resolvedOps,
-            borderColor: '#9b59b6',
-            backgroundColor: '#9b59b6',
+            borderColor: '#9933ff',
+            backgroundColor: purpleGrad,
             tension: 0.25,
             pointRadius: 3,
             pointHoverRadius: 5,
             borderWidth: 2,
-            fill: false,
+            fill: 'origin',
           },
-          // 4. Resolved (Agent) (Line)
           {
             type: 'line',
             label: resolvedAgentLabel,
             data: chartData.resolvedAgent,
-            borderColor: '#5c9e6b',
-            backgroundColor: '#5c9e6b',
+            borderColor: '#6ebe4a',
+            backgroundColor: greenGrad,
             tension: 0.25,
             pointRadius: 3,
             pointHoverRadius: 5,
             borderWidth: 2,
-            fill: false,
+            fill: 'origin',
           },
         ],
       },
@@ -1101,11 +1126,9 @@ export class HomeComponent implements OnDestroy {
   }
 
   private buildEspCasesChart(chartData: any): void {
-    console.log('buildEspCasesChart called with:', chartData);
-
-    const ctx = this.espCasesCanvas?.nativeElement?.getContext('2d');
-    if (!ctx) {
-      console.error('ESP cases canvas not found');
+    const canvas = this.espCasesCanvas?.nativeElement;
+    const ctx = canvas?.getContext('2d');
+    if (!ctx || !canvas) {
       return;
     }
 
@@ -1141,6 +1164,15 @@ export class HomeComponent implements OnDestroy {
       'en-US',
     )})`;
 
+    // Gradient fills for line datasets
+    const purpleGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    purpleGrad.addColorStop(0, 'rgba(153, 51, 255, 0.55)');
+    purpleGrad.addColorStop(1, 'rgba(153, 51, 255, 0)');
+
+    const greenGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    greenGrad.addColorStop(0, 'rgba(110, 190, 74, 0.55)');
+    greenGrad.addColorStop(1, 'rgba(110, 190, 74, 0)');
+
     this.espCasesChart?.destroy();
     this.espCasesChart = new Chart(ctx, {
       type: 'bar',
@@ -1151,45 +1183,45 @@ export class HomeComponent implements OnDestroy {
             type: 'bar',
             label: totalCasesLabel,
             data: chartData.totalCases,
-            borderColor: '#c0504d',
-            backgroundColor: '#c0504d',
+            borderColor: '#9baab8',
+            backgroundColor: '#9baab8',
             borderWidth: 1,
-            barPercentage: 0.5,
-            categoryPercentage: 0.7,
+            barPercentage: 0.7,
+            categoryPercentage: 0.8,
           },
           {
             type: 'bar',
             label: inProgressLabelEsp,
             data: chartData.inProgress,
-            borderColor: '#f4a259',
-            backgroundColor: '#f4a259',
+            borderColor: '#f39c12',
+            backgroundColor: '#f39c12',
             borderWidth: 1,
-            barPercentage: 0.5,
-            categoryPercentage: 0.7,
+            barPercentage: 0.7,
+            categoryPercentage: 0.8,
           },
           {
             type: 'line',
             label: resolvedOpsLabel,
             data: chartData.resolvedOps,
-            borderColor: '#9b59b6',
-            backgroundColor: '#9b59b6',
+            borderColor: '#9933ff',
+            backgroundColor: purpleGrad,
             tension: 0.25,
             pointRadius: 3,
             pointHoverRadius: 5,
             borderWidth: 2,
-            fill: false,
+            fill: 'origin',
           },
           {
             type: 'line',
             label: resolvedAgentLabel,
             data: chartData.resolvedAgent,
-            borderColor: '#5c9e6b',
-            backgroundColor: '#5c9e6b',
+            borderColor: '#6ebe4a',
+            backgroundColor: greenGrad,
             tension: 0.25,
             pointRadius: 3,
             pointHoverRadius: 5,
             borderWidth: 2,
-            fill: false,
+            fill: 'origin',
           },
         ],
       },
@@ -1204,127 +1236,43 @@ export class HomeComponent implements OnDestroy {
     resolvedOpsCount: number,
     totalIssues: number,
   ): void {
-    console.log('buildIssueDistributionChart called with:', {
-      resolvedAgentPct,
-      resolvedOpsPct,
-      resolvedAgentCount,
-      resolvedOpsCount,
-      totalIssues,
-    });
-
     if (!resolvedAgentPct && !resolvedOpsPct) {
-      console.log('No data to display');
+      this.donutSlices.set([]);
+      this.donutTotal.set('0');
       return;
     }
 
-    const canvas = this.issueDistributionCanvas?.nativeElement;
-    if (!canvas) {
-      console.error('Canvas element not found!');
-      return;
-    }
+    const circumference = 2 * Math.PI * 16; // r=16 in viewBox 36x36
+    const gap = 1; // small gap between segments
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      console.error('Could not get 2d context!');
-      return;
-    }
+    const agentLen = (resolvedAgentPct / 100) * circumference;
+    const opsLen = (resolvedOpsPct / 100) * circumference;
 
-    this.issueDistributionChart?.destroy();
-
-    const labels = ['Agent', 'Ops'];
-    const data = [resolvedAgentPct, resolvedOpsPct];
-    const counts = [resolvedAgentCount, resolvedOpsCount];
-    const colors = ['#5A8E39', '#E0A227'];
-
-    // Build legends array
-    const legends: { label: string; value: number; color: string }[] = [
-      { label: 'Agent', value: resolvedAgentPct, color: '#5A8E39' },
-      { label: 'Ops', value: resolvedOpsPct, color: '#E0A227' },
+    // Ops drawn first (underneath), Agent drawn second (on top, at 12 o'clock)
+    const slices = [
+      {
+        label: 'Ops',
+        dasharray: `${opsLen} ${circumference - opsLen}`,
+        dashoffset: -(agentLen + gap),
+        color: '#b8cad8',
+        colorEnd: '#e1eef2e2',
+      },
+      {
+        label: 'Agent',
+        dasharray: `${agentLen} ${circumference - agentLen}`,
+        dashoffset: 0,
+        color: '#26d1fc',
+        colorEnd: '#4ab5f8',
+      },
     ];
 
-    console.log('Creating chart with data:', data);
+    this.donutSlices.set(slices);
+    this.donutTotal.set(totalIssues.toLocaleString('en-US'));
 
-    this.issueDistributionLegends.set(legends);
-
-    const centerTextPlugin: Plugin = {
-      id: 'centerTextPlugin',
-      afterDraw: (chart) => {
-        const {
-          ctx,
-          chartArea: { width, height },
-        } = chart;
-        ctx.save();
-        ctx.font = 'bold 20px Inter, sans-serif';
-        ctx.fillStyle = '#000';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(
-          totalIssues.toLocaleString('en-US'),
-          chart.getDatasetMeta(0).data[0].x,
-          chart.getDatasetMeta(0).data[0].y - 8,
-        );
-        ctx.font = '11px Inter, sans-serif';
-        ctx.fillText(
-          'Total Issues',
-          chart.getDatasetMeta(0).data[0].x,
-          chart.getDatasetMeta(0).data[0].y + 12,
-        );
-        ctx.restore();
-      },
-    };
-    this.issueDistributionChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            data: data,
-            backgroundColor: colors,
-            borderWidth: 0,
-            hoverOffset: 4,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '70%',
-        onClick: (event, activeElements) => {
-          if (activeElements.length > 0) {
-            const index = activeElements[0].index;
-            const label = labels[index];
-            // this.filterByAssignee(label);
-          }
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            enabled: true,
-            callbacks: {
-              label: (context) => {
-                const idx = context.dataIndex;
-                const label = labels[idx];
-                const count = counts[idx];
-                const pct = data[idx];
-                return `${label}: ${count.toLocaleString('en-US')} (${pct}%)`;
-              },
-            },
-          },
-          datalabels: {
-            color: '#ffffff',
-            font: {
-              size: 11,
-              weight: 'bold',
-              family: 'Inter, sans-serif',
-            },
-            formatter: (value) => {
-              return value > 0 ? value + '%' : '';
-            },
-          },
-        },
-      },
-      plugins: [centerTextPlugin],
-    } as any);
+    this.issueDistributionLegends.set([
+      { label: 'Agent', value: resolvedAgentPct, color: '#00bceb' },
+      { label: 'Ops', value: resolvedOpsPct, color: '#8899a6' },
+    ]);
   }
 
   private mixedChartOptions(title: string): ChartConfiguration['options'] {
@@ -1468,6 +1416,5 @@ export class HomeComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.transactionFailuresChart?.destroy();
     this.espCasesChart?.destroy();
-    this.issueDistributionChart?.destroy();
   }
 }

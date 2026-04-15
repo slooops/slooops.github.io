@@ -56,31 +56,6 @@
     <!-- ── Row 1: KPI Cards (1x8 grid — all widths) ── -->
     <div class="ciq-grid ciq-grid-kpi">
       <div class="ciq-kpi-grid">
-        <div class="ciq-kpi ciq-kpi--health">
-          <div class="ciq-kpi-ring-col">
-            <app-health-ring
-              [totalIncidents]="healthTotalIncidents"
-              [successPct]="healthSuccessPct"
-              [errorPct]="healthErrorPct"
-              [successCount]="healthSuccessCount"
-              [errorCount]="healthErrorCount"
-              [showMeta]="false"
-            />
-          </div>
-          <div class="ciq-kpi-content">
-            <div class="ciq-kpi-label">System Health</div>
-            <div class="ciq-kpi-health-stats">
-              <span class="ciq-kpi-health-success"
-                >{{ healthSuccessCount | number }} ({{
-                  healthSuccessPct
-                }}%)</span
-              >
-              <span class="ciq-kpi-health-error"
-                >{{ healthErrorCount | number }} ({{ healthErrorPct }}%)</span
-              >
-            </div>
-          </div>
-        </div>
         <div class="ciq-kpi ciq-kpi-red">
           <div class="ciq-kpi-icon-col ciq-kpi-icon-col--red">
             <ng-icon name="phosphorWarningCircleDuotone" size="26" />
@@ -130,6 +105,32 @@
           <div class="ciq-kpi-content">
             <div class="ciq-kpi-label">Last Run (min ago)</div>
             <div class="ciq-kpi-value">{{ kpiStaleness }}</div>
+          </div>
+        </div>
+
+        <div class="ciq-kpi ciq-kpi--health">
+          <div class="ciq-kpi-ring-col">
+            <app-health-ring
+              [totalIncidents]="healthTotalIncidents"
+              [successPct]="healthSuccessPct"
+              [errorPct]="healthErrorPct"
+              [successCount]="healthSuccessCount"
+              [errorCount]="healthErrorCount"
+              [showMeta]="false"
+            />
+          </div>
+          <div class="ciq-kpi-content">
+            <div class="ciq-kpi-label">System Health</div>
+            <div class="ciq-kpi-health-stats">
+              <span class="ciq-kpi-health-success"
+                >{{ healthSuccessCount | number }} ({{ healthSuccessPct }}%)
+                Success</span
+              >
+              <span class="ciq-kpi-health-error"
+                >{{ healthErrorCount | number }} ({{ healthErrorPct }}%)
+                Errors</span
+              >
+            </div>
           </div>
         </div>
       </div>

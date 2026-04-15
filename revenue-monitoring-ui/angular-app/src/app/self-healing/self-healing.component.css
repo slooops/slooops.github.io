@@ -1474,6 +1474,7 @@
 
 .sh__ptn-select-wrap ng-icon {
   position: absolute;
+  top: 9px;
   right: 0.625rem;
   pointer-events: none;
   color: var(--sh-text-secondary);

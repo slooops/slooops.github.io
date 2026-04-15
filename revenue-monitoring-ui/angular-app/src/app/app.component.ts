@@ -47,6 +47,10 @@ import {
   phosphorMoonBold,
   phosphorArrowClockwiseBold,
   phosphorClockCounterClockwiseBold,
+  phosphorFunnelSimpleBold,
+  phosphorArrowRightBold,
+  phosphorMagnifyingGlassBold,
+  phosphorCaretDownBold,
 } from '@ng-icons/phosphor-icons/bold';
 
 @Component({
@@ -83,6 +87,10 @@ import {
       phosphorMoonBold,
       phosphorArrowClockwiseBold,
       phosphorClockCounterClockwiseBold,
+      phosphorFunnelSimpleBold,
+      phosphorArrowRightBold,
+      phosphorMagnifyingGlassBold,
+      phosphorCaretDownBold,
     }),
   ],
   imports: [
