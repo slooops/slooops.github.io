@@ -13,11 +13,11 @@ export interface ChatbotPageConfig {
 export const DEFAULT_CHATBOT_CONFIG: ChatbotPageConfig = {
   title: 'Control Tower Assistant',
   openingMessage:
-    'This assistant is currently under development. Context-aware answers and interactive capabilities will be added soon. You can preview the UI for now.',
+    'Currently, I can help you with dashboard access requests — like requesting access, checking your current roles, or getting help with the access process. More assistant features for this page are coming soon.',
   suggestions: [
+    'I need access to a dashboard',
+    'What access do I have?',
     'What does this dashboard show?',
-    'Help me understand the data',
-    'Show recent activity',
   ],
 };
 
@@ -115,11 +115,11 @@ export const CHATBOT_ROUTE_CONFIG: Record<string, ChatbotPageConfig> = {
   '/identity-access-management': {
     title: 'IAM Assistant',
     openingMessage:
-      'The Identity & Access Management assistant is under development. It will help you manage user roles and access permissions.',
+      'I can help you request access to dashboards, check your current access, and answer questions about the platform. Other assistant features are under development.',
     suggestions: [
-      'Show user roles',
-      'Pending access requests',
-      'Role assignment help',
+      'I need access to a dashboard',
+      'What access do I have?',
+      'Help me with access requests',
     ],
   },
 };

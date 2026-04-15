@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { AuthenticationService } from '../providers/authentication.service';
 import {
   ChatbotPageConfig,
@@ -32,17 +33,24 @@ export class ChatbotComponent implements OnInit, OnChanges, AfterViewChecked {
   @Output() togglePanel = new EventEmitter<void>();
 
   userName: string = '';
+  userEmail: string = '';
   messages: { text: string; isUser: boolean; isWelcome?: boolean }[] = [];
   newMessage = '';
   config: ChatbotPageConfig = DEFAULT_CHATBOT_CONFIG;
   private hasInitialized = false;
 
+  isLoading: boolean = false;
+
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
 
-  constructor(private authService: AuthenticationService) {}
+  constructor(
+    private authService: AuthenticationService,
+    private httpClient: HttpClient,
+  ) {}
 
   ngOnInit(): void {
     this.userName = this.authService.getUserName();
+    this.userEmail = this.authService.getUserID();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -51,6 +59,10 @@ export class ChatbotComponent implements OnInit, OnChanges, AfterViewChecked {
       // Reset messages when route changes
       this.messages = [];
       this.hasInitialized = false;
+      // Re-initialize immediately if the panel is already open
+      if (this.isOpen) {
+        this.initializeChat();
+      }
     }
     if (changes['isOpen'] && this.isOpen && !this.hasInitialized) {
       this.initializeChat();
@@ -94,24 +106,45 @@ export class ChatbotComponent implements OnInit, OnChanges, AfterViewChecked {
 
   onSuggestionClick(suggestion: string): void {
     this.messages.push({ text: suggestion, isUser: true });
-    setTimeout(() => {
-      this.messages.push({
-        text: 'This feature is under development. Intelligent responses will be available soon.',
-        isUser: false,
-      });
-    }, 600);
+    this.callAgent(suggestion);
   }
 
   sendMessage(): void {
-    if (!this.newMessage?.trim()) return;
+    if (!this.newMessage?.trim() || this.isLoading) return;
     const userMsg = this.newMessage.trim();
     this.messages.push({ text: userMsg, isUser: true });
     this.newMessage = '';
-    setTimeout(() => {
-      this.messages.push({
-        text: 'This assistant is under development. Your message has been noted, but intelligent responses are not yet available.',
-        isUser: false,
+    this.callAgent(userMsg);
+  }
+
+  private callAgent(message: string): void {
+    this.isLoading = true;
+
+    this.httpClient
+      .post<{ response: string }>(
+        'http://localhost:8000/control-tower-ui-chat',
+        {
+          userName: this.userEmail,
+          userEmail: this.userEmail.toLowerCase() + '@cisco.com',
+          message,
+        },
+      )
+      .subscribe({
+        next: (res) => {
+          this.isLoading = false;
+          this.messages.push({
+            text: res.response || 'No response received.',
+            isUser: false,
+          });
+        },
+        error: (err) => {
+          this.isLoading = false;
+          console.error('Agent API error:', err);
+          this.messages.push({
+            text: 'Something went wrong reaching the assistant. Please try again.',
+            isUser: false,
+          });
+        },
       });
-    }, 600);
   }
 }

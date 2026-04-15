@@ -314,5 +314,6 @@
   "ENABLE_ASSIGNMENT_USERS": "UPDATE ARFINRO.XXCFI_AR_DASHBOARD_LOOKUP\nSET ENABLED_FLAG = 'Y',\nEND_DATE_ACTIVE = NULL,\nLAST_UPDATED_BY = 1,\n LAST_UPDATE_DATE = SYSDATE\nWHERE LOOKUP_TYPE='USER_ASSIGNMENT'\n AND MEANING=?",
 
   "REDIS_HOST": "i2c-monitoring-redis-service.i2c-monitoring-redis-prod-int-rcdn.svc.cluster.local",
-  "CORS_URL": "http://localhost:3000"
+  "CORS_URL": "http://localhost:3000",
+  "AGENT_API_URL": "http://localhost:8000"
 }

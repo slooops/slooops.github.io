@@ -415,7 +415,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
-      subHeader: 'Continuous Monitoring > I2C Self-Healing Bot',
+      subHeader: 'Continuous Monitoring > Self-Healing Dashboard',
     },
   },
   {
