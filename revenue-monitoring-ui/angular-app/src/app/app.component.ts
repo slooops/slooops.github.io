@@ -130,6 +130,7 @@ export class AppComponent implements OnInit, OnDestroy {
   showNavMenu = false;
   isChatOpen = false;
   chatbotHidden = false;
+  controlTowerSupportAgentApiUrl: string = '';
 
   /**
    * Determine the default route based on user roles
@@ -232,6 +233,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.userName = this.authService.getUserName();
     this.userRoles = this.authService.getRoles();
     this.isAdmin$ = this.userRoles.includes('ADMIN');
+    this.controlTowerSupportAgentApiUrl =
+      this.authService.getControlTowerSupportAgentApiUrl() || '';
     this.searchContextService.o2cSearchVisible$.subscribe((isVisible) => {
       this.showO2cSearch = isVisible;
     });

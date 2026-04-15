@@ -30,6 +30,7 @@ import {
 export class ChatbotComponent implements OnInit, OnChanges, AfterViewChecked {
   @Input() currentRoute: string = '';
   @Input() isOpen: boolean = false;
+  @Input() apiUrl: string = '';
   @Output() togglePanel = new EventEmitter<void>();
 
   userName: string = '';
@@ -121,14 +122,11 @@ export class ChatbotComponent implements OnInit, OnChanges, AfterViewChecked {
     this.isLoading = true;
 
     this.httpClient
-      .post<{ response: string }>(
-        'http://localhost:8000/control-tower-ui-chat',
-        {
-          userName: this.userEmail,
-          userEmail: this.userEmail.toLowerCase() + '@cisco.com',
-          message,
-        },
-      )
+      .post<{ response: string }>(`${this.apiUrl}/control-tower-ui-chat`, {
+        userName: this.userEmail,
+        userEmail: this.userEmail.toLowerCase() + '@cisco.com',
+        message,
+      })
       .subscribe({
         next: (res) => {
           this.isLoading = false;

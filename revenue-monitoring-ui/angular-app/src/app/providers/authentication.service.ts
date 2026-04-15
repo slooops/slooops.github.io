@@ -128,6 +128,7 @@ export class AuthenticationService {
   authClientId: string;
   authClientSecret: string;
   authUrl: string;
+  controlTowerSupportAgentApiUrl: string;
   bypassRoutes = ['/ai-in-sdlc', '/sprint-updates', '/caseiq'];
   async getUserId() {
     return fetch('/user/name')
@@ -138,6 +139,8 @@ export class AuthenticationService {
         this.authClientId = info['auth_client_id'];
         this.authClientSecret = info['auth_client_secret'];
         this.authUrl = info['auth_url'];
+        this.controlTowerSupportAgentApiUrl =
+          info['control_tower_support_agent_api_url'];
       })
       .catch((error) => {
         console.error('Error fetching user info:', error);
@@ -159,6 +162,10 @@ export class AuthenticationService {
 
   getHostUrl() {
     return this.authUrl;
+  }
+
+  getControlTowerSupportAgentApiUrl() {
+    return this.controlTowerSupportAgentApiUrl;
   }
 
   userRoles: string[] = [];

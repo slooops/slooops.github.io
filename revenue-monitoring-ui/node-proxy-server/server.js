@@ -11,6 +11,8 @@ const authClientSecret =
 const authUrl = process.env.AUTH_URL || "http://localhost:8080/api/";
 const o2cRedirectTarget =
   process.env.O2C_REDIRECT_TARGET || "http://localhost:3500";
+const CONTROL_TOWER_SUPPORT_AGENT_API_URL =
+  process.env.CONTROL_TOWER_SUPPORT_AGENT_API_URL || "http://localhost:8000";
 
 app.use(express.json());
 
@@ -30,6 +32,7 @@ app.get("/user/name", (req, res) => {
     auth_client_id: authClientId,
     auth_client_secret: authClientSecret,
     auth_url: authUrl,
+    control_tower_support_agent_api_url: CONTROL_TOWER_SUPPORT_AGENT_API_URL,
   });
 });
 
