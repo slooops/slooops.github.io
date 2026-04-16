@@ -364,6 +364,7 @@
             <thead>
               <tr>
                 <th>Team</th>
+                <th>Total</th>
                 <th>Errors</th>
                 <th>Warnings</th>
                 <th>Success Rate</th>
@@ -374,6 +375,9 @@
                 <tr>
                   <td>
                     <strong>{{ row.TEAM_NAME || "N/A" }}</strong>
+                  </td>
+                  <td>
+                    {{ (row.UNIQUE_INCIDENTS || 0).toLocaleString() }}
                   </td>
                   <td class="ciq-text-red">
                     {{ (row.ERRORS || 0).toLocaleString() }}
@@ -392,7 +396,7 @@
               }
               @if (teamTableData.length === 0) {
                 <tr>
-                  <td colspan="4" class="ciq-no-data">
+                  <td colspan="5" class="ciq-no-data">
                     No data in the selected period
                   </td>
                 </tr>
@@ -410,6 +414,35 @@
             <ng-icon name="phosphorSirenDuotone" size="20" />
           </div>
           <span>Error Incidents</span>
+          <div class="ciq-header-filters">
+            <select
+              [(ngModel)]="errorFilterTeam"
+              (ngModelChange)="applyErrorFilters()"
+              class="ciq-filter-select"
+            >
+              <option value="">All Teams</option>
+              @for (t of errorTeamOptions; track t) {
+                <option [value]="t">{{ t }}</option>
+              }
+            </select>
+            <select
+              [(ngModel)]="errorFilterIssue"
+              (ngModelChange)="applyErrorFilters()"
+              class="ciq-filter-select"
+            >
+              <option value="">All Issues</option>
+              @for (i of errorIssueOptions; track i) {
+                <option [value]="i">{{ i }}</option>
+              }
+            </select>
+            <button
+              class="ciq-download-btn"
+              (click)="downloadErrorCsv()"
+              title="Download CSV"
+            >
+              ↓ CSV
+            </button>
+          </div>
         </div>
         <div class="ciq-table-scroll">
           <table class="ciq-table">

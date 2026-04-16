@@ -344,6 +344,66 @@ h6 {
   font-size: 0.85rem;
 }
 
+/* ── Inline header filters ───────────────────────────────────── */
+.ciq-header-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.ciq-filter-select {
+  padding: 4px 8px;
+  font-size: 11px;
+  border: 1px solid var(--ciq-border);
+  border-radius: 6px;
+  background: var(--ciq-surface, #fff);
+  color: var(--ciq-text);
+  cursor: pointer;
+  outline: none;
+  max-width: 140px;
+}
+
+.ciq-filter-select:focus {
+  border-color: #0070d2;
+}
+
+:host(.dark-theme) .ciq-filter-select {
+  background: var(--ciq-surface, #1a2733);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.ciq-download-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--ciq-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ciq-text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--fit-transition-fast),
+    border-color var(--fit-transition-fast);
+}
+
+.ciq-download-btn:hover {
+  background: rgba(0, 112, 210, 0.08);
+  border-color: #0070d2;
+  color: #0070d2;
+}
+
+:host(.dark-theme) .ciq-download-btn {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+:host(.dark-theme) .ciq-download-btn:hover {
+  background: rgba(0, 188, 235, 0.12);
+  border-color: #00bceb;
+  color: #00bceb;
+}
+
 :host(.dark-theme) .ciq-card-header {
   background: transparent;
 }

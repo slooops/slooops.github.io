@@ -1,4 +1,10 @@
-import { Component, OnInit, OnDestroy, HostBinding, HostListener } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  HostBinding,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -159,6 +165,13 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   teamTableData: TeamSummary[] = [];
   errorTableData: ErrorCategory[] = [];
   anomalyTableData: AnomalyItem[] = [];
+  private allAnomalyRows: AnomalyItem[] = [];
+
+  // Error Incidents filters
+  errorFilterTeam = '';
+  errorFilterIssue = '';
+  errorTeamOptions: string[] = [];
+  errorIssueOptions: string[] = [];
 
   // Status color map — aligned with analytics palette
   statusColors: Record<string, string> = {
@@ -462,7 +475,64 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     rows.sort((a, b) =>
       (b.CASEIQ_RUN_DATE || '').localeCompare(a.CASEIQ_RUN_DATE || ''),
     );
-    this.anomalyTableData = rows.slice(0, 30);
+    this.allAnomalyRows = rows;
+    this.errorTeamOptions = [
+      ...new Set(rows.map((r) => r.TEAM_NAME || 'N/A')),
+    ].sort();
+    this.errorIssueOptions = [
+      ...new Set(rows.map((r) => r.anomalyLabel || '').filter(Boolean)),
+    ].sort();
+    this.errorFilterTeam = '';
+    this.errorFilterIssue = '';
+    this.applyErrorFilters();
+  }
+
+  applyErrorFilters(): void {
+    let filtered = this.allAnomalyRows;
+    if (this.errorFilterTeam) {
+      filtered = filtered.filter(
+        (r) => (r.TEAM_NAME || 'N/A') === this.errorFilterTeam,
+      );
+    }
+    if (this.errorFilterIssue) {
+      filtered = filtered.filter(
+        (r) => r.anomalyLabel === this.errorFilterIssue,
+      );
+    }
+    this.anomalyTableData = filtered.slice(0, 50);
+  }
+
+  downloadErrorCsv(): void {
+    const headers = [
+      'Incident',
+      'Team',
+      'Category',
+      'Core Issue',
+      'LLM Summary',
+      'Issue Description',
+      'Run Date',
+    ];
+    const rows = this.anomalyTableData.map((r) =>
+      [
+        r.INCIDENT_NUMBER || '',
+        r.TEAM_NAME || '',
+        r.CATEGORY || '',
+        r.CORE_ISSUE || '',
+        r.LLM_SUMMARY || '',
+        r.anomalyLabel || r.ANOMALY_TYPE || '',
+        r.CASEIQ_RUN_DATE || '',
+      ]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(','),
+    );
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `error_incidents_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   showTooltip(event: MouseEvent, pt: { label: string; value: number }): void {

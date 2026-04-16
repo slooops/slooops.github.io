@@ -260,7 +260,7 @@ public class CaseIQMonitoringService {
             "  OR REGEXP_LIKE(llm_summary, '(Error in analysis|Exception in analysis|Traceback|\\w+(Error|Exception)\\b)', 'i') "
             +
             "THEN 1 END) AS exceptions, " +
-            "COUNT(CASE WHEN resolution_api_status IN ('ERROR','FAILURE','Unknown') " +
+            "COUNT(CASE WHEN resolution_api_status NOT IN ('SUCCESS','NOT_SUPPORTED','PARTIAL SUCCESS') " +
             "  OR resolution_api_status IS NULL THEN 1 END) AS resolution_failures " +
             "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
             "WHERE is_active = 'TRUE' " +
@@ -296,7 +296,7 @@ public class CaseIQMonitoringService {
                         +
                         "  OR REGEXP_LIKE(llm_summary, '(Error in analysis|Exception in analysis|Traceback|\\w+(Error|Exception)\\b)', 'i')) ");
         ISSUE_CONDITIONS.put("RESOLUTION_FAILURES",
-                "AND (resolution_api_status IN ('ERROR','FAILURE','Unknown') " +
+                "AND (resolution_api_status NOT IN ('SUCCESS','NOT_SUPPORTED','PARTIAL SUCCESS') " +
                         "     OR resolution_api_status IS NULL) ");
     }
 
