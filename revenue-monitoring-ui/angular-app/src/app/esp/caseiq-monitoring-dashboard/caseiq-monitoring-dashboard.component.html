@@ -302,7 +302,7 @@
               </div>
             }
           } @else {
-            <div class="ciq-no-data">No data</div>
+            <div class="ciq-no-data">No data in the selected period</div>
           }
         </div>
       </div>
@@ -319,23 +319,34 @@
         <div class="ciq-anomaly-list">
           @for (a of anomalyBreakdown; track a.name) {
             <div class="ciq-anomaly-item">
-              <span class="ciq-anomaly-name">{{ a.name }}</span>
               <span class="ciq-badge" [ngClass]="severityClass(a.severity)">{{
                 a.severity | uppercase
               }}</span>
+              <span class="ciq-anomaly-name">{{ a.name }}</span>
               <span
                 class="ciq-anomaly-count"
                 [style.color]="countColor(a.severity)"
                 >{{ a.count }}</span
               >
+              <span class="ciq-team-chips">
+                @for (chip of getTeamChips(a.issueKey || ""); track chip.team) {
+                  <button
+                    class="ciq-team-chip"
+                    [ngClass]="'ciq-team-chip--' + a.severity"
+                    (click)="openDrilldown(chip.team, a.issueKey || '', a.name)"
+                  >
+                    {{ chip.team }} <strong>{{ chip.count }}</strong>
+                  </button>
+                }
+              </span>
             </div>
           }
           @if (anomalyBreakdown.length === 0) {
-            <div class="ciq-no-data">No anomalies in selected period</div>
+            <div class="ciq-no-data">No issues in selected period</div>
           }
         </div>
         <p class="ciq-anomaly-disclaimer">
-          * An incident may appear in multiple categories
+          * Click any team chip to view quarterly occurrence trend
         </p>
       </div>
     </ng-template>
@@ -353,10 +364,9 @@
             <thead>
               <tr>
                 <th>Team</th>
-                <th>Incidents</th>
-                <th>Success</th>
                 <th>Errors</th>
-                <th>Rate</th>
+                <th>Warnings</th>
+                <th>Success Rate</th>
               </tr>
             </thead>
             <tbody>
@@ -365,12 +375,15 @@
                   <td>
                     <strong>{{ row.TEAM_NAME || "N/A" }}</strong>
                   </td>
-                  <td>{{ (row.UNIQUE_INCIDENTS || 0).toLocaleString() }}</td>
-                  <td class="ciq-text-green">
-                    {{ (row.SUCCESS || 0).toLocaleString() }}
-                  </td>
                   <td class="ciq-text-red">
                     {{ (row.ERRORS || 0).toLocaleString() }}
+                  </td>
+                  <td class="ciq-text-warning">
+                    {{
+                      (
+                        (row.PARTIAL || 0) + (row.NOT_SUPPORTED || 0)
+                      ).toLocaleString()
+                    }}
                   </td>
                   <td>
                     <strong>{{ row.SUCCESS_RATE_PCT || 0 }}%</strong>
@@ -379,7 +392,9 @@
               }
               @if (teamTableData.length === 0) {
                 <tr>
-                  <td colspan="5" class="ciq-no-data">No data</td>
+                  <td colspan="4" class="ciq-no-data">
+                    No data in the selected period
+                  </td>
                 </tr>
               }
             </tbody>
@@ -402,6 +417,9 @@
               <tr>
                 <th>Incident</th>
                 <th>Team</th>
+                <th>Category</th>
+                <th>Core Issue</th>
+                <th>LLM Summary</th>
                 <th>Issue Description</th>
                 <th>Run Date</th>
               </tr>
@@ -411,6 +429,9 @@
                 <tr>
                   <td class="ciq-mono">{{ row.INCIDENT_NUMBER || "N/A" }}</td>
                   <td>{{ row.TEAM_NAME || "N/A" }}</td>
+                  <td>{{ row.CATEGORY || "—" }}</td>
+                  <td class="ciq-text-sm">{{ row.CORE_ISSUE || "—" }}</td>
+                  <td class="ciq-text-sm">{{ row.LLM_SUMMARY || "—" }}</td>
                   <td>
                     <span class="ciq-badge badge-critical">{{
                       (row.anomalyLabel || row.ANOMALY_TYPE || "") ===
@@ -426,7 +447,9 @@
               }
               @if (anomalyTableData.length === 0) {
                 <tr>
-                  <td colspan="4" class="ciq-no-data">No anomalies detected</td>
+                  <td colspan="7" class="ciq-no-data">
+                    No errors detected in this period
+                  </td>
                 </tr>
               }
             </tbody>
@@ -436,5 +459,40 @@
     </ng-template>
 
     <div class="ciq-last-updated">Last updated: {{ lastUpdated }}</div>
+  }
+
+  <!-- Drilldown Modal -->
+  @if (drilldownOpen) {
+    <div class="ciq-modal-backdrop" (click)="closeDrilldown()">
+      <div
+        class="ciq-modal"
+        role="dialog"
+        aria-modal="true"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="ciq-modal__header">
+          <h3 class="ciq-modal__title">{{ drilldownTitle }}</h3>
+          <button
+            class="ciq-modal__close"
+            (click)="closeDrilldown()"
+            aria-label="Close modal"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="ciq-modal__body">
+          @if (drilldownPoints.length) {
+            <app-line-chart
+              [points]="drilldownPoints"
+              lineColor="#1565c0"
+              fillColor="#1565c0"
+              [formatLabel]="formatShortDate"
+            />
+          } @else {
+            <div class="ciq-no-data">Loading trend data…</div>
+          }
+        </div>
+      </div>
+    </div>
   }
 </div>

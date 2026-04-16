@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostBinding } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -31,12 +31,20 @@ import {
   TeamSummary,
   ThroughputEntry,
   ErrorCategory,
+  TeamIssueMatrixEntry,
 } from './caseiq-monitoring.models';
+import { LineChartComponent } from './line-chart/line-chart.component';
 
 @Component({
   selector: 'app-caseiq-monitoring-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgIcon, HealthRingComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgIcon,
+    HealthRingComponent,
+    LineChartComponent,
+  ],
   providers: [
     DestroyManager,
     provideIcons({
@@ -101,6 +109,12 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
 
   // Anomaly breakdown
   anomalyBreakdown: AnomalyBreakdownItem[] = [];
+  teamIssueMatrix: TeamIssueMatrixEntry[] = [];
+
+  // Drilldown modal
+  drilldownOpen = false;
+  drilldownTitle = '';
+  drilldownPoints: { label: string; value: number }[] = [];
 
   // Resolution status bars
   statusBars: {
@@ -212,8 +226,10 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       notDefined: this.dataService.getNotDefined(this.dm, lb, fq),
       nullStatus: this.dataService.getNullStatus(this.dm, lb, fq),
       exceptions: this.dataService.getExceptions(this.dm, lb, fq),
+      teamIssueMatrix: this.dataService.getTeamIssueMatrix(this.dm, lb, fq),
     }).subscribe({
       next: (data) => {
+        this.teamIssueMatrix = data.teamIssueMatrix || [];
         this.processHealth(data.health);
         this.processStatusBars(data.status);
         this.processTeamData(data.teamSummary);
@@ -300,16 +316,19 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
         name: 'SUCCESS but missing summary/context',
         count: h.GHOST_SUCCESS_CNT || 0,
         severity: 'critical',
+        issueKey: 'GHOST_SUCCESS',
       },
       {
         name: 'LLM Summary is "Not Defined"',
         count: h.NOT_DEFINED_CNT || 0,
         severity: 'warning',
+        issueKey: 'NOT_DEFINED',
       },
       {
         name: 'category or core_issue is NULL',
         count: h.NULL_CATEGORY_CNT || 0,
         severity: 'warning',
+        issueKey: 'NULL_CLASSIFICATION',
       },
       {
         name: 'team_name is "UNKNOWN"',
@@ -320,11 +339,13 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
         name: 'CaseIQ errored (category=ERROR or exception in fields)',
         count: h.EXCEPTION_CNT || 0,
         severity: 'critical',
+        issueKey: 'EXCEPTIONS',
       },
       {
         name: 'resolution_api_status is ERROR/FAILURE/Unknown/NULL',
         count: failCount,
         severity: 'critical',
+        issueKey: 'RESOLUTION_FAILURES',
       },
     ];
     this.anomalyBreakdown = allIssues.filter((a) => a.count > 0);
@@ -489,4 +510,47 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     if (!val) return 'N/A';
     return new Date(val).toLocaleString();
   }
+
+  getTeamChips(issueKey: string): { team: string; count: number }[] {
+    if (!issueKey || !this.teamIssueMatrix.length) return [];
+    return this.teamIssueMatrix
+      .map((entry) => ({
+        team: entry.TEAM_NAME,
+        count: (entry as unknown as Record<string, number>)[issueKey] || 0,
+      }))
+      .filter((c) => c.count > 0)
+      .sort((a, b) => b.count - a.count);
+  }
+
+  openDrilldown(team: string, issueType: string, issueLabel: string): void {
+    this.drilldownTitle = `${issueLabel} — ${team}`;
+    this.drilldownOpen = true;
+    this.drilldownPoints = [];
+    const fq = this.fiscQtr || undefined;
+    this.dataService.getIssueTrend(this.dm, team, issueType, fq).subscribe({
+      next: (data) => {
+        this.drilldownPoints = (data || []).map((d) => ({
+          label: d.WEEK_START,
+          value: d.ISSUE_COUNT,
+        }));
+      },
+    });
+  }
+
+  closeDrilldown(): void {
+    this.drilldownOpen = false;
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.drilldownOpen) this.closeDrilldown();
+  }
+
+  formatShortDate = (raw: string): string => {
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return raw;
+    const day = d.getUTCDate();
+    const mon = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+    return `${day} ${mon}`;
+  };
 }

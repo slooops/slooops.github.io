@@ -42,7 +42,7 @@
 }
 
 .meta-success {
-  color: #6ebe4a;
+  color: var(--ciq-muted, #6b7280);
   font-size: var(--fit-font-size-sm);
   font-weight: var(--fit-font-weight-medium);
 }

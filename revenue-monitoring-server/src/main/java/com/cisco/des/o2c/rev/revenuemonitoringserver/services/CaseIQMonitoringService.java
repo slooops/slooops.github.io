@@ -246,6 +246,60 @@ public class CaseIQMonitoringService {
             "ORDER BY error_count DESC " +
             "FETCH FIRST 20 ROWS ONLY";
 
+    private static final String TEAM_ISSUE_MATRIX = "SELECT team_name, " +
+            "COUNT(*) AS total, " +
+            "COUNT(CASE WHEN resolution_api_status = 'SUCCESS' " +
+            "  AND (context_extracted IS NULL OR resolution_api_summary IS NULL " +
+            "       OR LENGTH(resolution_api_summary) < 5) THEN 1 END) AS ghost_success, " +
+            "COUNT(CASE WHEN llm_summary = 'Not Defined' THEN 1 END) AS not_defined, " +
+            "COUNT(CASE WHEN (category IS NULL OR core_issue IS NULL) " +
+            "  AND case_analyzer_status != 'NEW' THEN 1 END) AS null_classification, " +
+            "COUNT(CASE WHEN UPPER(TRIM(category)) = 'ERROR' " +
+            "  OR REGEXP_LIKE(core_issue, '(Error in analysis|Exception in analysis|Traceback|\\w+(Error|Exception)\\b)', 'i') "
+            +
+            "  OR REGEXP_LIKE(llm_summary, '(Error in analysis|Exception in analysis|Traceback|\\w+(Error|Exception)\\b)', 'i') "
+            +
+            "THEN 1 END) AS exceptions, " +
+            "COUNT(CASE WHEN resolution_api_status IN ('ERROR','FAILURE','Unknown') " +
+            "  OR resolution_api_status IS NULL THEN 1 END) AS resolution_failures " +
+            "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+            "WHERE is_active = 'TRUE' " +
+            "AND team_name != 'UNKNOWN' " +
+            "AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " +
+            "GROUP BY team_name " +
+            "ORDER BY total DESC";
+
+    private static final String ISSUE_TREND_BASE = "SELECT " +
+            "TRUNC(caseiq_run_date, 'IW') AS week_start, " +
+            "COUNT(*) AS issue_count " +
+            "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+            "WHERE is_active = 'TRUE' " +
+            "AND team_name = :team_name " +
+            "AND caseiq_run_date >= SYSDATE - 84 ";
+    // Dynamic condition appended per issue type, then GROUP BY / ORDER BY
+
+    private static final Map<String, String> ISSUE_CONDITIONS;
+    static {
+        ISSUE_CONDITIONS = new LinkedHashMap<>();
+        ISSUE_CONDITIONS.put("GHOST_SUCCESS",
+                "AND resolution_api_status = 'SUCCESS' " +
+                        "AND (context_extracted IS NULL OR resolution_api_summary IS NULL " +
+                        "     OR LENGTH(resolution_api_summary) < 5) ");
+        ISSUE_CONDITIONS.put("NOT_DEFINED",
+                "AND llm_summary = 'Not Defined' ");
+        ISSUE_CONDITIONS.put("NULL_CLASSIFICATION",
+                "AND (category IS NULL OR core_issue IS NULL) " +
+                        "AND case_analyzer_status != 'NEW' ");
+        ISSUE_CONDITIONS.put("EXCEPTIONS",
+                "AND (UPPER(TRIM(category)) = 'ERROR' " +
+                        "  OR REGEXP_LIKE(core_issue, '(Error in analysis|Exception in analysis|Traceback|\\w+(Error|Exception)\\b)', 'i') "
+                        +
+                        "  OR REGEXP_LIKE(llm_summary, '(Error in analysis|Exception in analysis|Traceback|\\w+(Error|Exception)\\b)', 'i')) ");
+        ISSUE_CONDITIONS.put("RESOLUTION_FAILURES",
+                "AND (resolution_api_status IN ('ERROR','FAILURE','Unknown') " +
+                        "     OR resolution_api_status IS NULL) ");
+    }
+
     private static final String HEALTH_SCORE = "SELECT " +
             "COUNT(*) AS total_processed, " +
             "COUNT(CASE WHEN resolution_api_status = 'NOT_SUPPORTED' THEN 1 END) AS not_supported_cnt, " +
@@ -471,5 +525,30 @@ public class CaseIQMonitoringService {
 
     public List<Map<String, Object>> getTopErrors(int lookbackHours, String fiscQtr) {
         return runQuery(TOP_ERROR_CATEGORIES, buildParams("lookback_hours", lookbackHours), fiscQtr);
+    }
+
+    public List<Map<String, Object>> getTeamIssueMatrix(int lookbackHours, String fiscQtr) {
+        return runQuery(TEAM_ISSUE_MATRIX, buildParams("lookback_hours", lookbackHours), fiscQtr);
+    }
+
+    public List<Map<String, Object>> getIssueTrend(String teamName, String issueType, String fiscQtr) {
+        String condition = ISSUE_CONDITIONS.get(issueType);
+        if (condition == null) {
+            log.warn("[CaseIQ] Unknown issue type: {}", issueType);
+            return Collections.emptyList();
+        }
+        String sql = ISSUE_TREND_BASE + condition +
+                "GROUP BY TRUNC(caseiq_run_date, 'IW') " +
+                "ORDER BY week_start";
+        Map<String, Object> params = new HashMap<>();
+        params.put("team_name", teamName);
+
+        if (fiscQtr != null && !fiscQtr.isBlank()) {
+            sql = injectFiscQtr(sql);
+            params.put("fisc_qtr", fiscQtr);
+        }
+
+        log.info("[CaseIQ] getIssueTrend team={} issueType={}", teamName, issueType);
+        return jdbcManager.queryWithNamedParams(sql, params);
     }
 }

@@ -77,4 +77,20 @@ export interface AnomalyBreakdownItem {
   name: string;
   count: number;
   severity: 'critical' | 'warning' | 'ok';
+  issueKey?: string;
+}
+
+export interface TeamIssueMatrixEntry {
+  TEAM_NAME: string;
+  TOTAL: number;
+  GHOST_SUCCESS: number;
+  NOT_DEFINED: number;
+  NULL_CLASSIFICATION: number;
+  EXCEPTIONS: number;
+  RESOLUTION_FAILURES: number;
+}
+
+export interface IssueTrendEntry {
+  WEEK_START: string;
+  ISSUE_COUNT: number;
 }

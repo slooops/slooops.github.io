@@ -154,4 +154,19 @@ public class CaseIQMonitoringController {
             @RequestParam(required = false) String fiscQtr) {
         return new ResponseEntity<>(service.getTopErrors(lookbackHours, fiscQtr), HttpStatus.OK);
     }
+
+    @GetMapping("/anomalies/team-issue-matrix")
+    public ResponseEntity<List<Map<String, Object>>> teamIssueMatrix(
+            @RequestParam(defaultValue = "24") int lookbackHours,
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getTeamIssueMatrix(lookbackHours, fiscQtr), HttpStatus.OK);
+    }
+
+    @GetMapping("/anomalies/issue-trend")
+    public ResponseEntity<List<Map<String, Object>>> issueTrend(
+            @RequestParam String team,
+            @RequestParam String issueType,
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getIssueTrend(team, issueType, fiscQtr), HttpStatus.OK);
+    }
 }

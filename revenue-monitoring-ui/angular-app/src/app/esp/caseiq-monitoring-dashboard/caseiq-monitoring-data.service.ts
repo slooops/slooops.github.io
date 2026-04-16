@@ -10,6 +10,8 @@ import {
   TeamSummary,
   ThroughputEntry,
   ErrorCategory,
+  TeamIssueMatrixEntry,
+  IssueTrendEntry,
 } from './caseiq-monitoring.models';
 
 @Injectable({ providedIn: 'root' })
@@ -136,5 +138,31 @@ export class CaseiqMonitoringDataService {
         dm,
       )
       .pipe(map((res: any) => res as ErrorCategory[]));
+  }
+
+  getTeamIssueMatrix(
+    dm: DestroyManager,
+    lookbackHours: number,
+    fiscQtr?: string,
+  ): Observable<TeamIssueMatrixEntry[]> {
+    return this.http
+      .get(
+        `${this.base}/anomalies/team-issue-matrix?${this.qp(lookbackHours, fiscQtr)}`,
+        dm,
+      )
+      .pipe(map((res: any) => res as TeamIssueMatrixEntry[]));
+  }
+
+  getIssueTrend(
+    dm: DestroyManager,
+    team: string,
+    issueType: string,
+    fiscQtr?: string,
+  ): Observable<IssueTrendEntry[]> {
+    let q = `team=${encodeURIComponent(team)}&issueType=${encodeURIComponent(issueType)}`;
+    if (fiscQtr) q += `&fiscQtr=${fiscQtr}`;
+    return this.http
+      .get(`${this.base}/anomalies/issue-trend?${q}`, dm)
+      .pipe(map((res: any) => res as IssueTrendEntry[]));
   }
 }

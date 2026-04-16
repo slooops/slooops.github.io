@@ -1,0 +1,90 @@
+<svg
+  [attr.viewBox]="viewBox"
+  preserveAspectRatio="xMidYMid meet"
+  class="lc-svg"
+  (mouseleave)="hideTooltip()"
+>
+  <defs>
+    <linearGradient [attr.id]="gradientId" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" [attr.stop-color]="fillColor" stop-opacity="0.35" />
+      <stop offset="100%" [attr.stop-color]="fillColor" stop-opacity="0.03" />
+    </linearGradient>
+  </defs>
+
+  <!-- Y-axis gridlines -->
+  @for (tick of yTicks; track tick.value) {
+    <line
+      [attr.x1]="pad"
+      [attr.x2]="svgW - pad"
+      [attr.y1]="tick.y"
+      [attr.y2]="tick.y"
+      class="lc-grid"
+    />
+    <text [attr.x]="pad - 4" [attr.y]="tick.y + 3" class="lc-y-label">
+      {{ tick.value }}
+    </text>
+  }
+
+  <!-- Gradient area -->
+  @if (areaPath) {
+    <path [attr.d]="areaPath" [attr.fill]="'url(#' + gradientId + ')'" />
+  }
+
+  <!-- Line -->
+  @if (linePath) {
+    <path
+      [attr.d]="linePath"
+      fill="none"
+      [attr.stroke]="lineColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  }
+
+  <!-- Dots + hover targets -->
+  @for (dot of dots; track $index) {
+    <circle
+      [attr.cx]="dot.x"
+      [attr.cy]="dot.y"
+      r="3"
+      [attr.fill]="lineColor"
+      class="lc-dot"
+    />
+    <circle
+      [attr.cx]="dot.x"
+      [attr.cy]="dot.y"
+      r="12"
+      fill="transparent"
+      class="lc-hit"
+      (mouseenter)="showTooltip($event, dot)"
+      (mousemove)="showTooltip($event, dot)"
+      (mouseleave)="hideTooltip()"
+    />
+  }
+
+  <!-- X-axis labels -->
+  @for (dot of dots; track $index) {
+    @if (shouldShowLabel($index)) {
+      <text
+        [attr.x]="dot.x"
+        [attr.y]="chartTop + chartH + 28"
+        class="lc-x-label"
+      >
+        {{ dot.label }}
+      </text>
+    }
+  }
+</svg>
+
+<!-- Tooltip -->
+@if (tooltipVisible) {
+  <div
+    class="lc-tooltip"
+    [style.left.px]="tooltipX"
+    [style.top.px]="tooltipY"
+  >
+    <span class="lc-tooltip-value">{{ tooltipValue }}</span>
+    <span class="lc-tooltip-label">{{ tooltipLabel }}</span>
+  </div>
+}
