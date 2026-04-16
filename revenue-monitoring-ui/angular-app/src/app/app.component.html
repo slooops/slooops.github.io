@@ -338,6 +338,26 @@
                     </div>
                     @if (showEspMenu) {
                       @if (
+                        hasRole$(["ADMIN", "CASE_IQ_MONITORING"]) || isAdmin$
+                      ) {
+                        <div
+                          class="toolbar-nav-dropdown-item toolbar-nav-subitem"
+                          [class.active]="
+                            router.url.includes('/caseiq-monitoring')
+                          "
+                          (click)="navigateTo('/caseiq-monitoring')"
+                        >
+                          <ng-icon
+                            name="phosphorHeartbeatBold"
+                            class="nav-item-icon"
+                          />
+                          <span class="toolbar-nav-dropdown-item-name"
+                            >&nbsp;CaseIQ Monitoring</span
+                          >
+                        </div>
+                      }
+
+                      @if (
                         hasRole$([
                           "CASE_IQ_MANAGER",
                           "CASE_IQ_OM",
@@ -394,25 +414,6 @@
                           />
                           <span class="toolbar-nav-dropdown-item-name"
                             >&nbsp;SBP</span
-                          >
-                        </div>
-                      }
-                      @if (
-                        hasRole$(["ADMIN", "CASE_IQ_MONITORING"]) || isAdmin$
-                      ) {
-                        <div
-                          class="toolbar-nav-dropdown-item toolbar-nav-subitem"
-                          [class.active]="
-                            router.url.includes('/caseiq-monitoring')
-                          "
-                          (click)="navigateTo('/caseiq-monitoring')"
-                        >
-                          <ng-icon
-                            name="phosphorHeartbeatBold"
-                            class="nav-item-icon"
-                          />
-                          <span class="toolbar-nav-dropdown-item-name"
-                            >&nbsp;CaseIQ Monitoring</span
                           >
                         </div>
                       }

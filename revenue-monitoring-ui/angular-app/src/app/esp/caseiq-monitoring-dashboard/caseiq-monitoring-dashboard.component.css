@@ -136,6 +136,22 @@ h6 {
   color: var(--ciq-cyan);
 }
 
+.ciq-period-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--ciq-muted);
+}
+
+.ciq-period-info b {
+  color: var(--ciq-text);
+}
+
+.ciq-period-divider {
+  opacity: 0.35;
+}
+
 .ciq-header-controls {
   display: flex;
   gap: 10px;

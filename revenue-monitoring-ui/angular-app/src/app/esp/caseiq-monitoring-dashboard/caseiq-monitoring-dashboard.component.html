@@ -1,9 +1,14 @@
 <div class="ciq-dashboard">
   <!-- ── Header ── -->
   <div class="ciq-header">
-    <h1 class="ciq-title">
-      <span class="ciq-accent">CaseIQ</span> Monitoring Dashboard
-    </h1>
+    <h1 class="ciq-title"><span class="ciq-accent">CaseIQ</span> Monitoring</h1>
+    @if (periodStatus) {
+      <div class="ciq-period-info">
+        <span><b>Period name:</b> {{ periodStatus.periodName }}</span>
+        <span class="ciq-period-divider">|</span>
+        <span><b>Period end date:</b> {{ periodStatus.periodEndDate }}</span>
+      </div>
+    }
     <div class="ciq-header-controls">
       <select
         [(ngModel)]="fiscQtr"
@@ -103,7 +108,7 @@
             <ng-icon name="phosphorClockCountdownDuotone" size="26" />
           </div>
           <div class="ciq-kpi-content">
-            <div class="ciq-kpi-label">Last Run (min ago)</div>
+            <div class="ciq-kpi-label">Last Run (min)</div>
             <div class="ciq-kpi-value">{{ kpiStaleness }}</div>
           </div>
         </div>
@@ -323,11 +328,6 @@
                 a.severity | uppercase
               }}</span>
               <span class="ciq-anomaly-name">{{ a.name }}</span>
-              <span
-                class="ciq-anomaly-count"
-                [style.color]="countColor(a.severity)"
-                >{{ a.count }}</span
-              >
               <span class="ciq-team-chips">
                 @for (chip of getTeamChips(a.issueKey || ""); track chip.team) {
                   <button
@@ -339,6 +339,11 @@
                   </button>
                 }
               </span>
+              <span
+                class="ciq-anomaly-count"
+                [style.color]="countColor(a.severity)"
+                >{{ a.count }}</span
+              >
             </div>
           }
           @if (anomalyBreakdown.length === 0) {

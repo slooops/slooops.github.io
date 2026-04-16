@@ -27,6 +27,7 @@ import {
 import { forkJoin, interval, Subscription } from 'rxjs';
 
 import { DestroyManager } from '../../providers/destroy-manager.service';
+import { DataService, PeriodStatus } from '../../providers/data.service';
 import { CaseiqMonitoringDataService } from './caseiq-monitoring-data.service';
 import { HealthRingComponent } from './health-ring/health-ring.component';
 import {
@@ -86,6 +87,9 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     { value: 168, label: 'Last 7 days' },
   ];
   fiscQtrOptions = ['', 'Q1FY26', 'Q2FY26', 'Q3FY26'];
+
+  // Period info (from shared DataService)
+  periodStatus: PeriodStatus | null = null;
 
   // State
   loading = true;
@@ -201,10 +205,17 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     private dataService: CaseiqMonitoringDataService,
+    private sharedDataService: DataService,
     private dm: DestroyManager,
   ) {}
 
   ngOnInit(): void {
+    this.sharedDataService.loadPeriodStatus(this.dm);
+    this.sharedDataService.periodStatus$.subscribe((status) => {
+      if (status) {
+        this.periodStatus = { ...status, lastUpdated: new Date().toLocaleString() };
+      }
+    });
     this.refreshAll();
     this.refreshSub = interval(60000).subscribe(() => this.refreshAll());
   }
