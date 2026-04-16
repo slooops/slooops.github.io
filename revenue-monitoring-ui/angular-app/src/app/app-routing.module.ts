@@ -22,6 +22,7 @@ import { AitComponent } from './ait/ait.component';
 import { SdlcExecHistoryComponent } from './sdlc-updates/sdlc-exec-history/sdlc-exec-history.component';
 import { SdlcAdoptHistoryComponent } from './sdlc-updates/sdlc-adopt-history/sdlc-adopt-history.component';
 import { CaseiqMonitoringDashboardComponent } from './esp/caseiq-monitoring-dashboard/caseiq-monitoring-dashboard.component';
+import { CtmAlertsDashboardComponent } from './ctm-alerts/ctm-alerts-dashboard.component';
 import { ExecutiveSummaryComponent } from './executive-summary/executive-summary.component';
 import { ScorecardArchiveComponent } from './scorecard/scorecard-archive/scorecard-archive.component';
 import { ExecutiveSummaryArchiveComponent } from './executive-summary/executive-summary-archive/executive-summary-archive.component';
@@ -425,6 +426,15 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'ESP Case Manager > Case IQ',
+    },
+  },
+  {
+    path: 'ctm-alerts',
+    component: CtmAlertsDashboardComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'CTM AI Alerts Dashboard',
     },
   },
 ];

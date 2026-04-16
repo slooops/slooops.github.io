@@ -51,6 +51,7 @@ import {
   phosphorArrowRightBold,
   phosphorMagnifyingGlassBold,
   phosphorCaretDownBold,
+  phosphorTerminalWindowBold,
 } from '@ng-icons/phosphor-icons/bold';
 
 @Component({
@@ -91,6 +92,7 @@ import {
       phosphorArrowRightBold,
       phosphorMagnifyingGlassBold,
       phosphorCaretDownBold,
+      phosphorTerminalWindowBold,
     }),
   ],
   imports: [

@@ -452,6 +452,22 @@
                       >
                     </div>
                   }
+
+                  @if (isAdmin$) {
+                    <div
+                      class="toolbar-nav-dropdown-item"
+                      [class.active]="router.url.includes('/ctm-alerts')"
+                      (click)="navigateTo('/ctm-alerts')"
+                    >
+                      <ng-icon
+                        name="phosphorTerminalWindowBold"
+                        class="nav-item-icon"
+                      />
+                      <span class="toolbar-nav-dropdown-item-name"
+                        >&nbsp;CTM Alerts</span
+                      >
+                    </div>
+                  }
                 </div>
               }
             </div>
