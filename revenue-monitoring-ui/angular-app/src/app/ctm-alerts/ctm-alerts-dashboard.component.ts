@@ -232,6 +232,8 @@ export class CtmAlertsDashboardComponent
         this.processAlerts(data.alerts);
         this.loading = false;
         this.lastUpdated = new Date().toLocaleString();
+        // Render donuts after Angular updates the DOM (canvas must exist)
+        setTimeout(() => this.renderAllDonuts());
       },
       error: () => {
         this.loading = false;
@@ -262,13 +264,6 @@ export class CtmAlertsDashboardComponent
         (d) => this.alertTypeColors[d.ALERT_TYPE || ''] || '#888',
       ),
     };
-    this.renderDonut(
-      'alertTypeCanvas',
-      this.alertTypeData,
-      this.alertTypeTotal,
-      'alerts',
-      'alertType',
-    );
   }
 
   private processPriorityDonut(data: CtmDistribution[]): void {
@@ -280,6 +275,16 @@ export class CtmAlertsDashboardComponent
         (d) => this.priorityColors[d.PRIORITY_LEVEL || 'None'] || '#888',
       ),
     };
+  }
+
+  private renderAllDonuts(): void {
+    this.renderDonut(
+      'alertTypeCanvas',
+      this.alertTypeData,
+      this.alertTypeTotal,
+      'alerts',
+      'alertType',
+    );
     this.renderDonut(
       'priorityCanvas',
       this.priorityData,

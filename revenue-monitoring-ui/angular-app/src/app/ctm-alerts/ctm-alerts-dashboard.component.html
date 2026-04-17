@@ -178,7 +178,7 @@
           <span>Top Downstream Blocked</span>
         </div>
         <div class="ctm-bar-chart">
-          @for (bar of downstreamBars; track bar.label) {
+          @for (bar of downstreamBars; track $index) {
             <div class="ctm-bar-row">
               <span class="ctm-bar-label" [title]="bar.label">{{
                 bar.label
