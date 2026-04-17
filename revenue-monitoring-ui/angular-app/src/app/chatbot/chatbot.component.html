@@ -11,7 +11,25 @@
 
 <!-- Expanded panel -->
 @if (isOpen) {
-  <div class="chat-panel">
+  <div
+    class="chat-panel"
+    [style.width.px]="panelWidth"
+    [style.height.px]="panelHeight"
+  >
+    <!-- Resize handles -->
+    <div
+      class="resize-handle resize-left"
+      (mousedown)="onResizeStart($event, 'left')"
+    ></div>
+    <div
+      class="resize-handle resize-top"
+      (mousedown)="onResizeStart($event, 'top')"
+    ></div>
+    <div
+      class="resize-handle resize-top-left"
+      (mousedown)="onResizeStart($event, 'top-left')"
+    ></div>
+
     <!-- Header -->
     <div class="chat-header">
       <div class="chat-header-left">

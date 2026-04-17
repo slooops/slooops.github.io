@@ -9,6 +9,9 @@ import {
   AfterViewChecked,
   Output,
   EventEmitter,
+  OnDestroy,
+  HostListener,
+  NgZone,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -27,7 +30,9 @@ import {
   imports: [CommonModule, FormsModule],
   standalone: true,
 })
-export class ChatbotComponent implements OnInit, OnChanges, AfterViewChecked {
+export class ChatbotComponent
+  implements OnInit, OnChanges, AfterViewChecked, OnDestroy
+{
   @Input() currentRoute: string = '';
   @Input() isOpen: boolean = false;
   @Input() apiUrl: string = '';
@@ -42,16 +47,39 @@ export class ChatbotComponent implements OnInit, OnChanges, AfterViewChecked {
 
   isLoading: boolean = false;
 
+  /* ── Resize state ── */
+  panelWidth = 380;
+  panelHeight = 560;
+  private readonly MIN_WIDTH = 320;
+  private readonly MAX_WIDTH = 700;
+  private readonly MIN_HEIGHT = 400;
+  private readonly MAX_HEIGHT = Math.max(window.innerHeight - 60, 500);
+
+  private isResizing = false;
+  private resizeEdge: 'left' | 'top' | 'top-left' = 'left';
+  private startX = 0;
+  private startY = 0;
+  private startW = 0;
+  private startH = 0;
+
+  private boundMouseMove = this.onResizeMove.bind(this);
+  private boundMouseUp = this.onResizeEnd.bind(this);
+
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
 
   constructor(
     private authService: AuthenticationService,
     private httpClient: HttpClient,
+    private ngZone: NgZone,
   ) {}
 
   ngOnInit(): void {
     this.userName = this.authService.getUserName();
     this.userEmail = this.authService.getUserID();
+  }
+
+  ngOnDestroy(): void {
+    this.cleanupResizeListeners();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -144,5 +172,79 @@ export class ChatbotComponent implements OnInit, OnChanges, AfterViewChecked {
           });
         },
       });
+  }
+
+  /* ── Resize logic ── */
+  onResizeStart(event: MouseEvent, edge: 'left' | 'top' | 'top-left'): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isResizing = true;
+    this.resizeEdge = edge;
+    this.startX = event.clientX;
+    this.startY = event.clientY;
+    this.startW = this.panelWidth;
+    this.startH = this.panelHeight;
+
+    // Attach listeners outside Angular zone for performance
+    this.ngZone.runOutsideAngular(() => {
+      document.addEventListener('mousemove', this.boundMouseMove);
+      document.addEventListener('mouseup', this.boundMouseUp);
+    });
+
+    document.body.style.cursor = this.getCursorForEdge(edge);
+    document.body.style.userSelect = 'none';
+  }
+
+  private onResizeMove(event: MouseEvent): void {
+    if (!this.isResizing) return;
+
+    const dx = this.startX - event.clientX; // inverted: dragging left increases width
+    const dy = this.startY - event.clientY; // inverted: dragging up increases height
+
+    let newW = this.startW;
+    let newH = this.startH;
+
+    if (this.resizeEdge === 'left' || this.resizeEdge === 'top-left') {
+      newW = Math.min(
+        this.MAX_WIDTH,
+        Math.max(this.MIN_WIDTH, this.startW + dx),
+      );
+    }
+    if (this.resizeEdge === 'top' || this.resizeEdge === 'top-left') {
+      newH = Math.min(
+        this.MAX_HEIGHT,
+        Math.max(this.MIN_HEIGHT, this.startH + dy),
+      );
+    }
+
+    this.ngZone.run(() => {
+      this.panelWidth = newW;
+      this.panelHeight = newH;
+    });
+  }
+
+  private onResizeEnd(): void {
+    this.isResizing = false;
+    this.cleanupResizeListeners();
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }
+
+  private cleanupResizeListeners(): void {
+    document.removeEventListener('mousemove', this.boundMouseMove);
+    document.removeEventListener('mouseup', this.boundMouseUp);
+  }
+
+  private getCursorForEdge(edge: string): string {
+    switch (edge) {
+      case 'left':
+        return 'ew-resize';
+      case 'top':
+        return 'ns-resize';
+      case 'top-left':
+        return 'nwse-resize';
+      default:
+        return 'default';
+    }
   }
 }
