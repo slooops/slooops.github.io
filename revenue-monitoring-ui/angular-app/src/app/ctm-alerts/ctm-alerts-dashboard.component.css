@@ -531,9 +531,10 @@ h6 {
 
 .ctm-donut-legend {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px 14px;
   font-size: 12px;
+  justify-content: center;
 }
 
 .ctm-legend-item {
@@ -736,7 +737,7 @@ h6 {
 }
 
 .ctm-filter-input {
-  padding: 4px 8px;
+  padding: 5px 8px;
   font-size: 11px;
   border: 1px solid var(--ctm-border);
   border-radius: 6px;
@@ -744,6 +745,7 @@ h6 {
   color: var(--ctm-text);
   outline: none;
   max-width: 160px;
+  line-height: normal;
 }
 
 .ctm-filter-input:focus {
