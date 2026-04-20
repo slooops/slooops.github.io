@@ -333,7 +333,14 @@
                   <button
                     class="ciq-team-chip"
                     [ngClass]="'ciq-team-chip--' + a.severity"
-                    (click)="openDrilldown(chip.team, a.issueKey || '', a.name)"
+                    (click)="
+                      openDrilldown(
+                        chip.team,
+                        a.issueKey || '',
+                        a.name,
+                        chip.rawTeam
+                      )
+                    "
                   >
                     {{ chip.team }} <strong>{{ chip.count }}</strong>
                   </button>
@@ -388,11 +395,7 @@
                     {{ (row.ERRORS || 0).toLocaleString() }}
                   </td>
                   <td class="ciq-text-warning">
-                    {{
-                      (
-                        (row.PARTIAL || 0) + (row.NOT_SUPPORTED || 0)
-                      ).toLocaleString()
-                    }}
+                    {{ (row.WARNINGS || 0).toLocaleString() }}
                   </td>
                   <td>
                     <strong>{{ row.SUCCESS_RATE_PCT || 0 }}%</strong>
@@ -449,7 +452,7 @@
             </button>
           </div>
         </div>
-        <div class="ciq-table-scroll">
+        <div class="ciq-table-scroll ciq-table-scroll--no-max">
           <table class="ciq-table">
             <thead>
               <tr>
@@ -493,6 +496,40 @@
             </tbody>
           </table>
         </div>
+        <!-- Pagination -->
+        <div class="ciq-pagination">
+          <span
+            >{{ errorPageStart }}–{{ errorPageEnd }} of
+            {{ errorFilteredRows.length }} incidents</span
+          >
+          <div class="ciq-pagination-controls">
+            <select
+              [ngModel]="errorPageSize"
+              (ngModelChange)="errorChangePageSize($event)"
+              class="ciq-filter-select"
+            >
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+              <option [ngValue]="100">100</option>
+            </select>
+            <button
+              class="ciq-pg-btn"
+              (click)="errorChangePage(-1)"
+              [disabled]="errorCurrentPage <= 1"
+            >
+              Previous
+            </button>
+            <span>Page {{ errorCurrentPage }} of {{ errorTotalPages }}</span>
+            <button
+              class="ciq-pg-btn"
+              (click)="errorChangePage(1)"
+              [disabled]="errorCurrentPage >= errorTotalPages"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
     </ng-template>
 
@@ -534,3 +571,5 @@
     </div>
   }
 </div>
+
+<br /><br /><br />

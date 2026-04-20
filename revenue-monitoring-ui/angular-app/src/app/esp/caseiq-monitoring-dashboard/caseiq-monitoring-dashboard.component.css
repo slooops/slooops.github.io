@@ -1072,6 +1072,11 @@ h6 {
   padding: 0 !important;
 }
 
+.ciq-table-scroll--no-max {
+  max-height: none;
+  overflow-y: visible;
+}
+
 .ciq-table-scroll-lg {
   max-height: 360px;
 }
@@ -1198,4 +1203,56 @@ h6 {
     flex-wrap: wrap;
     justify-content: center;
   }
+}
+
+/* ── Pagination ──────────────────────────────────────────────── */
+.ciq-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 18px;
+  font-size: 12px;
+  color: var(--ciq-muted);
+  border-top: 1px solid var(--ciq-card-border);
+}
+
+.ciq-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ciq-pg-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--ciq-card-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ciq-text);
+  cursor: pointer;
+  transition:
+    background 150ms,
+    border-color 150ms;
+}
+
+.ciq-pg-btn:hover:not(:disabled) {
+  background: rgba(0, 112, 210, 0.08);
+  border-color: #0070d2;
+  color: #0070d2;
+}
+
+.ciq-pg-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+:host(.dark-theme) .ciq-pg-btn {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+:host(.dark-theme) .ciq-pg-btn:hover:not(:disabled) {
+  background: rgba(0, 188, 235, 0.12);
+  border-color: #00bceb;
+  color: #00bceb;
 }

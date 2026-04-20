@@ -79,8 +79,6 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   lookbackHours = 24;
   fiscQtr = '';
   lookbackOptions = [
-    { value: 1, label: 'Last 1 hour' },
-    { value: 6, label: 'Last 6 hours' },
     { value: 12, label: 'Last 12 hours' },
     { value: 24, label: 'Last 24 hours' },
     { value: 72, label: 'Last 3 days' },
@@ -177,6 +175,12 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   errorTeamOptions: string[] = [];
   errorIssueOptions: string[] = [];
 
+  // Error Incidents pagination
+  errorCurrentPage = 1;
+  errorPageSize = 25;
+  errorTotalPages = 1;
+  errorFilteredRows: AnomalyItem[] = [];
+
   // Status color map — aligned with analytics palette
   statusColors: Record<string, string> = {
     SUCCESS: '#6ebe4a',
@@ -213,7 +217,10 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     this.sharedDataService.loadPeriodStatus(this.dm);
     this.sharedDataService.periodStatus$.subscribe((status) => {
       if (status) {
-        this.periodStatus = { ...status, lastUpdated: new Date().toLocaleString() };
+        this.periodStatus = {
+          ...status,
+          lastUpdated: new Date().toLocaleString(),
+        };
       }
     });
     this.refreshAll();
@@ -250,6 +257,13 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       notDefined: this.dataService.getNotDefined(this.dm, lb, fq),
       nullStatus: this.dataService.getNullStatus(this.dm, lb, fq),
       exceptions: this.dataService.getExceptions(this.dm, lb, fq),
+      nullClassification: this.dataService.getNullClassification(
+        this.dm,
+        lb,
+        fq,
+      ),
+      unknownTeam: this.dataService.getUnknownTeam(this.dm, lb, fq),
+      resolutionErrors: this.dataService.getResolutionErrors(this.dm, lb, fq),
       teamIssueMatrix: this.dataService.getTeamIssueMatrix(this.dm, lb, fq),
     }).subscribe({
       next: (data) => {
@@ -264,6 +278,9 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
           data.notDefined,
           data.nullStatus,
           data.exceptions,
+          data.nullClassification,
+          data.unknownTeam,
+          data.resolutionErrors,
         );
         this.loading = false;
         this.initialLoad = false;
@@ -472,16 +489,20 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     notDef: AnomalyItem[],
     nullStat: AnomalyItem[],
     exceptions: AnomalyItem[],
+    nullClassification: AnomalyItem[],
+    unknownTeam: AnomalyItem[],
+    resolutionErrors: AnomalyItem[],
   ): void {
     const rows: AnomalyItem[] = [];
     const add = (list: AnomalyItem[], label: string) =>
-      (list || [])
-        .slice(0, 10)
-        .forEach((r) => rows.push({ ...r, anomalyLabel: label }));
+      (list || []).forEach((r) => rows.push({ ...r, anomalyLabel: label }));
     add(ghost, 'Ghost Success');
     add(notDef, 'Not Defined');
     add(nullStat, 'No Resolution');
     add(exceptions, 'Exception');
+    add(nullClassification, 'Null Classification');
+    add(unknownTeam, 'Unknown Team');
+    add(resolutionErrors, 'Resolution Error');
 
     rows.sort((a, b) =>
       (b.CASEIQ_RUN_DATE || '').localeCompare(a.CASEIQ_RUN_DATE || ''),
@@ -510,7 +531,45 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
         (r) => r.anomalyLabel === this.errorFilterIssue,
       );
     }
-    this.anomalyTableData = filtered.slice(0, 50);
+    this.errorFilteredRows = filtered;
+    this.errorCurrentPage = 1;
+    this.updateErrorPage();
+  }
+
+  updateErrorPage(): void {
+    const total = this.errorFilteredRows.length;
+    this.errorTotalPages = Math.max(1, Math.ceil(total / this.errorPageSize));
+    if (this.errorCurrentPage > this.errorTotalPages)
+      this.errorCurrentPage = this.errorTotalPages;
+    const start = (this.errorCurrentPage - 1) * this.errorPageSize;
+    this.anomalyTableData = this.errorFilteredRows.slice(
+      start,
+      start + this.errorPageSize,
+    );
+  }
+
+  errorChangePage(delta: number): void {
+    this.errorCurrentPage += delta;
+    this.updateErrorPage();
+  }
+
+  errorChangePageSize(size: number): void {
+    this.errorPageSize = size;
+    this.errorCurrentPage = 1;
+    this.updateErrorPage();
+  }
+
+  get errorPageStart(): number {
+    return this.errorFilteredRows.length === 0
+      ? 0
+      : (this.errorCurrentPage - 1) * this.errorPageSize + 1;
+  }
+
+  get errorPageEnd(): number {
+    return Math.min(
+      this.errorCurrentPage * this.errorPageSize,
+      this.errorFilteredRows.length,
+    );
   }
 
   downloadErrorCsv(): void {
@@ -523,7 +582,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       'Issue Description',
       'Run Date',
     ];
-    const rows = this.anomalyTableData.map((r) =>
+    const rows = this.errorFilteredRows.map((r) =>
       [
         r.INCIDENT_NUMBER || '',
         r.TEAM_NAME || '',
@@ -592,30 +651,40 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     return new Date(val).toLocaleString();
   }
 
-  getTeamChips(issueKey: string): { team: string; count: number }[] {
+  getTeamChips(
+    issueKey: string,
+  ): { team: string; count: number; rawTeam: string }[] {
     if (!issueKey || !this.teamIssueMatrix.length) return [];
     return this.teamIssueMatrix
       .map((entry) => ({
-        team: entry.TEAM_NAME,
+        team: entry.TEAM_NAME === 'UNKNOWN' ? 'N/A' : entry.TEAM_NAME,
+        rawTeam: entry.TEAM_NAME,
         count: (entry as unknown as Record<string, number>)[issueKey] || 0,
       }))
       .filter((c) => c.count > 0)
       .sort((a, b) => b.count - a.count);
   }
 
-  openDrilldown(team: string, issueType: string, issueLabel: string): void {
+  openDrilldown(
+    team: string,
+    issueType: string,
+    issueLabel: string,
+    rawTeam?: string,
+  ): void {
     this.drilldownTitle = `${issueLabel} — ${team}`;
     this.drilldownOpen = true;
     this.drilldownPoints = [];
     const fq = this.fiscQtr || undefined;
-    this.dataService.getIssueTrend(this.dm, team, issueType, fq).subscribe({
-      next: (data) => {
-        this.drilldownPoints = (data || []).map((d) => ({
-          label: d.WEEK_START,
-          value: d.ISSUE_COUNT,
-        }));
-      },
-    });
+    this.dataService
+      .getIssueTrend(this.dm, rawTeam || team, issueType, fq)
+      .subscribe({
+        next: (data) => {
+          this.drilldownPoints = (data || []).map((d) => ({
+            label: d.WEEK_START,
+            value: d.ISSUE_COUNT,
+          }));
+        },
+      });
   }
 
   closeDrilldown(): void {

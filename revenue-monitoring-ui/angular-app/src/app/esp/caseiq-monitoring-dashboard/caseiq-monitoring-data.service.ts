@@ -88,6 +88,45 @@ export class CaseiqMonitoringDataService {
       .pipe(map((res: any) => res as AnomalyItem[]));
   }
 
+  getNullClassification(
+    dm: DestroyManager,
+    lookbackHours: number,
+    fiscQtr?: string,
+  ): Observable<AnomalyItem[]> {
+    return this.http
+      .get(
+        `${this.base}/anomalies/null-classification?${this.qp(lookbackHours, fiscQtr)}`,
+        dm,
+      )
+      .pipe(map((res: any) => res as AnomalyItem[]));
+  }
+
+  getUnknownTeam(
+    dm: DestroyManager,
+    lookbackHours: number,
+    fiscQtr?: string,
+  ): Observable<AnomalyItem[]> {
+    return this.http
+      .get(
+        `${this.base}/anomalies/unknown-team?${this.qp(lookbackHours, fiscQtr)}`,
+        dm,
+      )
+      .pipe(map((res: any) => res as AnomalyItem[]));
+  }
+
+  getResolutionErrors(
+    dm: DestroyManager,
+    lookbackHours: number,
+    fiscQtr?: string,
+  ): Observable<AnomalyItem[]> {
+    return this.http
+      .get(
+        `${this.base}/anomalies/resolution-errors?${this.qp(lookbackHours, fiscQtr)}`,
+        dm,
+      )
+      .pipe(map((res: any) => res as AnomalyItem[]));
+  }
+
   getResolutionDistribution(
     dm: DestroyManager,
     lookbackHours: number,

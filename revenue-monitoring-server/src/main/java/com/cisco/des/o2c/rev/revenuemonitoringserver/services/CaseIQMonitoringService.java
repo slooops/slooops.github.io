@@ -123,22 +123,31 @@ public class CaseIQMonitoringService {
             "WHERE caseiq_run_date >= SYSDATE - 1/24 " +
             "AND is_active = 'TRUE'";
 
-    private static final String NULL_CLASSIFICATION = "SELECT incident_number, team_name, llm_summary, " +
-            "case_analyzer_status, resolution_api_status, caseiq_run_date " +
+    private static final String NULL_CLASSIFICATION = "SELECT incident_number, team_name, category, core_issue, " +
+            "case_analyzer_status, llm_summary, caseiq_run_date " +
             "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
-            "WHERE is_active = 'TRUE' " +
-            "AND (category IS NULL OR core_issue IS NULL) " +
+            "WHERE (category IS NULL OR core_issue IS NULL) " +
             "AND case_analyzer_status != 'NEW' " +
-            "AND created_at >= SYSDATE - :lookback_hours/24 " +
+            "AND is_active = 'TRUE' " +
+            "AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " +
             "ORDER BY caseiq_run_date DESC";
 
     private static final String UNKNOWN_TEAM = "SELECT incident_number, impacted_service_offering, category, core_issue, "
             +
-            "case_analyzer_status, caseiq_run_date " +
+            "llm_summary, caseiq_run_date " +
             "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
             "WHERE team_name = 'UNKNOWN' " +
             "AND is_active = 'TRUE' " +
-            "AND created_at >= SYSDATE - :lookback_hours/24 " +
+            "AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " +
+            "ORDER BY caseiq_run_date DESC";
+
+    private static final String API_RESOLUTION_ERRORS = "SELECT incident_number, team_name, category, core_issue, " +
+            "resolution_api_status, caseiq_run_date " +
+            "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+            "WHERE (resolution_api_status NOT IN ('SUCCESS', 'NOT_SUPPORTED', 'PARTIAL SUCCESS') " +
+            "       OR resolution_api_status IS NULL) " +
+            "AND is_active = 'TRUE' " +
+            "AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " +
             "ORDER BY caseiq_run_date DESC";
 
     private static final String RESOLUTION_STATUS_DISTRIBUTION = "SELECT resolution_api_status, " +
@@ -203,22 +212,33 @@ public class CaseIQMonitoringService {
             "GROUP BY resolution_api_status " +
             "ORDER BY total DESC";
 
-    private static final String TEAM_VOLUME_SUMMARY = "SELECT team_name, " +
-            "COUNT(DISTINCT incident_number) AS unique_incidents, " +
+    private static final String TEAM_VOLUME_SUMMARY = "WITH latest_per_incident AS ( " +
+            "  SELECT incident_number, team_name, resolution_api_status, " +
+            "    llm_summary, category, core_issue, case_analyzer_status, " +
+            "    ROW_NUMBER() OVER (PARTITION BY incident_number ORDER BY caseiq_run_date DESC, ROWID DESC) AS rn " +
+            "  FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+            "  WHERE is_active = 'TRUE' " +
+            "  AND team_name IS NOT NULL " +
+            "  AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " +
+            ") " +
+            "SELECT team_name, " +
+            "COUNT(*) AS unique_incidents, " +
             "COUNT(*) AS total_records, " +
             "COUNT(CASE WHEN resolution_api_status IN ('SUCCESS', 'NOT_SUPPORTED', 'PARTIAL SUCCESS') THEN 1 END) AS success, "
             +
             "COUNT(CASE WHEN resolution_api_status = 'PARTIAL SUCCESS' THEN 1 END) AS partial, " +
-            "COUNT(CASE WHEN resolution_api_status IN ('ERROR', 'FAILURE') THEN 1 END) AS errors, " +
+            "COUNT(*) - COUNT(CASE WHEN resolution_api_status IN ('SUCCESS', 'NOT_SUPPORTED', 'PARTIAL SUCCESS') THEN 1 END) AS errors, "
+            +
             "COUNT(CASE WHEN resolution_api_status IS NULL THEN 1 END) AS not_resolved, " +
             "COUNT(CASE WHEN resolution_api_status = 'NOT_SUPPORTED' THEN 1 END) AS not_supported, " +
+            "COUNT(CASE WHEN llm_summary = 'Not Defined' THEN 1 END) + " +
+            "COUNT(CASE WHEN (category IS NULL OR core_issue IS NULL) " +
+            "  AND case_analyzer_status != 'NEW' THEN 1 END) AS warnings, " +
             "ROUND(COUNT(CASE WHEN resolution_api_status IN ('SUCCESS', 'NOT_SUPPORTED', 'PARTIAL SUCCESS') THEN 1 END) * 100.0 / "
             +
-            "      NULLIF(COUNT(*), 0), 1) AS success_rate_pct " +
-            "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
-            "WHERE is_active = 'TRUE' " +
-            "AND team_name IS NOT NULL " +
-            "AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " +
+            "  NULLIF(COUNT(*), 0), 1) AS success_rate_pct " +
+            "FROM latest_per_incident " +
+            "WHERE rn = 1 " +
             "GROUP BY team_name " +
             "ORDER BY unique_incidents DESC";
 
@@ -246,7 +266,7 @@ public class CaseIQMonitoringService {
             "ORDER BY error_count DESC " +
             "FETCH FIRST 20 ROWS ONLY";
 
-    private static final String TEAM_ISSUE_MATRIX = "SELECT team_name, " +
+    private static final String TEAM_ISSUE_MATRIX = "SELECT NVL(team_name, 'UNKNOWN') AS team_name, " +
             "COUNT(*) AS total, " +
             "COUNT(CASE WHEN resolution_api_status = 'SUCCESS' " +
             "  AND (context_extracted IS NULL OR resolution_api_summary IS NULL " +
@@ -264,9 +284,8 @@ public class CaseIQMonitoringService {
             "  OR resolution_api_status IS NULL THEN 1 END) AS resolution_failures " +
             "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
             "WHERE is_active = 'TRUE' " +
-            "AND team_name != 'UNKNOWN' " +
             "AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " +
-            "GROUP BY team_name " +
+            "GROUP BY NVL(team_name, 'UNKNOWN') " +
             "ORDER BY total DESC";
 
     private static final String ISSUE_TREND_BASE = "SELECT " +
@@ -274,7 +293,7 @@ public class CaseIQMonitoringService {
             "COUNT(*) AS issue_count " +
             "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
             "WHERE is_active = 'TRUE' " +
-            "AND team_name = :team_name " +
+            "AND NVL(team_name, 'UNKNOWN') = :team_name " +
             "AND caseiq_run_date >= SYSDATE - 84 ";
     // Dynamic condition appended per issue type, then GROUP BY / ORDER BY
 
@@ -493,6 +512,10 @@ public class CaseIQMonitoringService {
 
     public List<Map<String, Object>> getUnknownTeam(int lookbackHours, String fiscQtr) {
         return runQuery(UNKNOWN_TEAM, buildParams("lookback_hours", lookbackHours), fiscQtr);
+    }
+
+    public List<Map<String, Object>> getApiResolutionErrors(int lookbackHours, String fiscQtr) {
+        return runQuery(API_RESOLUTION_ERRORS, buildParams("lookback_hours", lookbackHours), fiscQtr);
     }
 
     public List<Map<String, Object>> getResolutionDistribution(int lookbackHours, String fiscQtr) {

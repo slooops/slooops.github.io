@@ -99,6 +99,13 @@ public class CaseIQMonitoringController {
         return new ResponseEntity<>(service.getUnknownTeam(lookbackHours, fiscQtr), HttpStatus.OK);
     }
 
+    @GetMapping("/anomalies/resolution-errors")
+    public ResponseEntity<List<Map<String, Object>>> resolutionErrors(
+            @RequestParam(defaultValue = "24") int lookbackHours,
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getApiResolutionErrors(lookbackHours, fiscQtr), HttpStatus.OK);
+    }
+
     @GetMapping("/status/resolution")
     public ResponseEntity<List<Map<String, Object>>> resolutionDistribution(
             @RequestParam(defaultValue = "24") int lookbackHours,

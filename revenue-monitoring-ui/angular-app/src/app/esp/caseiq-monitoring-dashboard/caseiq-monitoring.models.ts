@@ -55,6 +55,7 @@ export interface TeamSummary {
   ERRORS: number;
   NOT_RESOLVED: number;
   NOT_SUPPORTED: number;
+  WARNINGS: number;
   SUCCESS_RATE_PCT: number;
 }
 
