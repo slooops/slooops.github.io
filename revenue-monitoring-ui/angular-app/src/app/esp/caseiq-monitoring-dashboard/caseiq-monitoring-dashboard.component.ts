@@ -109,8 +109,8 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   kpiIssues = '-';
   kpiSuccessRate = '-';
   kpiAgents = '81';
-  kpiTokens = '1.2M';
-  kpiAvgTime = '46';
+  kpiTokens = 'TBD';
+  kpiAvgTime = 'TBD';
   kpiStaleness = '-';
   kpiGhost = '-';
   kpiNotSupported = '-';
@@ -307,7 +307,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       h.AVG_PROCESSING_MINUTES && h.AVG_PROCESSING_MINUTES > 0
         ? `${h.AVG_PROCESSING_MINUTES} min`
         : // : 'N/A';
-          '46';
+          'TBD';
     this.healthMeta =
       `Processed: ${totalProcessed.toLocaleString()} (${notSupported} NOT_SUPPORTED)<br>` +
       `Success: ${successPct}% · Errors: ${errorPct}%<br>` +
@@ -343,7 +343,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     this.kpiAvgTime =
       h.AVG_PROCESSING_MINUTES && h.AVG_PROCESSING_MINUTES > 0
         ? String(h.AVG_PROCESSING_MINUTES)
-        : '46';
+        : 'TBD';
     this.kpiStaleness =
       h.MINUTES_SINCE_LAST_RUN != null
         ? String(h.MINUTES_SINCE_LAST_RUN)
