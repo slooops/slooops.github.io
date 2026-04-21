@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { TextInputComponent } from '../../ui/atoms/text-input/text-input.component';
@@ -6,32 +6,24 @@ import { MultiSelectDropdownComponent } from '../../ui/atoms/multi-select-dropdo
 import { PaginationComponent } from '../../ui/atoms/pagination/pagination.component';
 import { SelectOption, PageChangeEvent } from '../../ui/types/common.types';
 
-interface RunRecord {
+interface SessionRecord {
+  session_id: string;
   run_id: number;
-  config_id: number;
-  record_id: string;
-  id_column_type: string | null;
-  error_table: string | null;
-  pattern_id: string | null;
-  core_issue_label: string | null;
-  category: string | null;
-  root_cause_text: string | null;
-  findings_text: string | null;
-  resolution_text: string | null;
-  proposed_fix_sql: string | null;
-  tools_called_json: string | null;
-  agent_flow_json: string | null;
-  response_time_sec: number | null;
-  llm_call_count: number | null;
-  total_tokens: number | null;
-  analysis_mode: string;
-  run_status: string;
-  review_status: string;
+  enrichment_id: string | null;
+  upstream_team: string | null;
+  upstream_contact: string;
+  session_status: string;
+  first_message_at: string | null;
+  last_activity_at: string | null;
+  resolved_at: string | null;
+  total_response_sec: number | null;
+  follow_up_count: number;
   created_at: string;
+  updated_at: string;
 }
 
 @Component({
-  selector: 'app-exceptions',
+  selector: 'app-sessions',
   standalone: true,
   imports: [
     CommonModule,
@@ -39,53 +31,50 @@ interface RunRecord {
     MultiSelectDropdownComponent,
     PaginationComponent,
   ],
-  templateUrl: './exceptions.component.html',
-  styleUrls: ['./exceptions.component.css'],
+  templateUrl: './sessions.component.html',
+  styleUrls: ['./sessions.component.css'],
 })
-export class ExceptionsComponent implements OnInit {
-  @Output() viewException = new EventEmitter<string>();
-
-  private readonly API_URL = 'https://i2c-aria-dev.cisco.com/api/runs';
+export class SessionsComponent implements OnInit {
+  private readonly API_URL = 'https://i2c-aria-dev.cisco.com/api/sessions';
 
   searchQuery = '';
-  selectedModes: string[] = [];
   selectedStatuses: string[] = [];
+  selectedContacts: string[] = [];
   isLoading = false;
 
-  modeOptions: SelectOption[] = [];
   statusOptions: SelectOption[] = [];
+  contactOptions: SelectOption[] = [];
 
-  exceptions: RunRecord[] = [];
-  allFetchedRecords: RunRecord[] = [];
+  sessions: SessionRecord[] = [];
+  allFetchedRecords: SessionRecord[] = [];
   currentPage = 1;
   totalPages = 1;
-  totalExceptions = 0;
+  totalSessions = 0;
   pageSize = 25;
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
     this.fetchFilterOptions();
-    this.fetchRuns();
+    this.fetchSessions();
   }
 
-  /** Fetch all records once to extract distinct filter values */
   private fetchFilterOptions(): void {
     this.http
       .get<{
-        data: RunRecord[];
+        data: SessionRecord[];
         meta: any;
       }>(this.API_URL)
       .subscribe({
         next: (res) => {
           this.allFetchedRecords = res.data;
-          this.modeOptions = this.buildDistinctOptions(
-            res.data,
-            'analysis_mode',
-          );
           this.statusOptions = this.buildDistinctOptions(
             res.data,
-            'run_status',
+            'session_status',
+          );
+          this.contactOptions = this.buildDistinctOptions(
+            res.data,
+            'upstream_contact',
           );
         },
         error: () => {},
@@ -93,8 +82,8 @@ export class ExceptionsComponent implements OnInit {
   }
 
   private buildDistinctOptions(
-    data: RunRecord[],
-    key: keyof RunRecord,
+    data: SessionRecord[],
+    key: keyof SessionRecord,
   ): SelectOption[] {
     const unique = [
       ...new Set(data.map((r) => r[key]).filter(Boolean) as string[]),
@@ -105,25 +94,25 @@ export class ExceptionsComponent implements OnInit {
     }));
   }
 
-  fetchRuns(): void {
+  fetchSessions(): void {
     this.isLoading = true;
     const url = `${this.API_URL}?page=${this.currentPage}&page_size=${this.pageSize}`;
 
     this.http
       .get<{
-        data: RunRecord[];
+        data: SessionRecord[];
         meta: { total: number; page: number; page_size: number; pages: number };
       }>(url)
       .subscribe({
         next: (res) => {
-          this.exceptions = res.data;
-          this.totalExceptions = res.meta.total;
+          this.sessions = res.data;
+          this.totalSessions = res.meta.total;
           this.totalPages = res.meta.pages;
           this.currentPage = res.meta.page;
           this.isLoading = false;
         },
         error: (err) => {
-          console.error('Failed to fetch runs:', err);
+          console.error('Failed to fetch sessions:', err);
           this.isLoading = false;
         },
       });
@@ -133,70 +122,56 @@ export class ExceptionsComponent implements OnInit {
     this.searchQuery = value;
   }
 
-  onModeChange(values: string[]): void {
-    this.selectedModes = values;
-  }
-
   onStatusChange(values: string[]): void {
     this.selectedStatuses = values;
   }
 
-  onViewException(id: string): void {
-    this.viewException.emit(id);
+  onContactChange(values: string[]): void {
+    this.selectedContacts = values;
   }
 
-  get filteredExceptions(): RunRecord[] {
-    let list = this.exceptions;
+  get filteredSessions(): SessionRecord[] {
+    let list = this.sessions;
     if (this.searchQuery) {
       const q = this.searchQuery.toLowerCase();
       list = list.filter(
         (r) =>
-          r.record_id?.toLowerCase().includes(q) ||
-          r.category?.toLowerCase().includes(q) ||
-          r.run_status?.toLowerCase().includes(q) ||
-          r.review_status?.toLowerCase().includes(q),
-      );
-    }
-    if (this.selectedModes.length > 0) {
-      list = list.filter((r) =>
-        this.selectedModes.some(
-          (m) => r.analysis_mode?.toUpperCase() === m.toUpperCase(),
-        ),
+          r.session_id?.toLowerCase().includes(q) ||
+          r.upstream_contact?.toLowerCase().includes(q) ||
+          r.session_status?.toLowerCase().includes(q),
       );
     }
     if (this.selectedStatuses.length > 0) {
-      list = list.filter((r) => this.selectedStatuses.includes(r.run_status));
+      list = list.filter((r) =>
+        this.selectedStatuses.includes(r.session_status),
+      );
+    }
+    if (this.selectedContacts.length > 0) {
+      list = list.filter((r) =>
+        this.selectedContacts.includes(r.upstream_contact),
+      );
     }
     return list;
   }
 
   onPageChange(event: PageChangeEvent): void {
-    this.currentPage = event.pageIndex + 1; // API is 1-based
+    this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
-    this.fetchRuns();
+    this.fetchSessions();
   }
 
   getStatusClass(status: string): string {
     switch (status) {
-      case 'completed':
-        return 'eq__status--completed';
-      case 'running':
-        return 'eq__status--running';
-      case 'failed':
-        return 'eq__status--failed';
+      case 'resolved':
+        return 'ss__status--resolved';
+      case 'awaiting_upstream':
+        return 'ss__status--awaiting';
+      case 'in_progress':
+        return 'ss__status--progress';
+      case 'closed':
+        return 'ss__status--closed';
       default:
-        return 'eq__status--default';
-    }
-  }
-
-  getReviewClass(status: string): string {
-    switch (status) {
-      case 'reviewed':
-        return 'eq__review--reviewed';
-      case 'pending_review':
-        return 'eq__review--pending';
-      default:
-        return 'eq__review--default';
+        return 'ss__status--default';
     }
   }
 
@@ -215,5 +190,10 @@ export class ExceptionsComponent implements OnInit {
   formatStatus(status: string): string {
     if (!status) return '—';
     return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
+  truncateId(id: string): string {
+    if (!id) return '—';
+    return id.substring(0, 8) + '…';
   }
 }

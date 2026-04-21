@@ -6,12 +6,14 @@
   </div>
 
   <div class="fit-pagination__controls">
-    <app-select-dropdown
-      [options]="pageSizeSelectOptions"
-      [value]="pageSize.toString()"
-      (valueChange)="onPageSizeSelectChange($event)"
-    >
-    </app-select-dropdown>
+    @if (showPageSizeSelector) {
+      <app-select-dropdown
+        [options]="pageSizeSelectOptions"
+        [value]="pageSize.toString()"
+        (valueChange)="onPageSizeSelectChange($event)"
+      >
+      </app-select-dropdown>
+    }
 
     <app-button
       label="Previous"

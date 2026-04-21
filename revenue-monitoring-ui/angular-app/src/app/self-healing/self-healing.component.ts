@@ -1,9 +1,23 @@
-import { Component, HostBinding, HostListener } from '@angular/core';
+import {
+  Component,
+  HostBinding,
+  HostListener,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { NgIcon } from '@ng-icons/core';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { ExceptionsComponent } from './exceptions/exceptions.component';
 import { ExceptionDetailsComponent } from './exception-details/exception-details.component';
+import { SessionsComponent } from './sessions/sessions.component';
+
+Chart.register(...registerables);
 
 interface MenuItem {
   label: string;
@@ -41,13 +55,23 @@ interface CategorySlice {
   offset: number;
 }
 
-interface ExceptionRow {
-  id: string;
-  timeAgo: string;
-  title: string;
-  tags: { label: string; type: 'agentic' | 'auto-fix' }[];
-  impactLevel: string;
-  impactClass: string;
+interface CategoryRow {
+  category: string;
+  analyzed: number;
+  reviewed: number;
+  underReview: number;
+  rate: string;
+}
+
+interface RecentRun {
+  run_id: number;
+  record_id: string;
+  core_issue_label: string | null;
+  category: string | null;
+  analysis_mode: string;
+  run_status: string;
+  review_status: string;
+  created_at: string;
 }
 
 interface PatternRow {
@@ -60,6 +84,19 @@ interface PatternRow {
   category: string;
 }
 
+interface TrendPoint {
+  date: string;
+  total: number;
+  completed: number;
+  failed: number;
+}
+
+interface ResolutionMode {
+  mode: string;
+  count: number;
+  percentage: number;
+}
+
 @Component({
   selector: 'app-self-healing',
   standalone: true,
@@ -69,11 +106,47 @@ interface PatternRow {
     NgIcon,
     ExceptionsComponent,
     ExceptionDetailsComponent,
+    SessionsComponent,
   ],
   templateUrl: './self-healing.component.html',
   styleUrls: ['./self-healing.component.css'],
 })
-export class SelfHealingComponent {
+export class SelfHealingComponent implements OnInit, OnDestroy {
+  private readonly API_URL = 'https://i2c-aria-dev.cisco.com/api/runs';
+
+  @ViewChild('trendCanvas') trendCanvasRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('modesCanvas') modesCanvasRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('categoryCanvas')
+  categoryCanvasRef!: ElementRef<HTMLCanvasElement>;
+
+  private trendChart: Chart | null = null;
+  private modesChart: Chart | null = null;
+  private categoryChart: Chart | null = null;
+
+  constructor(private http: HttpClient) {}
+
+  /* ── Chart data ── */
+  trendData: TrendPoint[] = [];
+  trendLoading = false;
+  resolutionModes: ResolutionMode[] = [];
+  resolutionLoading = false;
+
+  ngOnInit(): void {
+    this.fetchRecentExceptions();
+    this.fetchRecentSessions();
+    this.fetchStatsOverview();
+    this.fetchTrends();
+    this.fetchResolutionModes();
+    // Category data is static — render after view initializes
+    setTimeout(() => this.renderCategoryChart(), 0);
+  }
+
+  ngOnDestroy(): void {
+    this.trendChart?.destroy();
+    this.modesChart?.destroy();
+    this.categoryChart?.destroy();
+  }
+
   /* ── Dark Mode ── */
   isDarkMode = false;
 
@@ -108,6 +181,9 @@ export class SelfHealingComponent {
     this.showGridMenu = false;
     this.selectedMenuIndex = index;
     this.selectedExceptionId = null;
+    if (index === 0) {
+      this.rerenderAllCharts();
+    }
   }
 
   @HostListener('document:click')
@@ -133,6 +209,7 @@ export class SelfHealingComponent {
     if (this.exceptionOrigin === 'command-center') {
       this.selectedExceptionId = null;
       this.selectedMenuIndex = 0;
+      this.rerenderAllCharts();
     } else {
       this.selectedExceptionId = null;
     }
@@ -148,10 +225,50 @@ export class SelfHealingComponent {
   goBackToCommandCenter(): void {
     this.selectedMenuIndex = 0;
     this.selectedExceptionId = null;
+    this.rerenderAllCharts();
   }
 
   backToQueue(): void {
     this.selectedExceptionId = null;
+  }
+
+  /** Re-renders all charts after the command center view is restored. */
+  private rerenderAllCharts(): void {
+    setTimeout(() => {
+      this.renderTrendChart();
+      this.renderModesChart();
+      this.renderCategoryChart();
+    }, 0);
+  }
+
+  /* ── Log History Overlay ── */
+  showLogHistory = false;
+
+  toggleLogHistory(): void {
+    this.showLogHistory = !this.showLogHistory;
+  }
+
+  /* ── System Health Ring ── */
+  healthTotalExceptions = 1284;
+  healthResolvedPct = 96.3;
+  healthPendingPct = 3.7;
+  healthResolvedCount = 1237;
+  healthPendingCount = 47;
+
+  private readonly ringCircumference = 2 * Math.PI * 62; // ~389.56
+
+  get reviewedDasharray(): string {
+    const len = (this.healthResolvedPct / 100) * this.ringCircumference;
+    return `${len} ${this.ringCircumference - len}`;
+  }
+
+  get pendingDasharray(): string {
+    const len = (this.healthPendingPct / 100) * this.ringCircumference;
+    return `${len} ${this.ringCircumference - len}`;
+  }
+
+  get pendingDashoffset(): number {
+    return -(this.healthResolvedPct / 100) * this.ringCircumference;
   }
 
   /* ── Hero ── */
@@ -187,22 +304,225 @@ export class SelfHealingComponent {
 
   /* ── KPI Cards ── */
   kpiCards: KpiCard[] = [
-    { label: 'Exceptions Analysed', value: '1,284', bars: [40, 60, 30, 80] },
+    { label: 'Exceptions Analysed', value: '—', bars: [40, 60, 30, 80] },
     {
-      label: 'Awaiting Review',
-      value: '47',
+      label: 'Under Review',
+      value: '—',
       highlight: true,
       highlightColor: 'amber',
       bars: [80, 50, 60, 30],
     },
-    { label: 'Reviewed', value: '1,237', bars: [20, 40, 70, 90] },
-    {
-      label: 'Auto-Routing Active',
-      value: '12 Sessions',
-      bars: [40, 40, 40, 40],
-    },
-    { label: 'Avg Analysis Time', value: '4.2 Sec', bars: [60, 40, 20, 15] },
+    { label: 'Reviewed', value: '—', bars: [20, 40, 70, 90] },
+    { label: 'Auto-Routing Active', value: '—', bars: [40, 40, 40, 40] },
+    { label: 'Avg Analysis Time', value: '—', bars: [60, 40, 20, 15] },
   ];
+
+  private fetchStatsOverview(): void {
+    this.http
+      .get<{
+        data: {
+          totals: {
+            total_runs: number;
+            pending_review: number;
+            reviewed: number;
+            avg_response_sec: string;
+          };
+        };
+      }>('https://i2c-aria-dev.cisco.com/api/stats/overview')
+      .subscribe({
+        next: (res) => {
+          const t = res.data.totals;
+          this.kpiCards = [
+            {
+              label: 'Exceptions Analysed',
+              value: t.total_runs.toLocaleString(),
+              bars: [40, 60, 30, 80],
+            },
+            {
+              label: 'Under Review',
+              value: t.pending_review.toLocaleString(),
+              highlight: true,
+              highlightColor: 'amber',
+              bars: [80, 50, 60, 30],
+            },
+            {
+              label: 'Reviewed',
+              value: t.reviewed.toLocaleString(),
+              bars: [20, 40, 70, 90],
+            },
+            {
+              label: 'Auto-Routing Active',
+              value: '—',
+              bars: [40, 40, 40, 40],
+            },
+            { label: 'Avg Analysis Time', value: '—', bars: [60, 40, 20, 15] },
+          ];
+        },
+        error: () => {},
+      });
+  }
+
+  /* ── Trends ── */
+  private fetchTrends(): void {
+    this.trendLoading = true;
+    this.http
+      .get<{
+        data: TrendPoint[];
+      }>('https://i2c-aria-dev.cisco.com/api/stats/trends?period=30d')
+      .subscribe({
+        next: (res) => {
+          this.trendData = (res.data || []).sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+          );
+          this.trendLoading = false;
+          setTimeout(() => this.renderTrendChart(), 0);
+        },
+        error: () => {
+          this.trendLoading = false;
+        },
+      });
+  }
+
+  private renderTrendChart(): void {
+    if (!this.trendCanvasRef || this.trendData.length < 2) return;
+    this.trendChart?.destroy();
+    const labels = this.trendData.map((d) =>
+      new Date(d.date).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      }),
+    );
+    this.trendChart = new Chart(this.trendCanvasRef.nativeElement, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Total',
+            data: this.trendData.map((d) => d.total),
+            borderColor: '#0070d2',
+            backgroundColor: 'rgba(0, 112, 210, 0.08)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#0070d2',
+            borderWidth: 2,
+          },
+          {
+            label: 'Completed',
+            data: this.trendData.map((d) => d.completed),
+            borderColor: '#6ebe4a',
+            backgroundColor: 'rgba(110, 190, 74, 0.08)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#6ebe4a',
+            borderWidth: 2,
+          },
+          {
+            label: 'Failed',
+            data: this.trendData.map((d) => d.failed),
+            borderColor: '#e53935',
+            backgroundColor: 'rgba(229, 57, 53, 0.05)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#e53935',
+            borderWidth: 2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: { usePointStyle: true, padding: 16, font: { size: 11 } },
+          },
+          tooltip: { mode: 'index', intersect: false },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(0,0,0,0.06)' },
+            ticks: { font: { size: 10 } },
+          },
+        },
+        interaction: { mode: 'nearest', axis: 'x', intersect: false },
+      },
+    });
+  }
+
+  /* ── Resolution Modes ── */
+  private fetchResolutionModes(): void {
+    this.resolutionLoading = true;
+    this.http
+      .get<{
+        data: ResolutionMode[];
+      }>('https://i2c-aria-dev.cisco.com/api/stats/resolution-modes')
+      .subscribe({
+        next: (res) => {
+          this.resolutionModes = res.data || [];
+          this.resolutionLoading = false;
+          setTimeout(() => this.renderModesChart(), 0);
+        },
+        error: () => {
+          this.resolutionLoading = false;
+        },
+      });
+  }
+
+  private renderModesChart(): void {
+    if (!this.modesCanvasRef || !this.resolutionModes.length) return;
+    this.modesChart?.destroy();
+    const colors = ['#0070d2', '#00bceb', '#9933ff', '#6ebe4a', '#e6a800'];
+    const labels = this.resolutionModes.map((m) =>
+      m.mode.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+    );
+    this.modesChart = new Chart(this.modesCanvasRef.nativeElement, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Count',
+            data: this.resolutionModes.map((m) => m.count),
+            backgroundColor: this.resolutionModes.map(
+              (_, i) => colors[i % colors.length],
+            ),
+            borderRadius: 6,
+            maxBarThickness: 48,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const m = this.resolutionModes[ctx.dataIndex];
+                return `${m.count} (${m.percentage}%)`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(0,0,0,0.06)' },
+            ticks: { font: { size: 10 } },
+          },
+        },
+      },
+    });
+  }
 
   /* ── Donut Chart ── */
   donutTotal = '1.2k';
@@ -229,6 +549,97 @@ export class SelfHealingComponent {
       offset: -70,
     },
   ];
+
+  /* ── Exceptions by Category Table ── */
+  categoryTableData: CategoryRow[] = [
+    {
+      category: 'Revenue',
+      analyzed: 527,
+      reviewed: 507,
+      underReview: 20,
+      rate: '96.2%',
+    },
+    {
+      category: 'Billing',
+      analyzed: 424,
+      reviewed: 411,
+      underReview: 13,
+      rate: '96.9%',
+    },
+    {
+      category: 'Attribution',
+      analyzed: 333,
+      reviewed: 319,
+      underReview: 14,
+      rate: '95.8%',
+    },
+  ];
+
+  /* ── Category Stacked Bar Chart ── */
+  renderCategoryChart(): void {
+    if (!this.categoryCanvasRef || !this.categoryTableData.length) return;
+    this.categoryChart?.destroy();
+    const labels = this.categoryTableData.map((r) => r.category);
+    this.categoryChart = new Chart(this.categoryCanvasRef.nativeElement, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Reviewed',
+            data: this.categoryTableData.map((r) => r.reviewed),
+            backgroundColor: '#6ebe4a',
+            borderRadius: 4,
+            maxBarThickness: 48,
+          },
+          {
+            label: 'Under Review',
+            data: this.categoryTableData.map((r) => r.underReview),
+            backgroundColor: '#e6a800',
+            borderRadius: 4,
+            maxBarThickness: 48,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: { usePointStyle: true, padding: 16, font: { size: 11 } },
+          },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const row = this.categoryTableData[ctx.dataIndex];
+                const val = ctx.raw as number;
+                const pct =
+                  row.analyzed > 0
+                    ? ((val / row.analyzed) * 100).toFixed(1)
+                    : '0';
+                return `${ctx.dataset.label}: ${val} (${pct}%)`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            stacked: true,
+            grid: { display: false },
+            ticks: { font: { size: 10 } },
+          },
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            grid: { color: 'rgba(0,0,0,0.06)' },
+            ticks: { font: { size: 10 } },
+          },
+        },
+      },
+    });
+  }
 
   /* ── Active Sessions ── */
   sessions: Session[] = [
@@ -395,45 +806,116 @@ export class SelfHealingComponent {
     return 'var(--sh-red)';
   }
 
+  /* ── Recent Sessions ── */
+  recentSessions: {
+    session_id: string;
+    upstream_contact: string;
+    session_status: string;
+    follow_up_count: number;
+    updated_at: string;
+  }[] = [];
+  recentSessionsLoading = false;
+
+  private fetchRecentSessions(): void {
+    this.recentSessionsLoading = true;
+    this.http
+      .get<{
+        data: any[];
+        meta: any;
+      }>('https://i2c-aria-dev.cisco.com/api/sessions?page=1&page_size=10')
+      .subscribe({
+        next: (res) => {
+          this.recentSessions = (res.data || [])
+            .sort(
+              (a, b) =>
+                new Date(b.updated_at).getTime() -
+                new Date(a.updated_at).getTime(),
+            )
+            .slice(0, 4);
+          this.recentSessionsLoading = false;
+        },
+        error: () => {
+          this.recentSessionsLoading = false;
+        },
+      });
+  }
+
+  stripDomain(email: string): string {
+    if (!email) return '—';
+    return email.replace(/@cisco\.com$/i, '');
+  }
+
+  getSessionStatusClass(status: string): string {
+    switch (status) {
+      case 'resolved':
+        return 'sh__session-status--resolved';
+      case 'awaiting_upstream':
+        return 'sh__session-status--awaiting';
+      case 'in_progress':
+        return 'sh__session-status--progress';
+      case 'closed':
+        return 'sh__session-status--closed';
+      default:
+        return 'sh__run-status--default';
+    }
+  }
+
   /* ── Exceptions Table ── */
-  recentExceptions: ExceptionRow[] = [
-    {
-      id: 'EXC-2024-00847',
-      timeAgo: '2 hours ago',
-      title: 'Billing Mismatch',
-      tags: [
-        { label: 'AGENTIC', type: 'agentic' },
-        { label: 'AUTO_FIX', type: 'auto-fix' },
-      ],
-      impactLevel: 'High Criticality',
-      impactClass: 'impact--high',
-    },
-    {
-      id: 'EXC-2024-00912',
-      timeAgo: '4 hours ago',
-      title: 'API Handshake Timeout',
-      tags: [{ label: 'AGENTIC', type: 'agentic' }],
-      impactLevel: 'Medium',
-      impactClass: 'impact--medium',
-    },
-    {
-      id: 'EXC-2024-01042',
-      timeAgo: '6 hours ago',
-      title: 'Stale Cache Policy Conflict',
-      tags: [{ label: 'AUTO_FIX', type: 'auto-fix' }],
-      impactLevel: 'Low',
-      impactClass: 'impact--low',
-    },
-    {
-      id: 'EXC-2024-01183',
-      timeAgo: '12 hours ago',
-      title: 'Redundant Token Generation',
-      tags: [
-        { label: 'AGENTIC', type: 'agentic' },
-        { label: 'AUTO_FIX', type: 'auto-fix' },
-      ],
-      impactLevel: 'Medium',
-      impactClass: 'impact--medium',
-    },
-  ];
+  recentExceptions: RecentRun[] = [];
+  recentExceptionsLoading = false;
+
+  private fetchRecentExceptions(): void {
+    this.recentExceptionsLoading = true;
+    this.http
+      .get<{
+        data: RecentRun[];
+        meta: any;
+      }>(`${this.API_URL}?page=1&page_size=4`)
+      .subscribe({
+        next: (res) => {
+          this.recentExceptions = res.data
+            .sort(
+              (a, b) =>
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime(),
+            )
+            .slice(0, 4);
+          this.recentExceptionsLoading = false;
+        },
+        error: () => {
+          this.recentExceptionsLoading = false;
+        },
+      });
+  }
+
+  formatStatus(status: string): string {
+    if (!status) return '—';
+    return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
+  getRunStatusClass(status: string): string {
+    switch (status) {
+      case 'completed':
+        return 'sh__run-status--completed';
+      case 'running':
+        return 'sh__run-status--running';
+      case 'failed':
+        return 'sh__run-status--failed';
+      default:
+        return 'sh__run-status--default';
+    }
+  }
+
+  formatTimeAgo(dateStr: string): string {
+    if (!dateStr) return '';
+    const now = new Date();
+    const d = new Date(dateStr);
+    const diffMs = now.getTime() - d.getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
+  }
 }

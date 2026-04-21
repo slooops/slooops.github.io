@@ -2,7 +2,10 @@
 <div class="dashboard-header">
   <div class="header-main">
     <div class="header-left">
-      <h2>{{ menuItems[selectedMenuIndex]?.label || "Command Center" }}</h2>
+      <h2>I2C Self-Healing Bot</h2>
+      <!-- <span class="sh__health-tag sh__health-tag--success"
+        >Performance: Optimal</span
+      > -->
     </div>
 
     <div class="period-info">
@@ -24,6 +27,16 @@
         size="16"
       />
     </button>
+    <div class="sh__header-actions">
+      <button class="sh__btn">
+        <ng-icon name="phosphorArrowClockwiseBold" size="14" />
+        Refresh
+      </button>
+      <button class="sh__btn" (click)="toggleLogHistory()">
+        <ng-icon name="phosphorClockCounterClockwiseBold" size="14" />
+        View Log History
+      </button>
+    </div>
   </div>
 </div>
 
@@ -36,48 +49,10 @@
       <!-- ═══════════════════════════════════════
        Header
        ═══════════════════════════════════════ -->
-      <header class="sh__header">
-        <div class="sh__header-left">
-          <div class="sh__subtitle-row" style="margin-left: 1rem">
-            <p class="sh__subtitle">I2C Self-Healing Bot v1.0.0-Active</p>
-            <span class="sh__health-tag sh__health-tag--success"
-              >Performance: Optimal</span
-            >
-          </div>
-        </div>
-        <div class="sh__header-actions">
-          <button class="sh__btn">
-            <ng-icon name="phosphorArrowClockwiseBold" size="14" />
-            Run System Check
-          </button>
-          <button class="sh__btn">
-            <ng-icon name="phosphorClockCounterClockwiseBold" size="14" />
-            View Log History
-          </button>
-        </div>
-      </header>
-
       <!-- ═══════════════════════════════════════
        Row 1 — KPI tiles
        ═══════════════════════════════════════ -->
       <section class="sh__kpi-row">
-        <!-- System Health KPI (first card) -->
-        <div class="sh__kpi sh__kpi--health">
-          <div class="sh__health-badge">
-            <span class="sh__pulse"></span>
-            <span class="sh__badge-label">System Health</span>
-          </div>
-          <div class="sh__kpi-val-row">
-            <span class="sh__kpi-value sh__kpi-value--cyan">{{
-              systemHealth
-            }}</span>
-            <div class="sh__info-wrap">
-              <span class="sh__info-icon">ℹ</span>
-              <div class="sh__info-tooltip">{{ systemDescription }}</div>
-            </div>
-          </div>
-        </div>
-
         @for (kpi of kpiCards; track kpi.label) {
           <div class="sh__kpi">
             <span class="sh__kpi-label">{{ kpi.label }}</span>
@@ -87,234 +62,240 @@
       </section>
 
       <!-- ═══════════════════════════════════════
-       Row 2 — Exceptions | Logs | Sessions
+       Row 2 — Charts: Trends (2) | Modes (2) | Category (1)
        ═══════════════════════════════════════ -->
-      <section class="sh__detail-row">
-        <!-- Exceptions by Category donut -->
-        <div class="sh__donut-card">
-          <span class="sh__section-label">Exceptions by Category</span>
-          <div class="sh__donut-wrap">
-            <div class="sh__donut">
-              <svg class="sh__donut-svg" viewBox="0 0 36 36">
-                <defs>
-                  @for (
-                    slice of categorySlices;
-                    let i = $index;
-                    track slice.label
-                  ) {
-                    <linearGradient
-                      [attr.id]="'donutGrad' + i"
-                      x1="0%"
-                      y1="0%"
-                      x2="100%"
-                      y2="100%"
-                    >
-                      <stop offset="0%" [attr.stop-color]="slice.color" />
-                      <stop offset="100%" [attr.stop-color]="slice.colorEnd" />
-                    </linearGradient>
-                  }
-                </defs>
-                @for (
-                  slice of categorySlices;
-                  let i = $index;
-                  track slice.label
-                ) {
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="16"
-                    fill="transparent"
-                    [attr.stroke]="'url(#donutGrad' + i + ')'"
-                    [attr.stroke-dasharray]="slice.percent + ', 100'"
-                    [attr.stroke-dashoffset]="slice.offset"
-                    stroke-width="3.5"
-                    stroke-linecap="round"
-                  />
-                }
-              </svg>
-              <div class="sh__donut-center">
-                <span class="sh__donut-total">{{ donutTotal }}</span>
-                <span class="sh__donut-label">TOTAL</span>
-              </div>
+      <section class="sh__charts-row">
+        <!-- Exception Trends -->
+        <div class="sh__chart-card sh__chart-card--2">
+          <div class="sh__card-header-row">
+            <span class="sh__section-label">Exception Trends</span>
+          </div>
+          @if (trendLoading) {
+            <div
+              style="padding: 2rem; text-align: center; color: var(--sh-muted)"
+            >
+              Loading trends…
             </div>
-            <div class="sh__donut-legend">
-              @for (slice of categorySlices; track slice.label) {
-                <div class="sh__legend-item">
-                  <span
-                    class="sh__legend-dot"
-                    [style.backgroundColor]="slice.color"
-                  ></span>
-                  <span class="sh__legend-text"
-                    >{{ slice.label }} ({{ slice.percent }}%)</span
-                  >
-                </div>
-              }
+          } @else if (trendData.length < 2) {
+            <div
+              style="padding: 2rem; text-align: center; color: var(--sh-muted)"
+            >
+              Not enough data.
             </div>
+          }
+          <div
+            class="sh__chart-container"
+            [style.display]="
+              !trendLoading && trendData.length >= 2 ? 'block' : 'none'
+            "
+          >
+            <canvas #trendCanvas></canvas>
           </div>
         </div>
 
-        <!-- Active Sessions card -->
-        <div class="sh__sessions">
-          <div class="sh__sessions-header">
-            <span class="sh__section-label">Active Sessions</span>
-            <button class="sh__link">View All Active Sessions</button>
+        <!-- Exceptions by Category (stacked bar) -->
+        <div class="sh__chart-card sh__chart-card--2">
+          <div class="sh__card-header-row">
+            <span class="sh__section-label">Exceptions By Category</span>
           </div>
-
-          <div class="sh__sessions-list">
-            @for (s of sessions; track s.id) {
-              <div class="sh__session-item">
-                <div class="sh__session-info">
-                  <p class="sh__session-top">
-                    <span class="sh__session-id">{{ s.id }}</span>
-                  </p>
-                  <p class="sh__session-bottom">
-                    {{ s.category }} - {{ s.issueType }}
-                  </p>
-                </div>
-                <div class="sh__session-actions">
-                  <span class="sh__status" [ngClass]="s.statusClass">{{
-                    s.status
-                  }}</span>
-                  <button class="sh__more-btn">⋮</button>
-                </div>
-              </div>
-            }
+          <div class="sh__chart-container">
+            <canvas #categoryCanvas></canvas>
           </div>
         </div>
 
-        <!-- Action Logs card -->
-        <div class="sh__logs">
-          <div class="sh__logs-header">
-            <span class="sh__section-label">Action Logs</span>
-            <span class="sh__live-badge">Live Updates</span>
+        <!-- Analysis Modes -->
+        <div class="sh__chart-card sh__chart-card--1">
+          <div class="sh__card-header-row">
+            <span class="sh__section-label">Analysis Modes</span>
           </div>
-          <div class="sh__logs-list">
-            @for (log of actionLogs; track log.title) {
-              <div class="sh__log-item">
-                <div
-                  class="sh__log-bar"
-                  [class.sh__log-bar--amber]="log.color === 'amber'"
-                  [class.sh__log-bar--primary]="log.color === 'primary'"
-                  [class.sh__log-bar--primary-light]="
-                    log.color === 'primary-light'
-                  "
-                ></div>
-                <div class="sh__log-text">
-                  <p class="sh__log-title">{{ log.title }}</p>
-                  <p class="sh__log-sub">{{ log.subtitle }}</p>
-                </div>
-              </div>
-            }
+          @if (resolutionLoading) {
+            <div
+              style="padding: 2rem; text-align: center; color: var(--sh-muted)"
+            >
+              Loading…
+            </div>
+          } @else if (resolutionModes.length === 0) {
+            <div
+              style="padding: 2rem; text-align: center; color: var(--sh-muted)"
+            >
+              No data.
+            </div>
+          }
+          <div
+            class="sh__chart-container"
+            [style.display]="
+              !resolutionLoading && resolutionModes.length > 0
+                ? 'block'
+                : 'none'
+            "
+          >
+            <canvas #modesCanvas></canvas>
           </div>
         </div>
       </section>
 
       <!-- ═══════════════════════════════════════
-       Row 3 — Exceptions Table | Patterns (coming soon)
+       Row 3 — Recent Exceptions + Recent Sessions
        ═══════════════════════════════════════ -->
-      <section class="sh__bottom-row">
-        <div class="sh__bottom-card">
-          <div class="sh__exc-header">
+      <section class="sh__recent-row">
+        <!-- Recent Exceptions -->
+        <div class="sh__recent-card">
+          <div class="sh__card-header-row sh__card-header-row--spaced">
             <span class="sh__section-label">Recent Exceptions</span>
             <button class="sh__link" (click)="viewAllExceptions()">
-              View All Exceptions
+              View All
             </button>
           </div>
-          <div class="sh__exc-list">
-            @for (exc of recentExceptions; track exc.id) {
-              <div class="sh__exc-row">
-                <div class="sh__exc-body">
-                  <div class="sh__exc-meta">
-                    <span class="sh__exc-id">{{ exc.id }}</span>
-                    <span class="sh__exc-time">• {{ exc.timeAgo }}</span>
-                  </div>
-                  <p class="sh__exc-title">{{ exc.title }}</p>
-                  <div class="sh__exc-tags">
-                    @for (tag of exc.tags; track tag.label) {
-                      <span
-                        class="sh__exc-tag"
-                        [class.sh__exc-tag--agentic]="tag.type === 'agentic'"
-                        [class.sh__exc-tag--autofix]="tag.type === 'auto-fix'"
-                        >{{ tag.label }}</span
-                      >
-                    }
-                  </div>
-                </div>
-                <div class="sh__exc-actions">
-                  <div class="sh__exc-impact">
-                    <span class="sh__exc-impact-label">Impact Level</span>
-                    <span
-                      class="sh__exc-impact-value"
-                      [ngClass]="exc.impactClass"
-                      >{{ exc.impactLevel }}</span
+          <div class="sh__table-scroll">
+            <table class="sh__table">
+              <thead>
+                <tr>
+                  <th>Record ID</th>
+                  <th>Category</th>
+                  <th>Analysis Mode</th>
+                  <th>Run Status</th>
+                  <th>Created At</th>
+                </tr>
+              </thead>
+              <tbody>
+                @if (recentExceptionsLoading) {
+                  <tr>
+                    <td colspan="5" style="text-align: center; padding: 1rem">
+                      Loading…
+                    </td>
+                  </tr>
+                } @else {
+                  @for (exc of recentExceptions; track exc.run_id) {
+                    <tr
+                      class="sh__clickable-row"
+                      (click)="openException(exc.run_id.toString())"
                     >
-                  </div>
-                  <button
-                    class="sh__exc-view-btn"
-                    title="View details"
-                    (click)="openException(exc.id)"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            }
+                      <td>
+                        <span class="sh__mono-id">{{ exc.record_id }}</span>
+                      </td>
+                      <td>
+                        <strong>{{ exc.category || "—" }}</strong>
+                      </td>
+                      <td>
+                        <span class="sh__exc-tag">{{
+                          formatStatus(exc.analysis_mode)
+                        }}</span>
+                      </td>
+                      <td>
+                        <span
+                          class="sh__exc-tag"
+                          [ngClass]="getRunStatusClass(exc.run_status)"
+                          >{{ formatStatus(exc.run_status) }}</span
+                        >
+                      </td>
+                      <td>
+                        <span class="sh__muted-text">{{
+                          formatTimeAgo(exc.created_at)
+                        }}</span>
+                      </td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
           </div>
         </div>
-        <div class="sh__bottom-card">
-          <div class="sh__exc-header">
-            <span class="sh__section-label">Recent Patterns</span>
-            <button class="sh__link" (click)="viewAllPatterns()">
-              View All Patterns
+
+        <!-- Recent Sessions -->
+        <div class="sh__recent-card">
+          <div class="sh__card-header-row sh__card-header-row--spaced">
+            <span class="sh__section-label"
+              >Recent Cross Team Resolution Sessions</span
+            >
+            <button class="sh__link" (click)="selectedMenuIndex = 2">
+              View All
             </button>
           </div>
-          <div class="sh__ptn-list">
-            @for (ptn of recentPatterns; track ptn.id) {
-              <div class="sh__ptn-row">
-                <div class="sh__ptn-body">
-                  <div class="sh__ptn-meta">
-                    <span class="sh__ptn-id">ID: {{ ptn.id }}</span>
-                  </div>
-                  <p class="sh__ptn-title">{{ ptn.title }}</p>
-                  <p class="sh__ptn-seen">
-                    <ng-icon name="phosphorEyeBold" size="12" />
-                    Seen {{ ptn.seenCount | number }} times
-                  </p>
-                </div>
-                <div class="sh__ptn-actions">
-                  <span
-                    class="sh__ptn-confidence"
-                    [class.sh__ptn-confidence--high]="ptn.confidence === 'HIGH'"
-                    [class.sh__ptn-confidence--med]="ptn.confidence === 'MED'"
-                    >{{ ptn.confidence }}</span
-                  >
-                  <button
-                    class="sh__ptn-arrow"
-                    title="View details"
-                    (click)="openPatternDetail(ptn.id)"
-                  >
-                    <ng-icon name="phosphorArrowRightBold" size="14" />
-                  </button>
-                </div>
-              </div>
-            }
+          <div class="sh__table-scroll">
+            <table class="sh__table">
+              <thead>
+                <tr>
+                  <th>Session ID</th>
+                  <th>Upstream Contact</th>
+                  <th>Session Status</th>
+                  <th>Follow-up Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                @if (recentSessionsLoading) {
+                  <tr>
+                    <td colspan="4" style="text-align: center; padding: 1rem">
+                      Loading…
+                    </td>
+                  </tr>
+                } @else {
+                  @for (sess of recentSessions; track sess.session_id) {
+                    <tr class="sh__clickable-row">
+                      <td>
+                        <span class="sh__mono-id">{{ sess.session_id }}</span>
+                      </td>
+                      <td>{{ stripDomain(sess.upstream_contact) }}</td>
+                      <td>
+                        <span
+                          class="sh__exc-tag"
+                          [ngClass]="getSessionStatusClass(sess.session_status)"
+                          >{{ formatStatus(sess.session_status) }}</span
+                        >
+                      </td>
+                      <td>
+                        <span class="sh__followup-badge"
+                          >{{ sess.follow_up_count }} times</span
+                        >
+                      </td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
     </div>
+
+    <!-- Log History Overlay -->
+    @if (showLogHistory) {
+      <div class="sh__overlay-backdrop" (click)="toggleLogHistory()"></div>
+      <div class="sh__log-overlay">
+        <div class="sh__log-overlay-header">
+          <div class="sh__card-header-row">
+            <div class="sh__card-icon sh__card-icon--cyan">
+              <ng-icon name="phosphorClockCounterClockwiseBold" size="18" />
+            </div>
+            <span class="sh__log-overlay-title">Action Log History</span>
+          </div>
+          <button class="sh__log-overlay-close" (click)="toggleLogHistory()">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M12.854 3.146a.5.5 0 0 0-.708 0L8 7.293 3.854 3.146a.5.5 0 1 0-.708.708L7.293 8l-4.147 4.146a.5.5 0 0 0 .708.708L8 8.707l4.146 4.147a.5.5 0 0 0 .708-.708L8.707 8l4.147-4.146a.5.5 0 0 0 0-.708z"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="sh__log-overlay-body">
+          @for (log of actionLogs; track log.title) {
+            <div class="sh__log-item">
+              <div
+                class="sh__log-bar"
+                [class.sh__log-bar--amber]="log.color === 'amber'"
+                [class.sh__log-bar--primary]="log.color === 'primary'"
+                [class.sh__log-bar--primary-light]="
+                  log.color === 'primary-light'
+                "
+              ></div>
+              <div class="sh__log-text">
+                <p class="sh__log-title">{{ log.title }}</p>
+                <p class="sh__log-sub">{{ log.subtitle }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
   }
   @case (1) {
     <!-- Exceptions Queue / Detail -->
@@ -351,6 +332,28 @@
         (viewException)="openExceptionFromQueue($event)"
       ></app-exceptions>
     }
+  }
+  @case (2) {
+    <!-- Sessions -->
+    <div class="sh__sub-back">
+      <button class="sh__back-btn" (click)="goBackToCommandCenter()">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M19 12H5" />
+          <polyline points="12 19 5 12 12 5" />
+        </svg>
+        Back to Command Center
+      </button>
+    </div>
+    <app-sessions></app-sessions>
   }
   @case (3) {
     <!-- Patterns Full View -->

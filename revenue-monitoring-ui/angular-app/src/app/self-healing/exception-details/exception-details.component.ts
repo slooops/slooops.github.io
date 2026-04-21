@@ -1,25 +1,54 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { AuthenticationService } from '../../providers/authentication.service';
 
-interface ExceptionDetail {
-  id: string;
-  title: string;
-  status: string;
-  statusClass: string;
-  timestamp: string;
-  errorCode: string;
-  errorMessage: string;
-  errorDetail: string;
-  stackTraceHidden: number;
-  botModelVersion: string;
-  botAnalysis: string;
-  duplicateHighlight: string;
-  recommendedSql: string;
-  confidence: string;
-  confidencePercent: number;
-  successRate: string;
-  successRateLabel: string;
+interface RunDetail {
+  run_id: number;
+  config_id: number;
+  record_id: string;
+  id_column_type: string | null;
+  error_table: string | null;
+  pattern_id: number | null;
+  core_issue_label: string | null;
+  category: string | null;
+  root_cause_text: string | null;
+  findings_text: string | null;
+  resolution_text: string | null;
+  proposed_fix_sql: string | null;
+  tools_called_json: any[] | null;
+  agent_flow_json: any | null;
+  response_time_sec: number | null;
+  llm_call_count: number | null;
+  total_tokens: number | null;
+  analysis_mode: string;
+  run_status: string;
+  review_status: string;
+  created_at: string;
+}
+
+interface TimelineEvent {
+  event_id: number;
+  run_id: number;
+  session_id: number | null;
+  event_type: string;
+  direction: string;
+  actor: string;
+  payload: string | null;
+  tokens_used: number | null;
+  latency_ms: number | null;
+  success: boolean;
+  error_message: string | null;
+  created_at: string;
 }
 
 @Component({
@@ -29,41 +58,117 @@ interface ExceptionDetail {
   templateUrl: './exception-details.component.html',
   styleUrls: ['./exception-details.component.css'],
 })
-export class ExceptionDetailsComponent {
+export class ExceptionDetailsComponent implements OnInit, OnChanges {
   @Input() exceptionId: string = '';
   @Input() backLabel: string = 'Back to Queue';
   @Output() back = new EventEmitter<void>();
+
+  private readonly API_URL = 'https://i2c-aria-dev.cisco.com/api/runs';
 
   activeTab: 'review' | 'trace' = 'review';
   accuracyAssessment: 'correct' | 'incorrect' | null = 'correct';
   qualityScore = 4;
   reviewerNotes = '';
+  isLoading = false;
+  showFullRootCause = false;
+  showFullSql = false;
+  savingReview = false;
+  toastMessage = '';
+  toastType: 'success' | 'error' = 'success';
+  showToast = false;
 
-  exception: ExceptionDetail = {
-    id: '#EXC-2024-00847',
-    title: 'Database Integrity Violation',
-    status: 'AWAITING_APPROVAL',
-    statusClass: 'status--awaiting',
-    timestamp: '2024-10-24 14:22:01.442',
-    errorCode: 'ORA-00001: unique constraint (PROD.I2C_TXN_PK) violated',
-    errorMessage:
-      "Error at line 1, column 15: INSERT INTO PROD.I2C_TRANSACTIONS (TXN_ID, AMOUNT, CURRENCY) VALUES ('TXN_9921', 450.00, 'USD')",
-    errorDetail: 'Stack Trace Hidden (14 more lines...)',
-    stackTraceHidden: 14,
-    botModelVersion: 'v4.2.1-Core',
-    botAnalysis:
-      'The bot detected a race condition during the transaction batching process. The transaction ID',
-    duplicateHighlight: 'duplication conflict',
-    recommendedSql: `UPDATE PROD.I2C_TRANSACTIONS
-SET RETRY_FLAG = 'Y',
-    ORIGINAL_NODE = 'NODE_07'
-WHERE TXN_ID = 'TXN_9921'
-  AND STATUS = 'PENDING';`,
-    confidence: 'HIGH',
-    confidencePercent: 92,
-    successRate: '98%',
-    successRateLabel: 'Historical Accuracy',
-  };
+  run: RunDetail | null = null;
+  timelineEvents: TimelineEvent[] = [];
+  timelineLoading = false;
+  expandedEventIds = new Set<number>();
+
+  constructor(
+    private http: HttpClient,
+    private authService: AuthenticationService,
+  ) {}
+
+  ngOnInit(): void {
+    if (this.exceptionId) {
+      this.fetchRunDetail();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (
+      changes['exceptionId'] &&
+      !changes['exceptionId'].firstChange &&
+      this.exceptionId
+    ) {
+      this.fetchRunDetail();
+    }
+  }
+
+  private fetchRunDetail(): void {
+    this.isLoading = true;
+    this.http
+      .get<{ data: RunDetail }>(`${this.API_URL}/${this.exceptionId}`)
+      .subscribe({
+        next: (res) => {
+          this.run = res.data;
+          this.isLoading = false;
+          this.fetchTimeline();
+        },
+        error: (err) => {
+          console.error('Failed to fetch run detail:', err);
+          this.isLoading = false;
+        },
+      });
+  }
+
+  private cleanRootCauseText(text: string): string {
+    // Remove the first line if it's the ROOT CAUSE label (already shown in header)
+    const lines = text.split('\n');
+    if (lines[0] && /^\*{0,2}\s*ROOT\s*CAUSE\s*:/i.test(lines[0])) {
+      return lines.slice(1).join('\n').trim();
+    }
+    return text;
+  }
+
+  get rootCausePreview(): string {
+    if (!this.run?.root_cause_text) return '—';
+    const cleaned = this.cleanRootCauseText(this.run.root_cause_text);
+    const lines = cleaned.split('\n');
+    return lines.slice(0, 4).join('\n');
+  }
+
+  get rootCauseFull(): string {
+    if (!this.run?.root_cause_text) return '—';
+    return this.cleanRootCauseText(this.run.root_cause_text);
+  }
+
+  get hasMoreRootCause(): boolean {
+    if (!this.run?.root_cause_text) return false;
+    const cleaned = this.cleanRootCauseText(this.run.root_cause_text);
+    return cleaned.split('\n').length > 4;
+  }
+
+  toggleRootCause(): void {
+    this.showFullRootCause = !this.showFullRootCause;
+  }
+
+  get sqlPreview(): string {
+    if (!this.run?.proposed_fix_sql) return '';
+    const lines = this.run.proposed_fix_sql.split('\n');
+    return lines.slice(0, 6).join('\n');
+  }
+
+  get sqlFull(): string {
+    return this.run?.proposed_fix_sql || '';
+  }
+
+  get hasMoreSql(): boolean {
+    if (!this.run?.proposed_fix_sql) return false;
+    return this.run.proposed_fix_sql.split('\n').length > 6;
+  }
+
+  toggleSql(): void {
+    this.showFullSql = !this.showFullSql;
+  }
 
   get starArray(): boolean[] {
     return Array.from({ length: 5 }, (_, i) => i < this.qualityScore);
@@ -82,6 +187,221 @@ WHERE TXN_ID = 'TXN_9921'
   }
 
   saveReview(): void {
-    // placeholder
+    if (!this.run?.pattern_id) {
+      this.displayToast('No Pattern ID available for this run.', 'error');
+      return;
+    }
+
+    this.savingReview = true;
+
+    const body = {
+      feedback: this.accuracyAssessment || '',
+      notes: this.reviewerNotes,
+      reviewer: this.authService.getUserID(),
+    };
+
+    this.http
+      .post(
+        `https://i2c-aria-dev.cisco.com/api/patterns/${this.run.pattern_id}/feedback`,
+        body,
+      )
+      .subscribe({
+        next: () => {
+          this.savingReview = false;
+          this.displayToast(
+            'Feedback saved to pattern successfully.',
+            'success',
+          );
+        },
+        error: () => {
+          this.savingReview = false;
+          this.displayToast(
+            'Feedback could not be saved. Please try again.',
+            'error',
+          );
+        },
+      });
+  }
+
+  private displayToast(message: string, type: 'success' | 'error'): void {
+    this.toastMessage = message;
+    this.toastType = type;
+    this.showToast = true;
+    setTimeout(() => {
+      this.showToast = false;
+    }, 4000);
+  }
+
+  /* ── Timeline ── */
+  private fetchTimeline(): void {
+    this.timelineLoading = true;
+    this.http
+      .get<{
+        data: TimelineEvent[];
+      }>(`${this.API_URL}/${this.exceptionId}/timeline`)
+      .subscribe({
+        next: (res) => {
+          this.timelineEvents = (res.data || []).sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime(),
+          );
+          this.timelineLoading = false;
+        },
+        error: () => {
+          this.timelineLoading = false;
+        },
+      });
+  }
+
+  toggleEventExpand(id: number): void {
+    if (this.expandedEventIds.has(id)) {
+      this.expandedEventIds.delete(id);
+    } else {
+      this.expandedEventIds.add(id);
+    }
+  }
+
+  isEventExpanded(id: number): boolean {
+    return this.expandedEventIds.has(id);
+  }
+
+  parsePayload(payload: string | null): Record<string, any> | null {
+    if (!payload) return null;
+    try {
+      return JSON.parse(payload);
+    } catch {
+      return null;
+    }
+  }
+
+  payloadEntries(payload: string | null): [string, any][] {
+    const parsed = this.parsePayload(payload);
+    return parsed ? Object.entries(parsed) : [];
+  }
+
+  formatLatency(ms: number | null): string {
+    if (ms == null) return '—';
+    if (ms < 1000) return `${ms}ms`;
+    return `${(ms / 1000).toFixed(1)}s`;
+  }
+
+  getEventTypeIcon(type: string): string {
+    switch (type) {
+      case 'LLM_CALL':
+        return '🧠';
+      case 'TOOL_CALL':
+        return '🔧';
+      case 'QUERY':
+        return '🔍';
+      case 'ERROR':
+        return '❌';
+      case 'START':
+        return '▶';
+      case 'END':
+        return '✓';
+      default:
+        return '●';
+    }
+  }
+
+  getEventTypeClass(type: string): string {
+    switch (type) {
+      case 'LLM_CALL':
+        return 'ed__evt--llm';
+      case 'TOOL_CALL':
+        return 'ed__evt--tool';
+      case 'QUERY':
+        return 'ed__evt--query';
+      case 'ERROR':
+        return 'ed__evt--error';
+      default:
+        return 'ed__evt--default';
+    }
+  }
+
+  get traceLlmCount(): number {
+    return this.timelineEvents.filter((e) => e.event_type === 'LLM_CALL')
+      .length;
+  }
+
+  get traceToolCount(): number {
+    return this.timelineEvents.filter((e) => e.event_type === 'TOOL_CALL')
+      .length;
+  }
+
+  get traceErrorCount(): number {
+    return this.timelineEvents.filter((e) => !e.success).length;
+  }
+
+  get cleanFindings(): string {
+    if (!this.run?.findings_text) return 'No findings available.';
+    return this.run.findings_text
+      .replace(/^-\s*\[observation\]\s*/im, '')
+      .trim();
+  }
+
+  formatStatus(status: string): string {
+    if (!status) return '—';
+    return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
+  cleanLabel(label: string | null): string {
+    if (!label) return 'No issue label';
+    return label
+      .replace(/\*+/g, '')
+      .replace(/^ROOT\s*CAUSE\s*:\s*/i, '')
+      .trim();
+  }
+
+  formatDate(dateStr: string): string {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    return d.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'completed':
+        return 'ed__pill--completed';
+      case 'running':
+        return 'ed__pill--running';
+      case 'failed':
+        return 'ed__pill--failed';
+      default:
+        return 'ed__pill--default';
+    }
+  }
+
+  getReviewClass(status: string): string {
+    switch (status) {
+      case 'reviewed':
+        return 'ed__pill--reviewed';
+      case 'pending_review':
+        return 'ed__pill--pending';
+      case 'cross_team_review':
+        return 'ed__pill--cross-team';
+      default:
+        return 'ed__pill--default';
+    }
+  }
+
+  getModeClass(mode: string): string {
+    switch (mode?.toUpperCase()) {
+      case 'AGENT_FULL':
+        return 'ed__pill--agent';
+      case 'STATIC':
+        return 'ed__pill--static';
+      case 'AGENTIC':
+        return 'ed__pill--agent';
+      default:
+        return 'ed__pill--default';
+    }
   }
 }
