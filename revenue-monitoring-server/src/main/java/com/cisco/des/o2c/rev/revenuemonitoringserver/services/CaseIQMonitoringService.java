@@ -347,6 +347,33 @@ public class CaseIQMonitoringService {
             "WHERE is_active = 'TRUE' " +
             "AND caseiq_run_date >= SYSDATE - :lookback_hours/24";
 
+    private static final String P90_PROCESSING_TIME = "WITH staging_dedup AS ( " +
+            "  SELECT incident_number, impacted_service_offering, " +
+            "    created_at, created_on, " +
+            "    ROW_NUMBER() OVER ( " +
+            "      PARTITION BY incident_number, impacted_service_offering " +
+            "      ORDER BY version_number DESC NULLS LAST, created_at DESC " +
+            "    ) AS rn " +
+            "  FROM ARFINRO.XXCASEIQ_ESP_STAGING_TBL " +
+            "  WHERE created_at IS NOT NULL " +
+            ") " +
+            "SELECT " +
+            "  COUNT(*) AS total_records, " +
+            "  ROUND(PERCENTILE_CONT(0.9) WITHIN GROUP ( " +
+            "    ORDER BY (a.caseiq_run_date - CAST(s.created_at AS DATE)) * 86400 " +
+            "  ), 1) AS p90_processing_secs, " +
+            "  ROUND(PERCENTILE_CONT(0.9) WITHIN GROUP ( " +
+            "    ORDER BY (a.caseiq_run_date - CAST(s.created_on AS DATE)) * 86400 " +
+            "  ), 1) AS p90_e2e_secs " +
+            "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL a " +
+            "JOIN staging_dedup s " +
+            "  ON a.incident_number = s.incident_number " +
+            "  AND a.impacted_service_offering = s.impacted_service_offering " +
+            "  AND s.rn = 1 " +
+            "WHERE a.caseiq_run_date >= SYSDATE - :lookback_hours/24 " +
+            "AND a.caseiq_run_date IS NOT NULL " +
+            "AND (:fisc_qtr IS NULL OR a.fisc_qtr = :fisc_qtr)";
+
     // ─── Fiscal quarter injection ───────────────────────────────────────────────
 
     private static final Pattern FISC_QTR_INJECT_PATTERN = Pattern.compile("\\s+(GROUP BY|ORDER BY|FETCH)",
@@ -516,6 +543,22 @@ public class CaseIQMonitoringService {
 
     public List<Map<String, Object>> getApiResolutionErrors(int lookbackHours, String fiscQtr) {
         return runQuery(API_RESOLUTION_ERRORS, buildParams("lookback_hours", lookbackHours), fiscQtr);
+    }
+
+    public Map<String, Object> getP90ProcessingTime(int lookbackHours, String fiscQtr) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("lookback_hours", lookbackHours);
+        params.put("fisc_qtr", fiscQtr);
+        log.info("[CaseIQ] getP90ProcessingTime lookbackHours={} fiscQtr={}", lookbackHours, fiscQtr);
+        List<Map<String, Object>> rows = jdbcManager.queryWithNamedParams(P90_PROCESSING_TIME, params);
+        if (rows.isEmpty()) {
+            Map<String, Object> empty = new HashMap<>();
+            empty.put("TOTAL_RECORDS", 0);
+            empty.put("P90_PROCESSING_SECS", 0.0);
+            empty.put("P90_E2E_SECS", 0.0);
+            return empty;
+        }
+        return rows.get(0);
     }
 
     public List<Map<String, Object>> getResolutionDistribution(int lookbackHours, String fiscQtr) {

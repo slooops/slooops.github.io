@@ -12,6 +12,7 @@ import {
   ErrorCategory,
   TeamIssueMatrixEntry,
   IssueTrendEntry,
+  P90ProcessingTime,
 } from './caseiq-monitoring.models';
 
 @Injectable({ providedIn: 'root' })
@@ -203,5 +204,18 @@ export class CaseiqMonitoringDataService {
     return this.http
       .get(`${this.base}/anomalies/issue-trend?${q}`, dm)
       .pipe(map((res: any) => res as IssueTrendEntry[]));
+  }
+
+  getP90Time(
+    dm: DestroyManager,
+    lookbackHours: number,
+    fiscQtr?: string,
+  ): Observable<P90ProcessingTime> {
+    return this.http
+      .get(
+        `${this.base}/performance/p90-time?${this.qp(lookbackHours, fiscQtr)}`,
+        dm,
+      )
+      .pipe(map((res: any) => res as P90ProcessingTime));
   }
 }

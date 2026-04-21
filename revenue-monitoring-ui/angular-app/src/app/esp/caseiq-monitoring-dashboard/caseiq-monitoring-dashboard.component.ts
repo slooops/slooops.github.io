@@ -39,6 +39,7 @@ import {
   ThroughputEntry,
   ErrorCategory,
   TeamIssueMatrixEntry,
+  P90ProcessingTime,
 } from './caseiq-monitoring.models';
 import { LineChartComponent } from './line-chart/line-chart.component';
 
@@ -265,10 +266,12 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       unknownTeam: this.dataService.getUnknownTeam(this.dm, lb, fq),
       resolutionErrors: this.dataService.getResolutionErrors(this.dm, lb, fq),
       teamIssueMatrix: this.dataService.getTeamIssueMatrix(this.dm, lb, fq),
+      p90Time: this.dataService.getP90Time(this.dm, lb, fq),
     }).subscribe({
       next: (data) => {
         this.teamIssueMatrix = data.teamIssueMatrix || [];
         this.processHealth(data.health);
+        this.processP90Time(data.p90Time);
         this.processStatusBars(data.status);
         this.processTeamData(data.teamSummary);
         this.processThroughput(data.throughput);
@@ -334,16 +337,6 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
 
     this.kpiIssues = issuesCount.toLocaleString();
     this.kpiSuccessRate = `${successPct}%`;
-    console.log(
-      '[CaseIQ] AVG_PROCESSING_MINUTES raw value:',
-      h.AVG_PROCESSING_MINUTES,
-      '| type:',
-      typeof h.AVG_PROCESSING_MINUTES,
-    );
-    this.kpiAvgTime =
-      h.AVG_PROCESSING_MINUTES && h.AVG_PROCESSING_MINUTES > 0
-        ? String(h.AVG_PROCESSING_MINUTES)
-        : 'TBD';
     this.kpiStaleness =
       h.MINUTES_SINCE_LAST_RUN != null
         ? String(h.MINUTES_SINCE_LAST_RUN)
@@ -390,6 +383,16 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       },
     ];
     this.anomalyBreakdown = allIssues.filter((a) => a.count > 0);
+  }
+
+  private processP90Time(data: P90ProcessingTime): void {
+    const secs = data?.P90_PROCESSING_SECS;
+    if (secs && secs > 0) {
+      const mins = Math.round((secs / 60) * 10) / 10;
+      this.kpiAvgTime = String(mins);
+    } else {
+      this.kpiAvgTime = 'N/A';
+    }
   }
 
   private processStatusBars(data: StatusDistribution[]): void {

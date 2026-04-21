@@ -95,3 +95,9 @@ export interface IssueTrendEntry {
   WEEK_START: string;
   ISSUE_COUNT: number;
 }
+
+export interface P90ProcessingTime {
+  TOTAL_RECORDS: number;
+  P90_PROCESSING_SECS: number;
+  P90_E2E_SECS: number;
+}

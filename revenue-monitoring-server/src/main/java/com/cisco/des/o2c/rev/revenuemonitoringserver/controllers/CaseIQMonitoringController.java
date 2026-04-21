@@ -113,6 +113,13 @@ public class CaseIQMonitoringController {
         return new ResponseEntity<>(service.getResolutionDistribution(lookbackHours, fiscQtr), HttpStatus.OK);
     }
 
+    @GetMapping("/performance/p90-time")
+    public ResponseEntity<Map<String, Object>> p90ProcessingTime(
+            @RequestParam(defaultValue = "24") int lookbackHours,
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getP90ProcessingTime(lookbackHours, fiscQtr), HttpStatus.OK);
+    }
+
     @GetMapping("/status/analyzer")
     public ResponseEntity<List<Map<String, Object>>> analyzerDistribution(
             @RequestParam(defaultValue = "24") int lookbackHours,
