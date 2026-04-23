@@ -1097,7 +1097,7 @@ h6 {
 }
 
 .ctm-modal__body {
-  padding: 16px 20px;
+  padding: 10px 20px 20px;
   overflow-y: auto;
   flex: 1;
   min-height: 0;
