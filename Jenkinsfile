@@ -2,11 +2,6 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'Maven-3.3.1'
-        jdk 'JDK_11.0.3'
-    }
-
     stages {
         stage('Pre-Build') {
             when {
@@ -23,7 +18,9 @@ pipeline {
             }
             steps {
                 dir("revenue-monitoring-server") {
-                    sh "mvn -DskipTests clean package"
+                    withDockerContainer(image: 'maven:3-eclipse-temurin-25') {
+                        sh "mvn -Dmaven.repo.local=.m2/repository -DskipTests clean package"
+                    }
                     dockerBuild()
                     sh "docker tag containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:$GIT_COMMIT containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:server-$GIT_COMMIT"
                 }
@@ -105,9 +102,10 @@ pipeline {
         stage ('Test/Sonar') {
             steps {
                 dir("revenue-monitoring-server") {
-
                 // Run your unit tests and prepare SonarQube output
-                    sh "mvn org.jacoco:jacoco-maven-plugin:0.8.8:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.8:report"
+                    withDockerContainer(image: 'maven:3-eclipse-temurin-25') {
+                        sh "mvn -Dmaven.repo.local=.m2/repository test"
+                    }
                     sonarScan('Sonar')
                 }
                 // Run SonarQube scan for UI codebase as well
