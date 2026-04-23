@@ -6,6 +6,7 @@ import {
   HostBinding,
   ViewChild,
   ElementRef,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -195,6 +196,7 @@ export class CtmAlertsDashboardComponent
     private readonly dataService: CtmAlertsDataService,
     private readonly sharedDataService: DataService,
     private readonly dm: DestroyManager,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -263,10 +265,12 @@ export class CtmAlertsDashboardComponent
         );
         this.loading = false;
         this.lastUpdated = new Date().toLocaleString();
+        // Force Angular to render the @if(!loading) block NOW so canvas is in the DOM
+        this.cdr.detectChanges();
         console.log(
-          '[CTM-CHART] loading set to false, scheduling renderAllCharts',
+          '[CTM-CHART] loading set to false, detectChanges called, scheduling renderAllCharts',
         );
-        // Render charts after Angular updates the DOM (canvas must exist)
+        // Render charts after DOM is ready
         setTimeout(() => this.renderAllCharts());
       },
       error: () => {
