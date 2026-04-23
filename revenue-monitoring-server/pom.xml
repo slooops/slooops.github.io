@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.18</version>
+		<version>3.5.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.cisco.des.o2c.rev</groupId>
@@ -14,8 +14,7 @@
 	<name>revenue-monitoring-server</name>
 	<description>API Server and backend for Accruals Monitoring Framework</description>
 	<properties>
-		<java.version>11</java.version>
-		<tomcat.version>9.0.99</tomcat.version>
+		<java.version>25</java.version>
 		<!-- SonarQube: exclude boilerplate packages from coverage analysis -->
 		<sonar.coverage.exclusions>
 			**/models/**,
@@ -24,6 +23,19 @@
 			**/RevenueMonitoringServerApplication.java
 		</sonar.coverage.exclusions>
 	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- Override Spring Boot 3.5.5's Netty 4.1.124 with 4.2.x to silence sun.misc.Unsafe deprecation warnings on JDK 24+ -->
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty-bom</artifactId>
+				<version>4.2.6.Final</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<repositories>
 		<repository>
 			<id>jcenter-cache</id>
@@ -80,7 +92,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.oracle.database.jdbc</groupId>
-			<artifactId>ojdbc8</artifactId>
+			<artifactId>ojdbc11</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -95,35 +107,10 @@
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.googlecode.json-simple</groupId>
-			<artifactId>json-simple</artifactId>
-			<version>1.1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20211205</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-api</artifactId>
-			<version>0.11.5</version>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-impl</artifactId>
-			<version>0.11.5</version>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-jackson</artifactId>
-			<version>0.11.5</version>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>
@@ -151,7 +138,7 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>5.2.3</version> <!-- Use the latest version -->
+			<version>5.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
@@ -172,8 +159,7 @@
 				<dependency>
 					<groupId>io.netty</groupId>
 					<artifactId>netty-resolver-dns-native-macos</artifactId>
-					<version>4.1.94.Final</version>
-					<classifier>osx-aarch_64</classifier> <!-- or osx-x86_64 -->
+					<classifier>osx-aarch_64</classifier> <!-- managed by netty-bom -->
 				</dependency>
 			</dependencies>
 		</profile>
@@ -185,32 +171,33 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<jvmArguments>--enable-native-access=ALL-UNNAMED</jvmArguments>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-clean-plugin</artifactId>
-				<version>3.1.0</version> <!-- Downgraded to be compatible with Maven 3.3.1 -->
+				<version>3.3.2</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>3.1.0</version> <!-- Downgraded to be compatible with Maven 3.3.1 -->
+				<version>3.3.1</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version> <!-- Downgraded to be compatible with Maven 3.3.1 -->
+				<version>3.13.0</version>
 				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
+					<release>${java.version}</release>
 					<encoding>UTF-8</encoding>
-					<!-- Use source/target instead of release for compatibility -->
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.22.2</version> <!-- Downgraded to be compatible with Maven 3.3.1 -->
+				<version>3.2.5</version>
 			</plugin>
 		</plugins>
 	</build>
