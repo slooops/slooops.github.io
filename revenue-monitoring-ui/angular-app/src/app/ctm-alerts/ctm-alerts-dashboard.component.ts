@@ -241,35 +241,16 @@ export class CtmAlertsDashboardComponent
       hourlyTrend: this.dataService.getHourlyTrend(this.dm),
     }).subscribe({
       next: (data) => {
-        console.log(
-          '[CTM-CHART] forkJoin data arrived, loading:',
-          this.loading,
-        );
-        console.log(
-          '[CTM-CHART] hourlyTrend raw:',
-          data.hourlyTrend?.length,
-          'rows',
-          data.hourlyTrend,
-        );
         this.processSummary(data.summary);
         this.processAlertTypeDonut(data.byType);
         this.processPriorityDonut(data.byPriority);
         this.processDownstream(data.topDownstream);
         this.processThroughput(data.hourlyTrend);
         this.processAlerts(data.alerts);
-        console.log(
-          '[CTM-CHART] after processThroughput: throughputPoints=',
-          this.throughputPoints.length,
-          'chartData labels=',
-          this.throughputChartData.labels?.length,
-        );
         this.loading = false;
         this.lastUpdated = new Date().toLocaleString();
         // Force Angular to render the @if(!loading) block NOW so canvas is in the DOM
         this.cdr.detectChanges();
-        console.log(
-          '[CTM-CHART] loading set to false, detectChanges called, scheduling renderAllCharts',
-        );
         // Render charts after DOM is ready
         setTimeout(() => this.renderAllCharts());
       },
@@ -316,7 +297,6 @@ export class CtmAlertsDashboardComponent
   }
 
   private renderAllCharts(): void {
-    console.log('[CTM-CHART] renderAllCharts() called');
     this.renderDonut(
       'alertTypeCanvas',
       this.alertTypeData,
@@ -337,37 +317,8 @@ export class CtmAlertsDashboardComponent
     const canvas = document.getElementById(
       'throughputCanvas',
     ) as HTMLCanvasElement;
-    console.log('[CTM-CHART] throughputCanvas by getElementById:', canvas);
-    console.log(
-      '[CTM-CHART] canvas dimensions:',
-      canvas?.clientWidth,
-      'x',
-      canvas?.clientHeight,
-    );
-    console.log(
-      '[CTM-CHART] canvas parent:',
-      canvas?.parentElement?.className,
-      canvas?.parentElement?.clientWidth,
-      'x',
-      canvas?.parentElement?.clientHeight,
-    );
-    console.log(
-      '[CTM-CHART] throughputChartData labels:',
-      this.throughputChartData.labels,
-    );
-    console.log(
-      '[CTM-CHART] throughputChartData datasets:',
-      this.throughputChartData.datasets?.[0]?.data,
-    );
     if (canvas) {
-      console.log('[CTM-CHART] Creating throughput chart NOW');
       this.createThroughputChart(canvas);
-      console.log(
-        '[CTM-CHART] throughputChart created:',
-        !!this.throughputChart,
-      );
-    } else {
-      console.warn('[CTM-CHART] *** Canvas NOT found in DOM! ***');
     }
   }
 
@@ -579,19 +530,11 @@ export class CtmAlertsDashboardComponent
   }
 
   private createThroughputChart(canvas: HTMLCanvasElement): void {
-    try {
-      this.throughputChart = new Chart(canvas, {
-        type: 'line',
-        data: this.throughputChartData,
-        options: this.throughputChartOptions,
-      });
-      console.log(
-        '[CTM-CHART] Chart.js instance created, id:',
-        this.throughputChart.id,
-      );
-    } catch (e) {
-      console.error('[CTM-CHART] Chart.js creation FAILED:', e);
-    }
+    this.throughputChart = new Chart(canvas, {
+      type: 'line',
+      data: this.throughputChartData,
+      options: this.throughputChartOptions,
+    });
   }
 
   private processAlerts(data: CtmAlertRow[]): void {
