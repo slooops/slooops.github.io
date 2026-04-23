@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Clob;
+import java.sql.SQLException;
 import java.util.*;
 
 @Service
@@ -29,6 +31,7 @@ public class CtmAiAlertsService {
                         "START_TIME, END_TIME, RUN_TIME_SEC, " +
                         "DOWNSTREAM_BLOCKED_COUNT, DOWNSTREAM_BLOCKED_JOBS, JOB_COMMAND, JOB_LOG, JOB_OUTPUT " +
                         "FROM ARFINRO.CTM_AI_ALERTS " +
+                        "WHERE ALERT_TIME >= ADD_MONTHS(SYSDATE, -1) " +
                         "ORDER BY ALERT_TIME DESC";
 
         private static final String SUMMARY_COUNTS = "SELECT " +
@@ -42,13 +45,15 @@ public class CtmAiAlertsService {
                         "COUNT(CASE WHEN PRIORITY = 'P2' THEN 1 END) AS p2, " +
                         "COUNT(CASE WHEN PRIORITY = 'P3' THEN 1 END) AS p3, " +
                         "COUNT(CASE WHEN PRIORITY = 'P4' THEN 1 END) AS p4 " +
-                        "FROM ARFINRO.CTM_AI_ALERTS";
+                        "FROM ARFINRO.CTM_AI_ALERTS " +
+                        "WHERE ALERT_TIME >= ADD_MONTHS(SYSDATE, -1)";
 
         private static final String ALERT_TYPE_DISTRIBUTION = "SELECT " +
                         "ALERT_TYPE, " +
                         "COUNT(*) AS cnt, " +
                         "ROUND(COUNT(*) * 100.0 / NULLIF(SUM(COUNT(*)) OVER(), 0), 1) AS pct " +
                         "FROM ARFINRO.CTM_AI_ALERTS " +
+                        "WHERE ALERT_TIME >= ADD_MONTHS(SYSDATE, -1) " +
                         "GROUP BY ALERT_TYPE " +
                         "ORDER BY cnt DESC";
 
@@ -57,6 +62,7 @@ public class CtmAiAlertsService {
                         "COUNT(*) AS cnt, " +
                         "ROUND(COUNT(*) * 100.0 / NULLIF(SUM(COUNT(*)) OVER(), 0), 1) AS pct " +
                         "FROM ARFINRO.CTM_AI_ALERTS " +
+                        "WHERE ALERT_TIME >= ADD_MONTHS(SYSDATE, -1) " +
                         "GROUP BY PRIORITY " +
                         "ORDER BY cnt DESC";
 
@@ -65,6 +71,7 @@ public class CtmAiAlertsService {
                         "FROM ARFINRO.CTM_AI_ALERTS " +
                         "WHERE DOWNSTREAM_BLOCKED_COUNT IS NOT NULL " +
                         "AND DOWNSTREAM_BLOCKED_COUNT > 0 " +
+                        "AND ALERT_TIME >= ADD_MONTHS(SYSDATE, -1) " +
                         "ORDER BY DOWNSTREAM_BLOCKED_COUNT DESC " +
                         "FETCH FIRST 10 ROWS ONLY";
 
@@ -77,6 +84,7 @@ public class CtmAiAlertsService {
                         "COUNT(CASE WHEN ALERT_TYPE = 'DELAYED' THEN 1 END) AS delayed, " +
                         "COUNT(CASE WHEN ALERT_TYPE = 'LATE_START' THEN 1 END) AS late_start " +
                         "FROM ARFINRO.CTM_AI_ALERTS " +
+                        "WHERE ALERT_TIME >= ADD_MONTHS(SYSDATE, -1) " +
                         "GROUP BY APPLICATION " +
                         "ORDER BY total DESC";
 
@@ -87,6 +95,7 @@ public class CtmAiAlertsService {
                         "COUNT(CASE WHEN ALERT_TYPE = 'DELAYED' THEN 1 END) AS delayed_count, " +
                         "COUNT(CASE WHEN ALERT_TYPE = 'LATE_START' THEN 1 END) AS late_start_count " +
                         "FROM ARFINRO.CTM_AI_ALERTS " +
+                        "WHERE ALERT_TIME >= ADD_MONTHS(SYSDATE, -1) " +
                         "GROUP BY TRUNC(ALERT_TIME, 'HH') " +
                         "ORDER BY alert_hour DESC";
 
@@ -97,6 +106,13 @@ public class CtmAiAlertsService {
                 List<Map<String, Object>> results = jdbcManager.queryWithNamedParams(ALL_ALERTS,
                                 Collections.emptyMap());
                 log.info("[CTM] getAllAlerts returned {} rows", results.size());
+                // Convert CLOB columns to Strings so Jackson can serialize them
+                for (Map<String, Object> row : results) {
+                        convertClobToString(row, "JOB_COMMAND");
+                        convertClobToString(row, "JOB_LOG");
+                        convertClobToString(row, "JOB_OUTPUT");
+                        convertClobToString(row, "DOWNSTREAM_BLOCKED_JOBS");
+                }
                 return results;
         }
 
@@ -146,5 +162,20 @@ public class CtmAiAlertsService {
                                 Collections.emptyMap());
                 log.info("[CTM] getHourlyTrend returned {} rows", results.size());
                 return results;
+        }
+
+        // ─── Utilities ──────────────────────────────────────────────────────────────
+
+        private void convertClobToString(Map<String, Object> row, String key) {
+                Object val = row.get(key);
+                if (val instanceof Clob) {
+                        try {
+                                Clob clob = (Clob) val;
+                                row.put(key, clob.getSubString(1, (int) clob.length()));
+                        } catch (SQLException e) {
+                                log.warn("[CTM] Failed to read CLOB for column {}: {}", key, e.getMessage());
+                                row.put(key, null);
+                        }
+                }
         }
 }

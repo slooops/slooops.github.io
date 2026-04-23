@@ -4,6 +4,8 @@ import {
   OnDestroy,
   AfterViewInit,
   HostBinding,
+  ViewChild,
+  ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -33,7 +35,7 @@ import {
   phosphorClockDuotone,
 } from '@ng-icons/phosphor-icons/duotone';
 import { forkJoin, interval, Subscription } from 'rxjs';
-import { Chart, registerables } from 'chart.js';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { DataService, PeriodStatus } from '../providers/data.service';
@@ -126,17 +128,23 @@ export class CtmAlertsDashboardComponent
     color: string;
   }[] = [];
 
-  // Throughput line chart
+  // Throughput line chart (Chart.js)
   throughputPoints: { label: string; value: number }[] = [];
-  throughputMax = 1;
-  throughputLinePath = '';
-  throughputAreaPath = '';
-  throughputYTicks: number[] = [];
-  tooltipVisible = false;
-  tooltipX = 0;
-  tooltipY = 0;
-  tooltipLabel = '';
-  tooltipValue = 0;
+  throughputChartData: ChartConfiguration<'line'>['data'] = {
+    labels: [],
+    datasets: [],
+  };
+  throughputChartOptions: ChartConfiguration<'line'>['options'] = {};
+  private throughputChart: Chart<'line'> | null = null;
+  private _throughputChartPending = false;
+
+  @ViewChild('throughputCanvas')
+  set throughputCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
+    if (ref && this._throughputChartPending) {
+      this._throughputChartPending = false;
+      this.createThroughputChart(ref.nativeElement);
+    }
+  }
 
   // Table data
   allAlerts: CtmAlertRow[] = [];
@@ -211,6 +219,7 @@ export class CtmAlertsDashboardComponent
     this.refreshSub?.unsubscribe();
     this.alertTypeChart?.destroy();
     this.priorityChart?.destroy();
+    this.throughputChart?.destroy();
   }
 
   toggleTheme(): void {
@@ -238,8 +247,8 @@ export class CtmAlertsDashboardComponent
         this.processAlerts(data.alerts);
         this.loading = false;
         this.lastUpdated = new Date().toLocaleString();
-        // Render donuts after Angular updates the DOM (canvas must exist)
-        setTimeout(() => this.renderAllDonuts());
+        // Render charts after Angular updates the DOM (canvas must exist)
+        setTimeout(() => this.renderAllCharts());
       },
       error: () => {
         this.loading = false;
@@ -283,7 +292,7 @@ export class CtmAlertsDashboardComponent
     };
   }
 
-  private renderAllDonuts(): void {
+  private renderAllCharts(): void {
     this.renderDonut(
       'alertTypeCanvas',
       this.alertTypeData,
@@ -298,6 +307,15 @@ export class CtmAlertsDashboardComponent
       'total',
       'priority',
     );
+    // Rebuild throughput line chart
+    this.throughputChart?.destroy();
+    this.throughputChart = null;
+    const canvas = document.getElementById(
+      'throughputCanvas',
+    ) as HTMLCanvasElement;
+    if (canvas) {
+      this.createThroughputChart(canvas);
+    }
   }
 
   private renderDonut(
@@ -406,7 +424,6 @@ export class CtmAlertsDashboardComponent
 
   private processThroughput(data: CtmHourlyTrend[]): void {
     const sliced = (data || []).slice(0, 12).reverse();
-    const maxVal = Math.max(...sliced.map((d) => d.TOTAL_ALERTS || 0), 1);
 
     this.throughputPoints = sliced.map((d) => {
       const label = d.ALERT_HOUR
@@ -418,33 +435,102 @@ export class CtmAlertsDashboardComponent
       return { label, value: d.TOTAL_ALERTS || 0 };
     });
 
-    const step = Math.ceil(maxVal / 3);
-    const yMax = step * 3;
-    this.throughputYTicks = [yMax, step * 2, step, 0];
-    this.throughputMax = yMax;
+    const labels = this.throughputPoints.map((p) => p.label);
+    const values = this.throughputPoints.map((p) => p.value);
 
-    const w = 300,
-      h = 200,
-      pad = 15;
-    const n = this.throughputPoints.length;
-    if (n < 2) {
-      this.throughputLinePath = '';
-      this.throughputAreaPath = '';
-      return;
-    }
+    this.throughputChartData = {
+      labels,
+      datasets: [
+        {
+          data: values,
+          borderColor: '#00bceb',
+          borderWidth: 2.5,
+          pointBackgroundColor: '#ffffff',
+          pointBorderColor: '#00bceb',
+          pointBorderWidth: 2,
+          pointRadius: 3.5,
+          pointHoverRadius: 5.5,
+          pointHoverBackgroundColor: '#ffffff',
+          pointHoverBorderColor: '#00bceb',
+          pointHoverBorderWidth: 2.5,
+          tension: 0.4,
+          fill: true,
+          backgroundColor: (ctx: any) => {
+            const chart = ctx.chart;
+            const { ctx: canvasCtx, chartArea } = chart;
+            if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
+            const gradient = canvasCtx.createLinearGradient(
+              0,
+              chartArea.top,
+              0,
+              chartArea.bottom,
+            );
+            gradient.addColorStop(0, 'rgba(0, 188, 235, 0.35)');
+            gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
+            return gradient;
+          },
+        },
+      ],
+    };
 
-    const pts = this.throughputPoints.map((p, i) => ({
-      x: pad + (i / (n - 1)) * (w - 2 * pad),
-      y: h - (p.value / yMax) * h,
-    }));
+    this.throughputChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(20, 30, 40, 0.85)',
+          titleFont: { size: 10, weight: 'normal' },
+          titleColor: '#8899a6',
+          bodyFont: { size: 14, weight: 'bold' },
+          bodyColor: '#00bceb',
+          borderColor: 'rgba(0, 188, 235, 0.3)',
+          borderWidth: 1,
+          padding: { top: 6, bottom: 6, left: 10, right: 10 },
+          cornerRadius: 10,
+          displayColors: false,
+          callbacks: {
+            title: (items) => items[0]?.label || '',
+            label: (item) => String(item.parsed.y),
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            color: this.isDarkMode ? '#8899a6' : '#555',
+            font: { size: 10, weight: 500 as any },
+            maxRotation: 0,
+            callback: function (_value, index) {
+              return index % 2 === 0 ? this.getLabelForValue(index) : '';
+            },
+          },
+          border: { display: false },
+        },
+        y: {
+          grid: { display: false },
+          ticks: {
+            color: this.isDarkMode ? '#8899a6' : '#555',
+            font: { size: 10, weight: 500 as any },
+            maxTicksLimit: 4,
+          },
+          border: { display: false },
+          beginAtZero: true,
+        },
+      },
+    };
 
-    let linePath = `M${pts[0].x},${pts[0].y}`;
-    for (let i = 0; i < pts.length - 1; i++) {
-      const cp = (pts[i + 1].x - pts[i].x) / 3;
-      linePath += ` C${pts[i].x + cp},${pts[i].y} ${pts[i + 1].x - cp},${pts[i + 1].y} ${pts[i + 1].x},${pts[i + 1].y}`;
-    }
-    this.throughputLinePath = linePath;
-    this.throughputAreaPath = `${linePath} L${pts[n - 1].x},${h} L${pts[0].x},${h} Z`;
+    // Don't render here — renderAllCharts() handles it after DOM is ready
+  }
+
+  private createThroughputChart(canvas: HTMLCanvasElement): void {
+    this.throughputChart = new Chart(canvas, {
+      type: 'line',
+      data: this.throughputChartData,
+      options: this.throughputChartOptions,
+    });
   }
 
   private processAlerts(data: CtmAlertRow[]): void {
@@ -543,25 +629,6 @@ export class CtmAlertsDashboardComponent
       this.currentPage * this.pageSize,
       this.filteredAlerts.length,
     );
-  }
-
-  // ─── Tooltip ──────────────────────────────────────────────────────
-
-  showTooltip(event: MouseEvent, pt: { label: string; value: number }): void {
-    const wrapper = (event.target as Element).closest(
-      '.ctm-line-chart-wrapper',
-    );
-    if (!wrapper) return;
-    const rect = wrapper.getBoundingClientRect();
-    this.tooltipX = event.clientX - rect.left;
-    this.tooltipY = event.clientY - rect.top - 40;
-    this.tooltipLabel = pt.label;
-    this.tooltipValue = pt.value;
-    this.tooltipVisible = true;
-  }
-
-  hideTooltip(): void {
-    this.tooltipVisible = false;
   }
 
   // ─── Helpers ──────────────────────────────────────────────────────
