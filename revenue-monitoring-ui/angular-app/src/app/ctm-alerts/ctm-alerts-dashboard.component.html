@@ -212,10 +212,11 @@
           <span>Hourly Alert Volume</span>
         </div>
         <div class="ctm-throughput-chart-wrapper">
-          @if (throughputPoints.length >= 2) {
-            <canvas id="throughputCanvas" #throughputCanvas></canvas>
-          } @else {
-            <div class="ctm-no-data">No hourly data available</div>
+          <canvas id="throughputCanvas" #throughputCanvas></canvas>
+          @if (throughputPoints.length < 2) {
+            <div class="ctm-no-data ctm-no-data--overlay">
+              Hourly data in progress
+            </div>
           }
         </div>
       </div>

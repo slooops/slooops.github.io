@@ -762,6 +762,15 @@ h6 {
   padding: 20px !important;
 }
 
+.ctm-no-data--overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
 /* ── Badges ─────────────────────────────────────────────────── */
 .ctm-badge {
   font-size: 10px;
