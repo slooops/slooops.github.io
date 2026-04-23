@@ -4,6 +4,8 @@ import {
   OnDestroy,
   HostBinding,
   HostListener,
+  ViewChild,
+  ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,18 +15,11 @@ import {
   phosphorSunBold,
   phosphorMoonBold,
 } from '@ng-icons/phosphor-icons/bold';
-import {
-  phosphorHeartbeatDuotone,
-  phosphorWarningCircleDuotone,
-  phosphorChartBarHorizontalDuotone,
-  phosphorUsersFourDuotone,
-  phosphorTableDuotone,
-  phosphorClockCountdownDuotone,
-  phosphorListBulletsDuotone,
-  phosphorSirenDuotone,
-  phosphorGaugeDuotone,
-} from '@ng-icons/phosphor-icons/duotone';
 import { forkJoin, interval, Subscription } from 'rxjs';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { NgChartsModule } from 'ng2-charts';
+
+Chart.register(...registerables);
 
 import { DestroyManager } from '../../providers/destroy-manager.service';
 import { DataService, PeriodStatus } from '../../providers/data.service';
@@ -50,6 +45,7 @@ import { LineChartComponent } from './line-chart/line-chart.component';
     CommonModule,
     FormsModule,
     NgIcon,
+    NgChartsModule,
     HealthRingComponent,
     LineChartComponent,
   ],
@@ -59,15 +55,6 @@ import { LineChartComponent } from './line-chart/line-chart.component';
       phosphorArrowClockwiseBold,
       phosphorSunBold,
       phosphorMoonBold,
-      phosphorHeartbeatDuotone,
-      phosphorWarningCircleDuotone,
-      phosphorChartBarHorizontalDuotone,
-      phosphorUsersFourDuotone,
-      phosphorTableDuotone,
-      phosphorClockCountdownDuotone,
-      phosphorListBulletsDuotone,
-      phosphorSirenDuotone,
-      phosphorGaugeDuotone,
     }),
   ],
   templateUrl: './caseiq-monitoring-dashboard.component.html',
@@ -85,7 +72,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     { value: 72, label: 'Last 3 days' },
     { value: 168, label: 'Last 7 days' },
   ];
-  fiscQtrOptions = ['', 'Q1FY26', 'Q2FY26', 'Q3FY26'];
+  fiscQtrOptions: string[] = [];
 
   // Period info (from shared DataService)
   periodStatus: PeriodStatus | null = null;
@@ -123,6 +110,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   // Drilldown modal
   drilldownOpen = false;
   drilldownTitle = '';
+  drilldownSubtitle = '';
   drilldownPoints: { label: string; value: number }[] = [];
 
   // Resolution status bars
@@ -143,7 +131,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     displayText: string;
   }[] = [];
 
-  // Throughput bars
+  // Throughput bars (unused — kept for backward compat)
   throughputBars: {
     label: string;
     value: number;
@@ -152,17 +140,23 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     displayText: string;
   }[] = [];
 
-  // Throughput line chart
+  // Throughput line chart (Chart.js)
   throughputPoints: { label: string; value: number }[] = [];
-  throughputMax = 1;
-  throughputLinePath = '';
-  throughputAreaPath = '';
-  throughputYTicks: number[] = [];
-  tooltipVisible = false;
-  tooltipX = 0;
-  tooltipY = 0;
-  tooltipLabel = '';
-  tooltipValue = 0;
+  throughputChartData: ChartConfiguration<'line'>['data'] = {
+    labels: [],
+    datasets: [],
+  };
+  throughputChartOptions: ChartConfiguration<'line'>['options'] = {};
+  private throughputChart: Chart<'line'> | null = null;
+  private _throughputChartPending = false;
+
+  @ViewChild('throughputCanvas')
+  set throughputCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
+    if (ref && this._throughputChartPending) {
+      this._throughputChartPending = false;
+      this.createThroughputChart(ref.nativeElement);
+    }
+  }
 
   // Tables
   teamTableData: TeamSummary[] = [];
@@ -224,16 +218,33 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
         };
       }
     });
+    this.dataService.getQuarters(this.dm).subscribe({
+      next: (quarters) => {
+        this.fiscQtrOptions = quarters || [];
+      },
+    });
     this.refreshAll();
     this.refreshSub = interval(60000).subscribe(() => this.refreshAll());
   }
 
   ngOnDestroy(): void {
     this.refreshSub?.unsubscribe();
+    this.throughputChart?.destroy();
   }
 
   toggleTheme(): void {
     this.isDarkMode = !this.isDarkMode;
+    this.updateThroughputChartTheme();
+  }
+
+  private updateThroughputChartTheme(): void {
+    if (!this.throughputChart) return;
+    const tickColor = this.isDarkMode ? '#8899a6' : '#555';
+    const xScale = this.throughputChart.options.scales?.['x'];
+    const yScale = this.throughputChart.options.scales?.['y'];
+    if (xScale?.ticks) xScale.ticks.color = tickColor;
+    if (yScale?.ticks) yScale.ticks.color = tickColor;
+    this.throughputChart.update();
   }
 
   onFilterChange(): void {
@@ -434,7 +445,6 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
 
   private processThroughput(data: ThroughputEntry[]): void {
     const sliced = (data || []).slice(0, 12).reverse(); // oldest → newest (left → right)
-    const maxVal = Math.max(...sliced.map((d) => d.CASES_PROCESSED || 0), 1);
 
     this.throughputPoints = sliced.map((d) => {
       const label = d.RUN_HOUR
@@ -446,45 +456,112 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       return { label, value: d.CASES_PROCESSED || 0 };
     });
 
-    // Build Y-axis ticks (4 ticks including 0) — use yMax as the authoritative scale
-    const step = Math.ceil(maxVal / 3);
-    const yMax = step * 3;
-    this.throughputYTicks = [yMax, step * 2, step, 0];
-    this.throughputMax = yMax;
+    const labels = this.throughputPoints.map((p) => p.label);
+    const values = this.throughputPoints.map((p) => p.value);
 
-    // SVG chart area: 300x250 viewBox, pad=15, chart height=200 (leaving 50px for x-labels)
-    const w = 300,
-      h = 200,
-      pad = 15;
-    const n = this.throughputPoints.length;
-    if (n < 2) {
-      this.throughputLinePath = '';
-      this.throughputAreaPath = '';
-      return;
+    this.throughputChartData = {
+      labels,
+      datasets: [
+        {
+          data: values,
+          borderColor: '#00bceb',
+          borderWidth: 2.5,
+          pointBackgroundColor: '#ffffff',
+          pointBorderColor: '#00bceb',
+          pointBorderWidth: 2,
+          pointRadius: 3.5,
+          pointHoverRadius: 5.5,
+          pointHoverBackgroundColor: '#ffffff',
+          pointHoverBorderColor: '#00bceb',
+          pointHoverBorderWidth: 2.5,
+          tension: 0.4,
+          fill: true,
+          backgroundColor: (ctx: any) => {
+            const chart = ctx.chart;
+            const { ctx: canvasCtx, chartArea } = chart;
+            if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
+            const gradient = canvasCtx.createLinearGradient(
+              0,
+              chartArea.top,
+              0,
+              chartArea.bottom,
+            );
+            gradient.addColorStop(0, 'rgba(0, 188, 235, 0.35)');
+            gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
+            return gradient;
+          },
+        },
+      ],
+    };
+
+    this.throughputChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(20, 30, 40, 0.85)',
+          titleFont: { size: 10, weight: 'normal' },
+          titleColor: '#8899a6',
+          bodyFont: { size: 14, weight: 'bold' },
+          bodyColor: '#00bceb',
+          borderColor: 'rgba(0, 188, 235, 0.3)',
+          borderWidth: 1,
+          padding: { top: 6, bottom: 6, left: 10, right: 10 },
+          cornerRadius: 10,
+          displayColors: false,
+          callbacks: {
+            title: (items) => items[0]?.label || '',
+            label: (item) => String(item.parsed.y),
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            color: this.isDarkMode ? '#8899a6' : '#555',
+            font: { size: 10, weight: 500 as any },
+            maxRotation: 0,
+            callback: function (_value, index) {
+              return index % 2 === 0 ? this.getLabelForValue(index) : '';
+            },
+          },
+          border: { display: false },
+        },
+        y: {
+          grid: { display: false },
+          ticks: {
+            color: this.isDarkMode ? '#8899a6' : '#555',
+            font: { size: 10, weight: 500 as any },
+            maxTicksLimit: 4,
+          },
+          border: { display: false },
+          beginAtZero: true,
+        },
+      },
+    };
+
+    // Update existing chart in-place, or flag for creation if canvas isn't in DOM yet
+    if (this.throughputChart) {
+      this.throughputChart.data = this.throughputChartData;
+      this.throughputChart.options = this.throughputChartOptions!;
+      this.throughputChart.update();
+    } else {
+      this._throughputChartPending = true;
     }
+  }
 
-    const pts = this.throughputPoints.map((p, i) => ({
-      x: pad + (i / (n - 1)) * (w - 2 * pad),
-      y: h - (p.value / yMax) * h,
-    }));
-
-    // Smooth curve using cubic bezier (Catmull-Rom-like)
-    let linePath = `M${pts[0].x},${pts[0].y}`;
-    for (let i = 0; i < pts.length - 1; i++) {
-      const cp = (pts[i + 1].x - pts[i].x) / 3;
-      linePath += ` C${pts[i].x + cp},${pts[i].y} ${pts[i + 1].x - cp},${pts[i + 1].y} ${pts[i + 1].x},${pts[i + 1].y}`;
-    }
-    this.throughputLinePath = linePath;
-    this.throughputAreaPath = `${linePath} L${pts[n - 1].x},${h} L${pts[0].x},${h} Z`;
-
-    // Keep bars for backward compat (unused now)
-    this.throughputBars = this.throughputPoints.map((p) => ({
-      label: p.label,
-      value: p.value,
-      pct: (p.value / maxVal) * 100,
-      color: '#00bceb',
-      displayText: String(p.value),
-    }));
+  private createThroughputChart(canvas: HTMLCanvasElement): void {
+    this.throughputChart = new Chart(canvas, {
+      type: 'line',
+      data: this.throughputChartData,
+      options: this.throughputChartOptions,
+    });
   }
 
   private processAnomalyTable(
@@ -608,21 +685,6 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     URL.revokeObjectURL(url);
   }
 
-  showTooltip(event: MouseEvent, pt: { label: string; value: number }): void {
-    const svg = (event.target as Element).closest('.ciq-line-chart-wrapper');
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    this.tooltipX = event.clientX - rect.left;
-    this.tooltipY = event.clientY - rect.top - 40;
-    this.tooltipLabel = pt.label;
-    this.tooltipValue = pt.value;
-    this.tooltipVisible = true;
-  }
-
-  hideTooltip(): void {
-    this.tooltipVisible = false;
-  }
-
   severityClass(severity: string): string {
     switch (severity) {
       case 'critical':
@@ -675,6 +737,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     rawTeam?: string,
   ): void {
     this.drilldownTitle = `${issueLabel} — ${team}`;
+    this.drilldownSubtitle = '';
     this.drilldownOpen = true;
     this.drilldownPoints = [];
     const fq = this.fiscQtr || undefined;
@@ -682,10 +745,19 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       .getIssueTrend(this.dm, rawTeam || team, issueType, fq)
       .subscribe({
         next: (data) => {
-          this.drilldownPoints = (data || []).map((d) => ({
-            label: d.WEEK_START,
+          const pts = (data || []).map((d, i) => ({
+            label: `W${i + 1}`,
             value: d.ISSUE_COUNT,
           }));
+          this.drilldownPoints = pts;
+          const total = pts.reduce((s, p) => s + p.value, 0);
+          const qtrLabel =
+            this.fiscQtr ||
+            this.fiscQtrOptions[this.fiscQtrOptions.length - 1] ||
+            '';
+          this.drilldownSubtitle = qtrLabel
+            ? `WEEKLY TREND — ${qtrLabel} -  TOTAL: ${total}`
+            : `WEEKLY TREND — TOTAL: ${total}`;
         },
       });
   }
@@ -698,12 +770,4 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   onEscapeKey(): void {
     if (this.drilldownOpen) this.closeDrilldown();
   }
-
-  formatShortDate = (raw: string): string => {
-    const d = new Date(raw);
-    if (isNaN(d.getTime())) return raw;
-    const day = d.getUTCDate();
-    const mon = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
-    return `${day} ${mon}`;
-  };
 }

@@ -62,9 +62,6 @@
     <div class="ciq-grid ciq-grid-kpi">
       <div class="ciq-kpi-grid">
         <div class="ciq-kpi ciq-kpi-red">
-          <div class="ciq-kpi-icon-col ciq-kpi-icon-col--red">
-            <ng-icon name="phosphorWarningCircleDuotone" size="26" />
-          </div>
           <div class="ciq-kpi-content">
             <div class="ciq-kpi-label">Issues</div>
             <div class="ciq-kpi-value">{{ kpiIssues }}</div>
@@ -75,9 +72,6 @@
           <div class="ciq-kpi-value">{{ kpiSuccessRate }}</div>
         </div> -->
         <div class="ciq-kpi ciq-kpi-blue">
-          <div class="ciq-kpi-icon-col ciq-kpi-icon-col--blue">
-            <ng-icon name="phosphorUsersFourDuotone" size="26" />
-          </div>
           <div class="ciq-kpi-content">
             <div class="ciq-kpi-label">Agents</div>
             <div class="ciq-kpi-value">{{ kpiAgents }}</div>
@@ -85,9 +79,6 @@
         </div>
 
         <div class="ciq-kpi ciq-kpi-cyan">
-          <div class="ciq-kpi-icon-col ciq-kpi-icon-col--cyan">
-            <ng-icon name="phosphorGaugeDuotone" size="26" />
-          </div>
           <div class="ciq-kpi-content">
             <div class="ciq-kpi-label">Tokens</div>
             <div class="ciq-kpi-value">{{ kpiTokens }}</div>
@@ -95,18 +86,12 @@
         </div>
 
         <div class="ciq-kpi">
-          <div class="ciq-kpi-icon-col ciq-kpi-icon-col--orange">
-            <ng-icon name="phosphorClockCountdownDuotone" size="26" />
-          </div>
           <div class="ciq-kpi-content">
             <div class="ciq-kpi-label">P90 Time (min)</div>
             <div class="ciq-kpi-value">{{ kpiAvgTime }}</div>
           </div>
         </div>
         <div class="ciq-kpi">
-          <div class="ciq-kpi-icon-col ciq-kpi-icon-col--green">
-            <ng-icon name="phosphorClockCountdownDuotone" size="26" />
-          </div>
           <div class="ciq-kpi-content">
             <div class="ciq-kpi-label">Last Run (min)</div>
             <div class="ciq-kpi-value">{{ kpiStaleness }}</div>
@@ -226,86 +211,11 @@
     <ng-template #throughputCard>
       <div class="ciq-card ciq-card--chart">
         <div class="ciq-card-header">
-          <div class="ciq-card-icon ciq-card-icon--cyan">
-            <ng-icon name="phosphorClockCountdownDuotone" size="20" />
-          </div>
           <span>Hourly Throughput</span>
         </div>
-        <div class="ciq-line-chart-wrapper" (mouseleave)="hideTooltip()">
+        <div class="ciq-throughput-chart-wrapper">
           @if (throughputPoints.length >= 2) {
-            <div class="ciq-line-chart">
-              <!-- Y-axis labels -->
-              <div class="ciq-y-axis">
-                @for (tick of throughputYTicks; track tick) {
-                  <span class="ciq-y-label">{{ tick }}</span>
-                }
-              </div>
-              <!-- SVG chart + integrated x-axis -->
-              <svg class="ciq-line-svg" viewBox="0 0 310 200">
-                <defs>
-                  <linearGradient
-                    id="throughputFill"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop
-                      offset="0%"
-                      stop-color="#00bceb"
-                      stop-opacity="0.35"
-                    />
-                    <stop offset="100%" stop-color="#00bceb" stop-opacity="0" />
-                  </linearGradient>
-                </defs>
-                <path
-                  [attr.d]="throughputAreaPath"
-                  fill="url(#throughputFill)"
-                />
-                <path
-                  [attr.d]="throughputLinePath"
-                  fill="none"
-                  stroke="#00bceb"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <!-- Data dots + x-axis labels -->
-                @for (pt of throughputPoints; let i = $index; track pt.label) {
-                  <circle
-                    class="ciq-dot"
-                    [attr.cx]="15 + (i / (throughputPoints.length - 1)) * 270"
-                    [attr.cy]="200 - (pt.value / throughputMax) * 200"
-                    r="3.5"
-                    fill="white"
-                    stroke="#00bceb"
-                    stroke-width="2"
-                    (mouseenter)="showTooltip($event, pt)"
-                    (mousemove)="showTooltip($event, pt)"
-                    (mouseleave)="hideTooltip()"
-                  />
-                  <text
-                    class="ciq-svg-x-label"
-                    [attr.x]="15 + (i / (throughputPoints.length - 1)) * 270"
-                    y="235"
-                    text-anchor="middle"
-                  >
-                    {{ i % 2 === 0 ? pt.label : "" }}
-                  </text>
-                }
-              </svg>
-            </div>
-            <!-- Custom tooltip -->
-            @if (tooltipVisible) {
-              <div
-                class="ciq-tooltip"
-                [style.left.px]="tooltipX"
-                [style.top.px]="tooltipY"
-              >
-                <span class="ciq-tooltip-value">{{ tooltipValue }}</span>
-                <span class="ciq-tooltip-label">{{ tooltipLabel }}</span>
-              </div>
-            }
+            <canvas #throughputCanvas></canvas>
           } @else {
             <div class="ciq-no-data">No data in the selected period</div>
           }
@@ -316,9 +226,6 @@
     <ng-template #anomalyBreakdownCard>
       <div class="ciq-card ciq-swap-card">
         <div class="ciq-card-header">
-          <div class="ciq-card-icon ciq-card-icon--orange">
-            <ng-icon name="phosphorWarningCircleDuotone" size="20" />
-          </div>
           <span>Issues Breakdown</span>
         </div>
         <div class="ciq-anomaly-list">
@@ -366,9 +273,6 @@
     <ng-template #volumeByTeamCard>
       <div class="ciq-card ciq-swap-card">
         <div class="ciq-card-header">
-          <div class="ciq-card-icon ciq-card-icon--blue">
-            <ng-icon name="phosphorTableDuotone" size="20" />
-          </div>
           <span>Volume by Team</span>
         </div>
         <div class="ciq-table-scroll">
@@ -418,9 +322,6 @@
     <ng-template #topErrorsCard>
       <div class="ciq-card ciq-swap-card">
         <div class="ciq-card-header">
-          <div class="ciq-card-icon ciq-card-icon--red">
-            <ng-icon name="phosphorSirenDuotone" size="20" />
-          </div>
           <span>Error Incidents</span>
           <div class="ciq-header-filters">
             <select
@@ -556,12 +457,16 @@
           </button>
         </div>
         <div class="ciq-modal__body">
+          @if (drilldownSubtitle) {
+            <p class="ciq-modal__subtitle">{{ drilldownSubtitle }}</p>
+          }
           @if (drilldownPoints.length) {
             <app-line-chart
               [points]="drilldownPoints"
-              lineColor="#1565c0"
-              fillColor="#1565c0"
-              [formatLabel]="formatShortDate"
+              lineColor="#00bceb"
+              fillColor="#00bceb"
+              [showDataLabels]="true"
+              [labelInterval]="1"
             />
           } @else {
             <div class="ciq-no-data">Loading trend data…</div>

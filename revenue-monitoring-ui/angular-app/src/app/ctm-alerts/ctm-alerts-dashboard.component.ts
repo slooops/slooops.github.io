@@ -160,6 +160,12 @@ export class CtmAlertsDashboardComponent
   pageSize = 10;
   totalPages = 1;
 
+  // Modal
+  modalOpen = false;
+  modalTitle = '';
+  modalTab: 'log' | 'command' | 'output' = 'log';
+  modalRow: CtmAlertRow | null = null;
+
   // Color maps
   alertTypeColors: Record<string, string> = {
     FAILED: '#e53935',
@@ -577,5 +583,31 @@ export class CtmAlertsDashboardComponent
         hour12: true,
       })
     );
+  }
+
+  // ─── Modal ────────────────────────────────────────────────────────
+
+  openDetailModal(row: CtmAlertRow, tab: 'log' | 'command' | 'output'): void {
+    this.modalRow = row;
+    this.modalTab = tab;
+    this.modalTitle = row.JOB_NAME;
+    this.modalOpen = true;
+  }
+
+  closeModal(): void {
+    this.modalOpen = false;
+    this.modalRow = null;
+  }
+
+  get modalContent(): string {
+    if (!this.modalRow) return '';
+    switch (this.modalTab) {
+      case 'log':
+        return this.modalRow.JOB_LOG || 'No log available';
+      case 'command':
+        return this.modalRow.JOB_COMMAND || 'No command available';
+      case 'output':
+        return this.modalRow.JOB_OUTPUT || 'No output available';
+    }
   }
 }

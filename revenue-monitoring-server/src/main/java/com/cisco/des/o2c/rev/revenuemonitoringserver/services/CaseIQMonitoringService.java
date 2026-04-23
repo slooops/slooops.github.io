@@ -374,6 +374,11 @@ public class CaseIQMonitoringService {
             "AND a.caseiq_run_date IS NOT NULL " +
             "AND (:fisc_qtr IS NULL OR a.fisc_qtr = :fisc_qtr)";
 
+    private static final String DISTINCT_QUARTERS = "SELECT DISTINCT fisc_qtr " +
+            "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+            "WHERE fisc_qtr IS NOT NULL " +
+            "ORDER BY SUBSTR(fisc_qtr, 3) ASC, SUBSTR(fisc_qtr, 2, 1) ASC";
+
     // ─── Fiscal quarter injection ───────────────────────────────────────────────
 
     private static final Pattern FISC_QTR_INJECT_PATTERN = Pattern.compile("\\s+(GROUP BY|ORDER BY|FETCH)",
@@ -616,5 +621,16 @@ public class CaseIQMonitoringService {
 
         log.info("[CaseIQ] getIssueTrend team={} issueType={}", teamName, issueType);
         return jdbcManager.queryWithNamedParams(sql, params);
+    }
+
+    public List<String> getDistinctQuarters() {
+        List<Map<String, Object>> rows = jdbcManager.queryWithNamedParams(DISTINCT_QUARTERS, new HashMap<>());
+        List<String> quarters = new java.util.ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            Object val = row.get("FISC_QTR");
+            if (val != null)
+                quarters.add(val.toString());
+        }
+        return quarters;
     }
 }

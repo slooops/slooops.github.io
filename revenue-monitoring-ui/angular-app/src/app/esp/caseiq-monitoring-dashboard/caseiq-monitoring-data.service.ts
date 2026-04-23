@@ -218,4 +218,10 @@ export class CaseiqMonitoringDataService {
       )
       .pipe(map((res: any) => res as P90ProcessingTime));
   }
+
+  getQuarters(dm: DestroyManager): Observable<string[]> {
+    return this.http
+      .get(`${this.base}/quarters`, dm)
+      .pipe(map((res: any) => res as string[]));
+  }
 }

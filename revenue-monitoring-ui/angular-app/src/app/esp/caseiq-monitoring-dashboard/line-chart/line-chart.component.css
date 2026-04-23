@@ -33,6 +33,14 @@
   filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.15));
 }
 
+.lc-data-label {
+  font-size: 9px;
+  fill: #333;
+  text-anchor: middle;
+  font-weight: 600;
+  pointer-events: none;
+}
+
 .lc-hit {
   cursor: pointer;
 }
@@ -72,4 +80,7 @@
 :host(.dark-theme) .lc-y-label,
 :host(.dark-theme) .lc-x-label {
   fill: #8899a6;
+}
+:host(.dark-theme) .lc-data-label {
+  fill: #e0e6ed;
 }

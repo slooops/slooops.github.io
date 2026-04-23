@@ -634,8 +634,10 @@
                     size="12"
                   />
                 </th>
+                <th>Details</th>
               </tr>
             </thead>
+
             <tbody>
               @for (row of pagedAlerts; track row.ID) {
                 <tr>
@@ -673,11 +675,40 @@
                   </td>
                   <td class="ctm-mono">{{ formatShortDate(row.END_TIME) }}</td>
                   <td>{{ row.DOWNSTREAM_BLOCKED_COUNT ?? "—" }}</td>
+                  <td class="ctm-detail-badges">
+                    @if (row.JOB_LOG) {
+                      <button
+                        class="ctm-detail-badge ctm-detail-badge--log"
+                        (click)="openDetailModal(row, 'log')"
+                      >
+                        Log
+                      </button>
+                    }
+                    @if (row.JOB_COMMAND) {
+                      <button
+                        class="ctm-detail-badge ctm-detail-badge--cmd"
+                        (click)="openDetailModal(row, 'command')"
+                      >
+                        Command
+                      </button>
+                    }
+                    @if (row.JOB_OUTPUT) {
+                      <button
+                        class="ctm-detail-badge ctm-detail-badge--out"
+                        (click)="openDetailModal(row, 'output')"
+                      >
+                        Output
+                      </button>
+                    }
+                    @if (!row.JOB_LOG && !row.JOB_COMMAND && !row.JOB_OUTPUT) {
+                      <span class="ctm-muted-text">—</span>
+                    }
+                  </td>
                 </tr>
               }
               @if (pagedAlerts.length === 0) {
                 <tr>
-                  <td colspan="12" class="ctm-no-data">
+                  <td colspan="13" class="ctm-no-data">
                     No alerts match the current filters
                   </td>
                 </tr>
@@ -722,6 +753,62 @@
     </div>
 
     <div class="ctm-last-updated">Last updated: {{ lastUpdated }}</div>
+  }
+
+  <!-- Detail Modal -->
+  @if (modalOpen && modalRow) {
+    <div class="ctm-modal-backdrop" (click)="closeModal()">
+      <div
+        class="ctm-modal"
+        role="dialog"
+        aria-modal="true"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="ctm-modal__header">
+          <h3 class="ctm-modal__title">{{ modalTitle }}</h3>
+          <button
+            class="ctm-modal__close"
+            (click)="closeModal()"
+            aria-label="Close modal"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="ctm-modal__tabs">
+          <button
+            class="ctm-modal__tab"
+            [class.active]="modalTab === 'log'"
+            (click)="modalTab = 'log'"
+            [disabled]="!modalRow.JOB_LOG"
+          >
+            Log
+          </button>
+          <button
+            class="ctm-modal__tab"
+            [class.active]="modalTab === 'command'"
+            (click)="modalTab = 'command'"
+            [disabled]="!modalRow.JOB_COMMAND"
+          >
+            Command
+          </button>
+          <button
+            class="ctm-modal__tab"
+            [class.active]="modalTab === 'output'"
+            (click)="modalTab = 'output'"
+            [disabled]="!modalRow.JOB_OUTPUT"
+          >
+            Output
+          </button>
+        </div>
+        <div class="ctm-modal__body">
+          <pre
+            class="ctm-modal__pre"
+            [class.ctm-modal__pre--cmd]="modalTab === 'command'"
+            >{{ modalContent }}</pre
+          >
+        </div>
+      </div>
+    </div>
   }
 </div>
 <br /><br /><br />

@@ -25,6 +25,8 @@ export interface CtmAlertRow {
   DOWNSTREAM_BLOCKED_COUNT: number | null;
   DOWNSTREAM_BLOCKED_JOBS: string | null;
   JOB_COMMAND: string | null;
+  JOB_LOG: string | null;
+  JOB_OUTPUT: string | null;
 }
 
 export interface CtmSummary {

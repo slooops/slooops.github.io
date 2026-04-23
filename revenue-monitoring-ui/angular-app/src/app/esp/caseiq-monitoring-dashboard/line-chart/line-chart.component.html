@@ -61,6 +61,11 @@
       (mousemove)="showTooltip($event, dot)"
       (mouseleave)="hideTooltip()"
     />
+    @if (showDataLabels) {
+      <text [attr.x]="dot.x" [attr.y]="dot.y - 10" class="lc-data-label">
+        {{ dot.value }}
+      </text>
+    }
   }
 
   <!-- X-axis labels -->
@@ -79,11 +84,7 @@
 
 <!-- Tooltip -->
 @if (tooltipVisible) {
-  <div
-    class="lc-tooltip"
-    [style.left.px]="tooltipX"
-    [style.top.px]="tooltipY"
-  >
+  <div class="lc-tooltip" [style.left.px]="tooltipX" [style.top.px]="tooltipY">
     <span class="lc-tooltip-value">{{ tooltipValue }}</span>
     <span class="lc-tooltip-label">{{ tooltipLabel }}</span>
   </div>

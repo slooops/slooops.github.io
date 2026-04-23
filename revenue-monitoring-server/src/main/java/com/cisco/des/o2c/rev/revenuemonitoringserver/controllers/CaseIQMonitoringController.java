@@ -183,4 +183,9 @@ public class CaseIQMonitoringController {
             @RequestParam(required = false) String fiscQtr) {
         return new ResponseEntity<>(service.getIssueTrend(team, issueType, fiscQtr), HttpStatus.OK);
     }
+
+    @GetMapping("/quarters")
+    public ResponseEntity<List<String>> availableQuarters() {
+        return new ResponseEntity<>(service.getDistinctQuarters(), HttpStatus.OK);
+    }
 }

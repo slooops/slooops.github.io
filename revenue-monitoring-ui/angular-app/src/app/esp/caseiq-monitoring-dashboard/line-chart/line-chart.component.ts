@@ -21,6 +21,7 @@ export class LineChartComponent implements OnChanges, AfterViewInit, OnDestroy {
   @Input() fillColor = '#00bceb';
   @Input() labelInterval = 2;
   @Input() formatLabel: ((raw: string) => string) | null = null;
+  @Input() showDataLabels = false;
 
   // Computed SVG data
   viewBox = '0 0 300 250';
@@ -68,7 +69,7 @@ export class LineChartComponent implements OnChanges, AfterViewInit, OnDestroy {
     // Keep a roughly proportional viewBox with min 200h
     this.svgW = Math.max(w, 200);
     this.svgH = Math.max(h, 150);
-    this.chartTop = 10;
+    this.chartTop = this.showDataLabels ? 24 : 10;
     this.chartH = this.svgH - 50 - this.chartTop; // reserve 50 for x-labels, chartTop for top padding
     this.pad = Math.max(15, this.svgW * 0.05);
     this.viewBox = `0 0 ${this.svgW} ${this.svgH}`;
