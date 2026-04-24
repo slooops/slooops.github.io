@@ -153,9 +153,9 @@ export class AppComponent implements OnInit, OnDestroy {
       return '/error';
     }
 
-    // ADMIN gets /period-close-tracking
-    if (roles.includes('ADMIN')) {
-      return '/period-close-tracking';
+    // ADMIN and EXEC_VIEW go to /home
+    if (roles.includes('ADMIN') || roles.includes('EXEC_VIEW')) {
+      return '/home';
     }
 
     // PERIOD_CLOSE gets /period-close-tracking
