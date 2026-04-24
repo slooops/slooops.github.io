@@ -14,7 +14,9 @@ import {
   phosphorArrowClockwiseBold,
   phosphorSunBold,
   phosphorMoonBold,
+  phosphorArrowLineDownBold,
 } from '@ng-icons/phosphor-icons/bold';
+import { phosphorEmptyDuotone } from '@ng-icons/phosphor-icons/duotone';
 import { forkJoin, interval, Subscription } from 'rxjs';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { NgChartsModule } from 'ng2-charts';
@@ -37,6 +39,7 @@ import {
   P90ProcessingTime,
 } from './caseiq-monitoring.models';
 import { LineChartComponent } from './line-chart/line-chart.component';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
   selector: 'app-caseiq-monitoring-dashboard',
@@ -48,6 +51,7 @@ import { LineChartComponent } from './line-chart/line-chart.component';
     NgChartsModule,
     HealthRingComponent,
     LineChartComponent,
+    LoadingSymbolComponent,
   ],
   providers: [
     DestroyManager,
@@ -55,6 +59,8 @@ import { LineChartComponent } from './line-chart/line-chart.component';
       phosphorArrowClockwiseBold,
       phosphorSunBold,
       phosphorMoonBold,
+      phosphorArrowLineDownBold,
+      phosphorEmptyDuotone,
     }),
   ],
   templateUrl: './caseiq-monitoring-dashboard.component.html',
@@ -67,6 +73,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   lookbackHours = 24;
   fiscQtr = '';
   lookbackOptions = [
+    { value: 0, label: '—' },
     { value: 12, label: 'Last 12 hours' },
     { value: 24, label: 'Last 24 hours' },
     { value: 72, label: 'Last 3 days' },
@@ -109,6 +116,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
 
   // Drilldown modal
   drilldownOpen = false;
+  drilldownInsufficient = false;
   drilldownTitle = '';
   drilldownSubtitle = '';
   drilldownPoints: { label: string; value: number }[] = [];
@@ -141,6 +149,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   }[] = [];
 
   // Throughput line chart (Chart.js)
+  throughputIsWeekly = false;
   throughputPoints: { label: string; value: number }[] = [];
   throughputChartData: ChartConfiguration<'line'>['data'] = {
     labels: [],
@@ -152,6 +161,10 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
 
   @ViewChild('throughputCanvas')
   set throughputCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
+    console.log('[CIQ-CHART] ViewChild setter:', {
+      hasRef: !!ref,
+      pending: this._throughputChartPending,
+    });
     if (ref && this._throughputChartPending) {
       this._throughputChartPending = false;
       this.createThroughputChart(ref.nativeElement);
@@ -162,19 +175,41 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   teamTableData: TeamSummary[] = [];
   errorTableData: ErrorCategory[] = [];
   anomalyTableData: AnomalyItem[] = [];
-  private allAnomalyRows: AnomalyItem[] = [];
 
   // Error Incidents filters
   errorFilterTeam = '';
   errorFilterIssue = '';
-  errorTeamOptions: string[] = [];
-  errorIssueOptions: string[] = [];
+  errorTeamOptions: string[] = [
+    'OM',
+    'SM',
+    'I2C',
+    'AIT',
+    'FPP',
+    'P2P',
+    'CAPITAL',
+  ];
+  errorIssueOptions: string[] = [
+    'Ghost Success',
+    'Not Defined',
+    'No Resolution',
+    'Exception',
+    'Null Classification',
+    'Unknown Team',
+    'Resolution Error',
+  ];
 
-  // Error Incidents pagination
+  // Error Incidents pagination (server-side)
   errorCurrentPage = 1;
   errorPageSize = 25;
   errorTotalPages = 1;
+  errorTotalCount = 0;
+  errorLoading = false;
   errorFilteredRows: AnomalyItem[] = [];
+
+  // CSV download progress
+  csvDownloading = false;
+  csvDownloadProgress = 0;
+  csvDownloadDone = false;
 
   // Status color map — aligned with analytics palette
   statusColors: Record<string, string> = {
@@ -224,7 +259,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       },
     });
     this.refreshAll();
-    this.refreshSub = interval(60000).subscribe(() => this.refreshAll());
+    this.refreshSub = interval(300000).subscribe(() => this.refreshAll());
   }
 
   ngOnDestroy(): void {
@@ -249,13 +284,49 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
 
   onFilterChange(): void {
     this.initialLoad = true;
+    this.errorFilterTeam = '';
+    this.errorFilterIssue = '';
+    this.errorCurrentPage = 1;
     this.refreshAll();
+  }
+
+  onQuarterChange(): void {
+    if (this.fiscQtr) {
+      this.lookbackHours = 0;
+    }
+    this.onFilterChange();
+  }
+
+  onLookbackChange(): void {
+    if (!this.lookbackHours) return; // ignore "—" selection
+    this.fiscQtr = '';
+    this.onFilterChange();
   }
 
   refreshAll(): void {
     if (this.initialLoad) {
       this.loading = true;
+      // Destroy chart before DOM is removed — canvas will be recreated
+      if (this.throughputChart) {
+        console.log(
+          '[CIQ-CHART] Destroying chart before loading (DOM will be removed)',
+        );
+        this.throughputChart.destroy();
+        this.throughputChart = null;
+      }
     }
+    // Refetch period status on every refresh
+    this.sharedDataService.loadPeriodStatus(this.dm);
+
+    // Refetch quarters (preserve existing if call fails)
+    this.dataService.getQuarters(this.dm).subscribe({
+      next: (quarters) => {
+        if (quarters && quarters.length) {
+          this.fiscQtrOptions = quarters;
+        }
+      },
+    });
+
     const lb = this.lookbackHours;
     const fq = this.fiscQtr || undefined;
 
@@ -263,19 +334,8 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       health: this.dataService.getHealth(this.dm, lb, fq),
       status: this.dataService.getResolutionDistribution(this.dm, lb, fq),
       teamSummary: this.dataService.getTeamSummary(this.dm, lb, fq),
-      throughput: this.dataService.getThroughput(this.dm, lb, fq),
+      throughput: this.dataService.getThroughput(this.dm, fq ? lb : 24, fq),
       topErrors: this.dataService.getTopErrors(this.dm, lb, fq),
-      ghostSuccess: this.dataService.getGhostSuccess(this.dm, lb, fq),
-      notDefined: this.dataService.getNotDefined(this.dm, lb, fq),
-      nullStatus: this.dataService.getNullStatus(this.dm, lb, fq),
-      exceptions: this.dataService.getExceptions(this.dm, lb, fq),
-      nullClassification: this.dataService.getNullClassification(
-        this.dm,
-        lb,
-        fq,
-      ),
-      unknownTeam: this.dataService.getUnknownTeam(this.dm, lb, fq),
-      resolutionErrors: this.dataService.getResolutionErrors(this.dm, lb, fq),
       teamIssueMatrix: this.dataService.getTeamIssueMatrix(this.dm, lb, fq),
       p90Time: this.dataService.getP90Time(this.dm, lb, fq),
     }).subscribe({
@@ -285,22 +345,22 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
         this.processP90Time(data.p90Time);
         this.processStatusBars(data.status);
         this.processTeamData(data.teamSummary);
-        this.processThroughput(data.throughput);
+        this.processThroughput(data.throughput, fq);
         this.errorTableData = data.topErrors || [];
-        this.processAnomalyTable(
-          data.ghostSuccess,
-          data.notDefined,
-          data.nullStatus,
-          data.exceptions,
-          data.nullClassification,
-          data.unknownTeam,
-          data.resolutionErrors,
-        );
         this.loading = false;
         this.initialLoad = false;
         this.lastUpdated = new Date().toLocaleString();
+
+        // Load error incidents separately (server-side paginated)
+        // Skip reload if user has active filters (don't disrupt their work)
+        const hasActiveFilters =
+          !!this.errorFilterTeam || !!this.errorFilterIssue;
+        if (!hasActiveFilters) {
+          this.loadErrorIncidents();
+        }
       },
-      error: () => {
+      error: (err) => {
+        console.error('[CIQ] forkJoin ERROR:', err);
         this.loading = false;
         this.initialLoad = false;
         this.lastUpdated = 'Error refreshing data';
@@ -331,9 +391,13 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     const successCount =
       (h.SUCCESS_CNT || 0) + (h.PARTIAL_CNT || 0) + (h.NOT_SUPPORTED_CNT || 0);
     const failCount = totalProcessed - successCount;
+    const failPct =
+      totalProcessed > 0
+        ? Math.round((failCount / totalProcessed) * 1000) / 10
+        : 0;
     this.healthTotalIncidents = totalProcessed;
     this.healthSuccessPct = successPct;
-    this.healthErrorPct = errorPct;
+    this.healthErrorPct = failPct;
     this.healthSuccessCount = successCount;
     this.healthErrorCount = failCount;
 
@@ -443,16 +507,55 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  private processThroughput(data: ThroughputEntry[]): void {
-    const sliced = (data || []).slice(0, 12).reverse(); // oldest → newest (left → right)
+  private processThroughput(data: ThroughputEntry[], fiscQtr?: string): void {
+    const raw = (data || []).slice().reverse(); // oldest → newest
+    console.log('[CIQ-CHART] processThroughput:', {
+      rawCount: (data || []).length,
+      fiscQtr,
+      firstRow: (data || [])[0],
+    });
 
-    this.throughputPoints = sliced.map((d) => {
-      const label = d.RUN_HOUR
-        ? new Date(d.RUN_HOUR).toLocaleTimeString([], {
-            hour: 'numeric',
-            hour12: true,
-          })
-        : 'N/A';
+    if (fiscQtr) {
+      // Weekly mode — need at least 2 weeks for a meaningful chart
+      if (raw.length <= 1) {
+        console.log(
+          '[CIQ-CHART] Quarter has insufficient weekly data, showing empty state',
+        );
+        this.throughputIsWeekly = true;
+        this.throughputPoints = [];
+        return;
+      }
+      this.buildThroughputChart(raw, true);
+    } else {
+      // Hourly mode — take last 12 points
+      this.buildThroughputChart(raw.slice(-12), false);
+    }
+  }
+
+  private buildThroughputChart(
+    points: ThroughputEntry[],
+    weekly: boolean,
+  ): void {
+    this.throughputIsWeekly = weekly;
+    console.log('[CIQ-CHART] buildThroughputChart:', {
+      pointCount: points.length,
+      weekly,
+      chartExists: !!this.throughputChart,
+      canvasInDOM: !!this.throughputChart?.canvas?.isConnected,
+    });
+
+    this.throughputPoints = points.map((d, i) => {
+      let label: string;
+      if (weekly) {
+        label = `W${i + 1}`;
+      } else {
+        label = d.RUN_HOUR
+          ? new Date(d.RUN_HOUR).toLocaleTimeString([], {
+              hour: 'numeric',
+              hour12: true,
+            })
+          : 'N/A';
+      }
       return { label, value: d.CASES_PROCESSED || 0 };
     });
 
@@ -516,7 +619,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
           displayColors: false,
           callbacks: {
             title: (items) => items[0]?.label || '',
-            label: (item) => String(item.parsed.y),
+            label: (item) => item.parsed.y.toLocaleString(),
           },
         },
       },
@@ -547,16 +650,33 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     };
 
     // Update existing chart in-place, or flag for creation if canvas isn't in DOM yet
-    if (this.throughputChart) {
+    if (this.throughputChart && this.throughputChart.canvas?.isConnected) {
+      console.log('[CIQ-CHART] Updating existing chart in-place');
       this.throughputChart.data = this.throughputChartData;
       this.throughputChart.options = this.throughputChartOptions!;
       this.throughputChart.update();
     } else {
+      if (this.throughputChart) {
+        console.log(
+          '[CIQ-CHART] Old chart exists but canvas detached — destroying',
+        );
+        this.throughputChart.destroy();
+        this.throughputChart = null;
+      }
+      console.log(
+        '[CIQ-CHART] Flagging chart for creation (pending ViewChild)',
+      );
       this._throughputChartPending = true;
     }
   }
 
   private createThroughputChart(canvas: HTMLCanvasElement): void {
+    console.log('[CIQ-CHART] Creating new Chart on canvas:', {
+      width: canvas.clientWidth,
+      height: canvas.clientHeight,
+      labels: this.throughputChartData.labels,
+      dataLen: this.throughputChartData.datasets?.[0]?.data?.length,
+    });
     this.throughputChart = new Chart(canvas, {
       type: 'line',
       data: this.throughputChartData,
@@ -564,83 +684,68 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  private processAnomalyTable(
-    ghost: AnomalyItem[],
-    notDef: AnomalyItem[],
-    nullStat: AnomalyItem[],
-    exceptions: AnomalyItem[],
-    nullClassification: AnomalyItem[],
-    unknownTeam: AnomalyItem[],
-    resolutionErrors: AnomalyItem[],
-  ): void {
-    const rows: AnomalyItem[] = [];
-    const add = (list: AnomalyItem[], label: string) =>
-      (list || []).forEach((r) => rows.push({ ...r, anomalyLabel: label }));
-    add(ghost, 'Ghost Success');
-    add(notDef, 'Not Defined');
-    add(nullStat, 'No Resolution');
-    add(exceptions, 'Exception');
-    add(nullClassification, 'Null Classification');
-    add(unknownTeam, 'Unknown Team');
-    add(resolutionErrors, 'Resolution Error');
+  // ─── Server-side paginated Error Incidents ────────────────────────────────
 
-    rows.sort((a, b) =>
-      (b.CASEIQ_RUN_DATE || '').localeCompare(a.CASEIQ_RUN_DATE || ''),
-    );
-    this.allAnomalyRows = rows;
-    this.errorTeamOptions = [
-      ...new Set(rows.map((r) => r.TEAM_NAME || 'N/A')),
-    ].sort();
-    this.errorIssueOptions = [
-      ...new Set(rows.map((r) => r.anomalyLabel || '').filter(Boolean)),
-    ].sort();
-    this.errorFilterTeam = '';
-    this.errorFilterIssue = '';
-    this.applyErrorFilters();
+  loadErrorIncidents(): void {
+    this.errorLoading = true;
+    const lb = this.lookbackHours;
+    const fq = this.fiscQtr || undefined;
+    const team = this.errorFilterTeam || undefined;
+    const issue = this.errorFilterIssue || undefined;
+
+    this.dataService
+      .getErrorIncidentsPaged(
+        this.dm,
+        lb,
+        this.errorCurrentPage,
+        this.errorPageSize,
+        fq,
+        team,
+        issue,
+      )
+      .subscribe({
+        next: (page) => {
+          this.anomalyTableData = (page.rows || []).map((r: any) => ({
+            ...r,
+            anomalyLabel: r.ANOMALY_LABEL,
+          }));
+          this.errorTotalCount = page.totalCount || 0;
+          this.errorTotalPages = Math.max(
+            1,
+            Math.ceil(this.errorTotalCount / this.errorPageSize),
+          );
+          this.errorFilteredRows = this.anomalyTableData;
+
+          this.errorLoading = false;
+        },
+        error: () => {
+          this.errorLoading = false;
+        },
+      });
   }
 
   applyErrorFilters(): void {
-    let filtered = this.allAnomalyRows;
-    if (this.errorFilterTeam) {
-      filtered = filtered.filter(
-        (r) => (r.TEAM_NAME || 'N/A') === this.errorFilterTeam,
-      );
-    }
-    if (this.errorFilterIssue) {
-      filtered = filtered.filter(
-        (r) => r.anomalyLabel === this.errorFilterIssue,
-      );
-    }
-    this.errorFilteredRows = filtered;
     this.errorCurrentPage = 1;
-    this.updateErrorPage();
+    this.loadErrorIncidents();
   }
 
   updateErrorPage(): void {
-    const total = this.errorFilteredRows.length;
-    this.errorTotalPages = Math.max(1, Math.ceil(total / this.errorPageSize));
-    if (this.errorCurrentPage > this.errorTotalPages)
-      this.errorCurrentPage = this.errorTotalPages;
-    const start = (this.errorCurrentPage - 1) * this.errorPageSize;
-    this.anomalyTableData = this.errorFilteredRows.slice(
-      start,
-      start + this.errorPageSize,
-    );
+    // no-op — server handles pagination
   }
 
   errorChangePage(delta: number): void {
     this.errorCurrentPage += delta;
-    this.updateErrorPage();
+    this.loadErrorIncidents();
   }
 
   errorChangePageSize(size: number): void {
     this.errorPageSize = size;
     this.errorCurrentPage = 1;
-    this.updateErrorPage();
+    this.loadErrorIncidents();
   }
 
   get errorPageStart(): number {
-    return this.errorFilteredRows.length === 0
+    return this.errorTotalCount === 0
       ? 0
       : (this.errorCurrentPage - 1) * this.errorPageSize + 1;
   }
@@ -648,11 +753,66 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   get errorPageEnd(): number {
     return Math.min(
       this.errorCurrentPage * this.errorPageSize,
-      this.errorFilteredRows.length,
+      this.errorTotalCount,
     );
   }
 
   downloadErrorCsv(): void {
+    if (this.csvDownloading) return;
+    this.csvDownloading = true;
+    this.csvDownloadProgress = 0;
+    this.csvDownloadDone = false;
+
+    const lb = this.lookbackHours;
+    const fq = this.fiscQtr || undefined;
+    const team = this.errorFilterTeam || undefined;
+    const issue = this.errorFilterIssue || undefined;
+    const total = this.errorTotalCount;
+
+    if (total === 0) {
+      this.csvDownloading = false;
+      return;
+    }
+
+    const chunkSize = 500;
+    const totalPages = Math.ceil(total / chunkSize);
+    const allRows: any[] = [];
+    let completedPages = 0;
+
+    const fetchPage = (page: number) => {
+      this.dataService
+        .getErrorIncidentsPaged(this.dm, lb, page, chunkSize, fq, team, issue)
+        .subscribe({
+          next: (result) => {
+            allRows.push(...(result.rows || []));
+            completedPages++;
+            this.csvDownloadProgress = Math.round(
+              (completedPages / totalPages) * 100,
+            );
+
+            if (completedPages >= totalPages) {
+              this.generateCsvDownload(allRows);
+              this.csvDownloadDone = true;
+              setTimeout(() => {
+                this.csvDownloading = false;
+                this.csvDownloadProgress = 0;
+                this.csvDownloadDone = false;
+              }, 800);
+            } else {
+              fetchPage(page + 1);
+            }
+          },
+          error: () => {
+            this.csvDownloading = false;
+            this.csvDownloadProgress = 0;
+          },
+        });
+    };
+
+    fetchPage(1);
+  }
+
+  private generateCsvDownload(allRows: any[]): void {
     const headers = [
       'Incident',
       'Team',
@@ -662,20 +822,20 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       'Issue Description',
       'Run Date',
     ];
-    const rows = this.errorFilteredRows.map((r) =>
+    const csvRows = allRows.map((r: any) =>
       [
         r.INCIDENT_NUMBER || '',
         r.TEAM_NAME || '',
         r.CATEGORY || '',
         r.CORE_ISSUE || '',
         r.LLM_SUMMARY || '',
-        r.anomalyLabel || r.ANOMALY_TYPE || '',
+        r.ANOMALY_LABEL || '',
         r.CASEIQ_RUN_DATE || '',
       ]
-        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .map((v: string) => `"${String(v).replace(/"/g, '""')}"`)
         .join(','),
     );
-    const csv = [headers.join(','), ...rows].join('\n');
+    const csv = [headers.join(','), ...csvRows].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -740,6 +900,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     this.drilldownSubtitle = '';
     this.drilldownOpen = true;
     this.drilldownPoints = [];
+    this.drilldownInsufficient = false;
     const fq = this.fiscQtr || undefined;
     this.dataService
       .getIssueTrend(this.dm, rawTeam || team, issueType, fq)
@@ -749,7 +910,6 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
             label: `W${i + 1}`,
             value: d.ISSUE_COUNT,
           }));
-          this.drilldownPoints = pts;
           const total = pts.reduce((s, p) => s + p.value, 0);
           const qtrLabel =
             this.fiscQtr ||
@@ -758,6 +918,20 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
           this.drilldownSubtitle = qtrLabel
             ? `WEEKLY TREND — ${qtrLabel} -  TOTAL: ${total}`
             : `WEEKLY TREND — TOTAL: ${total}`;
+
+          if (pts.length < 2) {
+            console.warn('[CIQ] Drilldown data insufficient for chart:', {
+              team: rawTeam || team,
+              issueType,
+              fiscQtr: fq,
+              rawData: data,
+              points: pts,
+            });
+            this.drilldownInsufficient = true;
+            this.drilldownPoints = [];
+          } else {
+            this.drilldownPoints = pts;
+          }
         },
       });
   }

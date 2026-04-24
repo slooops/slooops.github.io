@@ -220,6 +220,7 @@ public class CaseIQMonitoringService {
             "  WHERE is_active = 'TRUE' " +
             "  AND team_name IS NOT NULL " +
             "  AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " +
+            "  {{FISC_QTR_FILTER}}" +
             ") " +
             "SELECT team_name, " +
             "COUNT(*) AS unique_incidents, " +
@@ -370,8 +371,8 @@ public class CaseIQMonitoringService {
             "  ON a.incident_number = s.incident_number " +
             "  AND a.impacted_service_offering = s.impacted_service_offering " +
             "  AND s.rn = 1 " +
-            "WHERE a.caseiq_run_date >= SYSDATE - :lookback_hours/24 " +
-            "AND a.caseiq_run_date IS NOT NULL " +
+            "WHERE a.caseiq_run_date IS NOT NULL " +
+            "AND a.caseiq_run_date >= SYSDATE - :lookback_hours/24 " +
             "AND (:fisc_qtr IS NULL OR a.fisc_qtr = :fisc_qtr)";
 
     private static final String DISTINCT_QUARTERS = "SELECT DISTINCT fisc_qtr " +
@@ -384,6 +385,18 @@ public class CaseIQMonitoringService {
     private static final Pattern FISC_QTR_INJECT_PATTERN = Pattern.compile("\\s+(GROUP BY|ORDER BY|FETCH)",
             Pattern.CASE_INSENSITIVE);
 
+    /**
+     * Matches date-lookback conditions that should be removed when a fiscal quarter
+     * is selected.
+     */
+    private static final Pattern DATE_LOOKBACK_PATTERN = Pattern.compile(
+            "AND\\s+(?:a\\.)?(?:caseiq_run_date|created_at)\\s*>=\\s*SYSDATE\\s*-\\s*:lookback_hours/24\\s*",
+            Pattern.CASE_INSENSITIVE);
+
+    private String stripDateLookback(String sql) {
+        return DATE_LOOKBACK_PATTERN.matcher(sql).replaceAll("");
+    }
+
     private String injectFiscQtr(String sql) {
         Matcher m = FISC_QTR_INJECT_PATTERN.matcher(sql);
         if (m.find()) {
@@ -394,14 +407,12 @@ public class CaseIQMonitoringService {
 
     private List<Map<String, Object>> runQuery(String sql, Map<String, Object> params, String fiscQtr) {
         if (fiscQtr != null && !fiscQtr.isBlank()) {
+            sql = stripDateLookback(sql);
             sql = injectFiscQtr(sql);
             params.put("fisc_qtr", fiscQtr);
-            if (params.containsKey("lookback_hours")) {
-                params.put("lookback_hours", 8760);
-            }
+            params.remove("lookback_hours");
         }
         log.info("[CaseIQ] runQuery params={} fiscQtr={}", params, fiscQtr);
-        log.info("[CaseIQ] runQuery SQL=\n{}", sql);
         List<Map<String, Object>> results = jdbcManager.queryWithNamedParams(sql, params);
         log.info("[CaseIQ] runQuery returned {} rows", results.size());
         return results;
@@ -415,7 +426,7 @@ public class CaseIQMonitoringService {
 
     // ─── Health score computation ───────────────────────────────────────────────
 
-    public Map<String, Object> computeHealthScore(Map<String, Object> data) {
+    public Map<String, Object> computeHealthScore(Map<String, Object> data, boolean includeStaleness) {
         int total = toInt(data.get("TOTAL_PROCESSED"));
         if (total <= 0) {
             Map<String, Object> result = new LinkedHashMap<>(data);
@@ -440,12 +451,22 @@ public class CaseIQMonitoringService {
         double successRate = (double) success / total;
         double errorRate = (double) errors / total;
         double anomalyRate = (double) anomalies / total;
-        double stalenessMins = toDouble(data.get("MINUTES_SINCE_LAST_RUN"));
 
-        double score = Math.max(0, (1 - anomalyRate)) * 40
-                + Math.max(0, (1 - Math.min(stalenessMins, 65) / 65)) * 30
-                + Math.max(0, (1 - errorRate)) * 20
-                + successRate * 10;
+        double score;
+        if (includeStaleness) {
+            // Live view: anomaly(40) + freshness(30) + error(20) + success(10)
+            double stalenessMins = toDouble(data.get("MINUTES_SINCE_LAST_RUN"));
+            score = Math.max(0, (1 - anomalyRate)) * 40
+                    + Math.max(0, (1 - Math.min(stalenessMins, 65) / 65)) * 30
+                    + Math.max(0, (1 - errorRate)) * 20
+                    + successRate * 10;
+        } else {
+            // Historical quarter: re-weight without staleness (4:2:1 ratio →
+            // 57.14:28.57:14.29)
+            score = Math.max(0, (1 - anomalyRate)) * (400.0 / 7)
+                    + Math.max(0, (1 - errorRate)) * (200.0 / 7)
+                    + successRate * (100.0 / 7);
+        }
         score = Math.round(Math.min(100, Math.max(0, score)) * 10.0) / 10.0;
 
         String status;
@@ -492,7 +513,8 @@ public class CaseIQMonitoringService {
             empty.put("health_status", "NO_DATA");
             return empty;
         }
-        return computeHealthScore(rows.get(0));
+        boolean includeStaleness = fiscQtr == null || fiscQtr.isBlank();
+        return computeHealthScore(rows.get(0), includeStaleness);
     }
 
     public List<Map<String, Object>> getGhostSuccess(int lookbackHours, String fiscQtr) {
@@ -524,14 +546,7 @@ public class CaseIQMonitoringService {
     }
 
     public List<Map<String, Object>> getExceptions(int lookbackHours, String fiscQtr) {
-        log.info("[CaseIQ] getExceptions called: lookbackHours={}, fiscQtr={}", lookbackHours, fiscQtr);
-        List<Map<String, Object>> results = runQuery(EXCEPTION_IN_FIELDS, buildParams("lookback_hours", lookbackHours),
-                fiscQtr);
-        log.info("[CaseIQ] getExceptions returning {} records", results.size());
-        if (!results.isEmpty()) {
-            log.info("[CaseIQ] getExceptions first row keys: {}", results.get(0).keySet());
-        }
-        return results;
+        return runQuery(EXCEPTION_IN_FIELDS, buildParams("lookback_hours", lookbackHours), fiscQtr);
     }
 
     public List<Map<String, Object>> getStaleness() {
@@ -551,11 +566,16 @@ public class CaseIQMonitoringService {
     }
 
     public Map<String, Object> getP90ProcessingTime(int lookbackHours, String fiscQtr) {
+        String sql = P90_PROCESSING_TIME;
         Map<String, Object> params = new HashMap<>();
-        params.put("lookback_hours", lookbackHours);
         params.put("fisc_qtr", fiscQtr);
+        if (fiscQtr != null && !fiscQtr.isBlank()) {
+            sql = stripDateLookback(sql);
+        } else {
+            params.put("lookback_hours", lookbackHours);
+        }
         log.info("[CaseIQ] getP90ProcessingTime lookbackHours={} fiscQtr={}", lookbackHours, fiscQtr);
-        List<Map<String, Object>> rows = jdbcManager.queryWithNamedParams(P90_PROCESSING_TIME, params);
+        List<Map<String, Object>> rows = jdbcManager.queryWithNamedParams(sql, params);
         if (rows.isEmpty()) {
             Map<String, Object> empty = new HashMap<>();
             empty.put("TOTAL_RECORDS", 0);
@@ -579,7 +599,11 @@ public class CaseIQMonitoringService {
     }
 
     public List<Map<String, Object>> getThroughput(int lookbackHours, String fiscQtr) {
-        return runQuery(HOURLY_THROUGHPUT, buildParams("lookback_hours", lookbackHours), fiscQtr);
+        String sql = HOURLY_THROUGHPUT;
+        if (fiscQtr != null && !fiscQtr.isBlank()) {
+            sql = sql.replace("TRUNC(caseiq_run_date, 'HH')", "TRUNC(caseiq_run_date, 'IW')");
+        }
+        return runQuery(sql, buildParams("lookback_hours", lookbackHours), fiscQtr);
     }
 
     public List<Map<String, Object>> getTimeByStatus(int lookbackHours, String fiscQtr) {
@@ -587,7 +611,20 @@ public class CaseIQMonitoringService {
     }
 
     public List<Map<String, Object>> getTeamSummary(int lookbackHours, String fiscQtr) {
-        return runQuery(TEAM_VOLUME_SUMMARY, buildParams("lookback_hours", lookbackHours), fiscQtr);
+        Map<String, Object> params = new HashMap<>();
+        String sql = TEAM_VOLUME_SUMMARY;
+        if (fiscQtr != null && !fiscQtr.isBlank()) {
+            sql = stripDateLookback(sql);
+            sql = sql.replace("{{FISC_QTR_FILTER}}", "AND fisc_qtr = :fisc_qtr ");
+            params.put("fisc_qtr", fiscQtr);
+        } else {
+            sql = sql.replace("{{FISC_QTR_FILTER}}", "");
+            params.put("lookback_hours", lookbackHours);
+        }
+        log.info("[CaseIQ] getTeamSummary params={} fiscQtr={}", params, fiscQtr);
+        List<Map<String, Object>> results = jdbcManager.queryWithNamedParams(sql, params);
+        log.info("[CaseIQ] getTeamSummary returned {} rows", results.size());
+        return results;
     }
 
     public List<Map<String, Object>> getDailyTrend(int lookbackDays, String fiscQtr) {
@@ -615,12 +652,151 @@ public class CaseIQMonitoringService {
         params.put("team_name", teamName);
 
         if (fiscQtr != null && !fiscQtr.isBlank()) {
+            sql = sql.replace("AND caseiq_run_date >= SYSDATE - 84 ", "");
             sql = injectFiscQtr(sql);
             params.put("fisc_qtr", fiscQtr);
         }
 
         log.info("[CaseIQ] getIssueTrend team={} issueType={}", teamName, issueType);
         return jdbcManager.queryWithNamedParams(sql, params);
+    }
+
+    // ─── Paginated Error Incidents (UNION ALL of all anomaly types) ─────────────
+
+    private static final String EXCEPTION_REGEX = "(Error in analysis|Exception in analysis|Traceback|\\w+(Error|Exception)\\b)";
+
+    public Map<String, Object> getErrorIncidentsPaged(int lookbackHours, String fiscQtr,
+            String team, String issueType, int page, int pageSize) {
+
+        Map<String, Object> params = new HashMap<>();
+        String fiscFilter = "";
+        boolean hasQuarter = fiscQtr != null && !fiscQtr.isBlank();
+
+        if (hasQuarter) {
+            fiscFilter = "AND fisc_qtr = :fisc_qtr ";
+            params.put("fisc_qtr", fiscQtr);
+        }
+        if (!hasQuarter) {
+            params.put("lookback_hours", lookbackHours);
+        }
+
+        String union =
+                // Ghost Success
+                "SELECT incident_number, team_name, category, core_issue, llm_summary, caseiq_run_date, " +
+                        "'Ghost Success' AS anomaly_label " +
+                        "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+                        "WHERE resolution_api_status = 'SUCCESS' AND is_active = 'TRUE' " +
+                        "AND (context_extracted IS NULL OR resolution_api_summary IS NULL OR LENGTH(resolution_api_summary) < 5) "
+                        +
+                        "AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " + fiscFilter +
+
+                        "UNION ALL " +
+
+                        // Not Defined
+                        "SELECT incident_number, team_name, category, core_issue, llm_summary, caseiq_run_date, " +
+                        "'Not Defined' AS anomaly_label " +
+                        "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+                        "WHERE llm_summary = 'Not Defined' AND is_active = 'TRUE' " +
+                        "AND created_at >= SYSDATE - :lookback_hours/24 " + fiscFilter +
+
+                        "UNION ALL " +
+
+                        // No Resolution
+                        "SELECT incident_number, team_name, category, core_issue, llm_summary, caseiq_run_date, " +
+                        "'No Resolution' AS anomaly_label " +
+                        "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+                        "WHERE resolution_api_status IS NULL AND is_active = 'TRUE' " +
+                        "AND created_at >= SYSDATE - :lookback_hours/24 " + fiscFilter +
+
+                        "UNION ALL " +
+
+                        // Exception
+                        "SELECT incident_number, team_name, category, core_issue, llm_summary, caseiq_run_date, " +
+                        "'Exception' AS anomaly_label " +
+                        "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+                        "WHERE is_active = 'TRUE' " +
+                        "AND (UPPER(TRIM(category)) = 'ERROR' " +
+                        "  OR REGEXP_LIKE(core_issue, '" + EXCEPTION_REGEX + "', 'i') " +
+                        "  OR REGEXP_LIKE(llm_summary, '" + EXCEPTION_REGEX + "', 'i')) " +
+                        "AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " + fiscFilter +
+
+                        "UNION ALL " +
+
+                        // Null Classification
+                        "SELECT incident_number, team_name, category, core_issue, llm_summary, caseiq_run_date, " +
+                        "'Null Classification' AS anomaly_label " +
+                        "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+                        "WHERE (category IS NULL OR core_issue IS NULL) AND case_analyzer_status != 'NEW' " +
+                        "AND is_active = 'TRUE' " +
+                        "AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " + fiscFilter +
+
+                        "UNION ALL " +
+
+                        // Unknown Team
+                        "SELECT incident_number, 'UNKNOWN' AS team_name, category, core_issue, llm_summary, caseiq_run_date, "
+                        +
+                        "'Unknown Team' AS anomaly_label " +
+                        "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+                        "WHERE team_name = 'UNKNOWN' AND is_active = 'TRUE' " +
+                        "AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " + fiscFilter +
+
+                        "UNION ALL " +
+
+                        // Resolution Error
+                        "SELECT incident_number, team_name, category, core_issue, NULL AS llm_summary, caseiq_run_date, "
+                        +
+                        "'Resolution Error' AS anomaly_label " +
+                        "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+                        "WHERE (resolution_api_status NOT IN ('SUCCESS', 'NOT_SUPPORTED', 'PARTIAL SUCCESS') " +
+                        "  OR resolution_api_status IS NULL) " +
+                        "AND is_active = 'TRUE' " +
+                        "AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " + fiscFilter;
+
+        if (hasQuarter) {
+            union = stripDateLookback(union);
+        }
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT incident_number, team_name, category, core_issue, llm_summary, ");
+        sql.append("caseiq_run_date, anomaly_label, COUNT(*) OVER() AS total_count ");
+        sql.append("FROM (").append(union).append(") all_incidents WHERE 1=1 ");
+
+        if (team != null && !team.isBlank()) {
+            sql.append("AND team_name = :team ");
+            params.put("team", team);
+        }
+        if (issueType != null && !issueType.isBlank()) {
+            sql.append("AND anomaly_label = :issue_type ");
+            params.put("issue_type", issueType);
+        }
+
+        sql.append("ORDER BY caseiq_run_date DESC ");
+
+        if (pageSize > 0) {
+            sql.append("OFFSET :offset ROWS FETCH NEXT :page_size ROWS ONLY");
+            params.put("offset", (page - 1) * pageSize);
+            params.put("page_size", pageSize);
+        }
+
+        log.info("[CaseIQ] getErrorIncidentsPaged page={} pageSize={} team={} issueType={} fiscQtr={}",
+                page, pageSize, team, issueType, fiscQtr);
+
+        List<Map<String, Object>> rows = jdbcManager.queryWithNamedParams(sql.toString(), params);
+
+        long totalCount = 0;
+        if (!rows.isEmpty()) {
+            totalCount = ((Number) rows.get(0).get("TOTAL_COUNT")).longValue();
+            rows.forEach(r -> r.remove("TOTAL_COUNT"));
+        }
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("rows", rows);
+        result.put("totalCount", totalCount);
+        result.put("page", page);
+        result.put("pageSize", pageSize);
+
+        log.info("[CaseIQ] getErrorIncidentsPaged returned {} rows, totalCount={}", rows.size(), totalCount);
+        return result;
     }
 
     public List<String> getDistinctQuarters() {

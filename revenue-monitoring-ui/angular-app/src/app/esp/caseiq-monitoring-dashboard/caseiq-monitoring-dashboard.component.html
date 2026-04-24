@@ -12,10 +12,10 @@
     <div class="ciq-header-controls">
       <select
         [(ngModel)]="fiscQtr"
-        (ngModelChange)="onFilterChange()"
+        (ngModelChange)="onQuarterChange()"
         class="ciq-select"
       >
-        <option value="">All Quarters</option>
+        <option value="">Select Quarter</option>
         @for (q of fiscQtrOptions; track q) {
           @if (q) {
             <option [value]="q">{{ q }}</option>
@@ -24,11 +24,11 @@
       </select>
       <select
         [(ngModel)]="lookbackHours"
-        (ngModelChange)="onFilterChange()"
+        (ngModelChange)="onLookbackChange()"
         class="ciq-select"
       >
         @for (opt of lookbackOptions; track opt.value) {
-          <option [value]="opt.value">{{ opt.label }}</option>
+          <option [ngValue]="opt.value">{{ opt.label }}</option>
         }
       </select>
       <button
@@ -46,7 +46,7 @@
         Refresh
       </button>
 
-      <span class="ciq-auto-refresh">Auto: 60s</span>
+      <span class="ciq-auto-refresh">Auto: 5m</span>
     </div>
   </div>
 
@@ -91,7 +91,10 @@
             <div class="ciq-kpi-value">{{ kpiAvgTime }}</div>
           </div>
         </div>
-        <div class="ciq-kpi">
+        <div
+          class="ciq-kpi ciq-kpi--collapsible"
+          [class.ciq-kpi--hidden]="!!fiscQtr"
+        >
           <div class="ciq-kpi-content">
             <div class="ciq-kpi-label">Last Run (min)</div>
             <div class="ciq-kpi-value">{{ kpiStaleness }}</div>
@@ -211,13 +214,22 @@
     <ng-template #throughputCard>
       <div class="ciq-card ciq-card--chart">
         <div class="ciq-card-header">
-          <span>Hourly Throughput</span>
+          <span>{{ throughputIsWeekly ? "Weekly" : "Hourly" }} Throughput</span>
         </div>
         <div class="ciq-throughput-chart-wrapper">
           @if (throughputPoints.length >= 2) {
             <canvas #throughputCanvas></canvas>
           } @else {
-            <div class="ciq-no-data">No data in the selected period</div>
+            <div class="ciq-no-data">
+              <span class="ciq-no-data-icon"
+                ><ng-icon name="phosphorEmptyDuotone" size="24"
+              /></span>
+              @if (fiscQtr && throughputPoints.length === 0) {
+                No data available in this period
+              } @else {
+                No data in the selected period
+              }
+            </div>
           }
         </div>
       </div>
@@ -229,6 +241,9 @@
           <span>Issues Breakdown</span>
         </div>
         <div class="ciq-anomaly-list">
+          @if (loading) {
+            <div class="ciq-table-loading"><app-loading-symbol /></div>
+          }
           @for (a of anomalyBreakdown; track a.name) {
             <div class="ciq-anomaly-item">
               <span class="ciq-badge" [ngClass]="severityClass(a.severity)">{{
@@ -261,7 +276,12 @@
             </div>
           }
           @if (anomalyBreakdown.length === 0) {
-            <div class="ciq-no-data">No issues in selected period</div>
+            <div class="ciq-no-data">
+              <span class="ciq-no-data-icon"
+                ><ng-icon name="phosphorEmptyDuotone" size="24"
+              /></span>
+              No issues in selected period
+            </div>
           }
         </div>
         <p class="ciq-anomaly-disclaimer">
@@ -276,6 +296,9 @@
           <span>Volume by Team</span>
         </div>
         <div class="ciq-table-scroll">
+          @if (loading) {
+            <div class="ciq-table-loading"><app-loading-symbol /></div>
+          }
           <table class="ciq-table">
             <thead>
               <tr>
@@ -309,6 +332,9 @@
               @if (teamTableData.length === 0) {
                 <tr>
                   <td colspan="5" class="ciq-no-data">
+                    <span class="ciq-no-data-icon"
+                      ><ng-icon name="phosphorEmptyDuotone" size="24"
+                    /></span>
                     No data in the selected period
                   </td>
                 </tr>
@@ -346,10 +372,23 @@
             </select>
             <button
               class="ciq-download-btn"
+              [class.ciq-download-btn--downloading]="csvDownloading"
+              [class.ciq-download-btn--done]="csvDownloadDone"
               (click)="downloadErrorCsv()"
               title="Download CSV"
             >
-              ↓ CSV
+              <span
+                class="ciq-download-btn__fill"
+                [style.width.%]="csvDownloadProgress"
+              ></span>
+              <span class="ciq-download-btn__content">
+                @if (csvDownloading) {
+                  {{ csvDownloadProgress }}%
+                } @else {
+                  <ng-icon name="phosphorArrowLineDownBold" size="13" />
+                  CSV
+                }
+              </span>
             </button>
           </div>
         </div>
@@ -367,6 +406,15 @@
               </tr>
             </thead>
             <tbody>
+              @if (errorLoading) {
+                <tr>
+                  <td colspan="7">
+                    <div class="ciq-table-loading">
+                      <app-loading-symbol />
+                    </div>
+                  </td>
+                </tr>
+              }
               @for (row of anomalyTableData; track $index) {
                 <tr>
                   <td class="ciq-mono">{{ row.INCIDENT_NUMBER || "N/A" }}</td>
@@ -387,9 +435,12 @@
                   </td>
                 </tr>
               }
-              @if (anomalyTableData.length === 0) {
+              @if (anomalyTableData.length === 0 && !errorLoading) {
                 <tr>
                   <td colspan="7" class="ciq-no-data">
+                    <span class="ciq-no-data-icon"
+                      ><ng-icon name="phosphorEmptyDuotone" size="24"
+                    /></span>
                     No errors detected in this period
                   </td>
                 </tr>
@@ -401,7 +452,7 @@
         <div class="ciq-pagination">
           <span
             >{{ errorPageStart }}–{{ errorPageEnd }} of
-            {{ errorFilteredRows.length }} incidents</span
+            {{ errorTotalCount }} incidents</span
           >
           <div class="ciq-pagination-controls">
             <select
@@ -460,7 +511,7 @@
           @if (drilldownSubtitle) {
             <p class="ciq-modal__subtitle">{{ drilldownSubtitle }}</p>
           }
-          @if (drilldownPoints.length) {
+          @if (drilldownPoints.length >= 2) {
             <app-line-chart
               [points]="drilldownPoints"
               lineColor="#00bceb"
@@ -468,6 +519,14 @@
               [showDataLabels]="true"
               [labelInterval]="1"
             />
+          } @else if (drilldownInsufficient) {
+            <div class="ciq-no-data">
+              <span class="ciq-no-data-icon"
+                ><ng-icon name="phosphorEmptyDuotone" size="24"
+              /></span>
+              Data could not be used to render a chart. This may be due to
+              insufficient occurrences, lack of variance, or malformed data.
+            </div>
           } @else {
             <div class="ciq-no-data">Loading trend data…</div>
           }

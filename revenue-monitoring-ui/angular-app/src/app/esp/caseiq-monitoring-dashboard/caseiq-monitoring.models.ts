@@ -101,3 +101,10 @@ export interface P90ProcessingTime {
   P90_PROCESSING_SECS: number;
   P90_E2E_SECS: number;
 }
+
+export interface ErrorIncidentsPage {
+  rows: AnomalyItem[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}

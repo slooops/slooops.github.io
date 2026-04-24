@@ -53,6 +53,7 @@ import {
   phosphorCaretDownBold,
   phosphorTerminalWindowBold,
 } from '@ng-icons/phosphor-icons/bold';
+import { phosphorEmptyDuotone } from '@ng-icons/phosphor-icons/duotone';
 
 @Component({
   selector: 'app-root',
@@ -93,6 +94,7 @@ import {
       phosphorMagnifyingGlassBold,
       phosphorCaretDownBold,
       phosphorTerminalWindowBold,
+      phosphorEmptyDuotone,
     }),
   ],
   imports: [

@@ -13,6 +13,7 @@ import {
   TeamIssueMatrixEntry,
   IssueTrendEntry,
   P90ProcessingTime,
+  ErrorIncidentsPage,
 } from './caseiq-monitoring.models';
 
 @Injectable({ providedIn: 'root' })
@@ -217,6 +218,24 @@ export class CaseiqMonitoringDataService {
         dm,
       )
       .pipe(map((res: any) => res as P90ProcessingTime));
+  }
+
+  getErrorIncidentsPaged(
+    dm: DestroyManager,
+    lookbackHours: number,
+    page: number,
+    pageSize: number,
+    fiscQtr?: string,
+    team?: string,
+    issueType?: string,
+  ): Observable<ErrorIncidentsPage> {
+    let q = this.qp(lookbackHours, fiscQtr);
+    q += `&page=${page}&pageSize=${pageSize}`;
+    if (team) q += `&team=${encodeURIComponent(team)}`;
+    if (issueType) q += `&issueType=${encodeURIComponent(issueType)}`;
+    return this.http
+      .get(`${this.base}/anomalies/incidents-paged?${q}`, dm)
+      .pipe(map((res: any) => res as ErrorIncidentsPage));
   }
 
   getQuarters(dm: DestroyManager): Observable<string[]> {

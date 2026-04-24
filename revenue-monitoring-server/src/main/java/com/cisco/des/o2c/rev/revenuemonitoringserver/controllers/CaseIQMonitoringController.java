@@ -184,6 +184,19 @@ public class CaseIQMonitoringController {
         return new ResponseEntity<>(service.getIssueTrend(team, issueType, fiscQtr), HttpStatus.OK);
     }
 
+    @GetMapping("/anomalies/incidents-paged")
+    public ResponseEntity<Map<String, Object>> errorIncidentsPaged(
+            @RequestParam(defaultValue = "24") int lookbackHours,
+            @RequestParam(required = false) String fiscQtr,
+            @RequestParam(required = false) String team,
+            @RequestParam(required = false) String issueType,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "25") int pageSize) {
+        return new ResponseEntity<>(
+                service.getErrorIncidentsPaged(lookbackHours, fiscQtr, team, issueType, page, pageSize),
+                HttpStatus.OK);
+    }
+
     @GetMapping("/quarters")
     public ResponseEntity<List<String>> availableQuarters() {
         return new ResponseEntity<>(service.getDistinctQuarters(), HttpStatus.OK);

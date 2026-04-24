@@ -390,7 +390,9 @@ h6 {
 }
 
 .ciq-download-btn {
-  padding: 4px 10px;
+  position: relative;
+  overflow: hidden;
+  padding: 4px 10px 2px 10px;
   font-size: 11px;
   font-weight: 600;
   border: 1px solid var(--ciq-border);
@@ -401,7 +403,53 @@ h6 {
   white-space: nowrap;
   transition:
     background var(--fit-transition-fast),
-    border-color var(--fit-transition-fast);
+    border-color var(--fit-transition-fast),
+    transform 0.2s ease;
+  line-height: normal;
+}
+
+.ciq-download-btn__fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  background: rgba(0, 188, 235, 0.2);
+  transition: width 0.25s ease-out;
+  pointer-events: none;
+}
+
+.ciq-download-btn__content {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  z-index: 1;
+  padding-top: 2px;
+}
+
+.ciq-download-btn--downloading {
+  pointer-events: none;
+  border-color: #00bceb;
+  color: #00bceb;
+}
+
+.ciq-download-btn--done {
+  animation: ciq-pop 0.5s ease-out;
+  border-color: #6ebe4a;
+  color: #6ebe4a;
+}
+
+@keyframes ciq-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .ciq-download-btn:hover {
@@ -418,6 +466,20 @@ h6 {
   background: rgba(0, 188, 235, 0.12);
   border-color: #00bceb;
   color: #00bceb;
+}
+
+:host(.dark-theme) .ciq-download-btn--downloading {
+  border-color: #00bceb;
+  color: #00bceb;
+}
+
+:host(.dark-theme) .ciq-download-btn__fill {
+  background: rgba(0, 188, 235, 0.15);
+}
+
+:host(.dark-theme) .ciq-download-btn--done {
+  border-color: #6ebe4a;
+  color: #6ebe4a;
 }
 
 :host(.dark-theme) .ciq-card-header {
@@ -502,10 +564,31 @@ h6 {
 
 /* ── KPI grid ───────────────────────────────────────────────── */
 .ciq-kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  display: flex;
   gap: 1rem;
   height: 100%;
+}
+
+.ciq-kpi-grid > .ciq-kpi {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.ciq-kpi--collapsible {
+  overflow: hidden;
+  transition:
+    flex 0.35s ease,
+    opacity 0.3s ease,
+    padding 0.35s ease,
+    border 0.35s ease;
+}
+
+.ciq-kpi--collapsible.ciq-kpi--hidden {
+  flex: 0 0 0 !important;
+  opacity: 0;
+  padding: 0 !important;
+  border: 0;
+  pointer-events: none;
 }
 
 .ciq-kpi {
@@ -1161,6 +1244,35 @@ h6 {
   color: var(--ciq-muted);
   text-align: center;
   padding: 20px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  height: inherit;
+}
+
+.ciq-no-data-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(100, 120, 140, 0.08);
+  color: rgba(100, 120, 140, 0.45);
+}
+
+:host(.dark-theme) .ciq-no-data-icon {
+  background: rgba(136, 153, 166, 0.1);
+  color: rgba(136, 153, 166, 0.4);
+}
+
+.ciq-table-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 0;
 }
 
 .ciq-anomaly-disclaimer {
