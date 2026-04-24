@@ -510,7 +510,6 @@ export class LandingComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.debugRoles();
     this.fetchMetrics();
     this.refreshInterval = setInterval(
       () => this.fetchMetrics(),
@@ -518,31 +517,10 @@ export class LandingComponent implements OnInit, OnDestroy {
     );
   }
 
-  private debugRoles(): void {
-    const roles = this.userRoles();
-    const allCards = [...this.itOpsAllCards, ...this.finBizOpsAllCards];
-    const summary = allCards.map((card) => ({
-      card: card.title,
-      hidden: card.hideForRoles?.some((r) => roles.includes(r)) ?? false,
-      disabled: card.disabledForRoles?.some((r) => roles.includes(r)) ?? false,
-      accessible:
-        !card.disabledForRoles?.some((r) => roles.includes(r)) &&
-        (!card.requiredRoles?.length ||
-          roles.includes('ADMIN') ||
-          roles.includes('EXEC_VIEW') ||
-          card.requiredRoles.some((r) => roles.includes(r))),
-    }));
-    console.group('[Landing] Role Debug');
-    console.log('Active roles:', roles);
-    console.table(summary);
-    console.groupEnd();
-  }
-
   private fetchMetrics(): void {
     this.http
       .get('dashboard-metrics', this.destroyManager)
       .subscribe((metrics: any) => {
-        console.log('📊 Dashboard Metrics:', metrics);
         this.parseMetrics(metrics as DashboardMetric[]);
       });
   }
