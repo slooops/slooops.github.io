@@ -70,6 +70,8 @@ export interface LandingCard {
   roleRoutes?: RoleRouteMap[];
   variant?: CardVariant; // Visual style variant
   arcData?: ArcData; // Optional arc progress indicator
+  hideForRoles?: string[]; // roles that cause this card to be hidden entirely
+  disabledForRoles?: string[]; // roles that see the card but cannot click it
 }
 
 /** Raw metric from backend API */
@@ -140,6 +142,8 @@ export interface StatMetric {
 })
 export class LandingComponent implements OnInit, OnDestroy {
   private destroyManager = new DestroyManager();
+  private refreshInterval: ReturnType<typeof setInterval> | null = null;
+  private readonly REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
   userName = signal('');
   userRoles = signal<string[]>([]);
 
@@ -183,6 +187,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       icon: 'phosphorEyeDuotone',
       route: '/operations-dashboard',
       requiredRoles: ['ADMIN', 'OPERATION_CTRL'],
+      disabledForRoles: ['EXEC_VIEW'],
       variant: 'gradient-bg-1',
       arcData: {
         metricKey: 'OPERATIONAL_VISIBILITY',
@@ -292,6 +297,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       icon: 'phosphorChartLineUpBold',
       route: '/scorecard',
       requiredRoles: ['ADMIN'],
+      hideForRoles: ['EXEC_VIEW'],
       variant: 'soft-glow',
       arcData: {
         metricKey: 'SCORECARD',
@@ -368,6 +374,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       route: '/business-insights',
       queryParams: { tab: 'o2c-insights' },
       requiredRoles: ['ADMIN', 'O360'],
+      disabledForRoles: ['EXEC_VIEW'],
       variant: 'soft-glow',
       arcData: {
         metricKey: 'O2C_VISIBILITY',
@@ -434,8 +441,16 @@ export class LandingComponent implements OnInit, OnDestroy {
   private isItUser = computed(() => {
     const roles = this.userRoles();
     if (roles.includes('ADMIN')) return false;
+    if (roles.includes('EXEC_VIEW')) return false;
     // IT user if they have any role that's NOT in business roles
     return roles.some((role) => !this.BUSINESS_ROLES.includes(role));
+  });
+
+  /** Check if user has the EXEC_VIEW persona (sees both columns, some cards disabled/hidden) */
+  private isExecView = computed(() => {
+    const roles = this.userRoles();
+    if (roles.includes('ADMIN')) return false;
+    return roles.includes('EXEC_VIEW');
   });
 
   // Organize cards into columns based on user role type
@@ -445,8 +460,8 @@ export class LandingComponent implements OnInit, OnDestroy {
 
     const columns: { header: string; cards: LandingCard[] }[] = [];
 
-    // Admin sees both columns
-    if (this.isAdmin()) {
+    // Admin and Exec View see both columns
+    if (this.isAdmin() || this.isExecView()) {
       columns.push({ header: 'IT Operations 360', cards: itCards });
       columns.push({ header: 'Finance Biz Ops 360', cards: finCards });
     }
@@ -490,10 +505,40 @@ export class LandingComponent implements OnInit, OnDestroy {
 
     // 4. Mixed (has both business + IT roles) - currently shows IT Ops only
     // this.userRoles.set(['LARGE_DEAL', 'EXCEPTION_ADMIN']);
+
+    // this.userRoles.set(['EXEC_VIEW']);
   }
 
   ngOnInit(): void {
-    // Fetch all dashboard metrics (including card metrics) from single endpoint
+    this.debugRoles();
+    this.fetchMetrics();
+    this.refreshInterval = setInterval(
+      () => this.fetchMetrics(),
+      this.REFRESH_INTERVAL_MS,
+    );
+  }
+
+  private debugRoles(): void {
+    const roles = this.userRoles();
+    const allCards = [...this.itOpsAllCards, ...this.finBizOpsAllCards];
+    const summary = allCards.map((card) => ({
+      card: card.title,
+      hidden: card.hideForRoles?.some((r) => roles.includes(r)) ?? false,
+      disabled: card.disabledForRoles?.some((r) => roles.includes(r)) ?? false,
+      accessible:
+        !card.disabledForRoles?.some((r) => roles.includes(r)) &&
+        (!card.requiredRoles?.length ||
+          roles.includes('ADMIN') ||
+          roles.includes('EXEC_VIEW') ||
+          card.requiredRoles.some((r) => roles.includes(r))),
+    }));
+    console.group('[Landing] Role Debug');
+    console.log('Active roles:', roles);
+    console.table(summary);
+    console.groupEnd();
+  }
+
+  private fetchMetrics(): void {
     this.http
       .get('dashboard-metrics', this.destroyManager)
       .subscribe((metrics: any) => {
@@ -503,6 +548,9 @@ export class LandingComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
     this.destroyManager.ngOnDestroy();
   }
 
@@ -778,6 +826,10 @@ export class LandingComponent implements OnInit, OnDestroy {
 
   private canAccessCard(card: LandingCard): boolean {
     const roles = this.userRoles();
+    // Explicitly disabled for this role — show greyed out
+    if (card.disabledForRoles?.some((r) => roles.includes(r))) {
+      return false;
+    }
     if (!card.requiredRoles?.length) {
       return true;
     }
@@ -787,10 +839,17 @@ export class LandingComponent implements OnInit, OnDestroy {
     if (roles.includes('ADMIN')) {
       return true;
     }
+    // EXEC_VIEW is a pass-through — can access anything not explicitly disabled
+    if (roles.includes('EXEC_VIEW')) {
+      return true;
+    }
     return card.requiredRoles.some((role) => roles.includes(role));
   }
 
   private filterByRole(cards: LandingCard[]): LandingCard[] {
-    return cards;
+    const roles = this.userRoles();
+    return cards.filter(
+      (card) => !card.hideForRoles?.some((role) => roles.includes(role)),
+    );
   }
 }
