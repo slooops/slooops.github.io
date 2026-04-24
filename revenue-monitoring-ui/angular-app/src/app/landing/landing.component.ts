@@ -10,7 +10,6 @@ import {
   phosphorBrainDuotone,
   phosphorMoneyDuotone,
   phosphorChartLineUpDuotone,
-  phosphorClipboardTextDuotone,
   phosphorPresentationChartDuotone,
   phosphorGaugeDuotone,
   phosphorRocketLaunchDuotone,
@@ -18,6 +17,7 @@ import {
 import {
   phosphorSparkleBold,
   phosphorCaretRightBold,
+  phosphorChartLineUpBold,
 } from '@ng-icons/phosphor-icons/bold';
 import { AuthenticationService } from '../providers/authentication.service';
 import { ApiHttpService } from '../providers/http.service';
@@ -127,12 +127,12 @@ export interface StatMetric {
       phosphorBrainDuotone,
       phosphorMoneyDuotone,
       phosphorChartLineUpDuotone,
-      phosphorClipboardTextDuotone,
       phosphorPresentationChartDuotone,
       phosphorGaugeDuotone,
       phosphorRocketLaunchDuotone,
       phosphorSparkleBold,
       phosphorCaretRightBold,
+      phosphorChartLineUpBold,
     }),
   ],
   templateUrl: './landing.component.html',
@@ -289,7 +289,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       title: 'Scorecard',
       description:
         'AI in SDLC performance scorecard tracking delivery metrics, sprint health, and engineering excellence across teams.',
-      icon: 'phosphorClipboardTextDuotone',
+      icon: 'phosphorChartLineUpBold',
       route: '/scorecard',
       requiredRoles: ['ADMIN'],
       variant: 'soft-glow',
