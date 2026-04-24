@@ -8,22 +8,26 @@
       <div class="header-text">
         <h1 class="header-title">Analytics Dashboard</h1>
         <p class="header-subtitle">
-          Page Visit Analytics &amp; Usage Insights from last 30 days
+          Page Visit Analytics &amp; Usage Insights from last
+          {{ selectedDays }} days
         </p>
       </div>
     </div>
     <div class="header-right">
-      <!-- <span class="last-updated" *ngIf="lastUpdated"
-        >Last updated: {{ lastUpdated }}</span
-      > -->
-      <button
-        class="refresh-btn"
-        (click)="refreshData()"
+      <select
+        class="ciq-select"
+        [(ngModel)]="selectedDays"
+        (ngModelChange)="onPeriodChange()"
         [disabled]="isLoading"
       >
+        @for (opt of periodOptions; track opt.value) {
+          <option [ngValue]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+      <button class="ciq-btn" (click)="refreshData()" [disabled]="isLoading">
         <ng-icon
           name="phosphorArrowClockwiseBold"
-          size="18"
+          size="14"
           [class.spinning]="isLoading"
           class="refresh-icon"
         />
@@ -175,7 +179,12 @@
                     {{ i + 1 }}
                   </span>
                 </td>
-                <td class="route">{{ item.PAGE_ROUTE }}</td>
+                <td
+                  class="route clickable"
+                  (click)="openRouteDetail(item.PAGE_ROUTE)"
+                >
+                  {{ item.PAGE_ROUTE }}
+                </td>
                 <td class="visits">{{ item.TOTAL_VISITS | number }}</td>
                 <td class="users">{{ item.UNIQUE_USERS | number }}</td>
               </tr>
@@ -197,3 +206,67 @@
     </div>
   }
 </div>
+
+<!-- Route Detail Modal -->
+@if (modalOpen) {
+  <div class="ciq-modal-backdrop" (click)="closeRouteDetail()">
+    <dialog
+      class="ciq-modal"
+      open
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="ciq-modal__header">
+        <h3 class="ciq-modal__title">{{ modalRoute }}</h3>
+        <button
+          class="ciq-modal__close"
+          (click)="closeRouteDetail()"
+          aria-label="Close modal"
+        >
+          ✕
+        </button>
+      </div>
+      <div class="ciq-modal__body">
+        @if (modalLoading) {
+          <div class="modal-loading">Loading visitor data…</div>
+        } @else if (modalDetails.length === 0) {
+          <div class="modal-loading">No visitor data found for this route.</div>
+        } @else {
+          <p class="ciq-modal__subtitle">
+            {{ modalDetails.length }} user{{
+              modalDetails.length !== 1 ? "s" : ""
+            }}
+            · {{ modalTotalVisits | number }} total visits · Last
+            {{ selectedDays }} days
+          </p>
+          <div class="modal-table-wrapper">
+            <table class="data-table modal-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>User</th>
+                  <th>Total Visits</th>
+                  <th>Active Days</th>
+                  <th>First Visit</th>
+                  <th>Last Visit</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (d of modalDetails; track d.USER_NAME; let i = $index) {
+                  <tr>
+                    <td>{{ i + 1 }}</td>
+                    <td class="user-cell">{{ d.USER_NAME }}</td>
+                    <td class="visits">{{ d.VISIT_COUNT | number }}</td>
+                    <td>{{ d.VISIT_DATE }}</td>
+                    <td class="timestamp">{{ d.FIRST_VISIT_TIME }}</td>
+                    <td class="timestamp">{{ d.LAST_VISIT_TIME }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </dialog>
+  </div>
+}

@@ -300,22 +300,26 @@ public class CommonController {
      * GET /api/page-visit-analytics
      * Retrieves all page visit analytics data for the analytics dashboard.
      * 
+     * @param days Lookback period in days (7, 30, or 90). Defaults to 30.
      * @return List of page visit records with user, route, date, and visit count
      */
     @GetMapping("/page-visit-analytics")
-    public ResponseEntity<List<Map<String, Object>>> getPageVisitAnalytics() {
-        return new ResponseEntity<>(service.getPageVisitAnalytics(), HttpStatus.OK);
+    public ResponseEntity<List<Map<String, Object>>> getPageVisitAnalytics(
+            @RequestParam(defaultValue = "30") int days) {
+        return new ResponseEntity<>(service.getPageVisitAnalytics(days), HttpStatus.OK);
     }
 
     /**
      * GET /api/page-visit-summary
      * Retrieves aggregated page visit data grouped by route.
      * 
+     * @param days Lookback period in days (7, 30, or 90). Defaults to 30.
      * @return List of routes with total visits and unique user counts
      */
     @GetMapping("/page-visit-summary")
-    public ResponseEntity<List<Map<String, Object>>> getPageVisitSummary() {
-        return new ResponseEntity<>(service.getPageVisitSummary(), HttpStatus.OK);
+    public ResponseEntity<List<Map<String, Object>>> getPageVisitSummary(
+            @RequestParam(defaultValue = "30") int days) {
+        return new ResponseEntity<>(service.getPageVisitSummary(days), HttpStatus.OK);
     }
 
     /**
@@ -330,19 +334,19 @@ public class CommonController {
     }
 
     @PostMapping("/insert-summary-assignment-user")
-    public ResponseEntity<String> insertSummaryAssignmentUser(@RequestBody Map<String, String> updateData){
+    public ResponseEntity<String> insertSummaryAssignmentUser(@RequestBody Map<String, String> updateData) {
         int test = service.insertSummaryAssignmentUser(updateData);
         return ResponseEntity.status(HttpStatus.OK).body("Successful");
     }
 
     @GetMapping("/disable-summary-assignment-user")
-    public ResponseEntity<String> disableSummaryAssignmentUser(@RequestParam String email){
+    public ResponseEntity<String> disableSummaryAssignmentUser(@RequestParam String email) {
         int test = service.disableSummaryAssignmentUser(email);
         return ResponseEntity.status(HttpStatus.OK).body("Successful");
     }
 
     @GetMapping("/enable-summary-assignment-user")
-    public ResponseEntity<String> enableSummaryAssignmentUser(@RequestParam String email){
+    public ResponseEntity<String> enableSummaryAssignmentUser(@RequestParam String email) {
         int test = service.enableSummaryAssignmentUser(email);
         return ResponseEntity.status(HttpStatus.OK).body("Successful");
     }

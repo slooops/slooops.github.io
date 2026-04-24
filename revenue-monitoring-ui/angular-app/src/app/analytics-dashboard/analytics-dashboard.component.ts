@@ -1,5 +1,12 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ApiHttpService } from '../providers/http.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
@@ -34,6 +41,14 @@ interface ChartDataset {
   backgroundColor: string[];
 }
 
+interface RouteVisitDetail {
+  USER_NAME: string;
+  VISIT_DATE: string;
+  FIRST_VISIT_TIME: string;
+  LAST_VISIT_TIME: string;
+  VISIT_COUNT: number;
+}
+
 // Helper to normalize keys to uppercase (Oracle returns uppercase)
 function normalizeData(data: any[]): PageVisitSummary[] {
   return data.map((item) => ({
@@ -66,7 +81,7 @@ const ACRONYMS: Record<string, string> = {
   templateUrl: './analytics-dashboard.component.html',
   styleUrls: ['./analytics-dashboard.component.css'],
   standalone: true,
-  imports: [CommonModule, LoadingSymbolComponent, NgIcon],
+  imports: [CommonModule, FormsModule, LoadingSymbolComponent, NgIcon],
   providers: [
     DestroyManager,
     provideIcons({
@@ -89,6 +104,20 @@ export class AnalyticsDashboardComponent
 {
   isLoading = true;
   summaryData: PageVisitSummary[] = [];
+
+  // Lookback period
+  selectedDays = 30;
+  readonly periodOptions = [
+    { value: 7, label: 'Last 7 Days' },
+    { value: 30, label: 'Last 30 Days' },
+    { value: 90, label: 'Last 90 Days' },
+  ];
+
+  // Route detail modal
+  modalOpen = false;
+  modalRoute = '';
+  modalLoading = false;
+  modalDetails: RouteVisitDetail[] = [];
 
   // Charts
   private continuousMonitoringChart: any = null;
@@ -166,28 +195,29 @@ export class AnalyticsDashboardComponent
 
   loadAnalyticsData(): void {
     this.isLoading = true;
-    // console.log('Fetching analytics data from: page-visit-summary');
-    this.http.get('page-visit-summary', this.destroyManager).subscribe({
-      next: (data: any) => {
-        console.log('Raw analytics data received:', data);
-        this.summaryData = normalizeData(data as any[]);
-        console.log('Normalized data:', this.summaryData);
-        this.calculateStats();
-        this.lastUpdated = new Date().toLocaleString();
+    this.http
+      .get(`page-visit-summary?days=${this.selectedDays}`, this.destroyManager)
+      .subscribe({
+        next: (data: any) => {
+          console.log('Raw analytics data received:', data);
+          this.summaryData = normalizeData(data as any[]);
+          console.log('Normalized data:', this.summaryData);
+          this.calculateStats();
+          this.lastUpdated = new Date().toLocaleString();
 
-        // FIRST: Set isLoading = false so DOM renders the canvas elements
-        this.isLoading = false;
+          // FIRST: Set isLoading = false so DOM renders the canvas elements
+          this.isLoading = false;
 
-        // THEN: Wait for Angular to render the DOM, then initialize charts
-        setTimeout(() => {
-          this.initializeCharts();
-        }, 100);
-      },
-      error: (err) => {
-        console.error('Failed to load analytics data:', err);
-        this.isLoading = false;
-      },
-    });
+          // THEN: Wait for Angular to render the DOM, then initialize charts
+          setTimeout(() => {
+            this.initializeCharts();
+          }, 100);
+        },
+        error: (err) => {
+          console.error('Failed to load analytics data:', err);
+          this.isLoading = false;
+        },
+      });
   }
 
   private calculateStats(): void {
@@ -603,7 +633,91 @@ export class AnalyticsDashboardComponent
     });
   }
 
+  onPeriodChange(): void {
+    this.loadAnalyticsData();
+  }
+
   refreshData(): void {
     this.loadAnalyticsData();
+  }
+
+  openRouteDetail(route: string): void {
+    this.modalRoute = route;
+    this.modalOpen = true;
+    this.modalLoading = true;
+    this.modalDetails = [];
+
+    this.http
+      .get(
+        `page-visit-analytics?days=${this.selectedDays}`,
+        this.destroyManager,
+      )
+      .subscribe({
+        next: (data: any) => {
+          const all = (data as any[]) || [];
+          // Filter to selected route, aggregate per user across dates
+          const userMap = new Map<
+            string,
+            {
+              totalVisits: number;
+              firstVisit: string;
+              lastVisit: string;
+              dayCount: number;
+            }
+          >();
+
+          all
+            .filter((r: any) => r.PAGE_ROUTE === route)
+            .forEach((r: any) => {
+              const user = r.USER_NAME || 'UNKNOWN';
+              const existing = userMap.get(user);
+              const visits = Number(r.VISIT_COUNT || 0);
+              const first = r.FIRST_VISIT_TIME || r.VISIT_DATE || '';
+              const last = r.LAST_VISIT_TIME || r.VISIT_DATE || '';
+
+              if (existing) {
+                existing.totalVisits += visits;
+                existing.dayCount += 1;
+                if (first < existing.firstVisit) existing.firstVisit = first;
+                if (last > existing.lastVisit) existing.lastVisit = last;
+              } else {
+                userMap.set(user, {
+                  totalVisits: visits,
+                  firstVisit: first,
+                  lastVisit: last,
+                  dayCount: 1,
+                });
+              }
+            });
+
+          this.modalDetails = Array.from(userMap.entries())
+            .map(([user, info]) => ({
+              USER_NAME: user,
+              VISIT_DATE: `${info.dayCount} day${info.dayCount === 1 ? '' : 's'}`,
+              FIRST_VISIT_TIME: info.firstVisit,
+              LAST_VISIT_TIME: info.lastVisit,
+              VISIT_COUNT: info.totalVisits,
+            }))
+            .sort((a, b) => b.VISIT_COUNT - a.VISIT_COUNT);
+
+          this.modalLoading = false;
+        },
+        error: () => {
+          this.modalLoading = false;
+        },
+      });
+  }
+
+  closeRouteDetail(): void {
+    this.modalOpen = false;
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.modalOpen) this.closeRouteDetail();
+  }
+
+  get modalTotalVisits(): number {
+    return this.modalDetails.reduce((s, d) => s + d.VISIT_COUNT, 0);
   }
 }

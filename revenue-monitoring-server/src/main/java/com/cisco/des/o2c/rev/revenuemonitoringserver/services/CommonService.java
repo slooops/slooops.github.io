@@ -49,6 +49,23 @@ public class CommonService {
     // Role validation pattern (letters, numbers, spaces, underscores only)
     private static final Pattern ROLE_PATTERN = Pattern.compile("^[a-zA-Z0-9_ ]+$");
 
+    // Allowed lookback periods (days) for analytics queries
+    private static final java.util.Set<Integer> ALLOWED_DAYS = java.util.Set.of(7, 30, 90);
+
+    // Inline parameterized analytics queries (replaces envfile versions)
+    private static final String PAGE_VISIT_SUMMARY_SQL = "SELECT PAGE_ROUTE, SUM(VISIT_COUNT) AS TOTAL_VISITS, COUNT(DISTINCT USER_NAME) AS UNIQUE_USERS "
+            +
+            "FROM ARFINRO.CTL_TWR_JSR_PAGE_VISIT_LOG " +
+            "WHERE VISIT_DATE >= TRUNC(SYSDATE) - ? " +
+            "GROUP BY PAGE_ROUTE ORDER BY TOTAL_VISITS DESC";
+
+    private static final String PAGE_VISIT_ANALYTICS_SQL = "SELECT USER_NAME, PAGE_ROUTE, VISIT_DATE, " +
+            "TO_CHAR(FIRST_VISIT_TIME, 'YYYY-MM-DD HH24:MI:SS') AS FIRST_VISIT_TIME, " +
+            "TO_CHAR(LAST_VISIT_TIME, 'YYYY-MM-DD HH24:MI:SS') AS LAST_VISIT_TIME, " +
+            "VISIT_COUNT FROM ARFINRO.CTL_TWR_JSR_PAGE_VISIT_LOG " +
+            "WHERE VISIT_DATE >= TRUNC(SYSDATE) - ? " +
+            "ORDER BY VISIT_DATE DESC, VISIT_COUNT DESC";
+
     public CommonService(
             JdbcManager jdbcManager,
             @Qualifier("invoiceToCashSummary") String invoiceToCashSummary,
@@ -393,21 +410,25 @@ public class CommonService {
     }
 
     /**
-     * Retrieves all page visit analytics data.
+     * Retrieves all page visit analytics data for a given lookback period.
      * 
+     * @param days Number of days to look back (7, 30, or 90)
      * @return List of page visit records
      */
-    public List<Map<String, Object>> getPageVisitAnalytics() {
-        return jdbcManager.queryForList(pageVisitAnalytics);
+    public List<Map<String, Object>> getPageVisitAnalytics(int days) {
+        int safeDays = ALLOWED_DAYS.contains(days) ? days : 30;
+        return jdbcManager.queryForListWithParams(PAGE_VISIT_ANALYTICS_SQL, safeDays);
     }
 
     /**
      * Retrieves aggregated page visit summary grouped by route.
      * 
+     * @param days Number of days to look back (7, 30, or 90)
      * @return List of routes with total visits and unique users
      */
-    public List<Map<String, Object>> getPageVisitSummary() {
-        return jdbcManager.queryForList(pageVisitSummary);
+    public List<Map<String, Object>> getPageVisitSummary(int days) {
+        int safeDays = ALLOWED_DAYS.contains(days) ? days : 30;
+        return jdbcManager.queryForListWithParams(PAGE_VISIT_SUMMARY_SQL, safeDays);
     }
 
     /**
@@ -419,15 +440,16 @@ public class CommonService {
         return jdbcManager.queryForList(dashboardMetrics);
     }
 
-    public int insertSummaryAssignmentUser(Map<String, String> updateData){
-        return jdbcManager.insertSummaryAssignmentUser(insertSummaryAssignmentUsers, updateData.get("name"), updateData.get("email"), updateData.get("team"));
+    public int insertSummaryAssignmentUser(Map<String, String> updateData) {
+        return jdbcManager.insertSummaryAssignmentUser(insertSummaryAssignmentUsers, updateData.get("name"),
+                updateData.get("email"), updateData.get("team"));
     }
 
-    public int disableSummaryAssignmentUser(String userEmail){
+    public int disableSummaryAssignmentUser(String userEmail) {
         return jdbcManager.disableSummaryAssignmentUser(disableSummaryAssignmentUsers, userEmail);
     }
 
-    public int enableSummaryAssignmentUser(String userEmail){
+    public int enableSummaryAssignmentUser(String userEmail) {
         return jdbcManager.disableSummaryAssignmentUser(enableSummaryAssignmentUsers, userEmail);
     }
 
