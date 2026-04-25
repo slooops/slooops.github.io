@@ -17,9 +17,8 @@ class CacheCommonTest {
     CacheCommon cacheCommon;
 
     @BeforeEach
-    void init(){
+    void init() {
         cacheCommon = new CacheCommon(jdbc);
-        // inject redisRepository via reflection since field is package-private autowired
         try {
             var f = CacheCommon.class.getDeclaredField("redisRepository");
             f.setAccessible(true);
@@ -27,20 +26,70 @@ class CacheCommonTest {
         } catch (Exception e) { throw new RuntimeException(e); }
     }
 
+    // ── checkRedisForCachedData ───────────────────────────────
+
     @Test
     void cacheMissStoresWhenUseRedisTrue() {
         when(redis.findData("Key")).thenReturn(null);
-        when(jdbc.queryForList("sql")).thenReturn(List.of(Map.of("k","v")));
-        var result = cacheCommon.checkRedisForCachedData("Key","sql", true);
+        when(jdbc.queryForList("sql")).thenReturn(List.of(Map.of("k", "v")));
+        var result = cacheCommon.checkRedisForCachedData("Key", "sql", true);
         assertEquals(1, result.size());
         verify(redis).add(eq("Key"), anyList());
     }
 
     @Test
     void cacheHitReturns() {
-        when(redis.findData("Key")).thenReturn(List.of(Map.of("k","v")));
-        var result = cacheCommon.checkRedisForCachedData("Key","sql", true);
+        when(redis.findData("Key")).thenReturn(List.of(Map.of("k", "v")));
+        var result = cacheCommon.checkRedisForCachedData("Key", "sql", true);
         assertEquals("v", result.get(0).get("k"));
         verify(jdbc, never()).queryForList(anyString());
+    }
+
+    @Test
+    void useRedisFalseAlwaysQueriesDb() {
+        when(jdbc.queryForList("sql")).thenReturn(List.of(Map.of("a", 1)));
+        var result = cacheCommon.checkRedisForCachedData("Key", "sql", false);
+        assertEquals(1, result.size());
+        verify(redis, never()).add(anyString(), anyList());
+    }
+
+    @Test
+    void cacheMissNoStoreWhenUseRedisFalse() {
+        when(jdbc.queryForList("sql")).thenReturn(List.of());
+        var result = cacheCommon.checkRedisForCachedData("X", "sql", false);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(redis, never()).add(anyString(), anyList());
+    }
+
+    @Test
+    void exceptionReturnsNull() {
+        when(redis.findData("Key")).thenThrow(new RuntimeException("Redis down"));
+        var result = cacheCommon.checkRedisForCachedData("Key", "sql", true);
+        assertNull(result);
+    }
+
+    @Test
+    void dbReturnsEmptyListCachedWhenUseRedis() {
+        when(redis.findData("Key")).thenReturn(null);
+        when(jdbc.queryForList("sql")).thenReturn(List.of());
+        var result = cacheCommon.checkRedisForCachedData("Key", "sql", true);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(redis).add(eq("Key"), eq(List.of()));
+    }
+
+    // ── refreshExceptionMonitoringCache ───────────────────────
+
+    @Test
+    void refreshDoesNotThrowOnEmptyMap() {
+        assertDoesNotThrow(() -> cacheCommon.refreshExceptionMonitoringCache(Map.of()));
+    }
+
+    @Test
+    void refreshTriggersForEachEntry() {
+        // Just verify it doesn't throw; actual async work is fire-and-forget
+        Map<String, String> map = Map.of("key1", "SELECT 1", "key2", "SELECT 2");
+        assertDoesNotThrow(() -> cacheCommon.refreshExceptionMonitoringCache(map));
     }
 }

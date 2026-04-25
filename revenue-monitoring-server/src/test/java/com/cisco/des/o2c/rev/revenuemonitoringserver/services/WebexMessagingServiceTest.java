@@ -47,4 +47,30 @@ class WebexMessagingServiceTest {
                 "amount","100","transactionDate","2025-01-01","comments","Test"));
         assertEquals("ok", result);
     }
+
+    @Test
+    void sendInvoicingMessageReturnsOk() {
+        var result = service.sendWebexMessageInvoicing(Map.of(
+                "assignedTo","user","componentName","Comp","username","owner",
+                "periodName","P1","applicationName","App","processFlow","Flow","orgName","Org",
+                "amount","200","transactionDate","2025-02-01","comments","Test2"));
+        assertEquals("ok", result);
+    }
+
+    @Test
+    void sendGlPostingMessageReturnsOk() {
+        var result = service.sendWebexMessageGlPosting(Map.of(
+                "assignedTo","user","componentName","Comp","username","owner",
+                "periodName","P1","applicationName","App","processFlow","Flow","ledgerName","Led",
+                "amount","300","transactionDate","2025-03-01","comments","Test3"));
+        assertEquals("ok", result);
+    }
+
+    @Test
+    void sendWIPSNprdMessageReturnsOk() {
+        var result = service.sendWebexMessageWIPSNprd(Map.of(
+                "assignedTo","user","componentName","Comp","username","owner",
+                "amount","400","comments","Test4"));
+        assertEquals("ok", result);
+    }
 }

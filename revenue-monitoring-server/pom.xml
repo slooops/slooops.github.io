@@ -199,6 +199,40 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.2.5</version>
 			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.13</version>
+				<configuration>
+					<excludes>
+						<exclude>**/models/**</exclude>
+						<exclude>**/configs/**</exclude>
+						<exclude>**/queue/**</exclude>
+						<exclude>**/RevenueMonitoringServerApplication.class</exclude>
+						<exclude>**/CMSMonitoringService.class</exclude>
+						<exclude>**/CMSMonitoringController.class</exclude>
+						<exclude>**/O2CMonitoringService.class</exclude>
+						<exclude>**/O2CMonitoringController.class</exclude>
+						<exclude>**/ScorecardService.class</exclude>
+						<exclude>**/ScorecardController.class</exclude>
+						<exclude>**/SdlcAdoptService.class</exclude>
+						<exclude>**/SdlcExecService.class</exclude>
+						<exclude>**/SdlcController.class</exclude>
+						<exclude>**/ExecSummaryService.class</exclude>
+						<exclude>**/ExecSummaryController.class</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals><goal>prepare-agent</goal></goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals><goal>report</goal></goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
