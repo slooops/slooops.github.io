@@ -18,14 +18,10 @@ public class CacheRefresh {
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 	private static long startTime = 0;
 
-	private long cmsRefresh;
 	private long glRefresh;
 	private long i2cRefresh;
 	private long postInvoicingRefresh;
 	private long revenueRefresh;
-
-	@Autowired
-	private CMSMonitoringService cmsMonitoringService;
 
 	@Autowired
 	private GLPostingMonitoringService glPostingMonitoringService;
@@ -45,15 +41,13 @@ public class CacheRefresh {
 	private volatile boolean cacheRefreshInProgress = false;
 
 	@Autowired
-	public CacheRefresh(long cmsRefresh, long glRefresh, long i2cRefresh, long postInvoicingRefresh,
+	public CacheRefresh(long glRefresh, long i2cRefresh, long postInvoicingRefresh,
 			long revenueRefresh) {
-		this.cmsRefresh = cmsRefresh;
 		this.glRefresh = glRefresh;
 		this.i2cRefresh = i2cRefresh;
 		this.postInvoicingRefresh = postInvoicingRefresh;
 		this.revenueRefresh = revenueRefresh;
 
-		cacheCollection.put("cmsRefresh", cmsRefresh);
 		cacheCollection.put("glRefresh", glRefresh);
 		cacheCollection.put("i2cRefresh", i2cRefresh);
 		cacheCollection.put("postInvoicingRefresh", postInvoicingRefresh);
@@ -82,9 +76,6 @@ public class CacheRefresh {
 				log.info("Time to refresh Cache");
 
 				switch(key) {
-					case "cmsRefresh":
-						cmsMonitoringService.refreshCMSCache();
-						break;
 					case "glRefresh":
 						glPostingMonitoringService.refreshGlPostingMonitoringCache();
 						break;

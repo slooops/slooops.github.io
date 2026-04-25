@@ -17,7 +17,6 @@ import static org.mockito.Mockito.*;
  */
 class CacheRefreshTest {
 
-    private CMSMonitoringService cmsService;
     private GLPostingMonitoringService glService;
     private InvoiceToCashMonitoringService i2cService;
     private PostInvoicingMonitoringService postInvService;
@@ -25,7 +24,6 @@ class CacheRefreshTest {
 
     @BeforeEach
     void setUp() {
-        cmsService = Mockito.mock(CMSMonitoringService.class);
         glService = Mockito.mock(GLPostingMonitoringService.class);
         i2cService = Mockito.mock(InvoiceToCashMonitoringService.class);
         postInvService = Mockito.mock(PostInvoicingMonitoringService.class);
@@ -39,19 +37,18 @@ class CacheRefreshTest {
      */
     @Test
     void refreshCache_triggersAllServices_whenModuloConditionMatches() throws Exception {
-        CacheRefresh cacheRefresh = new CacheRefresh(1,1,1,1,1);
+        CacheRefresh cacheRefresh = new CacheRefresh(1,1,1,1);
         injectServices(cacheRefresh);
         // Force startTime so that (current - startTime)/10000 == 1
         setStaticStartTime(System.currentTimeMillis() - 10_000L);
 
         cacheRefresh.refreshCache();
 
-        verify(cmsService, times(1)).refreshCMSCache();
         verify(glService, times(1)).refreshGlPostingMonitoringCache();
         verify(i2cService, times(1)).refreshInvoiceToCashMonitoringCache();
         verify(postInvService, times(1)).refreshPostInvoicingMonitoringCache();
         verify(revenueService, times(1)).refreshRevenueAccountingMonitoringCache();
-        verifyNoMoreInteractions(cmsService, glService, i2cService, postInvService, revenueService);
+        verifyNoMoreInteractions(glService, i2cService, postInvService, revenueService);
     }
 
     /**
@@ -61,19 +58,18 @@ class CacheRefreshTest {
      */
     @Test
     void refreshCache_skipsAllServices_whenModuloConditionNotMet() throws Exception {
-        CacheRefresh cacheRefresh = new CacheRefresh(2,2,2,2,2);
+        CacheRefresh cacheRefresh = new CacheRefresh(2,2,2,2);
         injectServices(cacheRefresh);
         setStaticStartTime(System.currentTimeMillis() - 10_000L);
 
         cacheRefresh.refreshCache();
 
-        verifyNoInteractions(cmsService, glService, i2cService, postInvService, revenueService);
+        verifyNoInteractions(glService, i2cService, postInvService, revenueService);
     }
 
     // --- Helper methods ---------------------------------------------------
 
     private void injectServices(CacheRefresh target) throws Exception {
-        setField(target, "cmsMonitoringService", cmsService);
         setField(target, "glPostingMonitoringService", glService);
         setField(target, "invoiceToCashMonitoringService", i2cService);
         setField(target, "postInvoicingMonitoringService", postInvService);
