@@ -2199,29 +2199,6 @@ public class QueryConfigs {
         return this.glInterfaceSummaryUpdate;
     }
 
-    @Value(("${insert.assignment.users.q}"))
-    public String insertSummaryAssignmentUsers;
-
-    @Bean(name = "insertSummaryAssignmentUsers")
-    public String getInsertSummaryAssignmentUsers() {
-        return this.insertSummaryAssignmentUsers;
-    }
-
-    @Value(("${disable.assignment.users.q}"))
-    public String disableSummaryAssignmentUsers;
-
-    @Bean(name = "disableSummaryAssignmentUsers")
-    public String getDisableSummaryAssignmentUsers() {
-        return this.disableSummaryAssignmentUsers;
-    }
-
-    @Value(("${enable.assignment.users.q}"))
-    public String enableSummaryAssignmentUsers;
-
-    @Bean(name = "enableSummaryAssignmentUsers")
-    public String getEnableSummaryAssignmentUsers() {
-        return this.enableSummaryAssignmentUsers;
-    }
     @Value(("${gl.fa.jobs.summary.q}"))
     public String glFaJobsSummary;
 
@@ -2277,5 +2254,101 @@ public class QueryConfigs {
     @Bean(name = "glUnpostedSummaryUpdate")
     public String getGlUnpostedSummaryUpdate() {
         return this.glUnpostedSummaryUpdate;
+    }
+
+    @Value(("${insert.assignment.users.q}"))
+    public String insertSummaryAssignmentUsers;
+
+    @Bean(name = "insertSummaryAssignmentUsers")
+    public String getInsertSummaryAssignmentUsers() {
+        return this.insertSummaryAssignmentUsers;
+    }
+
+    @Value(("${disable.assignment.users.q}"))
+    public String disableSummaryAssignmentUsers;
+
+    @Bean(name = "disableSummaryAssignmentUsers")
+    public String getDisableSummaryAssignmentUsers() {
+        return this.disableSummaryAssignmentUsers;
+    }
+
+    @Value(("${enable.assignment.users.q}"))
+    public String enableSummaryAssignmentUsers;
+
+    @Bean(name = "enableSummaryAssignmentUsers")
+    public String getEnableSummaryAssignmentUsers() {
+        return this.enableSummaryAssignmentUsers;
+    }
+
+    @Value(("${ctl.tower.roles}"))
+    public String ctlTwrRoles;
+
+    @Bean(name = "ctlTwrRoles")
+    public String getCtlTwrRoles() {
+        return this.ctlTwrRoles;
+    }
+
+    @Value(("${ctl.twr.user.access}"))
+    public String ctlTwrUserAccess;
+
+    @Bean(name = "ctlTwrUserAccess")
+    public String getCtlTwrUserAccess() {
+        return this.ctlTwrUserAccess;
+    }
+
+    @Value(("${ctl.twr.roles.insert}"))
+    public String ctlTwrRoleInsert;
+
+    @Bean(name = "ctlTwrRoleInsert")
+    public String getCtlTwrRoleInsert() {
+        return this.ctlTwrRoleInsert;
+    }
+
+    @Value(("${ctl.twr.roles.update}"))
+    public String ctlTwrRoleUpdate;
+
+    @Bean(name = "ctlTwrRoleUpdate")
+    public String getCtlTwrRoleUpdate() {
+        return this.ctlTwrRoleUpdate;
+    }
+
+    @Value(("${ctl.twr.roles.delete}"))
+    public String ctlTwrRoleDelete;
+
+    @Bean(name = "ctlTwrRoleDelete")
+    public String getCtlTwrRoleDelete() {
+        return this.ctlTwrRoleDelete;
+    }
+
+    @Value(("${ctl.twr.user.access.create.user.role}"))
+    public String ctlTwrUserAccessCreateUserRole;
+
+    @Bean(name = "ctlTwrUserAccessCreateUserRole")
+    public String getCtlTwrUserAccessCreateUserRole() {
+        return this.ctlTwrUserAccessCreateUserRole;
+    }
+
+    @Value(("${ctl.twr.user.access.update.user.role}"))
+    public String ctlTwrUserAccessUpdateUserRole;
+
+    @Bean(name = "ctlTwrUserAccessUpdateUserRole")
+    public String getCtlTwrUserAccessUpdateUserRole() {
+        return this.ctlTwrUserAccessUpdateUserRole;
+    }
+
+    @Value(("${ctl.twr.user.access.check.deleted.user}"))
+    public String ctlTwrUserAccessCheckDeletedUser;
+
+    @Bean(name = "ctlTwrUserAccessCheckDeletedUser")
+    public String getCtlTwrUserAccessCheckDeletedUser() {
+        return this.ctlTwrUserAccessCheckDeletedUser;
+    }
+
+    @Value(("${ctl.twr.user.access.by.user}"))
+    public String ctlTwrUserAccessByUser;
+
+    @Bean(name = "ctlTwrUserAccessByUser")
+    public String getCtlTwrUserAccessByUser() {
+        return this.ctlTwrUserAccessByUser;
     }
 }

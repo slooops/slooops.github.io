@@ -582,6 +582,35 @@ public class JdbcManager {
         return primaryJdbcTemplate.update(sql, params);
     }
 
+    /**
+     * Inserts a new role into XXCFI_CTL_TOWER_ROLE_DEF.
+     * role_id is auto-generated via ARFINRO.XXCFI_CTL_TOWER_ROLE_SEQ.
+     *
+     * Query params: role_name, role_value, description, dashboard_name, last_updated_by
+     *
+     * @return Number of rows inserted (1 = success)
+     */
+    public int insertCtlTwrRole(String sql, String roleName, String roleValue,
+            String description, String dashboardName, String lastUpdatedBy) {
+        return primaryJdbcTemplate.update(sql, roleName, roleValue, description,
+                dashboardName, lastUpdatedBy);
+    }
+
+    /**
+     * Updates an existing role in XXCFI_CTL_TOWER_ROLE_DEF by role_id.
+     *
+     * Query params: role_name, role_value, description, enabled_flag,
+     *               dashboard_name, last_updated_by, role_id (WHERE)
+     *
+     * @return Number of rows updated (1 = success, 0 = not found)
+     */
+    public int updateCtlTwrRole(String sql, String roleName, String roleValue,
+            String description, String enabledFlag, String dashboardName,
+            String lastUpdatedBy, int roleId) {
+        return primaryJdbcTemplate.update(sql, roleName, roleValue, description,
+                enabledFlag, dashboardName, lastUpdatedBy, roleId);
+    }
+
     public List<Map<String, Object>> queryForListAIT(String sql) {
         return secondaryJdbcTemplate.queryForList(sql);
     }
@@ -642,6 +671,47 @@ public class JdbcManager {
         NamedParameterJdbcTemplate namedTemplate = new NamedParameterJdbcTemplate(primaryJdbcTemplate);
         MapSqlParameterSource paramSource = new MapSqlParameterSource(params);
         return namedTemplate.queryForList(sql, paramSource);
+    }
+
+    /**
+     * Inserts a new user access role row into XXCFI_CTL_TOWER_USER_ACCESS.
+     * Uses INSERT ... SELECT FROM XXCFI_CTL_TOWER_ROLE_DEF to auto-populate
+     * ROLE_NAME and DASHBOARD_NAME, with NOT EXISTS to prevent duplicates.
+     *
+     * Query positional params (11 total):
+     *   userName, userEmail, fullName,
+     *   admin, readOnly, createdBy, lastUpdatedBy,
+     *   roleId (WHERE r.ROLE_ID = ?),
+     *   userName (EXISTS check), roleId (EXISTS check)
+     *
+     * @return Number of rows inserted (1 = success, 0 = duplicate exists)
+     */
+    public int insertCtlTwrUserAccessRole(String sql, String userName, String userEmail,
+                                          String fullName, int roleId,
+                                          String admin, String readOnly,
+                                          String createdBy, String lastUpdatedBy) {
+        return primaryJdbcTemplate.update(sql,
+                userName, userEmail, fullName,
+                admin, readOnly, createdBy, lastUpdatedBy,
+                roleId, userName, roleId);
+    }
+
+    /**
+     * Updates or soft-deletes a user access role in XXCFI_CTL_TOWER_USER_ACCESS.
+     * Uses CASE WHEN on each value: '0' means null/preserve, anything else sets the value.
+     *
+     * Query positional params (9 total):
+     *   enabledFlag, enabledFlag, admin, admin, readOnly, readOnly,
+     *   lastUpdatedBy, userName, roleId
+     *
+     * @return Number of rows updated (1 = success, 0 = not found)
+     */
+    public int updateCtlTwrUserAccessRole(String sql, String enabledFlag,
+                                          String admin, String readOnly,
+                                          String lastUpdatedBy, String userName, int roleId) {
+        return primaryJdbcTemplate.update(sql,
+                enabledFlag, enabledFlag, admin, admin, readOnly, readOnly,
+                lastUpdatedBy, userName, roleId);
     }
 
 }

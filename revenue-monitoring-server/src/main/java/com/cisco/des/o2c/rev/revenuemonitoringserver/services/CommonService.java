@@ -1,5 +1,6 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.RoleEntry;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.models.UserRoleInfo;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.CacheCommon;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.Common;
@@ -34,6 +35,15 @@ public class CommonService {
     private String insertSummaryAssignmentUsers;
     private String disableSummaryAssignmentUsers;
     private String enableSummaryAssignmentUsers;
+    private String ctlTwrRoles;
+    private String ctlTwrRoleUpdate;
+    private String ctlTwrRoleInsert;
+    private String ctlTwrRoleDelete;
+    private String ctlTwrUserAccess;
+    private String ctlTwrUserAccessCreateUserRole;
+    private String ctlTwrUserAccessUpdateUserRole;
+    private String ctlTwrUserAccessCheckDeletedUser;
+    private String ctlTwrUserAccessByUser;
     @Autowired
     private Common common;
     @Autowired
@@ -83,7 +93,16 @@ public class CommonService {
             @Qualifier("dashboardMetrics") String dashboardMetrics,
             @Qualifier("insertSummaryAssignmentUsers") String insertSummaryAssignmentUsers,
             @Qualifier("disableSummaryAssignmentUsers") String disableSummaryAssignmentUsers,
-            @Qualifier("enableSummaryAssignmentUsers") String enableSummaryAssignmentUsers) {
+            @Qualifier("enableSummaryAssignmentUsers") String enableSummaryAssignmentUsers,
+            @Qualifier("ctlTwrRoles") String ctlTwrRoles,
+            @Qualifier("ctlTwrUserAccess") String ctlTwrUserAccess,
+            @Qualifier("ctlTwrUserAccessCreateUserRole") String ctlTwrUserAccessCreateUserRole,
+            @Qualifier("ctlTwrRoleInsert") String ctlTwrRoleInsert,
+            @Qualifier("ctlTwrRoleUpdate") String ctlTwrRoleUpdate,
+            @Qualifier("ctlTwrUserAccessUpdateUserRole") String ctlTwrUserAccessUpdateUserRole,
+            @Qualifier("ctlTwrRoleDelete") String ctlTwrRoleDelete,
+            @Qualifier("ctlTwrUserAccessCheckDeletedUser") String ctlTwrUserAccessCheckDeletedUser,
+            @Qualifier("ctlTwrUserAccessByUser") String ctlTwrUserAccessByUser) {
         this.jdbcManager = jdbcManager;
         this.rolErrorsSummaryPeriodStatus = rolErrorsSummaryPeriodStatus;
         this.summaryAssignmentUsers = summaryAssignmentUsers;
@@ -101,6 +120,15 @@ public class CommonService {
         this.insertSummaryAssignmentUsers = insertSummaryAssignmentUsers;
         this.disableSummaryAssignmentUsers = disableSummaryAssignmentUsers;
         this.enableSummaryAssignmentUsers = enableSummaryAssignmentUsers;
+        this.ctlTwrRoles = ctlTwrRoles;
+        this.ctlTwrUserAccess = ctlTwrUserAccess;
+        this.ctlTwrUserAccessCreateUserRole = ctlTwrUserAccessCreateUserRole;
+        this.ctlTwrRoleInsert = ctlTwrRoleInsert;
+        this.ctlTwrRoleUpdate = ctlTwrRoleUpdate;
+        this.ctlTwrUserAccessUpdateUserRole = ctlTwrUserAccessUpdateUserRole;
+        this.ctlTwrRoleDelete = ctlTwrRoleDelete;
+        this.ctlTwrUserAccessCheckDeletedUser = ctlTwrUserAccessCheckDeletedUser;
+        this.ctlTwrUserAccessByUser = ctlTwrUserAccessByUser;
     }
 
     // Summaries
@@ -141,9 +169,11 @@ public class CommonService {
             String userName = (String) user.get("USER_NAME");
             String userEmail = (String) user.get("USER_EMAIL");
 
-            List<String> roles = rolesList.stream()
+            List<RoleEntry> roles = rolesList.stream()
                     .filter(u -> upperUsername.equals(u.get("USER_NAME")))
-                    .map(u -> (String) u.get("USER_ROLE"))
+                    .map(u -> new RoleEntry(
+                            u.get("ROLE_ID") != null ? ((Number) u.get("ROLE_ID")).intValue() : 0,
+                            (String) u.get("USER_ROLE")))
                     .collect(Collectors.toList());
 
             return new UserRoleInfo(userName, userEmail, roles);
@@ -159,6 +189,7 @@ public class CommonService {
     public List<Map<String, Object>> getAdminTable() {
         return jdbcManager.queryForList(adminTable);
     }
+
 
     /**
      * Gets admin table filtered by multiple roles.
@@ -284,111 +315,6 @@ public class CommonService {
         return sanitized;
     }
 
-    public int createUserRole(String userName, String userEmail, Integer roleId,
-            String userRole, String enabledFlag, String createdBy) {
-
-        // Validate all inputs (NEVER TRUST CLIENT INPUT)
-        validateUsername(userName);
-        validateEmail(userEmail);
-        validateRole(userRole);
-        validateEnabledFlag(enabledFlag);
-        if (createdBy != null && !createdBy.trim().isEmpty()) {
-            validateUsername(createdBy); // Same validation rules as userName
-        }
-
-        // Sanitize inputs (trim whitespace, enforce length limits)
-        String sanitizedUserName = sanitizeInput(userName, 50);
-        String sanitizedEmail = sanitizeInput(userEmail, 254);
-        String sanitizedRole = sanitizeInput(userRole, 100).toUpperCase();
-        String sanitizedFlag = sanitizeInput(enabledFlag, 1).toUpperCase();
-        String sanitizedCreatedBy = createdBy != null ? sanitizeInput(createdBy, 50) : null;
-
-        // Query has duplicate prevention: INSERT ... SELECT ... WHERE NOT EXISTS
-        // Parameters: userName, userEmail, roleId, userRole, enabledFlag, createdBy,
-        // userName (for EXISTS check), userRole (for EXISTS check)
-        return jdbcManager.insertUserRole(createUserRole, sanitizedUserName, sanitizedEmail,
-                roleId, sanitizedRole, sanitizedFlag, sanitizedCreatedBy);
-    }
-
-    public int updateUserRole(String userName, String userRole, String userEmail,
-            Integer roleId, String enabledFlag) {
-
-        // Validate all inputs (NEVER TRUST CLIENT INPUT)
-        validateUsername(userName);
-        validateRole(userRole);
-        validateEmail(userEmail);
-        validateEnabledFlag(enabledFlag);
-
-        // Sanitize inputs
-        String sanitizedUserName = sanitizeInput(userName, 50);
-        String sanitizedRole = sanitizeInput(userRole, 100).toUpperCase();
-        String sanitizedEmail = sanitizeInput(userEmail, 254);
-        String sanitizedFlag = sanitizeInput(enabledFlag, 1).toUpperCase();
-
-        // Update using composite key: userName + userRole
-        return jdbcManager.updateUserRole(updateUserRole, sanitizedEmail, roleId,
-                sanitizedFlag, sanitizedUserName, sanitizedRole);
-    }
-
-    /**
-     * Soft deletes a user role with forensic tracking.
-     * 
-     * SOFT DELETE MECHANISM:
-     * 1. Sets USER_EMAIL to "deleted by: {deleterUsername}" for forensic tracking
-     * 2. Sets ENABLED_FLAG to NULL to hide row from GET queries
-     * 3. Row remains in database for audit purposes
-     * 
-     * EMAIL VALIDATION SKIPPED: The forensic string does NOT get validated as
-     * email.
-     * This is intentional - we're repurposing the email field as a forensic log.
-     * Since email = username + @cisco.com, we lose no real information.
-     * 
-     * @param userName        The user's username (part of composite key)
-     * @param userRole        The role name (part of composite key)
-     * @param creationDate    Raw creation date string from database (exact format
-     *                        match)
-     * @param deleterUsername The username of person performing deletion
-     * @return Number of rows soft-deleted (1 = success, 0 = not found)
-     * @throws IllegalArgumentException if validation fails
-     */
-    public int deleteUserRole(String userName, String userRole, String creationDate,
-            String deleterUsername) {
-
-        System.out.println("\n[SOFT DELETE] userName='" + userName + "', role='" + userRole +
-                "', createdAt='" + creationDate + "', deletedBy='" + deleterUsername + "'");
-
-        // Validate composite key (NEVER TRUST CLIENT INPUT)
-        validateUsername(userName);
-        validateRole(userRole);
-
-        // Validate deleter username
-        if (deleterUsername == null || deleterUsername.trim().isEmpty()) {
-            throw new IllegalArgumentException("Deleter username is required for forensic tracking");
-        }
-
-        // Validate creation date
-        if (creationDate == null || creationDate.trim().isEmpty()) {
-            throw new IllegalArgumentException("Creation date is required for safe deletion");
-        }
-
-        // Sanitize inputs
-        String sanitizedUserName = sanitizeInput(userName, 50);
-        String sanitizedRole = sanitizeInput(userRole, 100).toUpperCase();
-        String sanitizedDeleter = sanitizeInput(deleterUsername, 50);
-
-        // Create forensic email string (NO EMAIL VALIDATION)
-        String forensicEmail = "deleted by: " + sanitizedDeleter;
-
-        System.out.println("[DELETE] WHERE userName='" + sanitizedUserName + "' AND userRole='" +
-                sanitizedRole + "' AND creationDate='" + creationDate + "'");
-        System.out.println("[DELETE] SET email='" + forensicEmail + "', enabled=NULL");
-
-        // Soft delete: Update email to forensic string, null the enabled flag
-        // Uses userName + userRole + creationDate for precise row targeting
-        return jdbcManager.deleteUserRole(deleteUserRole, forensicEmail,
-                sanitizedUserName, sanitizedRole, creationDate);
-
-    }
 
     /**
      * Logs a page visit using MERGE (upsert) pattern.
@@ -451,6 +377,333 @@ public class CommonService {
 
     public int enableSummaryAssignmentUser(String userEmail) {
         return jdbcManager.disableSummaryAssignmentUser(enableSummaryAssignmentUsers, userEmail);
+    }
+
+    public List<Map<String, Object>> getAllRoles() {
+        return jdbcManager.queryForList(ctlTwrRoles);
+    }
+
+    /**
+     * Inserts a new role into XXCFI_CTL_TOWER_ROLE_DEF.
+     * Uses ctlTwrRoleInsert bean which auto-generates role_id via sequence.
+     * Called from POST /api/insert-role (update-role-dialog component).
+     *
+     * @return Number of rows inserted (1 = success)
+     */
+    public int insertRole(String roleName, String roleValue, String description,
+                          String dashboardName, String username) {
+        validateRole(roleName);
+        validateRole(roleValue);
+
+        String sanitizedRoleName = sanitizeInput(roleName, 100).toUpperCase();
+        String sanitizedRoleValue = sanitizeInput(roleValue, 100).toUpperCase();
+        String sanitizedDescription = sanitizeInput(description, 500);
+        String sanitizedDashboardName = sanitizeInput(dashboardName, 200);
+        String sanitizedUsername = sanitizeInput(username, 50);
+
+        return jdbcManager.insertCtlTwrRole(ctlTwrRoleInsert, sanitizedRoleName,
+                sanitizedRoleValue, sanitizedDescription, sanitizedDashboardName, sanitizedUsername);
+    }
+
+    /**
+     * Updates an existing role in XXCFI_CTL_TOWER_ROLE_DEF by role_id.
+     * Uses ctlTwrRoleUpdate bean.
+     * Called from PUT /api/update-role (update-role-dialog component).
+     *
+     * @return Number of rows updated (1 = success, 0 = not found)
+     */
+    public int updateRole(int roleId, String roleName, String roleValue, String description,
+                          String enabledFlag, String dashboardName, String username) {
+        validateRole(roleName);
+        validateRole(roleValue);
+        validateEnabledFlag(enabledFlag);
+
+        String sanitizedRoleName = sanitizeInput(roleName, 100).toUpperCase();
+        String sanitizedRoleValue = sanitizeInput(roleValue, 100).toUpperCase();
+        String sanitizedDescription = sanitizeInput(description, 500);
+        String sanitizedFlag = sanitizeInput(enabledFlag, 1).toUpperCase();
+        String sanitizedDashboardName = sanitizeInput(dashboardName, 200);
+        String sanitizedUsername = sanitizeInput(username, 50);
+
+        return jdbcManager.updateCtlTwrRole(ctlTwrRoleUpdate, sanitizedRoleName,
+                sanitizedRoleValue, sanitizedDescription, sanitizedFlag,
+                sanitizedDashboardName, sanitizedUsername, roleId);
+    }
+
+    /**
+     * Soft-deletes a role from XXCFI_CTL_TOWER_ROLE_DEF by setting enabled_flag = NULL.
+     * Uses ctlTwrRoleDelete bean.
+     * Called from DELETE /api/delete-role (update-role-dialog component).
+     *
+     * @param roleId   The role_id to soft-delete
+     * @param username The user performing the deletion (for last_updated_by)
+     * @return Number of rows updated (1 = success, 0 = not found)
+     */
+    public int deleteRole(int roleId, String username) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username is required for deletion tracking");
+        }
+
+        String sanitizedUsername = sanitizeInput(username, 50);
+
+        return jdbcManager.executeUpdate(ctlTwrRoleDelete, sanitizedUsername, roleId);
+    }
+
+    public int createUserRole(String userName, String userEmail, Integer roleId,
+                              String userRole, String enabledFlag, String createdBy) {
+
+        // Validate all inputs (NEVER TRUST CLIENT INPUT)
+        validateUsername(userName);
+        validateEmail(userEmail);
+        validateRole(userRole);
+        validateEnabledFlag(enabledFlag);
+        if (createdBy != null && !createdBy.trim().isEmpty()) {
+            validateUsername(createdBy); // Same validation rules as userName
+        }
+
+        // Sanitize inputs (trim whitespace, enforce length limits)
+        String sanitizedUserName = sanitizeInput(userName, 50);
+        String sanitizedEmail = sanitizeInput(userEmail, 254);
+        String sanitizedRole = sanitizeInput(userRole, 100).toUpperCase();
+        String sanitizedFlag = sanitizeInput(enabledFlag, 1).toUpperCase();
+        String sanitizedCreatedBy = createdBy != null ? sanitizeInput(createdBy, 50) : null;
+
+        // Query has duplicate prevention: INSERT ... SELECT ... WHERE NOT EXISTS
+        // Parameters: userName, userEmail, roleId, userRole, enabledFlag, createdBy,
+        // userName (for EXISTS check), userRole (for EXISTS check)
+        return jdbcManager.insertUserRole(createUserRole, sanitizedUserName, sanitizedEmail,
+                roleId, sanitizedRole, sanitizedFlag, sanitizedCreatedBy);
+    }
+
+    public int updateUserRole(String userName, String userRole, String userEmail,
+                              Integer roleId, String enabledFlag) {
+
+        // Validate all inputs (NEVER TRUST CLIENT INPUT)
+        validateUsername(userName);
+        validateRole(userRole);
+        validateEmail(userEmail);
+        validateEnabledFlag(enabledFlag);
+
+        // Sanitize inputs
+        String sanitizedUserName = sanitizeInput(userName, 50);
+        String sanitizedRole = sanitizeInput(userRole, 100).toUpperCase();
+        String sanitizedEmail = sanitizeInput(userEmail, 254);
+        String sanitizedFlag = sanitizeInput(enabledFlag, 1).toUpperCase();
+
+        // Update using composite key: userName + userRole
+        return jdbcManager.updateUserRole(updateUserRole, sanitizedEmail, roleId,
+                sanitizedFlag, sanitizedUserName, sanitizedRole);
+    }
+
+    /**
+     * Soft deletes a user role with forensic tracking.
+     *
+     * SOFT DELETE MECHANISM:
+     * 1. Sets USER_EMAIL to "deleted by: {deleterUsername}" for forensic tracking
+     * 2. Sets ENABLED_FLAG to NULL to hide row from GET queries
+     * 3. Row remains in database for audit purposes
+     *
+     * EMAIL VALIDATION SKIPPED: The forensic string does NOT get validated as
+     * email.
+     * This is intentional - we're repurposing the email field as a forensic log.
+     * Since email = username + @cisco.com, we lose no real information.
+     *
+     * @param userName        The user's username (part of composite key)
+     * @param userRole        The role name (part of composite key)
+     * @param creationDate    Raw creation date string from database (exact format
+     *                        match)
+     * @param deleterUsername The username of person performing deletion
+     * @return Number of rows soft-deleted (1 = success, 0 = not found)
+     * @throws IllegalArgumentException if validation fails
+     */
+    public int deleteUserRole(String userName, String userRole, String creationDate,
+                              String deleterUsername) {
+
+        System.out.println("\n[SOFT DELETE] userName='" + userName + "', role='" + userRole +
+                "', createdAt='" + creationDate + "', deletedBy='" + deleterUsername + "'");
+
+        // Validate composite key (NEVER TRUST CLIENT INPUT)
+        validateUsername(userName);
+        validateRole(userRole);
+
+        // Validate deleter username
+        if (deleterUsername == null || deleterUsername.trim().isEmpty()) {
+            throw new IllegalArgumentException("Deleter username is required for forensic tracking");
+        }
+
+        // Validate creation date
+        if (creationDate == null || creationDate.trim().isEmpty()) {
+            throw new IllegalArgumentException("Creation date is required for safe deletion");
+        }
+
+        // Sanitize inputs
+        String sanitizedUserName = sanitizeInput(userName, 50);
+        String sanitizedRole = sanitizeInput(userRole, 100).toUpperCase();
+        String sanitizedDeleter = sanitizeInput(deleterUsername, 50);
+
+        // Create forensic email string (NO EMAIL VALIDATION)
+        String forensicEmail = "deleted by: " + sanitizedDeleter;
+
+        System.out.println("[DELETE] WHERE userName='" + sanitizedUserName + "' AND userRole='" +
+                sanitizedRole + "' AND creationDate='" + creationDate + "'");
+        System.out.println("[DELETE] SET email='" + forensicEmail + "', enabled=NULL");
+
+        // Soft delete: Update email to forensic string, null the enabled flag
+        // Uses userName + userRole + creationDate for precise row targeting
+        return jdbcManager.deleteUserRole(deleteUserRole, forensicEmail,
+                sanitizedUserName, sanitizedRole, creationDate);
+
+    }
+
+    /**
+     * Creates a new user access role in XXCFI_CTL_TOWER_USER_ACCESS.
+     * Uses INSERT ... SELECT FROM DUAL WHERE NOT EXISTS to prevent duplicates.
+     * Called from POST /api/create-user-access-role.
+     *
+     * @param userName      The username to add the role for
+     * @param userEmail     The user's email address
+     * @param fullName      The user's full name
+     * @param roleId        The role_id to assign
+     * @param admin         Admin flag ('Y' or 'N')
+     * @param readOnly      Read-only flag ('Y' or 'N')
+     * @param createdBy     The user creating this record
+     * @return Number of rows inserted (1 = success, 0 = duplicate exists)
+     */
+    public int createAccessRole(String userName, String userEmail, String fullName,
+                                int roleId, String admin, String readOnly, String createdBy) {
+        validateUsername(userName);
+
+        if (userEmail == null || userEmail.trim().isEmpty()) {
+            throw new IllegalArgumentException("userEmail is required");
+        }
+        if (createdBy == null || createdBy.trim().isEmpty()) {
+            throw new IllegalArgumentException("createdBy is required");
+        }
+        if (admin == null || (!admin.equals("Y") && !admin.equals("N"))) {
+            throw new IllegalArgumentException("admin must be 'Y' or 'N'");
+        }
+        if (readOnly == null || (!readOnly.equals("Y") && !readOnly.equals("N"))) {
+            throw new IllegalArgumentException("readOnly must be 'Y' or 'N'");
+        }
+
+        String sanitizedUserName = sanitizeInput(userName, 50).toUpperCase();
+        String sanitizedEmail = sanitizeInput(userEmail, 100);
+        String sanitizedFullName = (fullName != null) ? sanitizeInput(fullName, 100) : "";
+        String sanitizedCreatedBy = sanitizeInput(createdBy, 50);
+
+        return jdbcManager.insertCtlTwrUserAccessRole(ctlTwrUserAccessCreateUserRole,
+                sanitizedUserName, sanitizedEmail, sanitizedFullName, roleId,
+                admin, readOnly, sanitizedCreatedBy, sanitizedCreatedBy);
+    }
+
+    /**
+     * Updates a user access role in XXCFI_CTL_TOWER_USER_ACCESS.
+     * Sets ENABLED_FLAG, ADMIN, READ_ONLY columns.
+     * Uses ctlTwrUserAccessUpdateUserRole bean.
+     * Called from PUT /api/update-user-access-role.
+     *
+     * When enabledFlag is 'Y' (re-enabling), also checks if the user was
+     * previously soft-deleted using ctlTwrUserAccessCheckDeletedUser.
+     *
+     * @param userName      The user whose access role is being updated
+     * @param roleId        The role_id to update
+     * @param enabledFlag   New enabled flag value ('Y' or 'N')
+     * @param admin         New admin flag value ('Y' or 'N')
+     * @param readOnly      New read-only flag value ('Y' or 'N')
+     * @param lastUpdatedBy The user performing the update
+     * @return Map with "rowsAffected" (int) and optionally "isDeleted" (String 'TRUE'/'FALSE')
+     */
+    public Map<String, Object> updateAccessRole(String userName, int roleId, String enabledFlag,
+                                String admin, String readOnly, String lastUpdatedBy) {
+        validateUsername(userName);
+
+        if (lastUpdatedBy == null || lastUpdatedBy.trim().isEmpty()) {
+            throw new IllegalArgumentException("lastUpdatedBy is required for update tracking");
+        }
+        if (enabledFlag == null || (!enabledFlag.equals("Y") && !enabledFlag.equals("N"))) {
+            throw new IllegalArgumentException("enabledFlag must be 'Y' or 'N'");
+        }
+        if (admin == null || (!admin.equals("Y") && !admin.equals("N"))) {
+            throw new IllegalArgumentException("admin must be 'Y' or 'N'");
+        }
+        if (readOnly == null || (!readOnly.equals("Y") && !readOnly.equals("N"))) {
+            throw new IllegalArgumentException("readOnly must be 'Y' or 'N'");
+        }
+
+        String sanitizedUserName = sanitizeInput(userName, 50).toUpperCase();
+        String sanitizedUpdatedBy = sanitizeInput(lastUpdatedBy, 50);
+
+        int rowsAffected = jdbcManager.updateCtlTwrUserAccessRole(ctlTwrUserAccessUpdateUserRole,
+                enabledFlag, admin, readOnly, sanitizedUpdatedBy, sanitizedUserName, roleId);
+
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("rowsAffected", rowsAffected);
+
+        // When enabling a role, check if the user was previously soft-deleted
+        if ("Y".equals(enabledFlag) && rowsAffected > 0) {
+            List<Map<String, Object>> checkResult = jdbcManager.queryForListWithParams(
+                    ctlTwrUserAccessCheckDeletedUser, sanitizedUserName, roleId);
+            if (checkResult != null && !checkResult.isEmpty()) {
+                result.put("isDeleted", checkResult.get(0).get("IS_DELETED"));
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Soft-deletes a user access role from XXCFI_CTL_TOWER_USER_ACCESS.
+     * Reuses the combined CASE WHEN query with action='DELETE'.
+     * CASE branches set ENABLED_FLAG=NULL and preserve existing ADMIN/READ_ONLY.
+     * Called from PUT /api/delete-user-access-role.
+     *
+     * @param userName      The user whose access role is being deleted
+     * @param roleId        The role_id to remove
+     * @param lastUpdatedBy The user performing the deletion
+     * @return Number of rows updated (1 = success, 0 = not found)
+     */
+    public int deleteAccessRole(String userName, int roleId, String lastUpdatedBy) {
+        validateUsername(userName);
+
+        if (lastUpdatedBy == null || lastUpdatedBy.trim().isEmpty()) {
+            throw new IllegalArgumentException("lastUpdatedBy is required for deletion tracking");
+        }
+
+        String sanitizedUserName = sanitizeInput(userName, 50).toUpperCase();
+        String sanitizedUpdatedBy = sanitizeInput(lastUpdatedBy, 50);
+
+        // '0' sentinel: CASE sets ENABLED_FLAG=NULL, preserves ADMIN/READ_ONLY
+        return jdbcManager.updateCtlTwrUserAccessRole(ctlTwrUserAccessUpdateUserRole,
+                "0", "0", "0", sanitizedUpdatedBy, sanitizedUserName, roleId);
+    }
+
+    public List<Map<String, Object>> getAllUsersAccessList() {
+        return jdbcManager.queryForList(ctlTwrUserAccess);
+    }
+
+    public UserRoleInfo getUsersAccessListByUser(String userName) {
+        String upperUserName = userName.toUpperCase();
+        List<Map<String, Object>> accessList = jdbcManager.queryForListWithSingleParam(ctlTwrUserAccessByUser, upperUserName);
+
+        Optional<Map<String, Object>> userOptional = accessList.stream()
+                .filter(row -> "Y".equals(row.get("ENABLED_FLAG")))
+                .findFirst();
+
+        if (userOptional.isPresent()) {
+            Map<String, Object> user = userOptional.get();
+            String name = (String) user.get("USER_NAME");
+            String email = (String) user.get("USER_EMAIL");
+
+            List<RoleEntry> roles = accessList.stream()
+                    .filter(row -> "Y".equals(row.get("ENABLED_FLAG")))
+                    .map(row -> new RoleEntry(
+                            ((Number) row.get("ROLE_ID")).intValue(),
+                            (String) row.get("ROLE_NAME")))
+                    .collect(Collectors.toList());
+
+            return new UserRoleInfo(name, email, roles);
+        }
+        return null;
     }
 
 }
