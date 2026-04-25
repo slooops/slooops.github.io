@@ -299,4 +299,151 @@ class CaseIQMonitoringServiceTest {
         when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of());
         assertNotNull(service.getGhostSuccess(24, "Q1FY26"));
     }
+
+    // ─── computeHealthScore without staleness (historical quarter) ──────────────
+
+    @Test
+    void computeHealthScore_historicalQuarter() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("TOTAL_PROCESSED", 100);
+        data.put("NOT_SUPPORTED_CNT", 5);
+        data.put("SUCCESS_CNT", 80);
+        data.put("PARTIAL_CNT", 5);
+        data.put("ERROR_CNT", 5);
+        data.put("UNKNOWN_CNT", 5);
+        data.put("NULL_STATUS_CNT", 0);
+        data.put("NOT_DEFINED_CNT", 0);
+        data.put("NULL_CATEGORY_CNT", 0);
+        data.put("UNKNOWN_TEAM_CNT", 0);
+        data.put("GHOST_SUCCESS_CNT", 0);
+        data.put("EXCEPTION_CNT", 0);
+        data.put("MINUTES_SINCE_LAST_RUN", 0.0);
+        data.put("AVG_PROCESSING_MINUTES", 1.0);
+        Map<String, Object> result = service.computeHealthScore(data, false);
+        assertNotNull(result.get("health_score"));
+        assertTrue((Double) result.get("health_score") > 0);
+    }
+
+    // ─── getHealthOverview with fiscal quarter (no staleness) ───────────────────
+
+    @Test
+    void getHealthOverview_withFiscQtr() {
+        Map<String, Object> row = new HashMap<>();
+        row.put("TOTAL_PROCESSED", 50);
+        row.put("SUCCESS_CNT", 40);
+        row.put("NOT_SUPPORTED_CNT", 0);
+        row.put("PARTIAL_CNT", 5);
+        row.put("ERROR_CNT", 3);
+        row.put("UNKNOWN_CNT", 2);
+        row.put("NULL_STATUS_CNT", 0);
+        row.put("NOT_DEFINED_CNT", 0);
+        row.put("NULL_CATEGORY_CNT", 0);
+        row.put("UNKNOWN_TEAM_CNT", 0);
+        row.put("GHOST_SUCCESS_CNT", 0);
+        row.put("EXCEPTION_CNT", 0);
+        row.put("MINUTES_SINCE_LAST_RUN", 0.0);
+        row.put("AVG_PROCESSING_MINUTES", 1.0);
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of(row));
+
+        Map<String, Object> result = service.getHealthOverview(24, "Q1FY26");
+        assertNotNull(result.get("health_score"));
+    }
+
+    // ─── getThroughput with fiscal quarter ──────────────────────────────────────
+
+    @Test void getThroughput_withFiscQtr() {
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of());
+        assertNotNull(service.getThroughput(24, "Q1FY26"));
+    }
+
+    // ─── getTeamSummary with fiscal quarter ─────────────────────────────────────
+
+    @Test void getTeamSummary_withFiscQtr() {
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of());
+        assertNotNull(service.getTeamSummary(24, "Q1FY26"));
+    }
+
+    // ─── getP90ProcessingTime with fiscal quarter ───────────────────────────────
+
+    @Test void getP90ProcessingTime_withFiscQtr() {
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of(Map.of("TOTAL_RECORDS", 3, "P90_PROCESSING_SECS", 1.5)));
+        Map<String, Object> result = service.getP90ProcessingTime(24, "Q1FY26");
+        assertEquals(3, result.get("TOTAL_RECORDS"));
+    }
+
+    // ─── getErrorIncidentsPaged ─────────────────────────────────────────────────
+
+    @Test void getErrorIncidentsPaged_emptyResults() {
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of());
+        Map<String, Object> result = service.getErrorIncidentsPaged(24, null, null, null, 1, 20);
+        assertEquals(0L, result.get("totalCount"));
+        assertEquals(1, result.get("page"));
+    }
+
+    @Test void getErrorIncidentsPaged_withResults() {
+        Map<String, Object> row = new HashMap<>();
+        row.put("INCIDENT_NUMBER", "INC001");
+        row.put("TEAM_NAME", "I2C");
+        row.put("ANOMALY_LABEL", "Ghost Success");
+        row.put("TOTAL_COUNT", 5L);
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of(row));
+        Map<String, Object> result = service.getErrorIncidentsPaged(24, null, null, null, 1, 20);
+        assertEquals(5L, result.get("totalCount"));
+    }
+
+    @Test void getErrorIncidentsPaged_withTeamFilter() {
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of());
+        Map<String, Object> result = service.getErrorIncidentsPaged(24, null, "I2C", null, 1, 20);
+        assertEquals(0L, result.get("totalCount"));
+    }
+
+    @Test void getErrorIncidentsPaged_withIssueTypeFilter() {
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of());
+        Map<String, Object> result = service.getErrorIncidentsPaged(24, null, null, "Ghost Success", 1, 20);
+        assertEquals(0L, result.get("totalCount"));
+    }
+
+    @Test void getErrorIncidentsPaged_withFiscQtr() {
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of());
+        Map<String, Object> result = service.getErrorIncidentsPaged(24, "Q1FY26", null, null, 1, 20);
+        assertEquals(0L, result.get("totalCount"));
+    }
+
+    @Test void getErrorIncidentsPaged_noPagination() {
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of());
+        Map<String, Object> result = service.getErrorIncidentsPaged(24, null, null, null, 1, 0);
+        assertEquals(0L, result.get("totalCount"));
+    }
+
+    // ─── Fiscal quarter filtering for more methods ──────────────────────────────
+
+    @Test void getNullStatus_withFiscQtr() {
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of());
+        assertNotNull(service.getNullStatus(24, "Q1FY26"));
+    }
+
+    @Test void getErrorBreakdown_withFiscQtr() {
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of());
+        assertNotNull(service.getErrorBreakdown(24, "Q1FY26"));
+    }
+
+    @Test void getExceptions_withFiscQtr() {
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of());
+        assertNotNull(service.getExceptions(24, "Q1FY26"));
+    }
+
+    @Test void getApiResolutionErrors_withFiscQtr() {
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of());
+        assertNotNull(service.getApiResolutionErrors(24, "Q1FY26"));
+    }
+
+    @Test void getDailyTrend_withFiscQtr() {
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of());
+        assertNotNull(service.getDailyTrend(7, "Q1FY26"));
+    }
+
+    @Test void getTeamIssueMatrix_withFiscQtr() {
+        when(jdbcManager.queryWithNamedParams(anyString(), anyMap())).thenReturn(List.of());
+        assertNotNull(service.getTeamIssueMatrix(24, "Q1FY26"));
+    }
 }
