@@ -412,7 +412,7 @@ public class CaseIQMonitoringService {
             params.put("fisc_qtr", fiscQtr);
             params.remove("lookback_hours");
         }
-        log.info("[CaseIQ] runQuery params={} fiscQtr={}", params, fiscQtr);
+        log.info("[CaseIQ] runQuery fiscQtr={}", sanitizeForLog(fiscQtr));
         List<Map<String, Object>> results = jdbcManager.queryWithNamedParams(sql, params);
         log.info("[CaseIQ] runQuery returned {} rows", results.size());
         return results;
@@ -503,6 +503,15 @@ public class CaseIQMonitoringService {
         return 0.0;
     }
 
+    /**
+     * Sanitizes user-controlled input before logging to prevent log injection.
+     * Strips newlines, carriage returns, tabs, and truncates to a safe length.
+     */
+    private static String sanitizeForLog(String input) {
+        if (input == null) return "null";
+        return input.replaceAll("[\\r\\n\\t]", "_").substring(0, Math.min(input.length(), 100));
+    }
+
     // ─── Service methods ────────────────────────────────────────────────────────
 
     public Map<String, Object> getHealthOverview(int lookbackHours, String fiscQtr) {
@@ -574,7 +583,7 @@ public class CaseIQMonitoringService {
         } else {
             params.put("lookback_hours", lookbackHours);
         }
-        log.info("[CaseIQ] getP90ProcessingTime lookbackHours={} fiscQtr={}", lookbackHours, fiscQtr);
+        log.info("[CaseIQ] getP90ProcessingTime lookbackHours={} fiscQtr={}", lookbackHours, sanitizeForLog(fiscQtr));
         List<Map<String, Object>> rows = jdbcManager.queryWithNamedParams(sql, params);
         if (rows.isEmpty()) {
             Map<String, Object> empty = new HashMap<>();
@@ -621,7 +630,7 @@ public class CaseIQMonitoringService {
             sql = sql.replace("{{FISC_QTR_FILTER}}", "");
             params.put("lookback_hours", lookbackHours);
         }
-        log.info("[CaseIQ] getTeamSummary params={} fiscQtr={}", params, fiscQtr);
+        log.info("[CaseIQ] getTeamSummary fiscQtr={}", sanitizeForLog(fiscQtr));
         List<Map<String, Object>> results = jdbcManager.queryWithNamedParams(sql, params);
         log.info("[CaseIQ] getTeamSummary returned {} rows", results.size());
         return results;
@@ -642,7 +651,7 @@ public class CaseIQMonitoringService {
     public List<Map<String, Object>> getIssueTrend(String teamName, String issueType, String fiscQtr) {
         String condition = ISSUE_CONDITIONS.get(issueType);
         if (condition == null) {
-            log.warn("[CaseIQ] Unknown issue type: {}", issueType);
+            log.warn("[CaseIQ] Unknown issue type: {}", sanitizeForLog(issueType));
             return Collections.emptyList();
         }
         String sql = ISSUE_TREND_BASE + condition +
@@ -657,7 +666,7 @@ public class CaseIQMonitoringService {
             params.put("fisc_qtr", fiscQtr);
         }
 
-        log.info("[CaseIQ] getIssueTrend team={} issueType={}", teamName, issueType);
+        log.info("[CaseIQ] getIssueTrend team={} issueType={}", sanitizeForLog(teamName), sanitizeForLog(issueType));
         return jdbcManager.queryWithNamedParams(sql, params);
     }
 
@@ -779,7 +788,7 @@ public class CaseIQMonitoringService {
         }
 
         log.info("[CaseIQ] getErrorIncidentsPaged page={} pageSize={} team={} issueType={} fiscQtr={}",
-                page, pageSize, team, issueType, fiscQtr);
+                page, pageSize, sanitizeForLog(team), sanitizeForLog(issueType), sanitizeForLog(fiscQtr));
 
         List<Map<String, Object>> rows = jdbcManager.queryWithNamedParams(sql.toString(), params);
 
