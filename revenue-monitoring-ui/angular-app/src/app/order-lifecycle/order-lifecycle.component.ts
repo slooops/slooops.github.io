@@ -38,7 +38,7 @@ export class OrderLifecycleComponent implements OnInit {
     private dataService: DataService,
     private destroyManager: DestroyManager,
     private authService: AuthenticationService,
-    private exportToExcelService: ExportToExcelService
+    private exportToExcelService: ExportToExcelService,
   ) {
     this.http = http;
   }
@@ -55,6 +55,7 @@ export class OrderLifecycleComponent implements OnInit {
     this.getOrderStatusDownload();
     this.updateTime();
     this.currentDate = new Date();
+    this.setupFilterSubscription();
 
     // this.menuService.updateMenuItems([
     //   {
@@ -167,7 +168,7 @@ export class OrderLifecycleComponent implements OnInit {
       next: (data: any) => {
         this.orderLifecycleStatus = data['orderLifecycleResult'];
         this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
-          this.orderLifecycleStatus
+          this.orderLifecycleStatus,
         );
         this.updatedData = false;
         // this.updateClo =
@@ -234,7 +235,7 @@ export class OrderLifecycleComponent implements OnInit {
 
   deleteSelectedRows(dialogTemplate: TemplateRef<any>) {
     this.rowsToDelete = this.dataSource.data.filter((row) =>
-      this.selection.isSelected(row)
+      this.selection.isSelected(row),
     );
     this.dialog.open(dialogTemplate);
   }
@@ -259,7 +260,7 @@ export class OrderLifecycleComponent implements OnInit {
         },
         (error) => {
           this.uploadText = 'Delete request failed!';
-        }
+        },
       );
   }
 
@@ -310,14 +311,14 @@ export class OrderLifecycleComponent implements OnInit {
     );
   };
 
-  filter() {
+  setupFilterSubscription() {
     this.searchForm.valueChanges.subscribe((data) => {
-      this.programNameFilter = data['progName'];
-      this.accountFilter = data['account'];
-      this.orderStatusFilter = data['orderStats'];
-      this.invoiceStatusFilter = data['invoiceStats'];
-      this.salesOrderFilter = data['salesOrdr'];
-      this.dealIdFilter = data['dealId'];
+      this.programNameFilter = data['progName'] ?? [];
+      this.accountFilter = data['account'] ?? [];
+      this.orderStatusFilter = data['orderStats'] ?? [];
+      this.invoiceStatusFilter = data['invoiceStats'] ?? [];
+      this.salesOrderFilter = data['salesOrdr'] ?? '';
+      this.dealIdFilter = data['dealId'] ?? '';
 
       if (
         this.programNameFilter.length > 0 &&
@@ -325,7 +326,7 @@ export class OrderLifecycleComponent implements OnInit {
       ) {
         const filteredAccounts = this.filterAccountByProgramNames(
           this.orderLifecycleStatus,
-          this.programNameFilter
+          this.programNameFilter,
         );
         this.accountOptions = [...new Set(filteredAccounts)];
       } else if (
@@ -334,13 +335,13 @@ export class OrderLifecycleComponent implements OnInit {
       ) {
         const filteredAccounts = this.filterAccountByProgramNames(
           this.orderLifecycleStatus,
-          this.programNameFilter
+          this.programNameFilter,
         );
 
         this.accountFilter.forEach((data) => {
           if (!filteredAccounts.includes(data)) {
             this.accountFilter = this.accountFilter.filter(
-              (ele) => ele !== data
+              (ele) => ele !== data,
             );
           }
           this.accountOptions = [...new Set(filteredAccounts)];
@@ -352,9 +353,13 @@ export class OrderLifecycleComponent implements OnInit {
     });
   }
 
+  filter() {
+    this.applyFilter();
+  }
+
   applyFilter() {
-    this.salesOrderFilter = this.searchForm.get('salesOrdr').value;
-    this.dealIdFilter = this.searchForm.get('dealId').value;
+    this.salesOrderFilter = this.searchForm.get('salesOrdr').value ?? '';
+    this.dealIdFilter = this.searchForm.get('dealId').value ?? '';
     this.dataSource.filter = JSON.stringify({
       progNameFilter: this.programNameFilter,
       accountFilter: this.accountFilter,
@@ -367,7 +372,7 @@ export class OrderLifecycleComponent implements OnInit {
 
   filterAccountByProgramNames(
     data: OrderLifecycleModel[],
-    programNames: string[]
+    programNames: string[],
   ): string[] {
     return data
       .filter((order) => programNames.includes(order.PROGRAM_NAME))
@@ -375,8 +380,22 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   clearFilters() {
+    this.programNameFilter = [];
+    this.accountFilter = [];
+    this.orderStatusFilter = [];
+    this.invoiceStatusFilter = [];
+    this.salesOrderFilter = '';
+    this.dealIdFilter = '';
+    this.accountOptions = [...new Set(this.accountTemp)];
+    this.searchForm.reset({
+      progName: [],
+      account: [],
+      orderStats: [],
+      invoiceStats: [],
+      salesOrdr: '',
+      dealId: '',
+    });
     this.dataSource.filter = '';
-    this.searchForm.reset();
   }
 
   openDialog() {
@@ -575,7 +594,7 @@ export class OrderLifecycleComponent implements OnInit {
           return (
             data.DEAL_ID === ele.DEAL_ID && data.SALES_ORDER === ele.SALES_ORDER
           );
-        })
+        }),
       );
       this.exportTableToExcel(this.selectedArr, sheetName, filename);
     }
