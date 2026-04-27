@@ -12,35 +12,35 @@
   <div class="dashboard-header">
     <div class="header-main">
       <div class="header-left">
-        @if (!router.url.includes('/caseiq')) {
-        <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
-          <img
-            src="assets/icons/hamburger-menu.svg"
-            alt="menu"
-            class="grid-menu-icon"
-            (click)="toggleGridMenu($event)"
-          />
-          @if (showGridMenu) {
-            <div class="grid-menu-dropdown">
-              @for (metric of metricTiles; track metric.name) {
-                @if (isTileAccessible(metric.name)) {
-                  <div
-                    class="grid-menu-item"
-                    [class.active]="isActive(metric.name)"
-                    (click)="onGridMenuItemClick(metric.name)"
-                  >
-                    <span class="grid-menu-item-name">{{ metric.name }}</span>
-                    @if (metric.percentage !== "-") {
-                      <span class="grid-menu-item-pct"
-                        >{{ metric.percentage }}%</span
-                      >
-                    }
-                  </div>
+        @if (!router.url.includes("/caseiq")) {
+          <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
+            <img
+              src="assets/icons/hamburger-menu.svg"
+              alt="menu"
+              class="grid-menu-icon"
+              (click)="toggleGridMenu($event)"
+            />
+            @if (showGridMenu) {
+              <div class="grid-menu-dropdown">
+                @for (metric of metricTiles; track metric.name) {
+                  @if (isTileAccessible(metric.name)) {
+                    <div
+                      class="grid-menu-item"
+                      [class.active]="isActive(metric.name)"
+                      (click)="onGridMenuItemClick(metric.name)"
+                    >
+                      <span class="grid-menu-item-name">{{ metric.name }}</span>
+                      <!-- @if (metric.percentage !== "-") {
+                        <span class="grid-menu-item-pct"
+                          >{{ metric.percentage }}%</span
+                        >
+                      } -->
+                    </div>
+                  }
                 }
-              }
-            </div>
-          }
-        </div>
+              </div>
+            }
+          </div>
         }
         <h2>{{ activeTab }}</h2>
 
@@ -69,7 +69,7 @@
                   <span>Select</span>
                 </div> -->
                 <div class="quarter-options">
-                  @for (quarter of quarters; track quarter) {
+                  @for (quarter of quarters; track quarter.value) {
                     <div
                       class="quarter-option"
                       (click)="selectQuarter(quarter.value)"
@@ -164,7 +164,7 @@
         <app-caseiq-cap
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
-          [caseIqMetrics]="loadCaseAnalyzerMetricsByComponent('CAPITAL')"
+          [caseIqMetrics]="metricsPerComponent['CAPITAL']"
         ></app-caseiq-cap>
       </div>
     }
@@ -173,7 +173,7 @@
         <app-caseiq-fpp
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
-          [caseIqMetrics]="loadCaseAnalyzerMetricsByComponent('FPP')"
+          [caseIqMetrics]="metricsPerComponent['FPP']"
         ></app-caseiq-fpp>
       </div>
     }
@@ -182,7 +182,7 @@
         <app-caseiq-i2c
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
-          [caseIqMetrics]="loadCaseAnalyzerMetricsByComponent('I2C')"
+          [caseIqMetrics]="metricsPerComponent['I2C']"
         ></app-caseiq-i2c>
       </div>
     }
@@ -191,7 +191,7 @@
         <app-caseiq-om
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
-          [caseIqMetrics]="loadCaseAnalyzerMetricsByComponent('OM')"
+          [caseIqMetrics]="metricsPerComponent['OM']"
         ></app-caseiq-om>
       </div>
     }
@@ -200,7 +200,7 @@
         <app-caseiq-p2p
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
-          [caseIqMetrics]="loadCaseAnalyzerMetricsByComponent('P2P')"
+          [caseIqMetrics]="metricsPerComponent['P2P']"
         ></app-caseiq-p2p>
       </div>
     }
@@ -209,7 +209,7 @@
         <app-caseiq-sm
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
-          [caseIqMetrics]="loadCaseAnalyzerMetricsByComponent('SM')"
+          [caseIqMetrics]="metricsPerComponent['SM']"
         ></app-caseiq-sm>
       </div>
     }
@@ -218,7 +218,7 @@
         <app-caseiq-ait
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
-          [caseIqMetrics]="loadCaseAnalyzerMetricsByComponent('AIT')"
+          [caseIqMetrics]="metricsPerComponent['AIT']"
         ></app-caseiq-ait>
       </div>
     }

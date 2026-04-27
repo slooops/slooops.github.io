@@ -103,10 +103,18 @@ export class EspHomeComponent implements OnInit {
       .map((item) => item.Quarter?.trim())
       .filter((q): q is string => !!q);
 
-    const values = Array.from(new Set(rawValues));
+    // Merge with existing quarters instead of overwriting
+    const existingValues = new Set(this.allQuarters.map((q) => q.value));
+    const newValues = Array.from(new Set(rawValues)).filter(
+      (q) => !existingValues.has(q),
+    );
+
+    newValues.forEach((value) =>
+      this.allQuarters.push({ value, label: this.formatQuarterLabel(value) }),
+    );
 
     // Sort by fiscal year and quarter, newest first (e.g. Q4FY26 before Q1FY26)
-    values.sort((a, b) => {
+    this.allQuarters.sort((a, b) => {
       const parse = (val: string) => {
         const match = val.match(/Q(\d)FY(\d+)/i);
         if (!match) {
@@ -115,19 +123,14 @@ export class EspHomeComponent implements OnInit {
         return { q: Number(match[1]), fy: Number(match[2]) };
       };
 
-      const pa = parse(a);
-      const pb = parse(b);
+      const pa = parse(a.value);
+      const pb = parse(b.value);
 
       if (pa.fy !== pb.fy) {
         return pb.fy - pa.fy;
       }
       return pb.q - pa.q;
     });
-
-    this.allQuarters = values.map((value) => ({
-      value,
-      label: this.formatQuarterLabel(value),
-    }));
 
     // Ensure selectedQuarter is valid; default to latest if not set or invalid
     if (this.allQuarters.length) {
@@ -145,6 +148,57 @@ export class EspHomeComponent implements OnInit {
    */
   private formatQuarterLabel(value: string): string {
     return value.replace('FY', ' FY');
+  }
+
+  /**
+   * Merge quarters from componentLevelMetrics (FISCAL_QTR) into the master
+   * quarter list so the dropdown reflects data from both API sources.
+   */
+  private mergeQuartersFromMetrics(metrics: any[]): void {
+    if (!Array.isArray(metrics) || !metrics.length) {
+      return;
+    }
+
+    const existingValues = new Set(this.allQuarters.map((q) => q.value));
+    const newValues = metrics
+      .map((item) => item?.FISCAL_QTR?.trim())
+      .filter((q): q is string => !!q && !existingValues.has(q));
+
+    if (!newValues.length) {
+      return;
+    }
+
+    const uniqueNew = Array.from(new Set(newValues));
+    uniqueNew.forEach((value) =>
+      this.allQuarters.push({ value, label: this.formatQuarterLabel(value) }),
+    );
+
+    // Re-sort newest first
+    this.allQuarters.sort((a, b) => {
+      const parse = (val: string) => {
+        const match = val.match(/Q(\d)FY(\d+)/i);
+        return match
+          ? { q: Number(match[1]), fy: Number(match[2]) }
+          : { q: 0, fy: 0 };
+      };
+      const pa = parse(a.value);
+      const pb = parse(b.value);
+      return pa.fy !== pb.fy ? pb.fy - pa.fy : pb.q - pa.q;
+    });
+
+    // Default to latest if current selection is invalid
+    if (this.allQuarters.length) {
+      const exists = this.allQuarters.some(
+        (q) => q.value === this.selectedQuarter,
+      );
+      if (!exists) {
+        this.selectedQuarter = this.allQuarters[0].value;
+      }
+    }
+
+    // Refresh the visible dropdown list
+    this.updateQuartersForActiveTab();
+    console.log('Merged quarters from metrics:', this.allQuarters);
   }
 
   // Dynamically filtered quarters based on active team
@@ -241,11 +295,17 @@ export class EspHomeComponent implements OnInit {
   }
 
   componentLevelMetrics: any;
+
+  // Pre-computed metrics per component to avoid calling .filter() in templates
+  metricsPerComponent: Record<string, any[]> = {};
+
   loadCaseAnalyzerMetrics(): void {
     this.dataService.getCaseIqMetrics(this.destroyManager).subscribe({
       next: (data) => {
         console.log('Case Analyzer Metrics:', data);
         this.componentLevelMetrics = data;
+        this.buildMetricsPerComponent();
+        this.mergeQuartersFromMetrics(data);
       },
       error: (error) => {
         console.error('Error loading Case Analyzer metrics:', error);
@@ -253,14 +313,24 @@ export class EspHomeComponent implements OnInit {
     });
   }
 
-  loadCaseAnalyzerMetricsByComponent(component: string): any {
-    if (!Array.isArray(this.componentLevelMetrics)) {
-      return null;
+  /**
+   * Pre-compute metrics grouped by TEAM_NAME so template bindings
+   * use a stable reference instead of calling .filter() every CD cycle.
+   */
+  private buildMetricsPerComponent(): void {
+    const map: Record<string, any[]> = {};
+    if (Array.isArray(this.componentLevelMetrics)) {
+      for (const item of this.componentLevelMetrics) {
+        if (item?.TEAM_NAME) {
+          const key = item.TEAM_NAME;
+          if (!map[key]) {
+            map[key] = [];
+          }
+          map[key].push(item);
+        }
+      }
     }
-
-    return this.componentLevelMetrics.find(
-      (item: any) => item && item.TEAM_NAME === component,
-    );
+    this.metricsPerComponent = map;
   }
 
   private loadPeriodInfo(): void {
@@ -596,18 +666,33 @@ export class EspHomeComponent implements OnInit {
    * Shows all quarters that exist across ANY team (not team-specific)
    */
   private updateQuartersForActiveTab(): void {
-    if (!this.accuracyData.length) {
+    if (
+      !this.accuracyData.length &&
+      !Array.isArray(this.componentLevelMetrics)
+    ) {
       // If no data loaded yet, show all quarters
       this.quarters = [...this.allQuarters];
       return;
     }
 
-    // Extract ALL unique quarters from entire dataset (not team-specific)
-    const availableQuarters = new Set(
-      this.accuracyData.map((item) => item.Quarter?.trim()).filter(Boolean),
-    );
+    // Extract unique quarters from BOTH data sources
+    const availableQuarters = new Set<string>();
 
-    // Filter allQuarters to show only those that exist in the data
+    this.accuracyData.forEach((item) => {
+      const q = item.Quarter?.trim();
+      if (q) availableQuarters.add(q);
+    });
+
+    if (Array.isArray(this.componentLevelMetrics)) {
+      this.componentLevelMetrics.forEach((item: any) => {
+        const q = item?.FISCAL_QTR?.trim();
+        if (q) availableQuarters.add(q);
+      });
+    }
+
+    console.log(availableQuarters);
+
+    // Filter allQuarters to show only those that exist in either dataset
     this.quarters = this.allQuarters.filter((quarter) =>
       availableQuarters.has(quarter.value),
     );
