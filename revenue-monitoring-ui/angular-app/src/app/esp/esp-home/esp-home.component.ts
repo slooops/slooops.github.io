@@ -692,10 +692,18 @@ export class EspHomeComponent implements OnInit {
 
     console.log(availableQuarters);
 
-    // Filter allQuarters to show only those that exist in either dataset
-    this.quarters = this.allQuarters.filter((quarter) =>
-      availableQuarters.has(quarter.value),
-    );
+    // Finance IT tab: only show quarters from accuracyData
+    // All other tabs: show all quarters from both sources
+    if (this.activeTab === 'Finance IT') {
+      const accuracyQuarters = new Set(
+        this.accuracyData.map((item) => item.Quarter?.trim()).filter(Boolean),
+      );
+      this.quarters = this.allQuarters.filter((q) =>
+        accuracyQuarters.has(q.value),
+      );
+    } else {
+      this.quarters = [...this.allQuarters];
+    }
 
     // If no quarters found, show all quarters as fallback
     if (this.quarters.length === 0) {
