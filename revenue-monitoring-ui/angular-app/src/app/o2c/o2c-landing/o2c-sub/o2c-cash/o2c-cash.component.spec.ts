@@ -1,3 +1,4 @@
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { O2cCashComponent } from './o2c-cash.component';
@@ -8,6 +9,7 @@ describe('O2cCashComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [DestroyManager],
       imports: [O2cCashComponent]
     })
     .compileComponents();

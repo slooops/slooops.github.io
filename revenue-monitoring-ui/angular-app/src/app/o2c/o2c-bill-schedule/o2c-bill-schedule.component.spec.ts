@@ -1,4 +1,7 @@
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { DatePipe, Location } from '@angular/common';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { O2cBillScheduleComponent } from './o2c-bill-schedule.component';
 
@@ -8,7 +11,15 @@ describe('O2cBillingScheduleComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [O2cBillScheduleComponent],
+      providers: [
+        DestroyManager,
+        DatePipe,
+        {
+          provide: Location,
+          useValue: { getState: () => ({}), subscribe: () => ({}) },
+        },
+      ],
+      imports: [O2cBillScheduleComponent, HttpClientTestingModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(O2cBillScheduleComponent);
