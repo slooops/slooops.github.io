@@ -145,6 +145,12 @@ export class MainSidebarNavComponent {
       ],
       children: [
         {
+          label: 'CaseIQ Monitoring',
+          icon: 'phosphorHeartbeatDuotone',
+          route: '/caseiq-monitoring',
+          roles: ['ADMIN', 'CASE_IQ_MONITORING'],
+        },
+        {
           label: 'Case IQ',
           icon: 'phosphorBrainDuotone',
           route: '/case-iq',
@@ -170,12 +176,6 @@ export class MainSidebarNavComponent {
           icon: 'phosphorRepeatDuotone',
           route: '/sbp-case-analyzer',
           roles: ['ADMIN'],
-        },
-        {
-          label: 'CaseIQ Monitoring',
-          icon: 'phosphorHeartbeatDuotone',
-          route: '/caseiq-monitoring',
-          roles: ['ADMIN', 'CASE_IQ_MONITORING'],
         },
       ],
     },
