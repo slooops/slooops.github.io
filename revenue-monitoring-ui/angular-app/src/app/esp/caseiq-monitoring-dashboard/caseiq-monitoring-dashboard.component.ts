@@ -518,12 +518,17 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
         }
       }
 
-      // Generate 12 hours ending at the most recent hour in the data (or now)
-      const now = new Date();
-      now.setMinutes(0, 0, 0);
+      // Derive window end from the latest data point (not browser clock)
+      // This avoids timezone mismatches between server JVM and browser
+      const latestEntry = raw[raw.length - 1];
+      const end = latestEntry?.RUN_HOUR
+        ? new Date(latestEntry.RUN_HOUR)
+        : new Date();
+      end.setMinutes(0, 0, 0);
+
       const dense: ThroughputEntry[] = [];
       for (let i = 11; i >= 0; i--) {
-        const hour = new Date(now.getTime() - i * 3600000);
+        const hour = new Date(end.getTime() - i * 3600000);
         const key = hour.toISOString();
         dense.push(
           hourMap.get(key) || {

@@ -728,7 +728,6 @@ public class CaseIQMonitoringService {
                     "ORDER BY week_start";
             params.put("fisc_qtr", fiscQtr);
 
-
             List<Map<String, Object>> sparse = jdbcManager.queryWithNamedParams(sql, params);
 
             // Gap-fill: show all weeks in the quarter, zeros where no issues exist
@@ -757,7 +756,6 @@ public class CaseIQMonitoringService {
             sql = ISSUE_TREND_BASE + condition +
                     "GROUP BY TRUNC(caseiq_run_date, 'IW') " +
                     "ORDER BY week_start";
-
 
             List<Map<String, Object>> sparse = jdbcManager.queryWithNamedParams(sql, params);
 
