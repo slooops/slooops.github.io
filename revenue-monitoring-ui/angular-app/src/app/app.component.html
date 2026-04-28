@@ -105,16 +105,11 @@
       (navigateEvent)="navigateTo($event)"
     />
   }
-  <mat-sidenav-container class="example-container">
-    <mat-sidenav-content>
-      <div>
-        <!-- <app-menu *ngIf="showMenu" [showMenu]="showNavbar"></app-menu> -->
-        <router-outlet></router-outlet>
-        <br />
-        <br />
-      </div>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
+  <div class="example-container">
+    <div class="main-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
 </div>
 @if (isAdmin$ && !chatbotHidden) {
   <app-chatbot

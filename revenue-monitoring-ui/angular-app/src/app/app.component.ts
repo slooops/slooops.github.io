@@ -12,7 +12,6 @@ import { SearchContextService } from './search-context.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatSidenavModule } from '@angular/material/sidenav';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { HelpDataComponent } from './help-data/help-data.component';
@@ -136,7 +135,6 @@ import { MenuComponent } from './menu/menu.component';
     CommonModule,
     RouterModule,
     MatToolbarModule,
-    MatSidenavModule,
     MatTooltipModule,
     NgIcon,
     // MenuComponent,

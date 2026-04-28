@@ -137,25 +137,19 @@ export class EspCaseAnalyzerComponent implements OnInit {
         this.q4 = sortedQuarters[3] || null;
         this.q5 = sortedQuarters[4] || null;
 
-        // Default to the tab with the highest yearContext (most recent fiscal year)
-        // Stop at the first decrease in yearContext to avoid selecting older Q4-Q1 tabs
-        let maxYearContext = -1;
+        // Default to the tab whose right quarter is chronologically latest
+        const parseQuarter = (q: string): number => {
+          const m = q.match(/Q(\d)FY(\d{2,4})/);
+          if (!m) return -1;
+          return parseInt(m[2], 10) * 4 + parseInt(m[1], 10);
+        };
+
+        let bestScore = -1;
         let selectedIndex = 0;
-
         for (let i = 0; i < this.quarterPairs.length; i++) {
-          const pair = this.quarterPairs[i];
-
-          if (pair.yearContext > maxYearContext) {
-            // Found a higher yearContext, select it
-            maxYearContext = pair.yearContext;
-            selectedIndex = i;
-          } else if (pair.yearContext < maxYearContext) {
-            // YearContext decreased (e.g., Q4-Q1 with older left quarter)
-            // Stop here - we've found the most recent complete pair
-            break;
-          }
-          // If yearContext === maxYearContext, continue to next (prefer later index within same year)
-          else if (pair.yearContext === maxYearContext) {
+          const score = parseQuarter(this.quarterPairs[i].right);
+          if (score > bestScore) {
+            bestScore = score;
             selectedIndex = i;
           }
         }
