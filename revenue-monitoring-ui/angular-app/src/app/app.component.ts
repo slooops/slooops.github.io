@@ -59,7 +59,6 @@ import {
   phosphorCalendarCheckDuotone,
   phosphorInvoiceDuotone,
   phosphorChartLineUpDuotone,
-  phosphorClipboardTextDuotone,
   phosphorBookOpenDuotone,
   phosphorPulseDuotone,
   phosphorPackageDuotone,
@@ -117,7 +116,6 @@ import { MainSidebarNavComponent } from './shared/main-sidebar-nav/main-sidebar-
       phosphorCalendarCheckDuotone,
       phosphorInvoiceDuotone,
       phosphorChartLineUpDuotone,
-      phosphorClipboardTextDuotone,
       phosphorBookOpenDuotone,
       phosphorPulseDuotone,
       phosphorPackageDuotone,
@@ -180,8 +178,6 @@ export class AppComponent implements OnInit, OnDestroy {
   get showSidebar(): boolean {
     return (
       !this.router.url.includes('/home') &&
-      !this.router.url.includes('/ai-in-sdlc') &&
-      !this.router.url.includes('/sprint-updates') &&
       !(
         this.router.url.includes('/caseiq') &&
         !this.router.url.includes('/caseiq-')

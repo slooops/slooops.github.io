@@ -180,12 +180,6 @@ export class MainSidebarNavComponent {
       ],
     },
     {
-      label: 'Scorecard',
-      icon: 'phosphorClipboardTextDuotone',
-      route: '/scorecard',
-      roles: ['ADMIN'],
-    },
-    {
       label: 'I2C Self-Healing',
       icon: 'phosphorFirstAidKitDuotone',
       route: '/self-healing',
