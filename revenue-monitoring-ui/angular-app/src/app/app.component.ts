@@ -27,6 +27,7 @@ import {
   phosphorCalendarCheckBold,
   phosphorInvoiceBold,
   phosphorChartLineUpBold,
+  phosphorClipboardTextBold,
   phosphorBookOpenBold,
   phosphorPulseBold,
   phosphorPackageBold,
@@ -46,13 +47,31 @@ import {
   phosphorMoonBold,
   phosphorArrowClockwiseBold,
   phosphorClockCounterClockwiseBold,
-  phosphorFunnelSimpleBold,
-  phosphorArrowRightBold,
-  phosphorMagnifyingGlassBold,
-  phosphorCaretDownBold,
-  phosphorTerminalWindowBold,
+  phosphorListBold,
+  phosphorCaretRightBold,
+  phosphorXBold,
 } from '@ng-icons/phosphor-icons/bold';
-import { phosphorEmptyDuotone } from '@ng-icons/phosphor-icons/duotone';
+import {
+  phosphorIdentificationCardDuotone,
+  phosphorEyeDuotone,
+  phosphorBinocularsDuotone,
+  phosphorFolderOpenDuotone,
+  phosphorCalendarCheckDuotone,
+  phosphorInvoiceDuotone,
+  phosphorChartLineUpDuotone,
+  phosphorClipboardTextDuotone,
+  phosphorBookOpenDuotone,
+  phosphorPulseDuotone,
+  phosphorPackageDuotone,
+  phosphorBrainDuotone,
+  phosphorReceiptDuotone,
+  phosphorRepeatDuotone,
+  phosphorLightbulbDuotone,
+  phosphorHeartbeatDuotone,
+  phosphorFirstAidKitDuotone,
+  phosphorListDuotone,
+} from '@ng-icons/phosphor-icons/duotone';
+import { MainSidebarNavComponent } from './shared/main-sidebar-nav/main-sidebar-nav.component';
 
 @Component({
   selector: 'app-root',
@@ -68,6 +87,7 @@ import { phosphorEmptyDuotone } from '@ng-icons/phosphor-icons/duotone';
       phosphorCalendarCheckBold,
       phosphorInvoiceBold,
       phosphorChartLineUpBold,
+      phosphorClipboardTextBold,
       phosphorBookOpenBold,
       phosphorPulseBold,
       phosphorPackageBold,
@@ -87,12 +107,27 @@ import { phosphorEmptyDuotone } from '@ng-icons/phosphor-icons/duotone';
       phosphorMoonBold,
       phosphorArrowClockwiseBold,
       phosphorClockCounterClockwiseBold,
-      phosphorFunnelSimpleBold,
-      phosphorArrowRightBold,
-      phosphorMagnifyingGlassBold,
-      phosphorCaretDownBold,
-      phosphorTerminalWindowBold,
-      phosphorEmptyDuotone,
+      phosphorListBold,
+      phosphorCaretRightBold,
+      phosphorXBold,
+      phosphorIdentificationCardDuotone,
+      phosphorEyeDuotone,
+      phosphorBinocularsDuotone,
+      phosphorFolderOpenDuotone,
+      phosphorCalendarCheckDuotone,
+      phosphorInvoiceDuotone,
+      phosphorChartLineUpDuotone,
+      phosphorClipboardTextDuotone,
+      phosphorBookOpenDuotone,
+      phosphorPulseDuotone,
+      phosphorPackageDuotone,
+      phosphorBrainDuotone,
+      phosphorReceiptDuotone,
+      phosphorRepeatDuotone,
+      phosphorLightbulbDuotone,
+      phosphorHeartbeatDuotone,
+      phosphorFirstAidKitDuotone,
+      phosphorListDuotone,
     }),
   ],
   imports: [
@@ -105,6 +140,7 @@ import { phosphorEmptyDuotone } from '@ng-icons/phosphor-icons/duotone';
     // MenuComponent,
     HelpDataComponent,
     ChatbotComponent,
+    MainSidebarNavComponent,
   ],
   standalone: true,
 })
@@ -140,7 +176,18 @@ export class AppComponent implements OnInit, OnDestroy {
   showNavMenu = false;
   isChatOpen = false;
   chatbotHidden = false;
-  controlTowerSupportAgentApiUrl: string = '';
+
+  get showSidebar(): boolean {
+    return (
+      !this.router.url.includes('/home') &&
+      !this.router.url.includes('/ai-in-sdlc') &&
+      !this.router.url.includes('/sprint-updates') &&
+      !(
+        this.router.url.includes('/caseiq') &&
+        !this.router.url.includes('/caseiq-')
+      )
+    );
+  }
 
   /**
    * Determine the default route based on user roles
@@ -151,9 +198,9 @@ export class AppComponent implements OnInit, OnDestroy {
       return '/error';
     }
 
-    // ADMIN and EXEC_VIEW go to /home
-    if (roles.includes('ADMIN') || roles.includes('EXEC_VIEW')) {
-      return '/home';
+    // ADMIN gets /period-close-tracking
+    if (roles.includes('ADMIN')) {
+      return '/period-close-tracking';
     }
 
     // PERIOD_CLOSE gets /period-close-tracking
@@ -243,8 +290,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.userName = this.authService.getUserName();
     this.userRoles = this.authService.getRoles();
     this.isAdmin$ = this.userRoles.includes('ADMIN');
-    this.controlTowerSupportAgentApiUrl =
-      this.authService.getControlTowerSupportAgentApiUrl() || '';
     this.searchContextService.o2cSearchVisible$.subscribe((isVisible) => {
       this.showO2cSearch = isVisible;
     });

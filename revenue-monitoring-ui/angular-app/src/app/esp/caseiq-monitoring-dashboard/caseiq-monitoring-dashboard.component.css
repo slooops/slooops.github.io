@@ -1198,7 +1198,14 @@ h6 {
 .ciq-table th {
   text-align: left;
   padding: 10px 12px;
-  background: #fff;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: linear-gradient(
+    to bottom,
+    #ffffff 0%,
+    #ffffff 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
   color: var(--ciq-text);
   font-weight: 600;
   text-transform: uppercase;
