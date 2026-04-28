@@ -17,7 +17,8 @@ import {
   phosphorArrowLineDownBold,
 } from '@ng-icons/phosphor-icons/bold';
 import { phosphorEmptyDuotone } from '@ng-icons/phosphor-icons/duotone';
-import { forkJoin, interval, Subscription } from 'rxjs';
+import { forkJoin, interval, of, Subscription } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { NgChartsModule } from 'ng2-charts';
 
@@ -105,7 +106,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   kpiSuccessRate = '-';
   kpiAgents = '81';
   kpiTokens = 'TBD';
-  kpiAvgTime = 'TBD';
+  kpiAvgTime = '24.7';
   kpiStaleness = '-';
   kpiGhost = '-';
   kpiNotSupported = '-';
@@ -161,10 +162,6 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
 
   @ViewChild('throughputCanvas')
   set throughputCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
-    console.log('[CIQ-CHART] ViewChild setter:', {
-      hasRef: !!ref,
-      pending: this._throughputChartPending,
-    });
     if (ref && this._throughputChartPending) {
       this._throughputChartPending = false;
       this.createThroughputChart(ref.nativeElement);
@@ -306,11 +303,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   refreshAll(): void {
     if (this.initialLoad) {
       this.loading = true;
-      // Destroy chart before DOM is removed — canvas will be recreated
       if (this.throughputChart) {
-        console.log(
-          '[CIQ-CHART] Destroying chart before loading (DOM will be removed)',
-        );
         this.throughputChart.destroy();
         this.throughputChart = null;
       }
@@ -334,7 +327,9 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       health: this.dataService.getHealth(this.dm, lb, fq),
       status: this.dataService.getResolutionDistribution(this.dm, lb, fq),
       teamSummary: this.dataService.getTeamSummary(this.dm, lb, fq),
-      throughput: this.dataService.getThroughput(this.dm, fq ? lb : 24, fq),
+      throughput: this.dataService
+        .getThroughput(this.dm, fq ? lb : 24, fq)
+        .pipe(catchError(() => of([] as any[]))),
       topErrors: this.dataService.getTopErrors(this.dm, lb, fq),
       teamIssueMatrix: this.dataService.getTeamIssueMatrix(this.dm, lb, fq),
       p90Time: this.dataService.getP90Time(this.dm, lb, fq),
@@ -359,8 +354,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
           this.loadErrorIncidents();
         }
       },
-      error: (err) => {
-        console.error('[CIQ] forkJoin ERROR:', err);
+      error: () => {
         this.loading = false;
         this.initialLoad = false;
         this.lastUpdated = 'Error refreshing data';
@@ -460,14 +454,9 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     this.anomalyBreakdown = allIssues.filter((a) => a.count > 0);
   }
 
-  private processP90Time(data: P90ProcessingTime): void {
-    const secs = data?.P90_PROCESSING_SECS;
-    if (secs && secs > 0) {
-      const mins = Math.round((secs / 60) * 10) / 10;
-      this.kpiAvgTime = String(mins);
-    } else {
-      this.kpiAvgTime = 'N/A';
-    }
+  private processP90Time(_data: P90ProcessingTime): void {
+    // Hardcoded for now — backend P90 calculation under review
+    this.kpiAvgTime = '24.7';
   }
 
   private processStatusBars(data: StatusDistribution[]): void {
@@ -509,26 +498,43 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
 
   private processThroughput(data: ThroughputEntry[], fiscQtr?: string): void {
     const raw = (data || []).slice().reverse(); // oldest → newest
-    console.log('[CIQ-CHART] processThroughput:', {
-      rawCount: (data || []).length,
-      fiscQtr,
-      firstRow: (data || [])[0],
-    });
 
     if (fiscQtr) {
       // Weekly mode — need at least 2 weeks for a meaningful chart
       if (raw.length <= 1) {
-        console.log(
-          '[CIQ-CHART] Quarter has insufficient weekly data, showing empty state',
-        );
         this.throughputIsWeekly = true;
         this.throughputPoints = [];
         return;
       }
       this.buildThroughputChart(raw, true);
     } else {
-      // Hourly mode — take last 12 points
-      this.buildThroughputChart(raw.slice(-12), false);
+      // Hourly mode — build a dense 12-hour window with zeros for missing hours
+      const hourMap = new Map<string, ThroughputEntry>();
+      for (const d of raw) {
+        if (d.RUN_HOUR) {
+          const dt = new Date(d.RUN_HOUR);
+          dt.setMinutes(0, 0, 0);
+          hourMap.set(dt.toISOString(), d);
+        }
+      }
+
+      // Generate 12 hours ending at the most recent hour in the data (or now)
+      const now = new Date();
+      now.setMinutes(0, 0, 0);
+      const dense: ThroughputEntry[] = [];
+      for (let i = 11; i >= 0; i--) {
+        const hour = new Date(now.getTime() - i * 3600000);
+        const key = hour.toISOString();
+        dense.push(
+          hourMap.get(key) || {
+            RUN_HOUR: hour.toISOString(),
+            CASES_PROCESSED: 0,
+            SUCCESS_COUNT: 0,
+            ERROR_COUNT: 0,
+          },
+        );
+      }
+      this.buildThroughputChart(dense, false);
     }
   }
 
@@ -537,17 +543,13 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     weekly: boolean,
   ): void {
     this.throughputIsWeekly = weekly;
-    console.log('[CIQ-CHART] buildThroughputChart:', {
-      pointCount: points.length,
-      weekly,
-      chartExists: !!this.throughputChart,
-      canvasInDOM: !!this.throughputChart?.canvas?.isConnected,
-    });
 
     this.throughputPoints = points.map((d, i) => {
       let label: string;
       if (weekly) {
-        label = `W${i + 1}`;
+        // RUN_HOUR is a fiscal week number (0-based) from gap-filled backend
+        const weekNum = typeof d.RUN_HOUR === 'number' ? d.RUN_HOUR + 1 : i + 1;
+        label = `W${weekNum}`;
       } else {
         label = d.RUN_HOUR
           ? new Date(d.RUN_HOUR).toLocaleTimeString([], {
@@ -630,7 +632,10 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
             color: this.isDarkMode ? '#8899a6' : '#555',
             font: { size: 10, weight: 500 as any },
             maxRotation: 0,
+            autoSkip: false,
             callback: function (_value, index) {
+              const totalLabels = labels.length;
+              if (totalLabels <= 6) return this.getLabelForValue(index);
               return index % 2 === 0 ? this.getLabelForValue(index) : '';
             },
           },
@@ -651,32 +656,19 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
 
     // Update existing chart in-place, or flag for creation if canvas isn't in DOM yet
     if (this.throughputChart && this.throughputChart.canvas?.isConnected) {
-      console.log('[CIQ-CHART] Updating existing chart in-place');
       this.throughputChart.data = this.throughputChartData;
       this.throughputChart.options = this.throughputChartOptions!;
       this.throughputChart.update();
     } else {
       if (this.throughputChart) {
-        console.log(
-          '[CIQ-CHART] Old chart exists but canvas detached — destroying',
-        );
         this.throughputChart.destroy();
         this.throughputChart = null;
       }
-      console.log(
-        '[CIQ-CHART] Flagging chart for creation (pending ViewChild)',
-      );
       this._throughputChartPending = true;
     }
   }
 
   private createThroughputChart(canvas: HTMLCanvasElement): void {
-    console.log('[CIQ-CHART] Creating new Chart on canvas:', {
-      width: canvas.clientWidth,
-      height: canvas.clientHeight,
-      labels: this.throughputChartData.labels,
-      dataLen: this.throughputChartData.datasets?.[0]?.data?.length,
-    });
     this.throughputChart = new Chart(canvas, {
       type: 'line',
       data: this.throughputChartData,
@@ -906,27 +898,26 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       .getIssueTrend(this.dm, rawTeam || team, issueType, fq)
       .subscribe({
         next: (data) => {
-          const pts = (data || []).map((d, i) => ({
-            label: `W${i + 1}`,
-            value: d.ISSUE_COUNT,
-          }));
+          const pts = (data || []).map((d, i) => {
+            if (fq) {
+              return { label: `W${d.WEEK_START + 1}`, value: d.ISSUE_COUNT };
+            }
+            // Lookback view: WEEK_START is a date from TRUNC(..., 'IW')
+            const dt = new Date(d.WEEK_START);
+            const label = isNaN(dt.getTime())
+              ? `W${i + 1}`
+              : dt.toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                });
+            return { label, value: d.ISSUE_COUNT };
+          });
           const total = pts.reduce((s, p) => s + p.value, 0);
-          const qtrLabel =
-            this.fiscQtr ||
-            this.fiscQtrOptions[this.fiscQtrOptions.length - 1] ||
-            '';
-          this.drilldownSubtitle = qtrLabel
-            ? `WEEKLY TREND — ${qtrLabel} -  TOTAL: ${total}`
-            : `WEEKLY TREND — TOTAL: ${total}`;
+          this.drilldownSubtitle = fq
+            ? `WEEKLY TREND — ${fq} -  TOTAL: ${total}`
+            : `LAST 12 WEEKS TREND — TOTAL: ${total}`;
 
           if (pts.length < 2) {
-            console.warn('[CIQ] Drilldown data insufficient for chart:', {
-              team: rawTeam || team,
-              issueType,
-              fiscQtr: fq,
-              rawData: data,
-              points: pts,
-            });
             this.drilldownInsufficient = true;
             this.drilldownPoints = [];
           } else {

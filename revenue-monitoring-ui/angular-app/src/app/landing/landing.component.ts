@@ -290,24 +290,6 @@ export class LandingComponent implements OnInit, OnDestroy {
       variant: 'glass',
       // No arcData - feature not yet built
     },
-    {
-      title: 'Scorecard',
-      description:
-        'AI in SDLC performance scorecard tracking delivery metrics, sprint health, and engineering excellence across teams.',
-      icon: 'phosphorChartLineUpBold',
-      route: '/scorecard',
-      requiredRoles: ['ADMIN'],
-      hideForRoles: ['EXEC_VIEW'],
-      variant: 'soft-glow',
-      arcData: {
-        metricKey: 'SCORECARD',
-        value: null,
-        max: null,
-        subtitle: 'Score',
-        colorStart: '#0070d2',
-        colorEnd: '#9933ff',
-      },
-    },
   ];
 
   /** Finance Biz Ops 360 cards */
@@ -804,6 +786,10 @@ export class LandingComponent implements OnInit, OnDestroy {
 
   private canAccessCard(card: LandingCard): boolean {
     const roles = this.userRoles();
+    // ADMIN overrides everything — never disabled or blocked
+    if (roles.includes('ADMIN')) {
+      return true;
+    }
     // Explicitly disabled for this role — show greyed out
     if (card.disabledForRoles?.some((r) => roles.includes(r))) {
       return false;
@@ -826,6 +812,10 @@ export class LandingComponent implements OnInit, OnDestroy {
 
   private filterByRole(cards: LandingCard[]): LandingCard[] {
     const roles = this.userRoles();
+    // ADMIN sees all cards regardless of hideForRoles
+    if (roles.includes('ADMIN')) {
+      return cards;
+    }
     return cards.filter(
       (card) => !card.hideForRoles?.some((role) => roles.includes(role)),
     );

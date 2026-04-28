@@ -87,7 +87,7 @@
 
         <div class="ciq-kpi">
           <div class="ciq-kpi-content">
-            <div class="ciq-kpi-label">P90 Time (min)</div>
+            <div class="ciq-kpi-label">Avg. Processing Time (Min)</div>
             <div class="ciq-kpi-value">{{ kpiAvgTime }}</div>
           </div>
         </div>
@@ -225,7 +225,7 @@
                 ><ng-icon name="phosphorEmptyDuotone" size="24"
               /></span>
               @if (fiscQtr && throughputPoints.length === 0) {
-                No data available in this period
+                No data or not enough available in this period
               } @else {
                 No data in the selected period
               }

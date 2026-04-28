@@ -130,7 +130,7 @@ export class AuthenticationService {
   authClientSecret: string;
   authUrl: string;
   controlTowerSupportAgentApiUrl: string;
-  bypassRoutes = ['/ai-in-sdlc', '/sprint-updates', '/caseiq'];
+  bypassRoutes = ['/caseiq'];
   async getUserId() {
     return fetch('/user/name')
       .then((response) => response.json())

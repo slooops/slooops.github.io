@@ -5,11 +5,7 @@
         <div class="toolbar-left">
           @if (
             !router.url.includes("/home") &&
-            !router.url.includes("/ai-in-sdlc") &&
-            !router.url.includes("/sprint-updates") &&
-            !(
-              router.url.includes("/caseiq") && !router.url.includes("/caseiq-")
-            )
+            (!router.url.includes("/caseiq") || router.url.includes("/caseiq-"))
           ) {
             <div class="toolbar-nav-menu" (click)="$event.stopPropagation()">
               <img
@@ -420,23 +416,6 @@
                     }
                   }
 
-                  <!-- ── Scorecard ── -->
-                  @if (isAdmin$) {
-                    <div
-                      class="toolbar-nav-dropdown-item"
-                      [class.active]="router.url.includes('/scorecard')"
-                      (click)="navigateTo('/scorecard')"
-                    >
-                      <ng-icon
-                        name="phosphorClipboardTextBold"
-                        class="nav-item-icon"
-                      />
-                      <span class="toolbar-nav-dropdown-item-name"
-                        >&nbsp;Scorecard</span
-                      >
-                    </div>
-                  }
-
                   @if (isAdmin$) {
                     <div
                       class="toolbar-nav-dropdown-item"
@@ -476,18 +455,10 @@
             <span
               style="display: flex; align-items: center; padding: 0 15px"
               [routerLink]="
-                (isAdmin$ || hasRole$(['EXEC_VIEW'])) &&
-                !router.url.includes('/ai-in-sdlc') &&
-                !router.url.includes('/sprint-updates')
-                  ? '/home'
-                  : null
+                isAdmin$ || hasRole$(['EXEC_VIEW']) ? '/home' : null
               "
               [style.cursor]="
-                (isAdmin$ || hasRole$(['EXEC_VIEW'])) &&
-                !router.url.includes('/ai-in-sdlc') &&
-                !router.url.includes('/sprint-updates')
-                  ? 'pointer'
-                  : 'default'
+                isAdmin$ || hasRole$(['EXEC_VIEW']) ? 'pointer' : 'default'
               "
             >
               <svg class="toolbar-logo" viewBox="0 0 40 21">

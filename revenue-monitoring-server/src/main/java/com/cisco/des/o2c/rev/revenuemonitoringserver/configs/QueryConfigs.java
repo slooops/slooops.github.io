@@ -1903,270 +1903,6 @@ public class QueryConfigs {
         return this.dashboardMetrics;
     }
 
-    // ── Scorecard queries ──
-
-    @Value(("${sc.get.current.version.q}"))
-    public String scGetCurrentVersion;
-
-    @Bean(name = "scGetCurrentVersion")
-    public String getScGetCurrentVersion() {
-        return this.scGetCurrentVersion;
-    }
-
-    @Value(("${sc.get.version.data.q}"))
-    public String scGetVersionData;
-
-    @Bean(name = "scGetVersionData")
-    public String getScGetVersionData() {
-        return this.scGetVersionData;
-    }
-
-    @Value(("${sc.get.versions.page.q}"))
-    public String scGetVersionsPage;
-
-    @Bean(name = "scGetVersionsPage")
-    public String getScGetVersionsPage() {
-        return this.scGetVersionsPage;
-    }
-
-    @Value(("${sc.get.versions.count.q}"))
-    public String scGetVersionsCount;
-
-    @Bean(name = "scGetVersionsCount")
-    public String getScGetVersionsCount() {
-        return this.scGetVersionsCount;
-    }
-
-    @Value(("${sc.insert.version.q}"))
-    public String scInsertVersion;
-
-    @Bean(name = "scInsertVersion")
-    public String getScInsertVersion() {
-        return this.scInsertVersion;
-    }
-
-    @Value(("${sc.get.last.version.id.q}"))
-    public String scGetLastVersionId;
-
-    @Bean(name = "scGetLastVersionId")
-    public String getScGetLastVersionId() {
-        return this.scGetLastVersionId;
-    }
-
-    @Value(("${sc.insert.data.row.q}"))
-    public String scInsertDataRow;
-
-    @Bean(name = "scInsertDataRow")
-    public String getScInsertDataRow() {
-        return this.scInsertDataRow;
-    }
-
-    @Value(("${sc.get.version.by.id.q}"))
-    public String scGetVersionById;
-
-    @Bean(name = "scGetVersionById")
-    public String getScGetVersionById() {
-        return this.scGetVersionById;
-    }
-
-    // ── Executive Summary queries ──
-
-    @Value(("${es.get.current.version.q}"))
-    public String esGetCurrentVersion;
-
-    @Bean(name = "esGetCurrentVersion")
-    public String getEsGetCurrentVersion() {
-        return this.esGetCurrentVersion;
-    }
-
-    @Value(("${es.get.version.data.q}"))
-    public String esGetVersionData;
-
-    @Bean(name = "esGetVersionData")
-    public String getEsGetVersionData() {
-        return this.esGetVersionData;
-    }
-
-    @Value(("${es.get.versions.page.q}"))
-    public String esGetVersionsPage;
-
-    @Bean(name = "esGetVersionsPage")
-    public String getEsGetVersionsPage() {
-        return this.esGetVersionsPage;
-    }
-
-    @Value(("${es.get.versions.count.q}"))
-    public String esGetVersionsCount;
-
-    @Bean(name = "esGetVersionsCount")
-    public String getEsGetVersionsCount() {
-        return this.esGetVersionsCount;
-    }
-
-    @Value(("${es.insert.version.q}"))
-    public String esInsertVersion;
-
-    @Bean(name = "esInsertVersion")
-    public String getEsInsertVersion() {
-        return this.esInsertVersion;
-    }
-
-    @Value(("${es.get.last.version.id.q}"))
-    public String esGetLastVersionId;
-
-    @Bean(name = "esGetLastVersionId")
-    public String getEsGetLastVersionId() {
-        return this.esGetLastVersionId;
-    }
-
-    @Value(("${es.insert.data.row.q}"))
-    public String esInsertDataRow;
-
-    @Bean(name = "esInsertDataRow")
-    public String getEsInsertDataRow() {
-        return this.esInsertDataRow;
-    }
-
-    @Value(("${es.get.version.by.id.q}"))
-    public String esGetVersionById;
-
-    @Bean(name = "esGetVersionById")
-    public String getEsGetVersionById() {
-        return this.esGetVersionById;
-    }
-
-    // ── SDLC Execution Update queries ──
-
-    @Value(("${se.get.current.version.q}"))
-    public String seGetCurrentVersion;
-
-    @Bean(name = "seGetCurrentVersion")
-    public String getSeGetCurrentVersion() {
-        return this.seGetCurrentVersion;
-    }
-
-    @Value(("${se.get.version.data.q}"))
-    public String seGetVersionData;
-
-    @Bean(name = "seGetVersionData")
-    public String getSeGetVersionData() {
-        return this.seGetVersionData;
-    }
-
-    @Value(("${se.get.versions.page.q}"))
-    public String seGetVersionsPage;
-
-    @Bean(name = "seGetVersionsPage")
-    public String getSeGetVersionsPage() {
-        return this.seGetVersionsPage;
-    }
-
-    @Value(("${se.get.versions.count.q}"))
-    public String seGetVersionsCount;
-
-    @Bean(name = "seGetVersionsCount")
-    public String getSeGetVersionsCount() {
-        return this.seGetVersionsCount;
-    }
-
-    @Value(("${se.insert.version.q}"))
-    public String seInsertVersion;
-
-    @Bean(name = "seInsertVersion")
-    public String getSeInsertVersion() {
-        return this.seInsertVersion;
-    }
-
-    @Value(("${se.get.last.version.id.q}"))
-    public String seGetLastVersionId;
-
-    @Bean(name = "seGetLastVersionId")
-    public String getSeGetLastVersionId() {
-        return this.seGetLastVersionId;
-    }
-
-    @Value(("${se.insert.data.row.q}"))
-    public String seInsertDataRow;
-
-    @Bean(name = "seInsertDataRow")
-    public String getSeInsertDataRow() {
-        return this.seInsertDataRow;
-    }
-
-    @Value(("${se.get.version.by.id.q}"))
-    public String seGetVersionById;
-
-    @Bean(name = "seGetVersionById")
-    public String getSeGetVersionById() {
-        return this.seGetVersionById;
-    }
-
-    // ── SDLC Component Adoption queries ──
-
-    @Value(("${sa.get.current.version.q}"))
-    public String saGetCurrentVersion;
-
-    @Bean(name = "saGetCurrentVersion")
-    public String getSaGetCurrentVersion() {
-        return this.saGetCurrentVersion;
-    }
-
-    @Value(("${sa.get.version.data.q}"))
-    public String saGetVersionData;
-
-    @Bean(name = "saGetVersionData")
-    public String getSaGetVersionData() {
-        return this.saGetVersionData;
-    }
-
-    @Value(("${sa.get.versions.page.q}"))
-    public String saGetVersionsPage;
-
-    @Bean(name = "saGetVersionsPage")
-    public String getSaGetVersionsPage() {
-        return this.saGetVersionsPage;
-    }
-
-    @Value(("${sa.get.versions.count.q}"))
-    public String saGetVersionsCount;
-
-    @Bean(name = "saGetVersionsCount")
-    public String getSaGetVersionsCount() {
-        return this.saGetVersionsCount;
-    }
-
-    @Value(("${sa.insert.version.q}"))
-    public String saInsertVersion;
-
-    @Bean(name = "saInsertVersion")
-    public String getSaInsertVersion() {
-        return this.saInsertVersion;
-    }
-
-    @Value(("${sa.get.last.version.id.q}"))
-    public String saGetLastVersionId;
-
-    @Bean(name = "saGetLastVersionId")
-    public String getSaGetLastVersionId() {
-        return this.saGetLastVersionId;
-    }
-
-    @Value(("${sa.insert.data.row.q}"))
-    public String saInsertDataRow;
-
-    @Bean(name = "saInsertDataRow")
-    public String getSaInsertDataRow() {
-        return this.saInsertDataRow;
-    }
-
-    @Value(("${sa.get.version.by.id.q}"))
-    public String saGetVersionById;
-
-    @Bean(name = "saGetVersionById")
-    public String getSaGetVersionById() {
-        return this.saGetVersionById;
-    }
-
     @Value(("${gl.interface.summary.q}"))
     public String glInterfaceSummary;
 
@@ -2206,6 +1942,7 @@ public class QueryConfigs {
     public String getGlFaJobsSummary() {
         return this.glFaJobsSummary;
     }
+
     @Value(("${gl.fa.jobs.details.q}"))
     public String glFaJobsDetails;
 
@@ -2213,6 +1950,7 @@ public class QueryConfigs {
     public String getGlFaJobsDetails() {
         return this.glFaJobsDetails;
     }
+
     @Value(("${gl.fa.jobs.details.filtered.q}"))
     public String glFaJobsDetailsFiltered;
 
@@ -2220,6 +1958,7 @@ public class QueryConfigs {
     public String getGlFaJobsDetailsFiltered() {
         return this.glFaJobsDetailsFiltered;
     }
+
     @Value(("${gl.fa.jobs.summary.update.q}"))
     public String glFaJobsSummaryUpdate;
 
@@ -2230,10 +1969,12 @@ public class QueryConfigs {
 
     @Value(("${gl.unposted.summary.q}"))
     public String glUnpostedSummary;
+
     @Bean(name = "glUnpostedSummary")
     public String getGlUnpostedSummary() {
         return this.glUnpostedSummary;
     }
+
     @Value(("${gl.unposted.details.q}"))
     public String glUnpostedDetails;
 
@@ -2241,6 +1982,7 @@ public class QueryConfigs {
     public String getGlUnpostedDetails() {
         return this.glUnpostedDetails;
     }
+
     @Value(("${gl.unposted.details.filtered.q}"))
     public String glUnpostedDetailsFiltered;
 
@@ -2248,6 +1990,7 @@ public class QueryConfigs {
     public String getGlUnpostedDetailsFiltered() {
         return this.glUnpostedDetailsFiltered;
     }
+
     @Value(("${gl.unposted.summary.update.q}"))
     public String glUnpostedSummaryUpdate;
 

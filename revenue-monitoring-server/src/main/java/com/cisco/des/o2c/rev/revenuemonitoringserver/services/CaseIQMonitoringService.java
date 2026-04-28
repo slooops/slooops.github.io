@@ -9,6 +9,11 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.time.LocalDate;
+import java.time.DayOfWeek;
+import java.time.temporal.TemporalAdjusters;
+
+import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.CiscoFiscalCalendar;
 
 @Service
 public class CaseIQMonitoringService {
@@ -198,6 +203,19 @@ public class CaseIQMonitoringService {
             "AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " +
             "GROUP BY TRUNC(caseiq_run_date, 'HH') " +
             "ORDER BY run_hour DESC";
+
+    // Template — {{QTR_START}} is replaced at runtime with the computed fiscal
+    // quarter start date
+    private static final String WEEKLY_THROUGHPUT_TEMPLATE = "SELECT " +
+            "FLOOR((CAST(caseiq_run_date AS DATE) - DATE '{{QTR_START}}') / 7) AS run_hour, " +
+            "COUNT(*) AS cases_processed, " +
+            "COUNT(CASE WHEN resolution_api_status = 'SUCCESS' THEN 1 END) AS success_count, " +
+            "COUNT(CASE WHEN resolution_api_status IN ('ERROR', 'FAILURE') THEN 1 END) AS error_count " +
+            "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+            "WHERE is_active = 'TRUE' " +
+            "AND fisc_qtr = :fisc_qtr " +
+            "GROUP BY FLOOR((CAST(caseiq_run_date AS DATE) - DATE '{{QTR_START}}') / 7) " +
+            "ORDER BY run_hour ASC";
 
     private static final String PROCESSING_TIME_BY_STATUS = "SELECT " +
             "resolution_api_status, " +
@@ -412,9 +430,7 @@ public class CaseIQMonitoringService {
             params.put("fisc_qtr", fiscQtr);
             params.remove("lookback_hours");
         }
-        log.info("[CaseIQ] runQuery fiscQtr={}", sanitizeForLog(fiscQtr));
         List<Map<String, Object>> results = jdbcManager.queryWithNamedParams(sql, params);
-        log.info("[CaseIQ] runQuery returned {} rows", results.size());
         return results;
     }
 
@@ -508,7 +524,8 @@ public class CaseIQMonitoringService {
      * Strips newlines, carriage returns, tabs, and truncates to a safe length.
      */
     private static String sanitizeForLog(String input) {
-        if (input == null) return "null";
+        if (input == null)
+            return "null";
         return input.replaceAll("[\\r\\n\\t]", "_").substring(0, Math.min(input.length(), 100));
     }
 
@@ -583,7 +600,6 @@ public class CaseIQMonitoringService {
         } else {
             params.put("lookback_hours", lookbackHours);
         }
-        log.info("[CaseIQ] getP90ProcessingTime lookbackHours={} fiscQtr={}", lookbackHours, sanitizeForLog(fiscQtr));
         List<Map<String, Object>> rows = jdbcManager.queryWithNamedParams(sql, params);
         if (rows.isEmpty()) {
             Map<String, Object> empty = new HashMap<>();
@@ -608,11 +624,49 @@ public class CaseIQMonitoringService {
     }
 
     public List<Map<String, Object>> getThroughput(int lookbackHours, String fiscQtr) {
-        String sql = HOURLY_THROUGHPUT;
         if (fiscQtr != null && !fiscQtr.isBlank()) {
-            sql = sql.replace("TRUNC(caseiq_run_date, 'HH')", "TRUNC(caseiq_run_date, 'IW')");
+            LocalDate qtrStart = CiscoFiscalCalendar.quarterStartFromString(fiscQtr);
+            LocalDate qtrEnd = CiscoFiscalCalendar.quarterEndFromString(fiscQtr);
+            // Inline the date literal — value is computed internally, not from user input
+            String sql = WEEKLY_THROUGHPUT_TEMPLATE.replace("{{QTR_START}}", qtrStart.toString());
+            Map<String, Object> params = new HashMap<>();
+            params.put("fisc_qtr", fiscQtr);
+            try {
+                List<Map<String, Object>> sparse = jdbcManager.queryWithNamedParams(sql, params);
+
+                // Gap-fill: all weeks in the quarter with zeros where no throughput
+                LocalDate today = LocalDate.now();
+                LocalDate effectiveEnd = today.isBefore(qtrEnd) ? today : qtrEnd;
+                int totalWeeks = (int) ((effectiveEnd.toEpochDay() - qtrStart.toEpochDay()) / 7) + 1;
+
+                Map<Integer, Map<String, Object>> weekData = new HashMap<>();
+                for (Map<String, Object> row : sparse) {
+                    int week = ((Number) row.get("RUN_HOUR")).intValue();
+                    if (week >= 0 && week < totalWeeks) {
+                        weekData.put(week, row);
+                    }
+                }
+
+                List<Map<String, Object>> dense = new ArrayList<>();
+                for (int w = 0; w < totalWeeks; w++) {
+                    if (weekData.containsKey(w)) {
+                        dense.add(weekData.get(w));
+                    } else {
+                        Map<String, Object> row = new LinkedHashMap<>();
+                        row.put("RUN_HOUR", w);
+                        row.put("CASES_PROCESSED", 0);
+                        row.put("SUCCESS_COUNT", 0);
+                        row.put("ERROR_COUNT", 0);
+                        dense.add(row);
+                    }
+                }
+                return dense;
+            } catch (Exception e) {
+                log.error("[CaseIQ] getThroughput FAILED for fiscQtr={}: {}", sanitizeForLog(fiscQtr), e.getMessage());
+                throw e;
+            }
         }
-        return runQuery(sql, buildParams("lookback_hours", lookbackHours), fiscQtr);
+        return runQuery(HOURLY_THROUGHPUT, buildParams("lookback_hours", lookbackHours), null);
     }
 
     public List<Map<String, Object>> getTimeByStatus(int lookbackHours, String fiscQtr) {
@@ -630,9 +684,7 @@ public class CaseIQMonitoringService {
             sql = sql.replace("{{FISC_QTR_FILTER}}", "");
             params.put("lookback_hours", lookbackHours);
         }
-        log.info("[CaseIQ] getTeamSummary fiscQtr={}", sanitizeForLog(fiscQtr));
         List<Map<String, Object>> results = jdbcManager.queryWithNamedParams(sql, params);
-        log.info("[CaseIQ] getTeamSummary returned {} rows", results.size());
         return results;
     }
 
@@ -654,20 +706,95 @@ public class CaseIQMonitoringService {
             log.warn("[CaseIQ] Unknown issue type: {}", sanitizeForLog(issueType));
             return Collections.emptyList();
         }
-        String sql = ISSUE_TREND_BASE + condition +
-                "GROUP BY TRUNC(caseiq_run_date, 'IW') " +
-                "ORDER BY week_start";
+
         Map<String, Object> params = new HashMap<>();
         params.put("team_name", teamName);
+        String sql;
 
         if (fiscQtr != null && !fiscQtr.isBlank()) {
-            sql = sql.replace("AND caseiq_run_date >= SYSDATE - 84 ", "");
-            sql = injectFiscQtr(sql);
+            // Use fiscal-calendar-aware weekly grouping
+            LocalDate qtrStart = CiscoFiscalCalendar.quarterStartFromString(fiscQtr);
+            LocalDate qtrEnd = CiscoFiscalCalendar.quarterEndFromString(fiscQtr);
+            String dateLiteral = qtrStart.toString(); // YYYY-MM-DD
+            sql = "SELECT " +
+                    "FLOOR((CAST(caseiq_run_date AS DATE) - DATE '" + dateLiteral + "') / 7) AS week_start, " +
+                    "COUNT(*) AS issue_count " +
+                    "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+                    "WHERE is_active = 'TRUE' " +
+                    "AND NVL(team_name, 'UNKNOWN') = :team_name " +
+                    "AND fisc_qtr = :fisc_qtr " +
+                    condition +
+                    "GROUP BY FLOOR((CAST(caseiq_run_date AS DATE) - DATE '" + dateLiteral + "') / 7) " +
+                    "ORDER BY week_start";
             params.put("fisc_qtr", fiscQtr);
-        }
 
-        log.info("[CaseIQ] getIssueTrend team={} issueType={}", sanitizeForLog(teamName), sanitizeForLog(issueType));
-        return jdbcManager.queryWithNamedParams(sql, params);
+
+            List<Map<String, Object>> sparse = jdbcManager.queryWithNamedParams(sql, params);
+
+            // Gap-fill: show all weeks in the quarter, zeros where no issues exist
+            LocalDate today = LocalDate.now();
+            LocalDate effectiveEnd = today.isBefore(qtrEnd) ? today : qtrEnd;
+            int totalWeeks = (int) ((effectiveEnd.toEpochDay() - qtrStart.toEpochDay()) / 7) + 1;
+
+            Map<Integer, Integer> weekCounts = new HashMap<>();
+            for (Map<String, Object> row : sparse) {
+                int week = ((Number) row.get("WEEK_START")).intValue();
+                int count = ((Number) row.get("ISSUE_COUNT")).intValue();
+                if (week >= 0 && week < totalWeeks) {
+                    weekCounts.put(week, count);
+                }
+            }
+
+            List<Map<String, Object>> dense = new ArrayList<>();
+            for (int w = 0; w < totalWeeks; w++) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("WEEK_START", w);
+                row.put("ISSUE_COUNT", weekCounts.getOrDefault(w, 0));
+                dense.add(row);
+            }
+            return dense;
+        } else {
+            sql = ISSUE_TREND_BASE + condition +
+                    "GROUP BY TRUNC(caseiq_run_date, 'IW') " +
+                    "ORDER BY week_start";
+
+
+            List<Map<String, Object>> sparse = jdbcManager.queryWithNamedParams(sql, params);
+
+            // Gap-fill: 12 ISO weeks from SYSDATE-84 to now
+            LocalDate today = LocalDate.now();
+            LocalDate windowStart = today.minusDays(84);
+            // Align to Monday (ISO week start)
+            LocalDate firstMonday = windowStart.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+            // Build a lookup from date string → count
+            Map<String, Integer> weekCounts = new LinkedHashMap<>();
+            for (Map<String, Object> row : sparse) {
+                Object ws = row.get("WEEK_START");
+                LocalDate weekDate;
+                if (ws instanceof java.sql.Timestamp) {
+                    weekDate = ((java.sql.Timestamp) ws).toLocalDateTime().toLocalDate();
+                } else if (ws instanceof java.sql.Date) {
+                    weekDate = ((java.sql.Date) ws).toLocalDate();
+                } else {
+                    weekDate = LocalDate.parse(ws.toString().substring(0, 10));
+                }
+                int count = ((Number) row.get("ISSUE_COUNT")).intValue();
+                weekCounts.put(weekDate.toString(), count);
+            }
+
+            List<Map<String, Object>> dense = new ArrayList<>();
+            LocalDate cursor = firstMonday;
+            LocalDate currentMonday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            while (!cursor.isAfter(currentMonday)) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("WEEK_START", cursor.toString()); // ISO date string for frontend
+                row.put("ISSUE_COUNT", weekCounts.getOrDefault(cursor.toString(), 0));
+                dense.add(row);
+                cursor = cursor.plusWeeks(1);
+            }
+            return dense;
+        }
     }
 
     // ─── Paginated Error Incidents (UNION ALL of all anomaly types) ─────────────
@@ -787,9 +914,6 @@ public class CaseIQMonitoringService {
             params.put("page_size", pageSize);
         }
 
-        log.info("[CaseIQ] getErrorIncidentsPaged page={} pageSize={} team={} issueType={} fiscQtr={}",
-                page, pageSize, sanitizeForLog(team), sanitizeForLog(issueType), sanitizeForLog(fiscQtr));
-
         List<Map<String, Object>> rows = jdbcManager.queryWithNamedParams(sql.toString(), params);
 
         long totalCount = 0;
@@ -803,8 +927,6 @@ public class CaseIQMonitoringService {
         result.put("totalCount", totalCount);
         result.put("page", page);
         result.put("pageSize", pageSize);
-
-        log.info("[CaseIQ] getErrorIncidentsPaged returned {} rows, totalCount={}", rows.size(), totalCount);
         return result;
     }
 
