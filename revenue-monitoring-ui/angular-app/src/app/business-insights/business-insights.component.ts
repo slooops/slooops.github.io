@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
@@ -16,6 +16,7 @@ import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MatIconModule } from '@angular/material/icon';
+import { MenuMiniComponent, MenuMiniItem } from '../shared/menu-mini/menu-mini.component';
 
 @Component({
   selector: 'app-business-insights',
@@ -28,6 +29,7 @@ import { MatIconModule } from '@angular/material/icon';
     BusinessInsightsModule,
     O2cEmbedComponent,
     MatIconModule,
+    MenuMiniComponent,
   ],
   providers: [
     DestroyManager,
@@ -223,27 +225,18 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
   selectedIndex: number = 0;
   filteredTabs: { label: string; component: string; disabled?: boolean }[] = [];
 
+  get menuItems(): MenuMiniItem[] {
+    return this.filteredTabs.map(t => ({ label: t.label, disabled: t.disabled }));
+  }
+
   getDefaultTabIndex() {
     this.filteredTabs = this.visibleTabs.filter((tab) =>
       tab.role.some((role) => this.roles.includes(role)),
     );
   }
 
-  showGridMenu: boolean = false;
-
-  toggleGridMenu(event: Event): void {
-    event.stopPropagation();
-    this.showGridMenu = !this.showGridMenu;
-  }
-
   onGridMenuItemClick(index: number): void {
-    this.showGridMenu = false;
     this.onTabChange(index);
-  }
-
-  @HostListener('document:click')
-  onDocumentClick(): void {
-    this.showGridMenu = false;
   }
 
   /**

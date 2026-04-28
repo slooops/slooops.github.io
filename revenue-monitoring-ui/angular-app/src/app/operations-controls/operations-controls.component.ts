@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
@@ -7,6 +7,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+import { MenuMiniComponent, MenuMiniItem } from '../shared/menu-mini/menu-mini.component';
 
 export interface UserContext {
   username: string;
@@ -33,7 +34,7 @@ interface TabDef {
       phosphorSparkleBold,
     }),
   ],
-  imports: [MatTabsModule, MonitoringDashboardComponent],
+  imports: [MatTabsModule, MonitoringDashboardComponent, MenuMiniComponent],
 })
 export class OperationsControlsComponent implements OnInit {
   userContextData: UserContext;
@@ -104,21 +105,14 @@ export class OperationsControlsComponent implements OnInit {
     return this.visibleTabs[this.selectedTabIndex]?.key || '';
   }
 
-  showGridMenu: boolean = false;
-
-  toggleGridMenu(event: Event): void {
-    event.stopPropagation();
-    this.showGridMenu = !this.showGridMenu;
+  get menuItems(): MenuMiniItem[] {
+    const items: MenuMiniItem[] = this.tabLabels.map(label => ({ label }));
+    items.push({ label: 'Deferrals', disabled: true });
+    return items;
   }
 
   onGridMenuItemClick(index: number): void {
-    this.showGridMenu = false;
     this.onTabChange(index);
-  }
-
-  @HostListener('document:click')
-  onDocumentClick(): void {
-    this.showGridMenu = false;
   }
 
   onTabChange(index: number) {

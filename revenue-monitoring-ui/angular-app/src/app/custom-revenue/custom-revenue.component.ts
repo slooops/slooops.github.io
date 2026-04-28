@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
@@ -8,6 +8,7 @@ import { Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
+import { MenuMiniComponent, MenuMiniItem } from '../shared/menu-mini/menu-mini.component';
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 export interface UserContext {
@@ -28,7 +29,7 @@ export interface UserContext {
       phosphorSparkleBold,
     }),
   ],
-  imports: [CommonModule, MonitoringDashboardComponent, LoadingSymbolComponent],
+  imports: [CommonModule, MonitoringDashboardComponent, LoadingSymbolComponent, MenuMiniComponent],
   standalone: true,
 })
 export class CustomRevenueComponent implements OnInit {
@@ -393,21 +394,12 @@ export class CustomRevenueComponent implements OnInit {
     }
   }
 
-  showGridMenu: boolean = false;
-
-  toggleGridMenu(event: Event): void {
-    event.stopPropagation();
-    this.showGridMenu = !this.showGridMenu;
+  get menuItems(): MenuMiniItem[] {
+    return this.filteredTabs.map(t => ({ label: t.label, disabled: t.disabled }));
   }
 
   onGridMenuItemClick(index: number): void {
-    this.showGridMenu = false;
     this.onTabChange(index);
-  }
-
-  @HostListener('document:click')
-  onDocumentClick(): void {
-    this.showGridMenu = false;
   }
 
   onTabChange(index: number) {

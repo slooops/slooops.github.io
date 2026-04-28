@@ -1,27 +1,11 @@
 <div class="dashboard-header">
   <div class="header-main">
     <div class="header-left">
-      <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
-        <img
-          src="assets/icons/hamburger-menu.svg"
-          alt="menu"
-          class="grid-menu-icon"
-          (click)="toggleGridMenu($event)"
-        />
-        @if (showGridMenu) {
-          <div class="grid-menu-dropdown">
-            @for (tab of filteredAdminTabs; track tab.key) {
-              <div
-                class="grid-menu-item"
-                [class.active]="selectedTab === tab.key"
-                (click)="switchTab(tab.key)"
-              >
-                <span class="grid-menu-item-name">{{ tab.label }}</span>
-              </div>
-            }
-          </div>
-        }
-      </div>
+      <app-menu-mini
+        [items]="menuItems"
+        [activeKey]="selectedTab"
+        (selected)="switchTab($event.item.key!)"
+      />
       <h2>{{ currentTabLabel }}</h2>
     </div>
 

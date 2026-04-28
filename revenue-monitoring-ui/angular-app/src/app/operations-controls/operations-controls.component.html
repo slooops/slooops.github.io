@@ -1,30 +1,11 @@
 <div class="dashboard-header">
   <div class="header-main">
     <div class="header-left">
-      <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
-        <img
-          src="assets/icons/hamburger-menu.svg"
-          alt="menu"
-          class="grid-menu-icon"
-          (click)="toggleGridMenu($event)"
-        />
-        @if (showGridMenu) {
-          <div class="grid-menu-dropdown">
-            @for (tab of tabLabels; track tab; let i = $index) {
-              <div
-                class="grid-menu-item"
-                [class.active]="selectedTabIndex === i"
-                (click)="onGridMenuItemClick(i)"
-              >
-                <span class="grid-menu-item-name">{{ tab }}</span>
-              </div>
-            }
-            <div class="grid-menu-item" style="opacity: 0.5; cursor: default">
-              <span class="grid-menu-item-name">Deferrals</span>
-            </div>
-          </div>
-        }
-      </div>
+      <app-menu-mini
+        [items]="menuItems"
+        [activeIndex]="selectedTabIndex"
+        (selected)="onGridMenuItemClick($event.index)"
+      />
       <h2>{{ tabLabels[selectedTabIndex] || "Operations Controls" }}</h2>
     </div>
 

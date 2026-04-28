@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+import { MenuMiniComponent, MenuMiniItem } from '../shared/menu-mini/menu-mini.component';
 
 export interface UserContext {
   username: string;
@@ -27,7 +28,7 @@ export interface UserContext {
       phosphorSparkleBold,
     }),
   ],
-  imports: [CommonModule, MonitoringDashboardComponent],
+  imports: [CommonModule, MonitoringDashboardComponent, MenuMiniComponent],
   standalone: true,
 })
 export class GlPostingComponent implements OnInit {
@@ -191,17 +192,7 @@ export class GlPostingComponent implements OnInit {
 
   periodStatus: any;
 
-  showGridMenu: boolean = false;
-
-  toggleGridMenu(event: Event): void {
-    event.stopPropagation();
-    this.showGridMenu = !this.showGridMenu;
-  }
-
-  @HostListener('document:click')
-  onDocumentClick(): void {
-    this.showGridMenu = false;
-  }
+  menuItems: MenuMiniItem[] = [{ label: 'General Ledger' }];
 
   onTabChange(index: number) {
     // Update last updated timestamp on tab switch

@@ -1,21 +1,7 @@
 <div class="dashboard-header">
   <div class="header-main">
     <div class="header-left">
-      <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
-        <img
-          src="assets/icons/hamburger-menu.svg"
-          alt="menu"
-          class="grid-menu-icon"
-          (click)="toggleGridMenu($event)"
-        />
-        @if (showGridMenu) {
-          <div class="grid-menu-dropdown">
-            <div class="grid-menu-item active" (click)="showGridMenu = false">
-              <span class="grid-menu-item-name">General Ledger</span>
-            </div>
-          </div>
-        }
-      </div>
+      <app-menu-mini [items]="menuItems" [activeIndex]="0" />
       <h2>General Ledger</h2>
     </div>
 

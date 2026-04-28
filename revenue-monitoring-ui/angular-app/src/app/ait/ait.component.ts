@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { CommonModule } from '@angular/common';
@@ -8,6 +8,7 @@ import { MenuService } from '../providers/menu.service';
 import { Validators } from '@angular/forms';
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+import { MenuMiniComponent, MenuMiniItem } from '../shared/menu-mini/menu-mini.component';
 
 export interface UserContext {
   username: string;
@@ -27,7 +28,7 @@ export interface UserContext {
       phosphorSparkleBold,
     }),
   ],
-  imports: [CommonModule, MonitoringDashboardComponent],
+  imports: [CommonModule, MonitoringDashboardComponent, MenuMiniComponent],
   standalone: true,
 })
 export class AitComponent implements OnInit {
@@ -79,7 +80,6 @@ export class AitComponent implements OnInit {
   }
 
   onGridMenuItemClick(index: number): void {
-    this.showGridMenu = false;
     this.onTabChange(index);
   }
 
@@ -363,16 +363,8 @@ export class AitComponent implements OnInit {
 
   periodStatus: any;
 
-  showGridMenu: boolean = false;
-
-  toggleGridMenu(event: Event): void {
-    event.stopPropagation();
-    this.showGridMenu = !this.showGridMenu;
-  }
-
-  @HostListener('document:click')
-  onDocumentClick(): void {
-    this.showGridMenu = false;
+  get menuItems(): MenuMiniItem[] {
+    return this.filteredTabs.map(t => ({ label: t.label }));
   }
 
   onTabChange(index: number) {

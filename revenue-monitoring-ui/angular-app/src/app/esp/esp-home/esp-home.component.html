@@ -13,34 +13,11 @@
     <div class="header-main">
       <div class="header-left">
         @if (!router.url.includes("/caseiq")) {
-          <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
-            <img
-              src="assets/icons/hamburger-menu.svg"
-              alt="menu"
-              class="grid-menu-icon"
-              (click)="toggleGridMenu($event)"
-            />
-            @if (showGridMenu) {
-              <div class="grid-menu-dropdown">
-                @for (metric of metricTiles; track metric.name) {
-                  @if (isTileAccessible(metric.name)) {
-                    <div
-                      class="grid-menu-item"
-                      [class.active]="isActive(metric.name)"
-                      (click)="onGridMenuItemClick(metric.name)"
-                    >
-                      <span class="grid-menu-item-name">{{ metric.name }}</span>
-                      <!-- @if (metric.percentage !== "-") {
-                        <span class="grid-menu-item-pct"
-                          >{{ metric.percentage }}%</span
-                        >
-                      } -->
-                    </div>
-                  }
-                }
-              </div>
-            }
-          </div>
+          <app-menu-mini
+            [items]="menuItems"
+            [activeKey]="activeTab"
+            (selected)="onGridMenuItemClick($event.item.key!)"
+          />
         }
         <h2 style="white-space: nowrap">{{ activeTab }}</h2>
 

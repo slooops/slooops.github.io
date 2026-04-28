@@ -2,27 +2,11 @@
   <div class="dashboard-header">
     <div class="header-main">
       <div class="header-left">
-        <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
-          <img
-            src="assets/icons/hamburger-menu.svg"
-            alt="menu"
-            class="grid-menu-icon"
-            (click)="toggleGridMenu($event)"
-          />
-          @if (showGridMenu) {
-            <div class="grid-menu-dropdown">
-              @for (pair of quarterPairs; track pair.key; let i = $index) {
-                <div
-                  class="grid-menu-item"
-                  [class.active]="selectedTabIndex === i"
-                  (click)="selectTab(i)"
-                >
-                  <span class="grid-menu-item-name">{{ pair.key }}</span>
-                </div>
-              }
-            </div>
-          }
-        </div>
+        <app-menu-mini
+          [items]="menuItems"
+          [activeIndex]="selectedTabIndex"
+          (selected)="selectTab($event.index)"
+        />
         <h2>{{ quarterPairs[selectedTabIndex]?.key }}</h2>
       </div>
       <div class="period-info">

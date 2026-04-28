@@ -19,6 +19,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { GlobalSearchDialogComponent } from '../global-search-dialog/global-search-dialog.component';
 import { DataService } from 'src/app/providers/data.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MenuMiniComponent, MenuMiniItem } from '../../shared/menu-mini/menu-mini.component';
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { MatIconModule } from '@angular/material/icon';
@@ -63,6 +64,7 @@ interface AccuracyData {
     CaseiqAitComponent,
     MatTooltipModule,
     MatIconModule,
+    MenuMiniComponent,
   ],
   standalone: true,
 })
@@ -83,7 +85,7 @@ export class EspHomeComponent implements OnInit {
   // Quarter filter properties
   selectedQuarter: string = '';
   showQuarterDropdown: boolean = false;
-  showGridMenu: boolean = false;
+
   isLoadingQuarter: boolean = false;
   loadingQuarterMessage: string = '';
   periodInfo = signal<any>(null);
@@ -256,7 +258,6 @@ export class EspHomeComponent implements OnInit {
     // Close dropdown when clicking outside
     document.addEventListener('click', () => {
       this.showQuarterDropdown = false;
-      this.showGridMenu = false;
     });
   }
 
@@ -594,13 +595,13 @@ export class EspHomeComponent implements OnInit {
     return this.activeTab === tileName;
   }
 
-  toggleGridMenu(event: Event): void {
-    event.stopPropagation();
-    this.showGridMenu = !this.showGridMenu;
+  get menuItems(): MenuMiniItem[] {
+    return this.metricTiles
+      .filter(t => this.isTileAccessible(t.name))
+      .map(t => ({ label: t.name, key: t.name }));
   }
 
   onGridMenuItemClick(tileName: string): void {
-    this.showGridMenu = false;
     this.onTileClick(tileName);
   }
 

@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { Chart, ChartOptions, registerables } from 'chart.js';
@@ -12,6 +12,7 @@ import { HomeDataService } from 'src/app/home/home-data.service';
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
+import { MenuMiniComponent, MenuMiniItem } from '../../shared/menu-mini/menu-mini.component';
 Chart.register(...registerables);
 
 // Types for new quarter-pair logic
@@ -39,6 +40,7 @@ type PairConfig = {
     LoadingSymbolComponent,
     CardComponent,
     TableComponent,
+    MenuMiniComponent,
   ],
   standalone: true,
 })
@@ -55,7 +57,6 @@ export class EspCaseAnalyzerComponent implements OnInit {
   protected http: ApiHttpService;
 
   selectedTabIndex = 0;
-  showGridMenu = false;
   periodInfo = signal<any>(null);
   timeNow: string = '';
 
@@ -177,19 +178,12 @@ export class EspCaseAnalyzerComponent implements OnInit {
       });
   }
 
-  @HostListener('document:click')
-  onDocumentClick(): void {
-    this.showGridMenu = false;
-  }
-
-  toggleGridMenu(event: Event): void {
-    event.stopPropagation();
-    this.showGridMenu = !this.showGridMenu;
+  get menuItems(): MenuMiniItem[] {
+    return this.quarterPairs.map(p => ({ label: p.key }));
   }
 
   selectTab(index: number): void {
     this.selectedTabIndex = index;
-    this.showGridMenu = false;
     this.onTabClick({ index });
   }
 

@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
@@ -27,6 +27,7 @@ import {
   phosphorXBold,
 } from '@ng-icons/phosphor-icons/bold';
 import { AnalyticsDashboardComponent } from '../analytics-dashboard/analytics-dashboard.component';
+import { MenuMiniComponent, MenuMiniItem } from '../shared/menu-mini/menu-mini.component';
 
 /** Grouped user: one row per unique userName, with all their role rows inside */
 export interface GroupedUser {
@@ -66,6 +67,7 @@ export interface GroupedUser {
     NgIcon,
     PaginationComponent,
     AnalyticsDashboardComponent,
+    MenuMiniComponent,
   ],
 })
 export class AdminComponent implements OnInit {
@@ -401,7 +403,6 @@ export class AdminComponent implements OnInit {
   hasAdminAccess: boolean = false; // True if user is either full admin or sub-admin
 
   // Dashboard header
-  showGridMenu = false;
   periodStatus: PeriodStatus | null = null;
   roles: string[] = [];
   selectedTab: 'admin' | 'analytics' = 'admin';
@@ -419,6 +420,10 @@ export class AdminComponent implements OnInit {
     return this.adminTabs.filter(
       (tab) => !tab.requiredRole || this.roles.includes(tab.requiredRole),
     );
+  }
+
+  get menuItems(): MenuMiniItem[] {
+    return this.filteredAdminTabs.map(t => ({ label: t.label, key: t.key }));
   }
 
   constructor(
@@ -445,19 +450,8 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  toggleGridMenu(event: Event): void {
-    event.stopPropagation();
-    this.showGridMenu = !this.showGridMenu;
-  }
-
-  @HostListener('document:click')
-  onDocumentClick(): void {
-    this.showGridMenu = false;
-  }
-
   switchTab(tabKey: string): void {
     this.selectedTab = tabKey as 'admin' | 'analytics';
-    this.showGridMenu = false;
     if (this.periodStatus) {
       this.periodStatus = {
         ...this.periodStatus,

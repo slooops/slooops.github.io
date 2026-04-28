@@ -70,7 +70,7 @@ import {
   phosphorFirstAidKitDuotone,
   phosphorListDuotone,
 } from '@ng-icons/phosphor-icons/duotone';
-import { MainSidebarNavComponent } from './shared/main-sidebar-nav/main-sidebar-nav.component';
+import { MenuComponent } from './menu/menu.component';
 
 @Component({
   selector: 'app-root',
@@ -138,7 +138,7 @@ import { MainSidebarNavComponent } from './shared/main-sidebar-nav/main-sidebar-
     // MenuComponent,
     HelpDataComponent,
     ChatbotComponent,
-    MainSidebarNavComponent,
+    MenuComponent,
   ],
   standalone: true,
 })

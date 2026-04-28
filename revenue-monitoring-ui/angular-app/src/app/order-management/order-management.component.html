@@ -1,27 +1,7 @@
 <div class="dashboard-header">
   <div class="header-main">
     <div class="header-left">
-      <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
-        <img
-          src="assets/icons/hamburger-menu.svg"
-          alt="menu"
-          class="grid-menu-icon"
-          (click)="toggleGridMenu($event)"
-        />
-        @if (showGridMenu) {
-          <div class="grid-menu-dropdown">
-            @for (tab of filteredTabs; track tab; let i = $index) {
-              <div
-                class="grid-menu-item"
-                [class.active]="selectedIndex === i"
-                (click)="onGridMenuItemClick(i)"
-              >
-                <span class="grid-menu-item-name">{{ tab.label }}</span>
-              </div>
-            }
-          </div>
-        }
-      </div>
+      <app-menu-mini [items]="menuItems" [activeIndex]="selectedIndex" (selected)="onGridMenuItemClick($event.index)" />
       <h2>{{ filteredTabs[selectedIndex]?.label || "Order Management" }}</h2>
     </div>
 
