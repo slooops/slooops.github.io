@@ -10,7 +10,10 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { CmsComponent } from '../cms/cms.component';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
-import { MenuMiniComponent, MenuMiniItem } from '../shared/menu-mini/menu-mini.component';
+import {
+  MenuMiniComponent,
+  MenuMiniItem,
+} from '../shared/menu-mini/menu-mini.component';
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 
@@ -644,7 +647,10 @@ export class InvoicingComponent implements OnInit {
   }
 
   get menuItems(): MenuMiniItem[] {
-    return this.filteredTabs.map(t => ({ label: t.label, disabled: t.disabled }));
+    return this.filteredTabs.map((t) => ({
+      label: t.label,
+      disabled: t.disabled,
+    }));
   }
 
   onGridMenuItemClick(index: number): void {

@@ -1,7 +1,11 @@
 <div class="dashboard-header">
   <div class="header-main">
     <div class="header-left">
-      <app-menu-mini [items]="menuItems" [activeIndex]="selectedIndex" (selected)="onGridMenuItemClick($event.index)" />
+      <app-menu-mini
+        [items]="menuItems"
+        [activeIndex]="selectedIndex"
+        (selected)="onGridMenuItemClick($event.index)"
+      />
       <h2>{{ filteredTabs[selectedIndex]?.label || "Order Management" }}</h2>
     </div>
 

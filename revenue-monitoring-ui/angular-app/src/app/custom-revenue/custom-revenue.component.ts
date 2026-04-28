@@ -8,7 +8,10 @@ import { Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
-import { MenuMiniComponent, MenuMiniItem } from '../shared/menu-mini/menu-mini.component';
+import {
+  MenuMiniComponent,
+  MenuMiniItem,
+} from '../shared/menu-mini/menu-mini.component';
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 export interface UserContext {
@@ -29,7 +32,12 @@ export interface UserContext {
       phosphorSparkleBold,
     }),
   ],
-  imports: [CommonModule, MonitoringDashboardComponent, LoadingSymbolComponent, MenuMiniComponent],
+  imports: [
+    CommonModule,
+    MonitoringDashboardComponent,
+    LoadingSymbolComponent,
+    MenuMiniComponent,
+  ],
   standalone: true,
 })
 export class CustomRevenueComponent implements OnInit {
@@ -395,7 +403,10 @@ export class CustomRevenueComponent implements OnInit {
   }
 
   get menuItems(): MenuMiniItem[] {
-    return this.filteredTabs.map(t => ({ label: t.label, disabled: t.disabled }));
+    return this.filteredTabs.map((t) => ({
+      label: t.label,
+      disabled: t.disabled,
+    }));
   }
 
   onGridMenuItemClick(index: number): void {

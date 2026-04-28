@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
-import { MenuMiniComponent, MenuMiniItem } from '../shared/menu-mini/menu-mini.component';
+import {
+  MenuMiniComponent,
+  MenuMiniItem,
+} from '../shared/menu-mini/menu-mini.component';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
 import { DataService } from '../providers/data.service';
@@ -444,7 +447,10 @@ export class OrderManagementComponent {
   }
 
   get menuItems(): MenuMiniItem[] {
-    return this.filteredTabs.map(t => ({ label: t.label, disabled: t.disabled }));
+    return this.filteredTabs.map((t) => ({
+      label: t.label,
+      disabled: t.disabled,
+    }));
   }
 
   onGridMenuItemClick(index: number): void {

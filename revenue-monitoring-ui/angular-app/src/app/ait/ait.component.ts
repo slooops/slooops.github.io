@@ -8,7 +8,10 @@ import { MenuService } from '../providers/menu.service';
 import { Validators } from '@angular/forms';
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
-import { MenuMiniComponent, MenuMiniItem } from '../shared/menu-mini/menu-mini.component';
+import {
+  MenuMiniComponent,
+  MenuMiniItem,
+} from '../shared/menu-mini/menu-mini.component';
 
 export interface UserContext {
   username: string;
@@ -364,7 +367,7 @@ export class AitComponent implements OnInit {
   periodStatus: any;
 
   get menuItems(): MenuMiniItem[] {
-    return this.filteredTabs.map(t => ({ label: t.label }));
+    return this.filteredTabs.map((t) => ({ label: t.label }));
   }
 
   onTabChange(index: number) {

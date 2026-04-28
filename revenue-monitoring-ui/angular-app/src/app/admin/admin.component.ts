@@ -27,7 +27,10 @@ import {
   phosphorXBold,
 } from '@ng-icons/phosphor-icons/bold';
 import { AnalyticsDashboardComponent } from '../analytics-dashboard/analytics-dashboard.component';
-import { MenuMiniComponent, MenuMiniItem } from '../shared/menu-mini/menu-mini.component';
+import {
+  MenuMiniComponent,
+  MenuMiniItem,
+} from '../shared/menu-mini/menu-mini.component';
 
 /** Grouped user: one row per unique userName, with all their role rows inside */
 export interface GroupedUser {
@@ -423,7 +426,7 @@ export class AdminComponent implements OnInit {
   }
 
   get menuItems(): MenuMiniItem[] {
-    return this.filteredAdminTabs.map(t => ({ label: t.label, key: t.key }));
+    return this.filteredAdminTabs.map((t) => ({ label: t.label, key: t.key }));
   }
 
   constructor(

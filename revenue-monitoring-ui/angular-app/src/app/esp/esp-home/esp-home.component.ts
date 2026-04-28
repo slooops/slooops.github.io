@@ -19,7 +19,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import { GlobalSearchDialogComponent } from '../global-search-dialog/global-search-dialog.component';
 import { DataService } from 'src/app/providers/data.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MenuMiniComponent, MenuMiniItem } from '../../shared/menu-mini/menu-mini.component';
+import {
+  MenuMiniComponent,
+  MenuMiniItem,
+} from '../../shared/menu-mini/menu-mini.component';
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { MatIconModule } from '@angular/material/icon';
@@ -597,8 +600,8 @@ export class EspHomeComponent implements OnInit {
 
   get menuItems(): MenuMiniItem[] {
     return this.metricTiles
-      .filter(t => this.isTileAccessible(t.name))
-      .map(t => ({ label: t.name, key: t.name }));
+      .filter((t) => this.isTileAccessible(t.name))
+      .map((t) => ({ label: t.name, key: t.name }));
   }
 
   onGridMenuItemClick(tileName: string): void {

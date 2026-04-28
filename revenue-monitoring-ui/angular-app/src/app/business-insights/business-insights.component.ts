@@ -16,7 +16,10 @@ import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MatIconModule } from '@angular/material/icon';
-import { MenuMiniComponent, MenuMiniItem } from '../shared/menu-mini/menu-mini.component';
+import {
+  MenuMiniComponent,
+  MenuMiniItem,
+} from '../shared/menu-mini/menu-mini.component';
 
 @Component({
   selector: 'app-business-insights',
@@ -226,7 +229,10 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
   filteredTabs: { label: string; component: string; disabled?: boolean }[] = [];
 
   get menuItems(): MenuMiniItem[] {
-    return this.filteredTabs.map(t => ({ label: t.label, disabled: t.disabled }));
+    return this.filteredTabs.map((t) => ({
+      label: t.label,
+      disabled: t.disabled,
+    }));
   }
 
   getDefaultTabIndex() {

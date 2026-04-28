@@ -12,7 +12,10 @@ import { HomeDataService } from 'src/app/home/home-data.service';
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
-import { MenuMiniComponent, MenuMiniItem } from '../../shared/menu-mini/menu-mini.component';
+import {
+  MenuMiniComponent,
+  MenuMiniItem,
+} from '../../shared/menu-mini/menu-mini.component';
 Chart.register(...registerables);
 
 // Types for new quarter-pair logic
@@ -179,7 +182,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
   }
 
   get menuItems(): MenuMiniItem[] {
-    return this.quarterPairs.map(p => ({ label: p.key }));
+    return this.quarterPairs.map((p) => ({ label: p.key }));
   }
 
   selectTab(index: number): void {

@@ -7,7 +7,10 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
-import { MenuMiniComponent, MenuMiniItem } from '../shared/menu-mini/menu-mini.component';
+import {
+  MenuMiniComponent,
+  MenuMiniItem,
+} from '../shared/menu-mini/menu-mini.component';
 
 export interface UserContext {
   username: string;
@@ -106,7 +109,7 @@ export class OperationsControlsComponent implements OnInit {
   }
 
   get menuItems(): MenuMiniItem[] {
-    const items: MenuMiniItem[] = this.tabLabels.map(label => ({ label }));
+    const items: MenuMiniItem[] = this.tabLabels.map((label) => ({ label }));
     items.push({ label: 'Deferrals', disabled: true });
     return items;
   }

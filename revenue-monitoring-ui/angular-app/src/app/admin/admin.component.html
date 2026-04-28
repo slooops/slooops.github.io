@@ -178,7 +178,11 @@
                         [disabled]="inlineSaving"
                         title="Save user"
                       >
-                        @if (inlineSaving) { ... } @else { <ng-icon name="phosphorCheckBold" size="14"></ng-icon> }
+                        @if (inlineSaving) {
+                          ...
+                        } @else {
+                          <ng-icon name="phosphorCheckBold" size="14"></ng-icon>
+                        }
                       </button>
                       <button
                         class="fit-inline-btn fit-inline-btn--cancel"
@@ -386,7 +390,14 @@
                             [disabled]="groupAddRoleSaving"
                             title="Save role"
                           >
-                            @if (groupAddRoleSaving) { ... } @else { <ng-icon name="phosphorCheckBold" size="14"></ng-icon> }
+                            @if (groupAddRoleSaving) {
+                              ...
+                            } @else {
+                              <ng-icon
+                                name="phosphorCheckBold"
+                                size="14"
+                              ></ng-icon>
+                            }
                           </button>
                           <button
                             class="fit-inline-btn fit-inline-btn--cancel"

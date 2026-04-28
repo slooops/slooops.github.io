@@ -12,7 +12,10 @@ import { TableComponent } from '../../components/table/table.component';
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
-import { MenuMiniComponent, MenuMiniItem } from '../../shared/menu-mini/menu-mini.component';
+import {
+  MenuMiniComponent,
+  MenuMiniItem,
+} from '../../shared/menu-mini/menu-mini.component';
 
 // Types for new quarter-pair logic
 type QuarterPairKey = 'Q1-Q2' | 'Q2-Q3' | 'Q3-Q4' | 'Q4-Q1';
@@ -401,7 +404,7 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
   }
 
   get menuItems(): MenuMiniItem[] {
-    return this.quarterPairs.map(p => ({ label: p.key }));
+    return this.quarterPairs.map((p) => ({ label: p.key }));
   }
 
   selectTab(index: number) {
