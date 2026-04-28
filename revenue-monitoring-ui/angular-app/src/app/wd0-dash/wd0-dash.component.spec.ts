@@ -1,25 +1,25 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Wd0DashComponent } from './wd0-dash.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { BusinessInsightsModule } from '../business-insights/business-insights.module';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { EspCaseAnalyzerComponent } from './esp-case-analyzer.component';
-
-describe('EspCaseAnalyzerComponent', () => {
-  let component: EspCaseAnalyzerComponent;
-  let fixture: ComponentFixture<EspCaseAnalyzerComponent>;
+describe('Wd0DashComponent', () => {
+  let component: Wd0DashComponent;
+  let fixture: ComponentFixture<Wd0DashComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        EspCaseAnalyzerComponent,
+        BusinessInsightsModule,
         HttpClientTestingModule,
         RouterTestingModule,
         BrowserAnimationsModule,
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(EspCaseAnalyzerComponent);
+    fixture = TestBed.createComponent(Wd0DashComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -28,7 +28,8 @@ describe('EspCaseAnalyzerComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have default tab index of 0', () => {
-    expect(component.selectedTabIndex).toBe(0);
+  it('should have default state', () => {
+    expect(component.refreshInterval).toBe(300000);
+    expect(component.wd0ArMidCloseTableData).toEqual([]);
   });
 });

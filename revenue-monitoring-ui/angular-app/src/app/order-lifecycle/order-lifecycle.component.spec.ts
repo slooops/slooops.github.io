@@ -1,34 +1,32 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { OrderLifecycleComponent } from './order-lifecycle.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { BusinessInsightsModule } from '../business-insights/business-insights.module';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatDialogModule } from '@angular/material/dialog';
 
-import { EspCaseAnalyzerComponent } from './esp-case-analyzer.component';
-
-describe('EspCaseAnalyzerComponent', () => {
-  let component: EspCaseAnalyzerComponent;
-  let fixture: ComponentFixture<EspCaseAnalyzerComponent>;
+describe('OrderLifecycleComponent', () => {
+  let component: OrderLifecycleComponent;
+  let fixture: ComponentFixture<OrderLifecycleComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        EspCaseAnalyzerComponent,
+        BusinessInsightsModule,
         HttpClientTestingModule,
         RouterTestingModule,
         BrowserAnimationsModule,
+        MatDialogModule,
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(EspCaseAnalyzerComponent);
+    fixture = TestBed.createComponent(OrderLifecycleComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should have default tab index of 0', () => {
-    expect(component.selectedTabIndex).toBe(0);
   });
 });

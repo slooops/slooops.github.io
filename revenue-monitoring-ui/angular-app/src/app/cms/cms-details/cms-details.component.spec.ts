@@ -1,19 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CmsDetailsComponent } from './cms-details.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 
-import { O2cViewAllComponent } from './o2c-view-all.component';
-
-describe('O2cViewAllComponent', () => {
-  let component: O2cViewAllComponent;
-  let fixture: ComponentFixture<O2cViewAllComponent>;
+describe('CmsDetailsComponent', () => {
+  let component: CmsDetailsComponent;
+  let fixture: ComponentFixture<CmsDetailsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [O2cViewAllComponent, HttpClientTestingModule, RouterTestingModule],
+      imports: [CmsDetailsComponent, HttpClientTestingModule, RouterTestingModule],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(O2cViewAllComponent);
+    fixture = TestBed.createComponent(CmsDetailsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

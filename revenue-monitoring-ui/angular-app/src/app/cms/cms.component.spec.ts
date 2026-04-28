@@ -1,34 +1,31 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CmsComponent } from './cms.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatDialogModule } from '@angular/material/dialog';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { EspCaseAnalyzerComponent } from './esp-case-analyzer.component';
-
-describe('EspCaseAnalyzerComponent', () => {
-  let component: EspCaseAnalyzerComponent;
-  let fixture: ComponentFixture<EspCaseAnalyzerComponent>;
+describe('CmsComponent', () => {
+  let component: CmsComponent;
+  let fixture: ComponentFixture<CmsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        EspCaseAnalyzerComponent,
+        CmsComponent,
         HttpClientTestingModule,
+        MatDialogModule,
         RouterTestingModule,
         BrowserAnimationsModule,
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(EspCaseAnalyzerComponent);
+    fixture = TestBed.createComponent(CmsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should have default tab index of 0', () => {
-    expect(component.selectedTabIndex).toBe(0);
   });
 });

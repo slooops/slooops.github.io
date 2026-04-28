@@ -1,17 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 
-import { AutoInvoicingComponent } from './invoicing.component';
+import { InvoicingComponent } from './invoicing.component';
 
-describe('AutoInvoicingComponent', () => {
-  let component: AutoInvoicingComponent;
-  let fixture: ComponentFixture<AutoInvoicingComponent>;
+describe('InvoicingComponent', () => {
+  let component: InvoicingComponent;
+  let fixture: ComponentFixture<InvoicingComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AutoInvoicingComponent],
+      imports: [InvoicingComponent, HttpClientTestingModule, RouterTestingModule],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AutoInvoicingComponent);
+    fixture = TestBed.createComponent(InvoicingComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
