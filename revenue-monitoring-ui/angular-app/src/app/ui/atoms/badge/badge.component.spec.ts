@@ -50,5 +50,4 @@ describe('BadgeComponent', () => {
     component.label = 'Active';
     fixture.detectChanges();
     expect(component.label).toBe('Active');
-  });
-});
+  });});

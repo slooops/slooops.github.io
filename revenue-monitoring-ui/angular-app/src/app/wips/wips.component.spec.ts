@@ -1,4 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CommonModule } from '@angular/common';
+import { DestroyManager } from '../providers/destroy-manager.service';
 
 import { WipsComponent } from './wips.component';
 
@@ -8,9 +13,15 @@ describe('WipsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ WipsComponent ]
-    })
-    .compileComponents();
+      imports: [
+        WipsComponent,
+        CommonModule,
+        HttpClientTestingModule,
+        RouterTestingModule,
+        BrowserAnimationsModule,
+      ],
+      providers: [DestroyManager],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(WipsComponent);
     component = fixture.componentInstance;

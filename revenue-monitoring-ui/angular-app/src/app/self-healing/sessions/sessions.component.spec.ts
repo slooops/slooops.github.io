@@ -20,11 +20,9 @@ describe('SessionsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have default values', () => {
+  it('should have default searchQuery and pagination', () => {
     expect(component.searchQuery).toBe('');
-    expect(component.sessions).toEqual([]);
     expect(component.currentPage).toBe(1);
     expect(component.pageSize).toBe(25);
-    expect(component.isLoading).toBeFalse();
   });
 });

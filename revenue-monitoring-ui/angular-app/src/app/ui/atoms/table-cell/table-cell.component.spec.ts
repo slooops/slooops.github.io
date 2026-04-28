@@ -24,14 +24,18 @@ describe('TableCellComponent', () => {
   });
 
   it('should accept center alignment', () => {
-    component.align = 'center';
-    fixture.detectChanges();
-    expect(component.align).toBe('center');
+    const fixture2 = TestBed.createComponent(TableCellComponent);
+    const comp2 = fixture2.componentInstance;
+    comp2.align = 'center';
+    fixture2.detectChanges();
+    expect(comp2.align).toBe('center');
   });
 
   it('should accept right alignment', () => {
-    component.align = 'right';
-    fixture.detectChanges();
-    expect(component.align).toBe('right');
+    const fixture2 = TestBed.createComponent(TableCellComponent);
+    const comp2 = fixture2.componentInstance;
+    comp2.align = 'right';
+    fixture2.detectChanges();
+    expect(comp2.align).toBe('right');
   });
 });

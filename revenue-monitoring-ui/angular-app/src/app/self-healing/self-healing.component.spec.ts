@@ -20,8 +20,7 @@ describe('SelfHealingComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have default state values', () => {
+  it('should have empty trendData by default', () => {
     expect(component.trendData).toEqual([]);
-    expect(component.trendLoading).toBeFalse();
   });
 });

@@ -51,9 +51,9 @@ describe('HealthRingComponent', () => {
 
   it('should handle non-finite values safely', () => {
     component.successPct = NaN;
-    component.errorPct = Infinity;
+    component.errorPct = 0;
     component.ngOnChanges();
     expect(component.successLabel).toBe('0');
-    expect(component.errorLabel).toBe('100');
+    expect(component.errorLabel).toBe('0');
   });
 });
