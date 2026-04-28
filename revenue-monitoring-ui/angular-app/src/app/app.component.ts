@@ -50,6 +50,8 @@ import {
   phosphorListBold,
   phosphorCaretRightBold,
   phosphorXBold,
+  phosphorRocketBold,
+  phosphorMegaphoneSimpleBold,
 } from '@ng-icons/phosphor-icons/bold';
 import {
   phosphorIdentificationCardDuotone,
@@ -126,6 +128,8 @@ import { MenuComponent } from './menu/menu.component';
       phosphorHeartbeatDuotone,
       phosphorFirstAidKitDuotone,
       phosphorListDuotone,
+      phosphorRocketBold,
+      phosphorMegaphoneSimpleBold,
     }),
   ],
   imports: [

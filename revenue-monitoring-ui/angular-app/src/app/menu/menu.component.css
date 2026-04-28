@@ -117,13 +117,14 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  align-items: flex-start;
 }
 
 .ms-nav-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.4rem 0.5rem 1rem;
   border: none;
   background: none;
   border-radius: 8px;
@@ -134,12 +135,9 @@
   white-space: normal;
   text-align: left;
   min-height: 42px;
-  transition:
-    background 0.15s ease,
-    padding var(--ms-transition),
-    gap var(--ms-transition),
-    min-height var(--ms-transition);
   position: relative;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .ms-nav-item:hover {
@@ -276,11 +274,12 @@
 .ms-nav-label {
   flex: 1;
   overflow: hidden;
-  text-overflow: ellipsis;
-  transition:
-    opacity 0.12s ease,
-    max-width var(--ms-transition);
+  white-space: nowrap;
+  opacity: 1;
   max-width: 200px;
+  transition:
+    opacity 0.15s ease,
+    max-width 0.01s ease 0.15s;
 }
 
 .ms-rail.collapsed .ms-nav-label,
@@ -290,6 +289,10 @@
   max-width: 0;
   overflow: hidden;
   position: absolute;
+  transition:
+    opacity 0.12s ease,
+    max-width 0.01s ease 0.12s,
+    position 0s ease 0.12s;
 }
 
 /* ── Collapsed label below icon ── */
@@ -323,7 +326,7 @@
     opacity 0.2s ease 0.15s;
   color: var(--ms-muted);
   line-height: 1.2;
-  max-width: 100%;
+  max-width: 64px;
   white-space: normal;
   overflow-wrap: break-word;
   word-break: break-word;
@@ -347,21 +350,40 @@
 }
 
 /* ══════════════════════════════════
+   Footer placeholders (Coming Soon, etc.)
+   ══════════════════════════════════ */
+.ms-footer-items {
+  margin-top: auto;
+  padding: 2rem 0;
+  /* border-top: 1px solid var(--ms-border); */
+}
+
+.ms-footer-items .ms-nav-item {
+  min-height: 58px;
+}
+
+.ms-nav-item.ms-disabled {
+  opacity: 0.38;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════
    Collapse button (bottom of rail)
    ══════════════════════════════════ */
 .ms-collapse-btn {
-  margin-top: auto;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.625rem 0.75rem;
+  padding: 0.5rem 1rem;
   border: none;
   background: transparent;
   cursor: pointer;
-  color: var(--ms-muted);
-  font-size: 0.75rem;
-  font-weight: 500;
+  color: var(--ms-text);
+  font-size: 0.8rem;
+  font-weight: 600;
   white-space: nowrap;
+  min-height: 58px;
   transition:
     background var(--ms-transition),
     color var(--ms-transition);
@@ -385,8 +407,12 @@
 }
 
 .ms-rail.collapsed .ms-collapse-btn {
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  padding: 0.625rem 0;
+  padding: 0.5rem 1.7rem;
+  min-height: 58px;
+  width: fit-content;
 }
 
 .ms-rail.collapsed .ms-collapse-label {

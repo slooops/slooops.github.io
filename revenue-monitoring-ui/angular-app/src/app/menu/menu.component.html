@@ -40,11 +40,35 @@
       }
     </nav>
 
+    <!-- Footer placeholders -->
+    <div class="ms-footer-items">
+      <div class="ms-nav-item ms-disabled">
+        <ng-icon name="phosphorRocketBold" size="26" class="ms-nav-icon" />
+        @if (!collapsed) {
+          <span class="ms-nav-label">Coming Soon</span>
+        } @else {
+          <span class="ms-nav-label-collapsed">Coming Soon</span>
+        }
+      </div>
+      <div class="ms-nav-item ms-disabled">
+        <ng-icon
+          name="phosphorMegaphoneSimpleBold"
+          size="26"
+          class="ms-nav-icon"
+        />
+        @if (!collapsed) {
+          <span class="ms-nav-label">Latest Updates</span>
+        } @else {
+          <span class="ms-nav-label-collapsed">Latest Updates</span>
+        }
+      </div>
+    </div>
+
     <!-- Collapse / expand toggle -->
     <button class="ms-collapse-btn" (click)="toggleSidebar()">
       <ng-icon
         name="phosphorCaretRightBold"
-        size="16"
+        size="26"
         class="ms-collapse-icon"
         [class.flipped]="!collapsed"
       />
