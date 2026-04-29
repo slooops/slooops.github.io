@@ -185,6 +185,12 @@ export class MenuComponent {
       route: '/self-healing',
       roles: ['ADMIN'],
     },
+    {
+      label: 'Control M',
+      icon: 'phosphorCrosshairBold',
+      route: '/ctm-alerts',
+      roles: ['ADMIN'],
+    },
   ];
 
   toggleSidebar(): void {
