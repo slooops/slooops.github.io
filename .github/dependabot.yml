@@ -1,0 +1,22 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/revenue-monitoring-ui/angular-app"
+    target-branch: "UI2.0"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "npm"
+    directory: "/revenue-monitoring-ui/node-proxy-server"
+    target-branch: "UI2.0"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "maven"
+    directory: "/revenue-monitoring-server"
+    target-branch: "UI2.0"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
