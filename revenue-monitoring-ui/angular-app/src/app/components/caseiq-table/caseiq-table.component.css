@@ -603,6 +603,11 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
   border-radius: 4px;
   gap: 12px;
 }
+
+.no-data-image {
+  width: 120px;
+  height: auto;
+}
 .empty-state-graphic {
   width: 72px;
   height: 72px;

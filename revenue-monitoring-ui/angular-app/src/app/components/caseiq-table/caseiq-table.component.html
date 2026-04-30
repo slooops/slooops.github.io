@@ -4,9 +4,7 @@
       <button class="filters-btn" (click)="toggleFiltersDropdown($event)">
         <mat-icon style="height: 18px">filter_list</mat-icon> Filters
         @if (activeFilters.length > 0) {
-          <span class="filter-count">{{
-            activeFilters.length
-          }}</span>
+          <span class="filter-count">{{ activeFilters.length }}</span>
         }
       </button>
 
@@ -24,45 +22,108 @@
           onKeyPress="return true;"
           tabindex="0"
           aria-label="Active filters menu"
-          >
+        >
           <div class="filter-sections">
             @for (filterOption of filterOptions; track filterOption) {
-              <div
-                class="filter-section"
-                >
+              <div class="filter-section">
                 <div class="filter-section-title">{{ filterOption.label }}</div>
                 <!-- Incident State custom multi-select dropdown inside popup -->
-                @if (
-                  filterOption.id === 'incidentState') {
+                @if (filterOption.id === "incidentState") {
                   <div class="multi-select-wrapper in-popup">
                     <button
                       type="button"
                       class="multi-select-trigger"
                       (click)="toggleIncidentStateInner($event)"
-                      >
+                    >
                       Select
-                      <span class="chevron" [class.open]="showIncidentStateInner"
+                      <span
+                        class="chevron"
+                        [class.open]="showIncidentStateInner"
                         >▾</span
+                      >
+                    </button>
+                    @if (showIncidentStateInner) {
+                      <div
+                        class="multi-select-dropdown inner"
+                        (click)="$event.stopPropagation()"
+                      >
+                        <div class="multi-select-options">
+                          @for (value of filterOption.values; track value) {
+                            <div
+                              class="multi-option"
+                              [class.selected]="
+                                isFilterActive('incidentState', value)
+                              "
+                              (click)="
+                                toggleIncidentStateValue(
+                                  value,
+                                  filterOption.label
+                                )
+                              "
+                            >
+                              <input
+                                type="checkbox"
+                                [checked]="
+                                  isFilterActive('incidentState', value)
+                                "
+                              />
+                              <span class="option-label">{{ value }}</span>
+                            </div>
+                          }
+                        </div>
+                        <div class="multi-select-actions">
+                          <button
+                            type="button"
+                            class="clear-btn"
+                            (click)="clearFiltersFor('incidentState')"
+                            [disabled]="getSelectedCount('incidentState') === 0"
+                          >
+                            Clear
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  @if (filterOption.id === "cancelPrediction") {
+                    <div class="multi-select-wrapper in-popup">
+                      <button
+                        type="button"
+                        class="multi-select-trigger"
+                        (click)="toggleCancelPredictionInner($event)"
+                      >
+                        Select
+                        <span
+                          class="chevron"
+                          [class.open]="showCancelPredictionInner"
+                          >▾</span
                         >
                       </button>
-                      @if (showIncidentStateInner) {
+                      @if (showCancelPredictionInner) {
                         <div
                           class="multi-select-dropdown inner"
                           (click)="$event.stopPropagation()"
-                          >
+                        >
                           <div class="multi-select-options">
                             @for (value of filterOption.values; track value) {
                               <div
                                 class="multi-option"
-                                [class.selected]="isFilterActive('incidentState', value)"
-                      (click)="
-                        toggleIncidentStateValue(value, filterOption.label)
-                      "
-                                >
+                                [class.selected]="
+                                  isFilterActive('cancelPrediction', value)
+                                "
+                                (click)="
+                                  toggleCancelPredictionValue(
+                                    value,
+                                    filterOption.label
+                                  )
+                                "
+                              >
                                 <input
                                   type="checkbox"
-                                  [checked]="isFilterActive('incidentState', value)"
-                                  />
+                                  [checked]="
+                                    isFilterActive('cancelPrediction', value)
+                                  "
+                                />
                                 <span class="option-label">{{ value }}</span>
                               </div>
                             }
@@ -71,9 +132,11 @@
                             <button
                               type="button"
                               class="clear-btn"
-                              (click)="clearFiltersFor('incidentState')"
-                              [disabled]="getSelectedCount('incidentState') === 0"
-                              >
+                              (click)="clearFiltersFor('cancelPrediction')"
+                              [disabled]="
+                                getSelectedCount('cancelPrediction') === 0
+                              "
+                            >
                               Clear
                             </button>
                           </div>
@@ -81,286 +144,247 @@
                       }
                     </div>
                   } @else {
-                    @if (
-                      filterOption.id === 'cancelPrediction') {
+                    @if (filterOption.id === "impactedServiceOffering") {
                       <div class="multi-select-wrapper in-popup">
                         <button
                           type="button"
                           class="multi-select-trigger"
-                          (click)="toggleCancelPredictionInner($event)"
-                          >
+                          (click)="toggleImpactedServiceOfferingInner($event)"
+                        >
                           Select
                           <span
                             class="chevron"
-                            [class.open]="showCancelPredictionInner"
+                            [class.open]="showImpactedServiceOfferingInner"
                             >▾</span
-                            >
-                          </button>
-                          @if (showCancelPredictionInner) {
-                            <div
-                              class="multi-select-dropdown inner"
-                              (click)="$event.stopPropagation()"
-                              >
-                              <div class="multi-select-options">
-                                @for (value of filterOption.values; track value) {
-                                  <div
-                                    class="multi-option"
-                        [class.selected]="
-                          isFilterActive('cancelPrediction', value)
-                        "
-                        (click)="
-                          toggleCancelPredictionValue(value, filterOption.label)
-                        "
-                                    >
-                                    <input
-                                      type="checkbox"
-                                      [checked]="isFilterActive('cancelPrediction', value)"
-                                      />
-                                    <span class="option-label">{{ value }}</span>
-                                  </div>
-                                }
-                              </div>
-                              <div class="multi-select-actions">
-                                <button
-                                  type="button"
-                                  class="clear-btn"
-                                  (click)="clearFiltersFor('cancelPrediction')"
-                                  [disabled]="getSelectedCount('cancelPrediction') === 0"
-                                  >
-                                  Clear
-                                </button>
-                              </div>
-                            </div>
-                          }
-                        </div>
-                      } @else {
-                        @if (
-                          filterOption.id === 'impactedServiceOffering') {
-                          <div class="multi-select-wrapper in-popup">
-                            <button
-                              type="button"
-                              class="multi-select-trigger"
-                              (click)="toggleImpactedServiceOfferingInner($event)"
-                              >
-                              Select
-                              <span
-                                class="chevron"
-                                [class.open]="showImpactedServiceOfferingInner"
-                                >▾</span
-                                >
-                              </button>
-                              @if (showImpactedServiceOfferingInner) {
+                          >
+                        </button>
+                        @if (showImpactedServiceOfferingInner) {
+                          <div
+                            class="multi-select-dropdown inner"
+                            (click)="$event.stopPropagation()"
+                          >
+                            <div class="multi-select-options">
+                              @for (value of filterOption.values; track value) {
                                 <div
-                                  class="multi-select-dropdown inner"
-                                  (click)="$event.stopPropagation()"
-                                  >
-                                  <div class="multi-select-options">
-                                    @for (value of filterOption.values; track value) {
-                                      <div
-                                        class="multi-option"
-                          [class.selected]="
-                            isFilterActive('impactedServiceOffering', value)
-                          "
-                          (click)="
-                            toggleImpactedServiceOfferingValue(
-                              value,
-                              filterOption.label
-                            )
-                          "
-                                        >
-                                        <input
-                                          type="checkbox"
-                            [checked]="
-                              isFilterActive('impactedServiceOffering', value)
-                            "
-                                          />
-                                        <span class="option-label">{{ value }}</span>
-                                      </div>
-                                    }
-                                  </div>
-                                  <div class="multi-select-actions">
-                                    <button
-                                      type="button"
-                                      class="clear-btn"
-                                      (click)="clearFiltersFor('impactedServiceOffering')"
-                          [disabled]="
-                            getSelectedCount('impactedServiceOffering') === 0
-                          "
-                                      >
-                                      Clear
-                                    </button>
-                                  </div>
+                                  class="multi-option"
+                                  [class.selected]="
+                                    isFilterActive(
+                                      'impactedServiceOffering',
+                                      value
+                                    )
+                                  "
+                                  (click)="
+                                    toggleImpactedServiceOfferingValue(
+                                      value,
+                                      filterOption.label
+                                    )
+                                  "
+                                >
+                                  <input
+                                    type="checkbox"
+                                    [checked]="
+                                      isFilterActive(
+                                        'impactedServiceOffering',
+                                        value
+                                      )
+                                    "
+                                  />
+                                  <span class="option-label">{{ value }}</span>
                                 </div>
                               }
                             </div>
-                          } @else {
-                            @if (filterOption.id === 'incidentNumber') {
-                              <div class="incident-number-search">
-                                <input
-                                  type="text"
-                                  class="incident-number-input"
-                                  placeholder="e.g., INC10364124"
-                                  [(ngModel)]="incidentNumberSearch"
-                                  (input)="onIncidentNumberSearch(incidentNumberSearch)"
-                                  (click)="$event.stopPropagation()"
-                                  />
-                              </div>
-                            } @else {
-                              <div class="filter-options">
-                                @for (value of filterOption.values; track value) {
-                                  <label
-                                    class="filter-option"
-                                    >
-                                    <input
-                                      type="checkbox"
-                      (change)="
-                        addFilter(filterOption.id, filterOption.label, value)
-                      "
-                                      [checked]="isFilterActive(filterOption.id, value)"
-                                      [disabled]="isFilterDisabled(filterOption.id, value)"
-                                      />
-                                    <span class="checkmark"></span>
-                                    {{ value }}
-                                  </label>
-                                }
-                              </div>
-                            }
-                          }
+                            <div class="multi-select-actions">
+                              <button
+                                type="button"
+                                class="clear-btn"
+                                (click)="
+                                  clearFiltersFor('impactedServiceOffering')
+                                "
+                                [disabled]="
+                                  getSelectedCount(
+                                    'impactedServiceOffering'
+                                  ) === 0
+                                "
+                              >
+                                Clear
+                              </button>
+                            </div>
+                          </div>
                         }
+                      </div>
+                    } @else {
+                      @if (filterOption.id === "incidentNumber") {
+                        <div class="incident-number-search">
+                          <input
+                            type="text"
+                            class="incident-number-input"
+                            placeholder="e.g., INC10364124"
+                            [(ngModel)]="incidentNumberSearch"
+                            (input)="
+                              onIncidentNumberSearch(incidentNumberSearch)
+                            "
+                            (click)="$event.stopPropagation()"
+                          />
+                        </div>
+                      } @else {
+                        <div class="filter-options">
+                          @for (value of filterOption.values; track value) {
+                            <label class="filter-option">
+                              <input
+                                type="checkbox"
+                                (change)="
+                                  addFilter(
+                                    filterOption.id,
+                                    filterOption.label,
+                                    value
+                                  )
+                                "
+                                [checked]="
+                                  isFilterActive(filterOption.id, value)
+                                "
+                                [disabled]="
+                                  isFilterDisabled(filterOption.id, value)
+                                "
+                              />
+                              <span class="checkmark"></span>
+                              {{ value }}
+                            </label>
+                          }
+                        </div>
                       }
-                    </div>
+                    }
                   }
-                </div>
-              </div>
-            }
-          </div>
-
-          <span class="results-count"
-            >{{ dataSource?.data?.length || 0 }} /
-            {{ totalRecords || 0 }} results</span
-            >
-
-            <button
-              class="reset-btn"
-              [class.disabled]="activeFilters.length === 0"
-              [class.active]="activeFilters.length > 0"
-              (click)="clearAllFilters()"
-              [disabled]="activeFilters.length === 0"
-              >
-              Reset filters
-            </button>
-
-            @if (activeFilters.length > 0) {
-              <div class="filter-tags">
-                @for (filter of activeFilters; track filter; let i = $index) {
-                  <div
-                    class="filter-tag"
-                    >
-                    <span class="filter-label">{{ filter.label }}</span>
-                    <span class="filter-value">{{ filter.value }}</span>
-                    <button class="remove-filter" (click)="removeFilter(filter.id)">
-                      ✕
-                    </button>
-                  </div>
                 }
               </div>
             }
-          </div>
-
-          <div class="table-links">
-            <button class="btn-base" (click)="openUploadDialog()">Upload</button>
-            &nbsp;
-            <button class="btn-base" (click)="exportTableToExcel()">Download</button>
           </div>
         </div>
+      }
+    </div>
 
-        <div style="margin-top: 1vh">
-          @if (dataSource?.data?.length > 0) {
-            <div class="table-scroll-wrapper" style="overflow-x: auto">
-              <table mat-table [dataSource]="dataSource" style="width: 100%">
-                @for (column of filteredColumns; track column) {
-                  <ng-container [matColumnDef]="column">
-                    <th
-                      mat-header-cell
-                      *matHeaderCellDef
+    <span class="results-count"
+      >{{ dataSource?.data?.length || 0 }} /
+      {{ totalRecords || 0 }} results</span
+    >
+
+    <button
+      class="reset-btn"
+      [class.disabled]="activeFilters.length === 0"
+      [class.active]="activeFilters.length > 0"
+      (click)="clearAllFilters()"
+      [disabled]="activeFilters.length === 0"
+    >
+      Reset filters
+    </button>
+
+    @if (activeFilters.length > 0) {
+      <div class="filter-tags">
+        @for (filter of activeFilters; track filter; let i = $index) {
+          <div class="filter-tag">
+            <span class="filter-label">{{ filter.label }}</span>
+            <span class="filter-value">{{ filter.value }}</span>
+            <button class="remove-filter" (click)="removeFilter(filter.id)">
+              ✕
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="table-links">
+    <button class="btn-base" (click)="openUploadDialog()">Upload</button>
+    &nbsp;
+    <button class="btn-base" (click)="exportTableToExcel()">Download</button>
+  </div>
+</div>
+
+<div style="margin-top: 1vh">
+  @if (dataSource?.data?.length > 0) {
+    <div class="table-scroll-wrapper" style="overflow-x: auto">
+      <table mat-table [dataSource]="dataSource" style="width: 100%">
+        @for (column of filteredColumns; track column) {
+          <ng-container [matColumnDef]="column">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
               [ngClass]="{
-                'extra-wide-column': extraWideColumns.includes(column)
+                'extra-wide-column': extraWideColumns.includes(column),
               }"
-                      >
-                      {{ removeUnderscores(column) }}
-                    </th>
-                    <td
-                      mat-cell
-                      *matCellDef="let element"
+            >
+              {{ removeUnderscores(column) }}
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let element"
               [ngClass]="{
-                'extra-wide-column': extraWideColumns.includes(column)
+                'extra-wide-column': extraWideColumns.includes(column),
               }"
-                      >
-                      @if (
-                        column.includes('TIME') || column.includes('DATE')) {
-                        {{ element[column] | date : "MM/dd/yy" }}
-                      } @else {
-                        <!-- Special handling for Category and Core issue columns with stoplight indicators -->
-                        @if (
-                          column === 'CATEGORY' || column === 'CORE_ISSUE') {
-                          <div class="status-cell">
-                            <span
-                              class="status-circle"
+            >
+              @if (column.includes("TIME") || column.includes("DATE")) {
+                {{ element[column] | date: "MM/dd/yy" }}
+              } @else {
+                <!-- Special handling for Category and Core issue columns with stoplight indicators -->
+                @if (column === "CATEGORY" || column === "CORE_ISSUE") {
+                  <div class="status-cell">
+                    <span
+                      class="status-circle"
                       [ngClass]="{
                         active: getMatchStatus(element, column) === 'Y',
-                        inactive: getMatchStatus(element, column) !== 'Y'
+                        inactive: getMatchStatus(element, column) !== 'Y',
                       }"
-                            ></span>
-                            {{ element[column] }}
-                          </div>
-                        } @else {
-                          {{ element[column] }}
-                        }
-                      }
-                    </td>
-                  </ng-container>
+                    ></span>
+                    {{ element[column] }}
+                  </div>
+                } @else {
+                  {{ element[column] }}
                 }
-                <tr mat-header-row *matHeaderRowDef="filteredColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: filteredColumns"></tr>
-              </table>
-              <!-- Backend loading overlay -->
-              <!-- <div
+              }
+            </td>
+          </ng-container>
+        }
+        <tr mat-header-row *matHeaderRowDef="filteredColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: filteredColumns"></tr>
+      </table>
+      <!-- Backend loading overlay -->
+      <!-- <div
               class="table-loading-overlay"
               *ngIf="backendLoading || showFetchingOverlay"
               >
               <div class="spinner"></div>
               <div class="loading-text">Fetching data...</div>
             </div> -->
-          </div>
-          <!-- Paginator -->
-          @if (enablePagination) {
-            <mat-paginator
-              #paginator
-              [length]="totalRecords"
-              [pageSize]="pageSize"
-              [pageSizeOptions]="[5, 10, 25, 50, 100]"
-              [showFirstLastButtons]="true"
-              aria-label="Select page"
-              >
-            </mat-paginator>
-          }
-        }
-        @if (!dataSource?.data?.length) {
-          @if (backendLoading) {
-          } @else {
-            @if (activeFilters.length > 0) {
-              <div class="empty-state-container">
-                <div class="empty-state-graphic"></div>
-                <div class="empty-state-text">No data found</div>
-                <div class="empty-state-subtext">
-                  Try adjusting or clearing filters to see more results.
-                </div>
-              </div>
-            } @else {
-              <div class="loading-container">
-                <app-loading-symbol></app-loading-symbol>
-              </div>
-            }
-          }
-        }
+    </div>
+    <!-- Paginator -->
+    @if (enablePagination) {
+      <mat-paginator
+        #paginator
+        [length]="totalRecords"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[5, 10, 25, 50, 100]"
+        [showFirstLastButtons]="true"
+        aria-label="Select page"
+      >
+      </mat-paginator>
+    }
+  }
+  @if (!dataSource?.data?.length) {
+    @if (backendLoading) {
+      <div class="loading-container">
+        <app-loading-symbol></app-loading-symbol>
       </div>
+    } @else {
+      <div class="empty-state-container">
+        <img
+          src="assets/thumbnails/noDataFound.png"
+          alt="No Data Found"
+          class="no-data-image"
+        />
+        <div class="empty-state-text">No data found</div>
+        <div class="empty-state-subtext">
+          Try adjusting or clearing filters to see more results.
+        </div>
+      </div>
+    }
+  }
+</div>

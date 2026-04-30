@@ -115,6 +115,10 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   ];
 
   ngOnInit() {
+    console.log(
+      'CaseIQ Table initialized with dataSource:',
+      this.dataSource.data.length,
+    );
     // Filter out (Y,Y) rows on initial load
     if (this.dataSource?.data?.length > 0) {
       this.fullData = [...this.dataSource.data];
@@ -186,10 +190,10 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         const statesSet = new Set(
           (this.fullData || [])
             .map((r) => (r['INCIDENT_STATE'] ?? '').toString().trim())
-            .filter((v) => !!v)
+            .filter((v) => !!v),
         );
         const incidentStateOption = this.filterOptions.find(
-          (o) => o.id === 'incidentState'
+          (o) => o.id === 'incidentState',
         );
         if (incidentStateOption) {
           // Keep the original configured order; include 'Cancelled' if either 'Cancelled' or 'Canceled' appears.
@@ -199,7 +203,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
             (v) => {
               if (v === 'Cancelled') return hasCancelledVariant;
               return statesSet.has(v);
-            }
+            },
           );
         }
 
@@ -207,12 +211,12 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         const serviceOfferingsSet = new Set(
           (this.fullData || [])
             .map((r) =>
-              (r['IMPACTED_SERVICE_OFFERING'] ?? '').toString().trim()
+              (r['IMPACTED_SERVICE_OFFERING'] ?? '').toString().trim(),
             )
-            .filter((v) => !!v)
+            .filter((v) => !!v),
         );
         const impactedServiceOfferingOption = this.filterOptions.find(
-          (o) => o.id === 'impactedServiceOffering'
+          (o) => o.id === 'impactedServiceOffering',
         );
         if (impactedServiceOfferingOption) {
           // Sort alphabetically for consistent display
@@ -427,7 +431,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
 
     // Remove existing incident number filter if any
     this.activeFilters = this.activeFilters.filter(
-      (f) => f.filterId !== 'incidentNumber'
+      (f) => f.filterId !== 'incidentNumber',
     );
 
     // Add new filter if search term is not empty
@@ -449,7 +453,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
 
     // Check if filter already exists
     const existingFilterIndex = this.activeFilters.findIndex(
-      (f) => f.id === newFilterId
+      (f) => f.id === newFilterId,
     );
 
     if (existingFilterIndex > -1) {
@@ -486,7 +490,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   clearFiltersFor(filterId: string) {
     const before = this.activeFilters.length;
     this.activeFilters = this.activeFilters.filter(
-      (f) => f.filterId !== filterId
+      (f) => f.filterId !== filterId,
     );
     if (before !== this.activeFilters.length) {
       this.applyFilters();
@@ -519,7 +523,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
 
   isFilterActive(filterId: string, value: string): boolean {
     return this.activeFilters.some(
-      (f) => f.filterId === filterId && f.value === value
+      (f) => f.filterId === filterId && f.value === value,
     );
   }
 
@@ -548,7 +552,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       (column) =>
         !column.includes('MATCH') &&
         column !== 'CATEGORY_MATCH' &&
-        column !== 'CORE_ISSUE_MATCH'
+        column !== 'CORE_ISSUE_MATCH',
     );
   }
 
@@ -696,7 +700,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         if (rawCancelPrediction === undefined) {
           // Fallback: case-insensitive search
           const matchKey = Object.keys(row).find(
-            (k) => k.toLowerCase().replace(/_/g, ' ') === 'cancel prediction'
+            (k) => k.toLowerCase().replace(/_/g, ' ') === 'cancel prediction',
           );
           if (matchKey) {
             rawCancelPrediction = row[matchKey];
