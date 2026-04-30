@@ -170,7 +170,8 @@ export class AuthenticationService {
   }
 
   userRoles: string[] = [];
-  userAccessRoles: { roleId: number; roleName: string }[] = [];
+  userAccessRoles: { roleId: number; roleName: string; roleAdmin: string }[] =
+    [];
   getUserRoles(username: string) {
     let rolesUrl = this.authUrl + `user-role?username=${username}`;
     return fetch(rolesUrl)
@@ -187,14 +188,19 @@ export class AuthenticationService {
       });
   }
 
+  adminRoles: any = [];
+
   getUserRolesSync(username: string) {
     let rolesUrl =
       this.authUrl + `user-access-list-by-user?userName=${username}`;
     return fetch(rolesUrl)
       .then((response) => response.json())
       .then((info) => {
-        this.userAccessRoles = info['userRoles'] || [];
-        console.log('User access roles:', this.userAccessRoles);
+        this.userAccessRoles =
+          info['userRoles'].map((role: any) => role.roleName) || [];
+        this.adminRoles = info['userRoles']
+          .filter((r) => r.roleAdmin === 'Y')
+          .map((r) => (r.roleId !== 2 ? r.roleName + '_ADMIN' : r.roleName));
       })
       .catch((error) => {
         console.error('Error fetching user roles:', error);
@@ -205,12 +211,8 @@ export class AuthenticationService {
     return this.userRoles;
   }
 
-  getAdminRoles() {
-    return this.userAccessRoles.map((role) => role.roleName);
-  }
-
   getUserAccessRoles() {
-    return this.userAccessRoles;
+    return [...this.userAccessRoles, ...this.adminRoles];
   }
 
   ssoLogout() {

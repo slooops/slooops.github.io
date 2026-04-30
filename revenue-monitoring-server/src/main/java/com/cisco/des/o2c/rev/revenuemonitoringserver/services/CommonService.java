@@ -173,7 +173,7 @@ public class CommonService {
                     .filter(u -> upperUsername.equals(u.get("USER_NAME")))
                     .map(u -> new RoleEntry(
                             u.get("ROLE_ID") != null ? ((Number) u.get("ROLE_ID")).intValue() : 0,
-                            (String) u.get("USER_ROLE")))
+                            (String) u.get("USER_ROLE"), (String) u.get("ADMIN") != null ? (String) u.get("ADMIN") : "Y"))
                     .collect(Collectors.toList());
 
             return new UserRoleInfo(userName, userEmail, roles);
@@ -698,7 +698,8 @@ public class CommonService {
                     .filter(row -> "Y".equals(row.get("ENABLED_FLAG")))
                     .map(row -> new RoleEntry(
                             ((Number) row.get("ROLE_ID")).intValue(),
-                            (String) row.get("ROLE_NAME")))
+                            (String) row.get("ROLE_NAME"),
+                            (String) row.get("ADMIN")))
                     .collect(Collectors.toList());
 
             return new UserRoleInfo(name, email, roles);
