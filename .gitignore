@@ -39,6 +39,13 @@ testem.log
 .dockerignore
 .version
 
+# Environment files (secrets)
+.env
+*.env
+
+# MCP Python server (local Copilot tooling)
+python-server/
+
 # System files
 .DS_Store
 Thumbs.db
