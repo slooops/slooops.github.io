@@ -369,11 +369,11 @@
     }
   }
   @if (!dataSource?.data?.length) {
-    @if (backendLoading) {
+    @if (backendLoading || showFetchingOverlay) {
       <div class="loading-container">
         <app-loading-symbol></app-loading-symbol>
       </div>
-    } @else {
+    } @else if (activeFilters.length > 0) {
       <div class="empty-state-container">
         <img
           src="assets/thumbnails/noDataFound.png"
@@ -384,6 +384,10 @@
         <div class="empty-state-subtext">
           Try adjusting or clearing filters to see more results.
         </div>
+      </div>
+    } @else {
+      <div class="loading-container">
+        <app-loading-symbol></app-loading-symbol>
       </div>
     }
   }
