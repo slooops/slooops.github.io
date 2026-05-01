@@ -17,7 +17,7 @@ export class RoleBasedRedirectGuard implements CanActivate {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    const roles = this.authService.getRoles();
+    const roles = this.authService.getUserAccessRoles();
     const defaultRoute = this.getDefaultRouteForRoles(roles);
 
     // Always redirect to the appropriate default route
@@ -43,21 +43,28 @@ export class RoleBasedRedirectGuard implements CanActivate {
       return '/period-close-tracking';
     }
 
-    // EXCEPTION_ADMIN or EXCEPTION_READ_ONLY gets /invoice-to-cash
+    // MONITORING_I2C gets /invoice-to-cash
     if (
-      roles.includes('EXCEPTION_ADMIN') ||
-      roles.includes('EXCEPTION_READ_ONLY')
+      roles.includes('MONITORING_I2C') ||
+      roles.includes('MONITORING_I2C_ADMIN')
     ) {
       return '/invoice-to-cash';
     }
 
-    // ACCOUNT_RECON gets /revenue-accounting
-    if (roles.includes('ACCOUNT_RECON')) {
+    // ACCOUNT_RECON or MONITORING_REVENUE_ACCOUNTING gets /revenue-accounting
+    if (
+      roles.includes('ACCOUNT_RECON') ||
+      roles.includes('MONITORING_REVENUE_ACCOUNTING') ||
+      roles.includes('MONITORING_REVENUE_ACCOUNTING_ADMIN')
+    ) {
       return '/revenue-accounting';
     }
 
     // MONITORING_OM gets /order-management
-    if (roles.includes('MONITORING_OM')) {
+    if (
+      roles.includes('MONITORING_OM') ||
+      roles.includes('MONITORING_OM_ADMIN')
+    ) {
       return '/order-management';
     }
 
@@ -84,14 +91,12 @@ export class RoleBasedRedirectGuard implements CanActivate {
       return '/business-insights';
     }
 
-    // GL Posting
-    if (roles.includes('GL_POSTING')) {
+    // GL_AR gets /gl-posting
+    if (
+      roles.includes('MONITORING_GL_AR') ||
+      roles.includes('MONITORING_GL_AR_ADMIN')
+    ) {
       return '/gl-posting';
-    }
-
-    // Operations Controls
-    if (roles.includes('OPERATION_CTRL')) {
-      return '/operations-controls';
     }
 
     // Default fallback

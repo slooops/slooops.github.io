@@ -170,8 +170,7 @@ export class AuthenticationService {
   }
 
   userRoles: string[] = [];
-  userAccessRoles: { roleId: number; roleName: string; roleAdmin: string }[] =
-    [];
+  userAccessRoles: string[] = [];
   getUserRoles(username: string) {
     let rolesUrl = this.authUrl + `user-role?username=${username}`;
     return fetch(rolesUrl)
@@ -211,7 +210,7 @@ export class AuthenticationService {
     return this.userRoles;
   }
 
-  getUserAccessRoles() {
+  getUserAccessRoles(): string[] {
     return [...this.userAccessRoles, ...this.adminRoles];
   }
 

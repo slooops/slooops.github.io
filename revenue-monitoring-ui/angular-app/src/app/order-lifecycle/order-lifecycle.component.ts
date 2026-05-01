@@ -46,7 +46,7 @@ export class OrderLifecycleComponent implements OnInit {
   roles: string[] = [];
   ngOnInit(): void {
     this.username = this.dataService.getUsername();
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
     this.updateClo =
       this.roles.includes('ADMIN') || this.roles.includes('CLO_UPDATE');
     this.dealUploadFlag =

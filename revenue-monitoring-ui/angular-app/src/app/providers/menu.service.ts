@@ -20,7 +20,7 @@ export class MenuService {
   constructor(private authService: AuthenticationService) {}
 
   updateMenuItems(menuData: MenuCategory[]) {
-    const userRoles = this.authService.getRoles();
+    const userRoles = this.authService.getUserAccessRoles();
 
     const filteredMenu = menuData
       .map((menu) => {

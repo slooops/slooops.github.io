@@ -42,7 +42,7 @@ export class AitComponent implements OnInit {
     private menuService: MenuService,
   ) {
     // Initialize roles and user context in constructor so they're available before template renders
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
     this.userContextData = {
       username: this.authService.getUserName(),
       userId: this.authService.getUserID(),
@@ -66,7 +66,17 @@ export class AitComponent implements OnInit {
     {
       label: 'General Ledger',
       component: 'app-general-ledger',
-      role: ['ADMIN', 'MONITORING_AIT'],
+      role: [
+        'ADMIN',
+        'MONITORING_I2C',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
     },
   ];
 

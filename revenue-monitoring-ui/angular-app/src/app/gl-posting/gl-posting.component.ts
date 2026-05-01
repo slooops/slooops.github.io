@@ -42,7 +42,7 @@ export class GlPostingComponent implements OnInit {
     private menuService: MenuService,
   ) {
     // Initialize roles and user context in constructor so they're available before template renders
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
     this.userContextData = {
       username: this.authService.getUserName(),
       userId: this.authService.getUserID(),

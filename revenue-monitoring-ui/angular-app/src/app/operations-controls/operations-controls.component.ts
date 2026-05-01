@@ -78,7 +78,7 @@ export class OperationsControlsComponent implements OnInit {
     this.userContextData = {
       username: this.authService.getUserName(),
       userId: this.authService.getUserID(),
-      roles: this.authService.getRoles(),
+      roles: this.authService.getUserAccessRoles(),
       apiUrl: this.authService.getHostUrl(),
       assignmentUsersFilterKey: '',
     };
@@ -86,7 +86,7 @@ export class OperationsControlsComponent implements OnInit {
 
   ngOnInit() {
     this.userName = this.authService.getUserName();
-    const userRoles: string[] = this.authService.getRoles() || [];
+    const userRoles: string[] = this.authService.getUserAccessRoles() || [];
     this.roles = userRoles;
     this.isAdmin = userRoles.includes('ADMIN');
 

@@ -56,7 +56,7 @@ export class InvoicingComponent implements OnInit {
     private http: ApiHttpService,
   ) {
     // Initialize roles and user context in constructor so they're available before template renders
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
 
     // Initialize userContextData with empty assignment users, will be populated in ngOnInit
     this.userContextData = {
@@ -83,7 +83,7 @@ export class InvoicingComponent implements OnInit {
     }
 
     // this.userInfo.set('username', this.authService.getUserID());
-    // this.userInfo.set('userRoles', this.authService.getRoles());
+    // this.userInfo.set('userRoles', this.authService.getUserAccessRoles());
     // this.assignmentUsers = this.dataService.getAssignmentUsers('I2C');
   }
 
@@ -593,32 +593,92 @@ export class InvoicingComponent implements OnInit {
     {
       label: 'Pre-Invoicing',
       component: 'app-pre-invoicing',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: [
+        'ADMIN',
+        'MONITORING_I2C',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
     },
     {
       label: 'Invoicing',
       component: 'app-auto-invoicing',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: [
+        'ADMIN',
+        'MONITORING_I2C',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
     },
     {
       label: 'Post-Invoicing',
       component: 'app-post-invoicing',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: [
+        'ADMIN',
+        'MONITORING_I2C',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
     },
     {
       label: 'eInvoicing',
       component: 'app-eInvoicing',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: [
+        'ADMIN',
+        'MONITORING_I2C',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
     },
     {
       label: 'Fusion',
       component: 'app-fusion',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: [
+        'ADMIN',
+        'MONITORING_I2C',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
     },
     {
       label: 'Credit Check Process',
       component: 'app-credit-card-check',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: [
+        'ADMIN',
+        'MONITORING_I2C',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
     },
     // {
     //   label: 'CMS',

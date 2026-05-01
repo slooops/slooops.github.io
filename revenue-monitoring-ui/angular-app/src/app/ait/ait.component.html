@@ -37,7 +37,11 @@
 
 <hr />
 
-@if (roles.includes("ADMIN") || roles.includes("MONITORING_AIT")) {
+@if (
+  roles.includes("ADMIN") ||
+  roles.includes("MONITORING_AIT") ||
+  roles.includes("MONITORING_AIT_ADMIN")
+) {
   <div class="gl-content">
     @if (filteredTabs.length > 0) {
       @switch (filteredTabs[selectedIndex]?.component) {

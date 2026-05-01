@@ -56,7 +56,7 @@ export class IssueReportingComponent implements OnInit {
   ) {}
   ngOnInit() {
     this.username = this.authService.getUserName();
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
     this.getIssueReporting();
     this.getIssueReportingSummary();
   }

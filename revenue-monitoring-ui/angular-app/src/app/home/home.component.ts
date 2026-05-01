@@ -76,7 +76,7 @@ export class HomeComponent implements OnDestroy {
     private exportService: ExportService,
   ) {
     // Initialize user info
-    this.userRoles.set(this.authService.getRoles());
+    this.userRoles.set(this.authService.getUserAccessRoles());
     this.username.set(this.authService.getUserName());
 
     // Load dashboard data

@@ -58,7 +58,7 @@ export class OrderManagementComponent {
   ) {
     this.http = http;
     // Initialize roles and user context in constructor so they're available before template renders
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
     this.userName = this.authService.getUserName();
     this.userContextData = {
       username: this.authService.getUserName(),
@@ -392,48 +392,53 @@ export class OrderManagementComponent {
     {
       label: 'Imports',
       component: 'app-imports',
-      role: ['ADMIN', 'MONITORING_OM'],
+      role: ['ADMIN', 'MONITORING_OM', 'MONITORING_OM_ADMIN'],
     },
     {
       label: 'Holds',
       component: 'app-holds',
-      role: ['ADMIN', 'MONITORING_OM'],
+      role: ['ADMIN', 'MONITORING_OM', 'MONITORING_OM_ADMIN'],
     },
     {
       label: 'Bookings',
       component: 'app-bookings',
-      role: ['ADMIN', 'MONITORING_OM'],
+      role: ['ADMIN', 'MONITORING_OM', 'MONITORING_OM_ADMIN'],
     },
     {
       label: 'Workflow',
       component: 'app-workflow',
-      role: ['ADMIN', 'MONITORING_OM'],
+      role: ['ADMIN', 'MONITORING_OM', 'MONITORING_OM_ADMIN'],
     },
     {
       label: 'Processing',
       component: 'app-processing',
-      role: ['ADMIN', 'MONITORING_OM'],
+      role: ['ADMIN', 'MONITORING_OM', 'MONITORING_OM_ADMIN'],
     },
     {
       label: 'Distribution',
       component: 'app-distribution',
-      role: ['ADMIN', 'MONITORING_OM'],
+      role: ['ADMIN', 'MONITORING_OM', 'MONITORING_OM_ADMIN'],
     },
     {
       label: 'Attribution',
       component: 'app-attribution',
-      role: ['ADMIN', 'MONITORING_OM'],
+      role: ['ADMIN', 'MONITORING_OM', 'MONITORING_OM_ADMIN'],
     },
     {
       label: 'Jobs',
       component: 'app-jobs',
-      role: ['ADMIN', 'MONITORING_OM'],
+      role: ['ADMIN', 'MONITORING_OM', 'MONITORING_OM_ADMIN'],
     },
     {
       label: 'DFM',
       component: 'app-wips',
-      role: ['ADMIN', 'MONITORING_OM', 'MONITORING_WIPS'],
-      disabled: true,
+      role: [
+        'ADMIN',
+        'MONITORING_OM',
+        'MONITORING_OM_ADMIN',
+        'MONITORING_WIPS',
+        'MONITORING_WIPS_ADMIN',
+      ],
     },
   ];
 

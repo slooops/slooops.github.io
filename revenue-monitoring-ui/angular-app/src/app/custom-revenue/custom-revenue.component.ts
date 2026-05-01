@@ -53,7 +53,7 @@ export class CustomRevenueComponent implements OnInit {
     private http: ApiHttpService,
   ) {
     // Initialize roles and user context in constructor so they're available before template renders
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
     this.userContextData = {
       username: this.authService.getUserName(),
       userId: this.authService.getUserID(),
@@ -363,23 +363,63 @@ export class CustomRevenueComponent implements OnInit {
     {
       label: 'Standard Revenue',
       component: 'app-standard-revenue',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: [
+        'ADMIN',
+        'MONITORING_I2C',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
     },
     {
       label: 'Revenue Orchestration Layer',
       component: 'app-rol',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: [
+        'ADMIN',
+        'MONITORING_I2C',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
     },
     {
       label: 'Accruals',
       component: 'app-accruals',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: [
+        'ADMIN',
+        'MONITORING_I2C',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
     },
 
     {
       label: 'Meraki',
       component: 'app-meraki',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: [
+        'ADMIN',
+        'MONITORING_I2C',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
       disabled: true,
     },
     {

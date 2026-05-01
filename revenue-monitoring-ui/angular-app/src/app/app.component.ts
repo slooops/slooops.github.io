@@ -210,21 +210,28 @@ export class AppComponent implements OnInit, OnDestroy {
       return '/period-close-tracking';
     }
 
-    // EXCEPTION_ADMIN or EXCEPTION_READ_ONLY gets /invoice-to-cash
+    // MONITORING_I2C gets /invoice-to-cash
     if (
-      roles.includes('EXCEPTION_ADMIN') ||
-      roles.includes('EXCEPTION_READ_ONLY')
+      roles.includes('MONITORING_I2C') ||
+      roles.includes('MONITORING_I2C_ADMIN')
     ) {
       return '/invoice-to-cash';
     }
 
-    // ACCOUNT_RECON gets /revenue-accounting
-    if (roles.includes('ACCOUNT_RECON')) {
+    // ACCOUNT_RECON or MONITORING_REVENUE_ACCOUNTING gets /revenue-accounting
+    if (
+      roles.includes('ACCOUNT_RECON') ||
+      roles.includes('MONITORING_REVENUE_ACCOUNTING') ||
+      roles.includes('MONITORING_REVENUE_ACCOUNTING_ADMIN')
+    ) {
       return '/revenue-accounting';
     }
 
     // MONITORING_OM gets /order-management
-    if (roles.includes('MONITORING_OM')) {
+    if (
+      roles.includes('MONITORING_OM') ||
+      roles.includes('MONITORING_OM_ADMIN')
+    ) {
       return '/order-management';
     }
 
@@ -261,7 +268,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * Returns the header for the first tab the user has access to
    */
   getBusinessInsightsHeader(): string {
-    const roles = this.authService.getRoles();
+    const roles = this.authService.getUserAccessRoles();
 
     // Priority order matching the business-insights component tabs
     if (roles.includes('ADMIN') || roles.includes('LARGE_DEAL')) {
@@ -279,7 +286,7 @@ export class AppComponent implements OnInit, OnDestroy {
     ) {
       return 'Business Insights > Active Incidents';
     }
-    if (roles.includes('O360')) {
+    if (roles.includes('SUBSCRIPTION_LIFE_CYCLE')) {
       return 'Business Insights > O2C - 360';
     }
 
@@ -290,7 +297,8 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Initialize properties that depend on injected services
     this.userName = this.authService.getUserName();
-    this.userRoles = this.authService.getRoles();
+    this.userRoles = this.authService.getUserAccessRoles();
+    console.log(this.authService.getUserAccessRoles());
     this.isAdmin$ = this.userRoles.includes('ADMIN');
     this.searchContextService.o2cSearchVisible$.subscribe((isVisible) => {
       this.showO2cSearch = isVisible;
@@ -508,12 +516,11 @@ export class AppComponent implements OnInit, OnDestroy {
       this.hasRole$([
         'ADMIN',
         'MONITORING_I2C_ADMIN',
-        'MONITORING_GL_ADMIN',
+        'MONITORING_GL_AR_ADMIN',
         'MONITORING_AIT_ADMIN',
         'MONITORING_OM_ADMIN',
         'MONITORING_WIPS_ADMIN',
         'MONITORING_REVENUE_ACCOUNTING_ADMIN',
-        'EXCEPTION_ADMIN',
       ])
     ) {
       return true;

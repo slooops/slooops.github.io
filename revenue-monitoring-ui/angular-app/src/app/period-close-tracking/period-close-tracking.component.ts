@@ -152,7 +152,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.getPrecloseMeStatus();
     this.getCurrentTime();
     this.getEstimatedCompletionTime();
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
     this.dataService.periodStatus$.subscribe((data) => {
       if (data) {
         this.periodStatus = {
@@ -171,22 +171,22 @@ export class PeriodCloseTrackingComponent implements OnInit {
       {
         label: 'Invoice to Cash',
         route: '/invoice-to-cash',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+        role: ['ADMIN', 'MONITORING_I2C', 'MONITORING_I2C_ADMIN'],
       },
       {
         label: 'Revenue Accounting',
         route: '/revenue-accounting',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+        role: [
+          'ADMIN',
+          'MONITORING_REVENUE_ACCOUNTING',
+          'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+          'ACCOUNT_RECON',
+        ],
       },
       {
         label: 'GL Posting',
         route: '/gl-posting',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'Operations Controls',
-        route: '',
-        role: [''],
+        role: ['ADMIN', 'MONITORING_GL_AR', 'MONITORING_GL_AR_ADMIN'],
       },
     ]);
   }

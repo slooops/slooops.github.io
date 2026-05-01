@@ -112,7 +112,7 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
     this.userName = this.authService.getUserName();
     this.getDefaultTabIndex();
 
@@ -221,7 +221,7 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
     {
       label: 'O2C Insights',
       component: 'o2c-insights',
-      role: ['ADMIN'],
+      role: ['ADMIN', 'SUBSCRIPTION_LIFE_CYCLE'],
     },
   ];
 

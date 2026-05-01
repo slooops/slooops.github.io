@@ -186,7 +186,7 @@ export class LandingComponent implements OnInit, OnDestroy {
         'Single view of all disruptions across jobs, transactions, and ESP cases.',
       icon: 'phosphorEyeDuotone',
       route: '/operations-dashboard',
-      requiredRoles: ['ADMIN', 'OPERATION_CTRL'],
+      requiredRoles: ['ADMIN'],
       disabledForRoles: ['EXEC_VIEW'],
       variant: 'gradient-bg-1',
       arcData: {
@@ -224,38 +224,49 @@ export class LandingComponent implements OnInit, OnDestroy {
       requiredRoles: [
         'ADMIN',
         'PERIOD_CLOSE',
-        'EXCEPTION_ADMIN',
-        'EXCEPTION_READ_ONLY',
+        'MONITORING_I2C',
+        'MONITORING_I2C_ADMIN',
         'ACCOUNT_RECON',
-        'GL_POSTING',
-        'OPERATION_CTRL',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
         'MONITORING_OM',
+        'MONITORING_OM_ADMIN',
         'MONITORING_WIPS',
+        'MONITORING_WIPS_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
       ],
       roleRoutes: [
         {
-          roles: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+          roles: ['ADMIN', 'MONITORING_I2C', 'MONITORING_I2C_ADMIN'],
           route: '/invoice-to-cash',
         },
         {
-          roles: ['ADMIN', 'ACCOUNT_RECON'],
+          roles: [
+            'ADMIN',
+            'ACCOUNT_RECON',
+            'MONITORING_REVENUE_ACCOUNTING',
+            'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+          ],
           route: '/revenue-accounting',
         },
         {
-          roles: ['ADMIN', 'MONITORING_OM'],
+          roles: ['ADMIN', 'MONITORING_OM', 'MONITORING_OM_ADMIN'],
           route: '/order-management',
         },
         {
-          roles: ['ADMIN', 'GL_POSTING'],
+          roles: ['ADMIN', 'MONITORING_GL_AR', 'MONITORING_GL_AR_ADMIN'],
           route: '/gl-posting',
         },
         {
-          roles: ['ADMIN', 'OPERATION_CTRL'],
-          route: '/operations-controls',
+          roles: ['ADMIN', 'MONITORING_WIPS', 'MONITORING_WIPS_ADMIN'],
+          route: '/wips',
         },
         {
-          roles: ['ADMIN', 'MONITORING_WIPS'],
-          route: '/wips',
+          roles: ['ADMIN', 'MONITORING_AIT', 'MONITORING_AIT_ADMIN'],
+          route: '/ait',
         },
       ],
       variant: 'soft-glow',
@@ -355,7 +366,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       icon: 'phosphorPresentationChartDuotone',
       route: '/business-insights',
       queryParams: { tab: 'o2c-insights' },
-      requiredRoles: ['ADMIN', 'O360'],
+      requiredRoles: ['ADMIN', 'SUBSCRIPTION_LIFE_CYCLE'],
       disabledForRoles: ['EXEC_VIEW'],
       variant: 'soft-glow',
       arcData: {
@@ -472,7 +483,7 @@ export class LandingComponent implements OnInit, OnDestroy {
     this.userName.set(this.authService.getUserName());
 
     // In the constructor, replace:
-    this.userRoles.set(this.authService.getRoles());
+    this.userRoles.set(this.authService.getUserAccessRoles());
 
     // With one of these to test:
 

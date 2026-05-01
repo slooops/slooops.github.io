@@ -101,7 +101,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
   ngOnInit(): void {
     this.updateTime();
     this.loadPeriodInfo();
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
 
     this.http
       .get('esp-weekly-comparison-summary', this.destroyManager, {

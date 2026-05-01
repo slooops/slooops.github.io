@@ -40,7 +40,7 @@ export class WipsComponent implements OnInit {
     protected authService: AuthenticationService,
   ) {
     this.http = http;
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
     this.userContextData = {
       username: this.authService.getUserName(),
       userId: this.authService.getUserID(),

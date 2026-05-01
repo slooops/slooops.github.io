@@ -243,7 +243,7 @@ export class EspHomeComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
     this.userName = this.authService.getUserName();
 
     // On /caseiq route, force Finance IT tab (no hamburger menu available)
