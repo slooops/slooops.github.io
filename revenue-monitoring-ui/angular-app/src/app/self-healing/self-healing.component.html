@@ -28,6 +28,18 @@
       />
     </button>
     <div class="sh__header-actions">
+      <select class="sh__select" [(ngModel)]="selectedQuarter">
+        <option value="Q1-FY26">Q1-FY26</option>
+        <option value="Q2-FY26">Q2-FY26</option>
+        <option value="Q3-FY26">Q3-FY26</option>
+        <option value="Q4-FY26">Q4-FY26</option>
+      </select>
+      <select class="sh__select" [(ngModel)]="selectedTimeRange">
+        <option value="24h">Last 24 hours</option>
+        <option value="7d">Last 7 days</option>
+        <option value="30d">Last 30 days</option>
+        <option value="90d">Last 90 days</option>
+      </select>
       <button class="sh__btn">
         <ng-icon name="phosphorArrowClockwiseBold" size="14" />
         Refresh
@@ -93,43 +105,15 @@
           </div>
         </div>
 
-        <!-- Exceptions by Category (stacked bar) -->
+        <!-- Exceptions by Category × Analysis Mode (stacked bar) -->
         <div class="sh__chart-card sh__chart-card--2">
           <div class="sh__card-header-row">
-            <span class="sh__section-label">Exceptions By Category</span>
+            <span class="sh__section-label"
+              >Exceptions By Category & Analysis Mode</span
+            >
           </div>
           <div class="sh__chart-container">
             <canvas #categoryCanvas></canvas>
-          </div>
-        </div>
-
-        <!-- Analysis Modes -->
-        <div class="sh__chart-card sh__chart-card--1">
-          <div class="sh__card-header-row">
-            <span class="sh__section-label">Analysis Modes</span>
-          </div>
-          @if (resolutionLoading) {
-            <div
-              style="padding: 2rem; text-align: center; color: var(--sh-muted)"
-            >
-              Loading…
-            </div>
-          } @else if (resolutionModes.length === 0) {
-            <div
-              style="padding: 2rem; text-align: center; color: var(--sh-muted)"
-            >
-              No data.
-            </div>
-          }
-          <div
-            class="sh__chart-container"
-            [style.display]="
-              !resolutionLoading && resolutionModes.length > 0
-                ? 'block'
-                : 'none'
-            "
-          >
-            <canvas #modesCanvas></canvas>
           </div>
         </div>
       </section>

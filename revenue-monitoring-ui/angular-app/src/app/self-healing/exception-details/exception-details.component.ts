@@ -66,9 +66,20 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
   private readonly API_URL = 'https://i2c-aria-dev.cisco.com/api/runs';
 
   activeTab: 'review' | 'trace' = 'review';
-  accuracyAssessment: 'correct' | 'incorrect' | null = 'correct';
+  accuracyAssessment: 'correct' | 'partially_correct' | 'incorrect' | null =
+    'correct';
   qualityScore = 4;
   reviewerNotes = '';
+  markAsTraining = false;
+  needsCrossTeam = false;
+  upstreamTeamName = '';
+  upstreamContact = '';
+  upstreamWebexSpace = '';
+  messageTemplate = '';
+  expectedResolutionHours = 48;
+  escalationContact = '';
+  letBotHandle = false;
+  reviewerEmail = '';
   isLoading = false;
   showFullRootCause = false;
   showFullSql = false;
@@ -178,7 +189,7 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
     this.qualityScore = score;
   }
 
-  setAssessment(value: 'correct' | 'incorrect'): void {
+  setAssessment(value: 'correct' | 'partially_correct' | 'incorrect'): void {
     this.accuracyAssessment = value;
   }
 

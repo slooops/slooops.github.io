@@ -55,14 +55,6 @@ interface CategorySlice {
   offset: number;
 }
 
-interface CategoryRow {
-  category: string;
-  analyzed: number;
-  reviewed: number;
-  underReview: number;
-  rate: string;
-}
-
 interface RecentRun {
   run_id: number;
   record_id: string;
@@ -91,12 +83,6 @@ interface TrendPoint {
   failed: number;
 }
 
-interface ResolutionMode {
-  mode: string;
-  count: number;
-  percentage: number;
-}
-
 @Component({
   selector: 'app-self-healing',
   standalone: true,
@@ -115,12 +101,10 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
   private readonly API_URL = 'https://i2c-aria-dev.cisco.com/api/runs';
 
   @ViewChild('trendCanvas') trendCanvasRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('modesCanvas') modesCanvasRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('categoryCanvas')
   categoryCanvasRef!: ElementRef<HTMLCanvasElement>;
 
   private trendChart: Chart | null = null;
-  private modesChart: Chart | null = null;
   private categoryChart: Chart | null = null;
 
   constructor(private http: HttpClient) {}
@@ -128,22 +112,18 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
   /* ── Chart data ── */
   trendData: TrendPoint[] = [];
   trendLoading = false;
-  resolutionModes: ResolutionMode[] = [];
-  resolutionLoading = false;
 
   ngOnInit(): void {
     this.fetchRecentExceptions();
     this.fetchRecentSessions();
     this.fetchStatsOverview();
     this.fetchTrends();
-    this.fetchResolutionModes();
     // Category data is static — render after view initializes
     setTimeout(() => this.renderCategoryChart(), 0);
   }
 
   ngOnDestroy(): void {
     this.trendChart?.destroy();
-    this.modesChart?.destroy();
     this.categoryChart?.destroy();
   }
 
@@ -158,6 +138,10 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
   toggleDarkMode(): void {
     this.isDarkMode = !this.isDarkMode;
   }
+
+  /* ── Filters ── */
+  selectedQuarter = 'Q3-FY26';
+  selectedTimeRange = '24h';
 
   /* ── Menu ── */
   showGridMenu = false;
@@ -236,7 +220,6 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
   private rerenderAllCharts(): void {
     setTimeout(() => {
       this.renderTrendChart();
-      this.renderModesChart();
       this.renderCategoryChart();
     }, 0);
   }
@@ -312,7 +295,6 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
       highlightColor: 'amber',
       bars: [80, 50, 60, 30],
     },
-    { label: 'Reviewed', value: '—', bars: [20, 40, 70, 90] },
     { label: 'Auto-Routing Active', value: '—', bars: [40, 40, 40, 40] },
     { label: 'Avg Analysis Time', value: '—', bars: [60, 40, 20, 15] },
   ];
@@ -344,11 +326,6 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
               highlight: true,
               highlightColor: 'amber',
               bars: [80, 50, 60, 30],
-            },
-            {
-              label: 'Reviewed',
-              value: t.reviewed.toLocaleString(),
-              bars: [20, 40, 70, 90],
             },
             {
               label: 'Auto-Routing Active',
@@ -456,146 +433,40 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
     });
   }
 
-  /* ── Resolution Modes ── */
-  private fetchResolutionModes(): void {
-    this.resolutionLoading = true;
-    this.http
-      .get<{
-        data: ResolutionMode[];
-      }>('https://i2c-aria-dev.cisco.com/api/stats/resolution-modes')
-      .subscribe({
-        next: (res) => {
-          this.resolutionModes = res.data || [];
-          this.resolutionLoading = false;
-          setTimeout(() => this.renderModesChart(), 0);
-        },
-        error: () => {
-          this.resolutionLoading = false;
-        },
-      });
-  }
-
-  private renderModesChart(): void {
-    if (!this.modesCanvasRef || !this.resolutionModes.length) return;
-    this.modesChart?.destroy();
-    const colors = ['#0070d2', '#00bceb', '#9933ff', '#6ebe4a', '#e6a800'];
-    const labels = this.resolutionModes.map((m) =>
-      m.mode.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-    );
-    this.modesChart = new Chart(this.modesCanvasRef.nativeElement, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Count',
-            data: this.resolutionModes.map((m) => m.count),
-            backgroundColor: this.resolutionModes.map(
-              (_, i) => colors[i % colors.length],
-            ),
-            borderRadius: 6,
-            maxBarThickness: 48,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => {
-                const m = this.resolutionModes[ctx.dataIndex];
-                return `${m.count} (${m.percentage}%)`;
-              },
-            },
-          },
-        },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-          y: {
-            beginAtZero: true,
-            grid: { color: 'rgba(0,0,0,0.06)' },
-            ticks: { font: { size: 10 } },
-          },
-        },
-      },
-    });
-  }
-
-  /* ── Donut Chart ── */
-  donutTotal = '1.2k';
-  categorySlices: CategorySlice[] = [
-    {
-      label: 'Revenue',
-      percent: 41,
-      color: '#00bceb',
-      colorEnd: '#33d4f5',
-      offset: 0,
-    },
-    {
-      label: 'Billing',
-      percent: 21,
-      color: '#ff9000',
-      colorEnd: '#ffb04d',
-      offset: -45,
-    },
-    {
-      label: 'Attribution',
-      percent: 26,
-      color: '#87e15d',
-      colorEnd: '#a8ec85',
-      offset: -70,
-    },
+  /* ── Exceptions by Category × Analysis Mode (stacked bar) ── */
+  categoryModeData = [
+    { category: 'Revenue', agentFull: 180, static: 12, patternMatch: 45 },
+    { category: 'Billing', agentFull: 62, static: 5, patternMatch: 18 },
+    { category: 'Attribution', agentFull: 25, static: 3, patternMatch: 9 },
   ];
 
-  /* ── Exceptions by Category Table ── */
-  categoryTableData: CategoryRow[] = [
-    {
-      category: 'Revenue',
-      analyzed: 527,
-      reviewed: 507,
-      underReview: 20,
-      rate: '96.2%',
-    },
-    {
-      category: 'Billing',
-      analyzed: 424,
-      reviewed: 411,
-      underReview: 13,
-      rate: '96.9%',
-    },
-    {
-      category: 'Attribution',
-      analyzed: 333,
-      reviewed: 319,
-      underReview: 14,
-      rate: '95.8%',
-    },
-  ];
-
-  /* ── Category Stacked Bar Chart ── */
   renderCategoryChart(): void {
-    if (!this.categoryCanvasRef || !this.categoryTableData.length) return;
+    if (!this.categoryCanvasRef || !this.categoryModeData.length) return;
     this.categoryChart?.destroy();
-    const labels = this.categoryTableData.map((r) => r.category);
+    const labels = this.categoryModeData.map((r) => r.category);
     this.categoryChart = new Chart(this.categoryCanvasRef.nativeElement, {
       type: 'bar',
       data: {
         labels,
         datasets: [
           {
-            label: 'Reviewed',
-            data: this.categoryTableData.map((r) => r.reviewed),
-            backgroundColor: '#6ebe4a',
+            label: 'Agent Full',
+            data: this.categoryModeData.map((r) => r.agentFull),
+            backgroundColor: '#0070d2',
             borderRadius: 4,
             maxBarThickness: 48,
           },
           {
-            label: 'Under Review',
-            data: this.categoryTableData.map((r) => r.underReview),
-            backgroundColor: '#e6a800',
+            label: 'Static',
+            data: this.categoryModeData.map((r) => r.static),
+            backgroundColor: '#00bceb',
+            borderRadius: 4,
+            maxBarThickness: 48,
+          },
+          {
+            label: 'Pattern Match',
+            data: this.categoryModeData.map((r) => r.patternMatch),
+            backgroundColor: '#9933ff',
             borderRadius: 4,
             maxBarThickness: 48,
           },
@@ -610,19 +481,7 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
             position: 'bottom',
             labels: { usePointStyle: true, padding: 16, font: { size: 11 } },
           },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => {
-                const row = this.categoryTableData[ctx.dataIndex];
-                const val = ctx.raw as number;
-                const pct =
-                  row.analyzed > 0
-                    ? ((val / row.analyzed) * 100).toFixed(1)
-                    : '0';
-                return `${ctx.dataset.label}: ${val} (${pct}%)`;
-              },
-            },
-          },
+          tooltip: { mode: 'index', intersect: false },
         },
         scales: {
           x: {

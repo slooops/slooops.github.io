@@ -580,6 +580,17 @@
   color: #93000a;
 }
 
+.ed__assess-btn--partial {
+  background: #e8e8e8;
+  color: #3d494e;
+}
+
+.ed__assess-btn--active-partial {
+  background: #fff3cd;
+  border-color: #e6a800;
+  color: #664d00;
+}
+
 /* Stars */
 .ed__stars {
   display: flex;
@@ -621,6 +632,165 @@
 
 .ed__textarea::placeholder {
   color: rgba(61, 73, 78, 0.4);
+}
+
+/* Section divider */
+.ed__section-divider {
+  border: none;
+  border-top: 1px solid #e1e4e8;
+  margin: 1.25rem 0;
+}
+
+/* Checkbox label */
+.ed__checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ed-text, #1a1c1e);
+  cursor: pointer;
+  margin-bottom: 0.75rem;
+}
+
+.ed__checkbox-label input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #00bceb;
+  cursor: pointer;
+}
+
+/* Input */
+.ed__input {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background: #f0f4f8;
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: var(--ed-text, #1a1c1e);
+  transition: box-shadow 150ms ease;
+}
+
+.ed__input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 188, 235, 0.3);
+}
+
+.ed__input::placeholder {
+  color: #8899a6;
+}
+
+/* Number input with +/- buttons */
+.ed__number-input {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #f0f4f8;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ed__number-input .ed__input {
+  border-radius: 0;
+  flex: 1;
+}
+
+.ed__number-btn {
+  width: 2rem;
+  height: 2.25rem;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ed-text, #1a1c1e);
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.ed__number-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* Routing section */
+.ed__routing-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ed__routing-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ed-text, #1a1c1e);
+  margin: 0 0 0.25rem;
+}
+
+.ed__routing-desc {
+  font-size: 0.75rem;
+  color: #6b7f8e;
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+/* Toggle switch */
+.ed__autonomous-row {
+  margin-top: 0.5rem;
+}
+
+.ed__toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ed-text, #1a1c1e);
+  cursor: pointer;
+}
+
+.ed__toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 2.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.ed__toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.ed__toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: #d1d5db;
+  border-radius: 999px;
+  transition: background 200ms ease;
+  cursor: pointer;
+}
+
+.ed__toggle-slider::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 200ms ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.ed__toggle-switch input:checked + .ed__toggle-slider {
+  background: #00bceb;
+}
+
+.ed__toggle-switch input:checked + .ed__toggle-slider::before {
+  transform: translateX(1rem);
 }
 
 /* Save Button */

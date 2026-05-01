@@ -260,6 +260,29 @@
                   Correct
                 </button>
                 <button
+                  class="ed__assess-btn ed__assess-btn--partial"
+                  [class.ed__assess-btn--active-partial]="
+                    accuracyAssessment === 'partially_correct'
+                  "
+                  (click)="setAssessment('partially_correct')"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="8" y1="12" x2="16" y2="12" />
+                  </svg>
+                  Partial
+                </button>
+                <button
                   class="ed__assess-btn ed__assess-btn--incorrect"
                   [class.ed__assess-btn--active-incorrect]="
                     accuracyAssessment === 'incorrect'
@@ -324,6 +347,136 @@
               ></textarea>
             </div>
 
+            <!-- Mark as training example -->
+            <div class="ed__form-group">
+              <label class="ed__checkbox-label">
+                <input type="checkbox" [(ngModel)]="markAsTraining" />
+                Mark as training example
+              </label>
+            </div>
+
+            <hr class="ed__section-divider" />
+
+            <!-- Cross-Team Routing -->
+            <div class="ed__routing-section">
+              <h4 class="ed__routing-title">Cross-Team Routing</h4>
+              <p class="ed__routing-desc">
+                If this error pattern needs another team to act, capture their
+                details below. The bot will use these automatically on future
+                occurrences.
+              </p>
+
+              <label class="ed__checkbox-label">
+                <input type="checkbox" [(ngModel)]="needsCrossTeam" />
+                This issue needs cross-team action
+              </label>
+
+              <div class="ed__form-group">
+                <label class="ed__form-label">Upstream Team Name</label>
+                <input
+                  type="text"
+                  class="ed__input"
+                  placeholder="e.g. SBP Team, DBA Team"
+                  [(ngModel)]="upstreamTeamName"
+                />
+              </div>
+
+              <div class="ed__form-group">
+                <label class="ed__form-label"
+                  >Upstream Contact (email or Webex ID)</label
+                >
+                <input
+                  type="text"
+                  class="ed__input"
+                  placeholder="team@cisco.com"
+                  [(ngModel)]="upstreamContact"
+                />
+              </div>
+
+              <div class="ed__form-group">
+                <label class="ed__form-label">Upstream Webex Space</label>
+                <input
+                  type="text"
+                  class="ed__input"
+                  placeholder="Space name or ID"
+                  [(ngModel)]="upstreamWebexSpace"
+                />
+              </div>
+
+              <div class="ed__form-group">
+                <label class="ed__form-label">Message Template</label>
+                <textarea
+                  class="ed__textarea"
+                  rows="3"
+                  placeholder="Hi team,&#10;&#10;We've identified an issue with {RECORD_ID} on..."
+                  [(ngModel)]="messageTemplate"
+                ></textarea>
+              </div>
+
+              <div class="ed__form-group">
+                <label class="ed__form-label"
+                  >Expected resolution time (hours)</label
+                >
+                <div class="ed__number-input">
+                  <input
+                    type="number"
+                    class="ed__input"
+                    [(ngModel)]="expectedResolutionHours"
+                  />
+                  <button
+                    class="ed__number-btn"
+                    (click)="
+                      expectedResolutionHours = expectedResolutionHours - 1
+                    "
+                  >
+                    −
+                  </button>
+                  <button
+                    class="ed__number-btn"
+                    (click)="
+                      expectedResolutionHours = expectedResolutionHours + 1
+                    "
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div class="ed__form-group">
+                <label class="ed__form-label">Escalation contact</label>
+                <input
+                  type="text"
+                  class="ed__input"
+                  placeholder="manager@cisco.com"
+                  [(ngModel)]="escalationContact"
+                />
+              </div>
+            </div>
+
+            <hr class="ed__section-divider" />
+
+            <!-- Autonomous toggle -->
+            <div class="ed__form-group ed__autonomous-row">
+              <label class="ed__toggle-label">
+                <span class="ed__toggle-switch">
+                  <input type="checkbox" [(ngModel)]="letBotHandle" />
+                  <span class="ed__toggle-slider"></span>
+                </span>
+                Let bot handle this autonomously next time
+              </label>
+            </div>
+
+            <!-- Your name -->
+            <div class="ed__form-group">
+              <label class="ed__form-label">Your name / email</label>
+              <input
+                type="text"
+                class="ed__input"
+                placeholder="your@cisco.com"
+                [(ngModel)]="reviewerEmail"
+              />
+            </div>
+
             <button class="ed__save-btn" (click)="saveReview()">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -342,7 +495,7 @@
                 <polyline points="17 21 17 13 7 13 7 21" />
                 <polyline points="7 3 7 8 15 8" />
               </svg>
-              {{ savingReview ? "Saving…" : "Save Review" }}
+              {{ savingReview ? "Saving…" : "Save Feedback" }}
             </button>
 
             @if (showToast) {
