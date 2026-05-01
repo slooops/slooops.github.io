@@ -23,7 +23,7 @@ export class MenuComponent {
   @Input() currentUrl = '';
   @Output() navigateEvent = new EventEmitter<string>();
 
-  collapsed = false;
+  collapsed = true;
   activeDrawer: string | null = null;
   private pendingDrawer: string | null = null;
 
@@ -187,7 +187,7 @@ export class MenuComponent {
     },
     {
       label: 'Control M',
-      icon: 'phosphorCrosshairBold',
+      icon: 'phosphorSirenBold',
       route: '/ctm-alerts',
       roles: ['ADMIN'],
     },

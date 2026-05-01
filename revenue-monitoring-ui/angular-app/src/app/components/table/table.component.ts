@@ -4,17 +4,16 @@ import * as XLSX from 'xlsx';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorArrowLineDownBold } from '@ng-icons/phosphor-icons/bold';
 
 @Component({
-    selector: 'app-table',
-    templateUrl: './table.component.html',
-    styleUrls: ['./table.component.css'],
-    imports: [
-    CommonModule,
-    MatTableModule,
-    LoadingSymbolComponent
-  ],
-  standalone: true
+  selector: 'app-table',
+  templateUrl: './table.component.html',
+  styleUrls: ['./table.component.css'],
+  imports: [CommonModule, MatTableModule, LoadingSymbolComponent, NgIcon],
+  providers: [provideIcons({ phosphorArrowLineDownBold })],
+  standalone: true,
 })
 export class TableComponent {
   @Input() title!: string; // Table Title

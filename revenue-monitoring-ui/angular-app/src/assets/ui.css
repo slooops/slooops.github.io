@@ -65,6 +65,9 @@
   /* Elevation */
   --fit-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
   --fit-shadow-md: 0 4px 10px rgba(15, 23, 42, 0.12);
+  --fit-card-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  --fit-card-radius: 1rem;
 
   /* Transitions */
   --fit-transition-fast: 150ms ease-out;

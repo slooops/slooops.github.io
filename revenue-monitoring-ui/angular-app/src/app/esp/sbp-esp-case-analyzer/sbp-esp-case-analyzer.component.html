@@ -27,11 +27,11 @@
 
   <!-- Q1 - Q2 -->
   @if (quarterPairs[0] && selectedTabIndex === 0) {
-    <div class="tab-content">
+    <div>
       <p class="card-subtitle">
         Data for {{ quarterPairs[0]?.left }} and {{ quarterPairs[0]?.right }}
       </p>
-      <div class="grid-2" style="margin: 0 1.2rem">
+      <div class="grid-2" style="margin: 0 1rem">
         <div class="card">
           <div class="chart-canvas">
             @if (isQ1Q2Loading) {
@@ -78,11 +78,11 @@
 
   <!-- Q2 - Q3 -->
   @if (quarterPairs[1] && selectedTabIndex === 1) {
-    <div class="tab-content">
+    <div>
       <p class="card-subtitle">
         Data for {{ quarterPairs[1]?.left }} and {{ quarterPairs[1]?.right }}
       </p>
-      <div class="grid-2" style="margin: 0 1.2rem">
+      <div class="grid-2" style="margin: 0 1rem">
         <div class="card">
           <div class="chart-canvas">
             @if (isQ2Q3Loading) {
@@ -129,11 +129,11 @@
 
   <!-- Q3 - Q4 -->
   @if (quarterPairs[2] && selectedTabIndex === 2) {
-    <div class="tab-content">
+    <div>
       <p class="card-subtitle">
         Data for {{ quarterPairs[2]?.left }} and {{ quarterPairs[2]?.right }}
       </p>
-      <div class="grid-2" style="margin: 0 1.2rem">
+      <div class="grid-2" style="margin: 0 1rem">
         <div class="card">
           <div class="chart-canvas">
             @if (isQ3Q4Loading) {
@@ -180,11 +180,11 @@
 
   <!-- Q4 - Q1 -->
   @if (quarterPairs[3] && selectedTabIndex === 3) {
-    <div class="tab-content">
+    <div>
       <p class="card-subtitle">
         Data for {{ quarterPairs[3]?.left }} and {{ quarterPairs[3]?.right }}
       </p>
-      <div class="grid-2" style="margin: 0 1.2rem">
+      <div class="grid-2" style="margin: 0 1rem">
         <div class="card">
           <div class="chart-canvas">
             @if (isQ4Q1Loading) {

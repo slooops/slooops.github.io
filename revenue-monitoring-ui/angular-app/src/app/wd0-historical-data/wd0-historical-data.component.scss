@@ -173,69 +173,88 @@ canvas {
 
 // Icon States
 .icon-disabled {
-  // Legend Styles
-  .chart-legend-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 2rem;
-    margin: 2rem auto;
-    max-width: 60vw;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.icon-shimmer {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite ease-in-out;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
   }
-
-  .chart-container {
-    flex: 0 0 auto;
-    max-width: 14vw;
+  100% {
+    background-position: -200% 0;
   }
+}
 
-  .custom-legend {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-  }
+// Legend Styles
+.chart-legend-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin: 2rem auto;
+  max-width: 60vw;
+}
 
-  .legend-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.5rem;
-    font-size: 14px;
-    white-space: nowrap;
-  }
+.chart-container {
+  flex: 0 0 auto;
+  max-width: 400px;
+  max-height: 400px;
+}
 
-  .legend-color-box {
-    width: 12px;
-    height: 12px;
-    margin-right: 8px;
-    border-radius: 20px;
-  }
+.custom-legend {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
 
-  // Responsive Styles
-  @media (max-width: 600px) {
-    .mc-modal-container {
-      padding: 1rem;
-      max-width: 98vw;
-    }
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 14px;
+  white-space: nowrap;
+}
 
-    .mc-body-section {
-      max-height: 40vh;
-      padding: 0.5rem 0;
-    }
-
-    .mc-table {
-      th,
-      td {
-        padding: 6px 6px;
-        font-size: 0.95rem;
-      }
-    }
-
-    .mc-scroll-inner {
-      padding: 1rem;
-      max-height: 80vh;
-    }
-  }
+.legend-color-box {
   width: 12px;
   height: 12px;
   margin-right: 8px;
   border-radius: 20px;
+}
+
+// Responsive Styles
+@media (max-width: 600px) {
+  .mc-modal-container {
+    padding: 1rem;
+    max-width: 98vw;
+  }
+
+  .mc-body-section {
+    max-height: 40vh;
+    padding: 0.5rem 0;
+  }
+
+  .mc-table {
+    th,
+    td {
+      padding: 6px 6px;
+      font-size: 0.95rem;
+    }
+  }
+
+  .mc-scroll-inner {
+    padding: 1rem;
+    max-height: 80vh;
+  }
 }

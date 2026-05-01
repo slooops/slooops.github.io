@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgIcon } from '@ng-icons/core';
 
 // Material Modules
 import { MatTableModule } from '@angular/material/table';
@@ -53,6 +54,7 @@ import { FormatNumberPipe } from '../format-number.pipe';
     LoadingSymbolComponent,
     ModalComponent,
     FormatNumberPipe,
+    NgIcon,
   ],
   exports: [
     OrderLifecycleComponent,

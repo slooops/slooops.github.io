@@ -51,6 +51,8 @@ import {
   phosphorXBold,
   phosphorRocketBold,
   phosphorMegaphoneSimpleBold,
+  phosphorArrowLineDownBold,
+  phosphorSirenBold,
 } from '@ng-icons/phosphor-icons/bold';
 import {
   phosphorIdentificationCardDuotone,
@@ -129,6 +131,8 @@ import { MenuComponent } from './menu/menu.component';
       phosphorListDuotone,
       phosphorRocketBold,
       phosphorMegaphoneSimpleBold,
+      phosphorArrowLineDownBold,
+      phosphorSirenBold,
     }),
   ],
   imports: [

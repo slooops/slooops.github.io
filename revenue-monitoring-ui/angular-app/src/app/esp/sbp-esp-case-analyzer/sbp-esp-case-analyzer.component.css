@@ -4,7 +4,7 @@
 }
 
 .dashboard-header {
-  padding: 0.5rem 1.2rem;
+  padding: 0.5rem 1rem;
   border-bottom: 1px solid #e0e0e0;
 }
 
@@ -45,15 +45,12 @@
 }
 
 /* ===== Tab Content ===== */
-.tab-content {
-  padding: 0.5rem 0;
-}
 
 .card-subtitle {
   display: flex;
   justify-content: flex-end;
   font-size: 12px;
-  margin: 2px 1.5rem -1rem 0px;
+  margin: 2px 1.5rem -1rem 0;
   font-weight: 600;
 }
 

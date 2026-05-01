@@ -16,7 +16,7 @@
 <!-- [data]="productMidCloseActuals" -->
 @if (showProductModal) {
   <app-modal
-    [headerBgColor]="'#ffffff'"
+    [headerBgColor]="'transparent'"
     [title]="'WD-0 Mid-Close Product Actuals'"
     (close)="showProductModal = false"
   >
@@ -157,7 +157,7 @@
   <app-modal
     [title]="'WD-0 Mid-Close Service Actuals'"
     (close)="showServiceModal = false"
-    [headerBgColor]="'#ffffff'"
+    [headerBgColor]="'transparent'"
   >
     <div class="mc-modal-container">
       <div class="mc-scroll-inner">
@@ -303,11 +303,11 @@
 <div
   style="
     width: 100%;
-    padding: 1.2rem 1.2rem 0rem 1.2rem;
+    padding: 0.7rem 1rem 0rem 1rem;
     align-items: stretch;
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 1rem;
   "
 >
   <div style="width: 33%; flex: 1 1 20%" class="card">
@@ -339,13 +339,15 @@
         <b>{{ latestPeriodName }}</b> Service line projection based on booked
         orders and promise date
       </p>
-      <i
-        class="svg-icon info-icon"
-        [class.icon-disabled]="serviceActualsLoading"
-        [style.pointerEvents]="serviceActualsLoading ? 'none' : 'auto'"
-        style="font-size: 20px; cursor: pointer"
-        (click)="openWd0ServiceModal()"
-      ></i>
+      @if (serviceActualsLoading) {
+        <span class="icon-shimmer"></span>
+      } @else {
+        <i
+          class="svg-icon info-icon"
+          style="font-size: 20px; cursor: pointer"
+          (click)="openWd0ServiceModal()"
+        ></i>
+      }
     </div>
   </div>
 
@@ -377,13 +379,15 @@
         <b>{{ latestPeriodName }}</b> Product line projection based on booked
         orders and promise date
       </p>
-      <i
-        class="svg-icon info-icon"
-        [class.icon-disabled]="productActualsLoading"
-        [style.pointerEvents]="productActualsLoading ? 'none' : 'auto'"
-        style="font-size: 20px; cursor: pointer"
-        (click)="openWd0ProductModal()"
-      ></i>
+      @if (productActualsLoading) {
+        <span class="icon-shimmer"></span>
+      } @else {
+        <i
+          class="svg-icon info-icon"
+          style="font-size: 20px; cursor: pointer"
+          (click)="openWd0ProductModal()"
+        ></i>
+      }
     </div>
   </div>
 
@@ -414,26 +418,23 @@
 </div>
 
 <div class="container grid-1" style="max-width: 100%; padding-top: 0px">
-  <div class="row" style="margin-top: 1vh">
-    <div class="col-sm-4">
-      <p style="margin: 0 0 -6px 0; font-size: 20px" class="page-title">
-        &nbsp;All Entities (Historical)
-      </p>
-    </div>
-    <div
-      class="col-sm-5 justify-content-center align-items-center"
-      style="display: flex; align-items: center; padding-top: 16px"
-    >
-      <!-- <p>Legend: Number of Lines. Data refreshed every 5 minutes.</p> -->
-    </div>
+  <div
+    style="
+      margin-top: 1vh;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    "
+  >
+    <p style="margin: 0 0 -6px 0; font-size: 20px" class="page-title">
+      &nbsp;All Entities (Historical)
+    </p>
 
-    <div
-      class="col-sm-3 justify-content-end align-items-center"
-      style="display: flex; justify-content: flex-end"
-    >
-      <i
-        class="svg-icon download-icon"
-        style="font-size: 20px; color: gray; cursor: pointer"
+    <div style="display: flex; justify-content: flex-end">
+      <ng-icon
+        name="phosphorArrowLineDownBold"
+        size="16"
+        style="color: rgb(47, 47, 47); cursor: pointer"
         aria-hidden="true"
         (click)="
           refreshExportData();
@@ -443,7 +444,7 @@
             'WD0 Mid Close Volumes Historical Data Report'
           )
         "
-      ></i>
+      ></ng-icon>
     </div>
   </div>
 

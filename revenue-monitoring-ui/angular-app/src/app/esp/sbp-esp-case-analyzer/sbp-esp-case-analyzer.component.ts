@@ -29,7 +29,7 @@ type PairConfig = {
 @Component({
   selector: 'app-sbp-esp-case-analyzer',
   templateUrl: './sbp-esp-case-analyzer.component.html',
-  styleUrl: './sbp-esp-case-analyzer.component.css',
+  styleUrls: ['./sbp-esp-case-analyzer.component.css'],
   imports: [
     CommonModule,
     MatTooltipModule,

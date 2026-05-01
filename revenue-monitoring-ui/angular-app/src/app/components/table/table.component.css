@@ -98,3 +98,14 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
 .section-title {
   margin: 0;
 }
+
+.download-icon {
+  cursor: pointer;
+  color: #333;
+  transition: color 150ms ease;
+  margin-bottom: -2px;
+}
+
+.download-icon:hover {
+  color: #0070d2;
+}

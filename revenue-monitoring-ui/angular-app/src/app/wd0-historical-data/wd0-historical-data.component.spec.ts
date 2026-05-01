@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 import { BusinessInsightsModule } from '../business-insights/business-insights.module';
-import { RouterTestingModule } from '@angular/router/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideRouter } from '@angular/router';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
 
 describe('Wd0HistoricalDataComponent', () => {
@@ -12,12 +13,12 @@ describe('Wd0HistoricalDataComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        BusinessInsightsModule,
-        HttpClientTestingModule,
-        RouterTestingModule,
-        BrowserAnimationsModule,
-        MatDialogModule,
+      imports: [BusinessInsightsModule, MatDialogModule],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        provideNoopAnimations(),
       ],
     }).compileComponents();
 

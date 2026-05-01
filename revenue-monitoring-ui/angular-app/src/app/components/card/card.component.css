@@ -1,20 +1,21 @@
 .card,
 .container {
-  margin: 1.2rem;
+  margin: 1rem;
   position: relative;
   display: block;
   padding: 1.6rem;
   background-color: #fff;
-  border: 2px solid #e1e4e8;
-  border-radius: 8px;
+  border: none;
+  border-radius: var(--fit-card-radius, 1rem);
+  box-shadow: var(--fit-card-shadow, 0 4px 20px rgba(0, 0, 0, 0.06));
   transition: all linear 0.5s;
   width: auto;
 }
 
 .container {
   border: 0px;
-  border-radius: 12px;
-  box-shadow: 0 3px 8px #00000014;
+  border-radius: var(--fit-card-radius, 1rem);
+  box-shadow: var(--fit-card-shadow, 0 4px 20px rgba(0, 0, 0, 0.06));
 }
 
 .cui .container {
@@ -22,5 +23,5 @@
 }
 
 .card:hover {
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
