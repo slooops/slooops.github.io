@@ -14,7 +14,6 @@ import { PaginationComponent } from '../ui/atoms/pagination/pagination.component
 import { AuthenticationService } from '../providers/authentication.service';
 import { FilterBarComponent } from '../ui/compounds/filter-bar/filter-bar.component';
 import { ModalShellComponent } from '../ui/atoms/modal-shell/modal-shell.component';
-import { UserFormComponent } from '../ui/compounds/user-form/user-form.component';
 import { ToggleSwitchComponent } from '../ui/atoms/toggle-switch/toggle-switch.component';
 import { MultiSelectDropdownComponent } from '../ui/atoms/multi-select-dropdown/multi-select-dropdown.component';
 import { FormsModule } from '@angular/forms';
@@ -31,6 +30,10 @@ import {
   MenuMiniComponent,
   MenuMiniItem,
 } from '../shared/menu-mini/menu-mini.component';
+import {
+  UpdateRoleDialogComponent,
+  RoleRow,
+} from './update-role-dialog/update-role-dialog.component';
 
 /** Grouped user: one row per unique userName, with all their role rows inside */
 export interface GroupedUser {
@@ -42,6 +45,39 @@ export interface GroupedUser {
   isAnyEnabled: boolean; // true if at least one role has enabledFlag === 'Y'
   latestDate: Date; // most recent creationDate across all roles
   isExpanded: boolean; // UI state for expand/collapse
+}
+
+/** Raw row from GET /api/user-access-list */
+export interface UserAccessRow {
+  USER_ID: number;
+  USER_NAME: string;
+  USER_EMAIL: string;
+  FULL_NAME: string;
+  ROLE_ID: number;
+  ROLE_NAME: string;
+  DASHBOARD_NAME: string;
+  ENABLED_FLAG: string;
+  ADMIN: string;
+  READ_ONLY: string;
+  CREATED_BY: string;
+  CREATION_DATE: string;
+  LAST_UPDATED_BY: string;
+  LAST_UPDATED_DATE: string;
+}
+
+/** Grouped user for the access list table */
+export interface GroupedAccessUser {
+  userName: string;
+  userEmail: string;
+  fullName: string;
+  rows: UserAccessRow[];
+  allDashboardNames: string[];
+  enabledDashboardNames: string[];
+  isAnyEnabled: boolean;
+  isAnyAdmin: boolean;
+  isAnyReadOnly: boolean;
+  latestDate: Date;
+  isExpanded: boolean;
 }
 
 @Component({
@@ -64,13 +100,13 @@ export interface GroupedUser {
     FormsModule,
     FilterBarComponent,
     ModalShellComponent,
-    UserFormComponent,
     ToggleSwitchComponent,
     MultiSelectDropdownComponent,
     NgIcon,
     PaginationComponent,
     AnalyticsDashboardComponent,
     MenuMiniComponent,
+    UpdateRoleDialogComponent,
   ],
 })
 export class AdminComponent implements OnInit {
@@ -87,11 +123,57 @@ export class AdminComponent implements OnInit {
   inlineSaving: boolean = false;
   isLoading: boolean = false;
 
+  // Update Role view
+  allRoles: RoleRow[] = [];
+  showRoleView = false;
+
+  // ── User Access List table state ──
+  accessUsers: UserAccessRow[] = [];
+  filteredAccessGrouped: GroupedAccessUser[] = [];
+  paginatedAccessGrouped: GroupedAccessUser[] = [];
+  accessCurrentPage = 0;
+  accessPageSize = 10;
+  accessSearchValue = '';
+  isAccessLoading = false;
+  accessRoleOptions: SelectOption[] = [];
+  accessSelectedRoles: string[] = [];
+  accessSelectedStatuses: string[] = [];
+
+  // ── Access Delete Confirmation Dialog state ──
+  showAccessDeleteDialog = false;
+  accessDeletingRow: UserAccessRow | null = null;
+  accessDeletingGroup: GroupedAccessUser | null = null;
+  accessDeleteLoading = false;
+
+  // ── Access Bulk selection & update state ──
+  selectedAccessGroupUserNames: Set<string> = new Set();
+  isAccessBulkModalOpen: boolean = false;
+  accessBulkRolesToDelete: string[] = [];
+  accessBulkRolesToAdd: string[] = [];
+  accessBulkSaving: boolean = false;
+
   // Inline add-role for existing user (per-group)
   addRoleForGroup: string | null = null; // userName of group with active inline add-role
   selectedGroupAddRoles: string[] = [];
   groupAddRoleSaving: boolean = false;
   groupAddValidationError: string = '';
+
+  // Inline add-role for access table (per-group)
+  accessAddRoleForGroup: string | null = null;
+  selectedAccessAddRoleId: number | null = null;
+  accessAddRoleSaving: boolean = false;
+  accessAddValidationError: string = '';
+
+  // Inline add-user for access table
+  showAccessAddUserRow: boolean = false;
+  accessNewUser = { userName: '', fullName: '', userEmail: '' };
+  accessNewUserSelectedRoles: string[] = []; // role IDs as strings
+  accessNewUserSaving: boolean = false;
+  accessNewUserValidationErrors: {
+    userName?: string;
+    fullName?: string;
+    roles?: string;
+  } = {};
 
   // Bulk selection & update state
   selectedGroupUserNames: Set<string> = new Set();
@@ -99,6 +181,19 @@ export class AdminComponent implements OnInit {
   bulkRolesToDelete: string[] = [];
   bulkRolesToAdd: string[] = [];
   bulkSaving: boolean = false;
+
+  // Bulk add users state
+  isBulkAddUsersModalOpen: boolean = false;
+  bulkAddSelectedRoles: string[] = [];
+  bulkAddFullNames: string = '';
+  bulkAddUsernames: string = '';
+  bulkAddSaving: boolean = false;
+  bulkAddValidationErrors: {
+    roles?: string;
+    fullNames?: string;
+    usernames?: string;
+    mismatch?: string;
+  } = {};
 
   // Validation state for editable row
   validationErrors: {
@@ -281,6 +376,398 @@ export class AdminComponent implements OnInit {
     this.bulkSaving = false;
   }
 
+  // ── Bulk Add Users ──
+
+  onBulkAddUsersClick(): void {
+    this.bulkAddSelectedRoles = [];
+    this.bulkAddFullNames = '';
+    this.bulkAddUsernames = '';
+    this.bulkAddSaving = false;
+    this.bulkAddValidationErrors = {};
+    this.isBulkAddUsersModalOpen = true;
+  }
+
+  closeBulkAddUsersModal(): void {
+    this.isBulkAddUsersModalOpen = false;
+    this.bulkAddSelectedRoles = [];
+    this.bulkAddFullNames = '';
+    this.bulkAddUsernames = '';
+    this.bulkAddSaving = false;
+    this.bulkAddValidationErrors = {};
+  }
+
+  onBulkAddRolesChange(roles: string[]): void {
+    this.bulkAddSelectedRoles = roles;
+  }
+
+  get bulkAddAutoEmails(): string {
+    if (!this.bulkAddUsernames.trim()) return '';
+    return this.bulkAddUsernames
+      .split(',')
+      .map((u) => u.trim())
+      .filter((u) => u)
+      .map((u) => u.toLowerCase() + '@cisco.com')
+      .join(', ');
+  }
+
+  onBulkAddUsersSubmit(): void {
+    if (this.bulkAddSaving) return;
+
+    // Validate
+    this.bulkAddValidationErrors = {};
+    let isValid = true;
+
+    if (this.bulkAddSelectedRoles.length === 0) {
+      this.bulkAddValidationErrors.roles = 'Select at least one role';
+      isValid = false;
+    }
+
+    const fullNames = this.bulkAddFullNames
+      .split(',')
+      .map((n) => n.trim())
+      .filter((n) => n);
+    if (fullNames.length === 0) {
+      this.bulkAddValidationErrors.fullNames = 'Enter at least one full name';
+      isValid = false;
+    }
+
+    const usernames = this.bulkAddUsernames
+      .split(',')
+      .map((u) => u.trim())
+      .filter((u) => u);
+    if (usernames.length === 0) {
+      this.bulkAddValidationErrors.usernames = 'Enter at least one username';
+      isValid = false;
+    }
+
+    // Check for spaces in usernames
+    const invalidUsernames = usernames.filter((u) => /\s/.test(u));
+    if (invalidUsernames.length > 0) {
+      this.bulkAddValidationErrors.usernames =
+        'Usernames must not contain spaces: ' + invalidUsernames.join(', ');
+      isValid = false;
+    }
+
+    if (
+      fullNames.length > 0 &&
+      usernames.length > 0 &&
+      fullNames.length !== usernames.length
+    ) {
+      this.bulkAddValidationErrors.mismatch = `Count mismatch: ${fullNames.length} full names vs ${usernames.length} usernames`;
+      isValid = false;
+    }
+
+    if (!isValid) return;
+
+    this.bulkAddSaving = true;
+
+    const users = usernames.map((username, i) => ({
+      userName: username.toUpperCase(),
+      userEmail: username.toLowerCase() + '@cisco.com',
+      fullName: fullNames[i] || '',
+    }));
+
+    const roleIds = this.bulkAddSelectedRoles.map((id) => Number(id));
+
+    const payload = {
+      users,
+      roleIds,
+      createdBy: this.username.toUpperCase(),
+    };
+
+    this.http.post<any>('bulk-create-user-access-roles', payload).subscribe(
+      (res: any) => {
+        this.bulkAddSaving = false;
+        const msg = res?.message || 'Bulk add complete';
+        if (res?.totalFailed > 0) {
+          alert(msg);
+        }
+        this.closeBulkAddUsersModal();
+        this.loadAccessUsers();
+      },
+      (error: any) => {
+        this.bulkAddSaving = false;
+        console.error('Bulk add users error:', error);
+        alert(
+          'Error adding users: ' +
+            (error?.error?.message || error?.message || 'Unknown error'),
+        );
+      },
+    );
+  }
+
+  // ── Access table bulk selection helpers ──
+
+  /** Currently selected GroupedAccessUser objects */
+  get selectedAccessGroups(): GroupedAccessUser[] {
+    return this.filteredAccessGrouped.filter((g) =>
+      this.selectedAccessGroupUserNames.has(g.userName),
+    );
+  }
+
+  /** True when all paginated access rows are selected */
+  get isAllAccessSelected(): boolean {
+    return (
+      this.paginatedAccessGrouped.length > 0 &&
+      this.paginatedAccessGrouped.every((g) =>
+        this.selectedAccessGroupUserNames.has(g.userName),
+      )
+    );
+  }
+
+  toggleSelectAccessGroup(group: GroupedAccessUser): void {
+    if (this.selectedAccessGroupUserNames.has(group.userName)) {
+      this.selectedAccessGroupUserNames.delete(group.userName);
+    } else {
+      this.selectedAccessGroupUserNames.add(group.userName);
+    }
+    this.selectedAccessGroupUserNames = new Set(
+      this.selectedAccessGroupUserNames,
+    );
+  }
+
+  toggleSelectAllAccess(): void {
+    if (this.isAllAccessSelected) {
+      for (const g of this.paginatedAccessGrouped) {
+        this.selectedAccessGroupUserNames.delete(g.userName);
+      }
+    } else {
+      for (const g of this.paginatedAccessGrouped) {
+        this.selectedAccessGroupUserNames.add(g.userName);
+      }
+    }
+    this.selectedAccessGroupUserNames = new Set(
+      this.selectedAccessGroupUserNames,
+    );
+  }
+
+  isAccessGroupSelected(group: GroupedAccessUser): boolean {
+    return this.selectedAccessGroupUserNames.has(group.userName);
+  }
+
+  /**
+   * Roles that ALL selected access users have (intersection).
+   * These are the roles available for removal.
+   */
+  get accessBulkRemovableRoles(): SelectOption[] {
+    const groups = this.selectedAccessGroups;
+    if (groups.length === 0) return [];
+
+    // Start with the first user's dashboard names (enabled)
+    let common = new Set(groups[0].allDashboardNames);
+
+    // Intersect with each subsequent user's dashboard names
+    for (let i = 1; i < groups.length; i++) {
+      const userRoles = new Set(groups[i].allDashboardNames);
+      common = new Set([...common].filter((r) => userRoles.has(r)));
+    }
+
+    return Array.from(common)
+      .sort((a, b) => a.localeCompare(b))
+      .map((r) => ({ label: r, value: r }));
+  }
+
+  /**
+   * Roles that NONE of the selected access users have (complement intersection).
+   * These are the roles available for addition.
+   * Excludes any roles currently marked for deletion.
+   */
+  get accessBulkAddableRoles(): SelectOption[] {
+    const groups = this.selectedAccessGroups;
+    if (groups.length === 0) return [];
+
+    const deleteSet = new Set(
+      this.accessBulkRolesToDelete.map((r) => r.toUpperCase()),
+    );
+
+    // Get all possible roles (scoped to managed roles for sub-admins)
+    let filteredRoles = this.allRoles.filter((r) => r.ENABLED_FLAG === 'Y');
+    if (this.isSubAdminMode && this.managedRoles.length > 0) {
+      const managedUpper = this.managedRoles.map((m) => m.toUpperCase());
+      filteredRoles = filteredRoles.filter((r) =>
+        managedUpper.includes(r.ROLE_NAME?.toUpperCase()),
+      );
+    }
+    const allAvailableRoles = filteredRoles.map((r) => r.DASHBOARD_NAME);
+
+    // Find roles that NO selected user has
+    const missingFromAll = allAvailableRoles.filter((roleName) =>
+      groups.every(
+        (g) =>
+          !g.allDashboardNames
+            .map((d) => d.toUpperCase())
+            .includes(roleName.toUpperCase()),
+      ),
+    );
+
+    return [...new Set(missingFromAll)]
+      .sort((a, b) => a.localeCompare(b))
+      .filter((r) => !deleteSet.has(r.toUpperCase()))
+      .map((r) => ({ label: r, value: r }));
+  }
+
+  // ── Access Bulk Update modal ──
+
+  onAccessBulkUpdateClick(): void {
+    this.accessBulkRolesToDelete = [];
+    this.accessBulkRolesToAdd = [];
+    this.accessBulkSaving = false;
+    this.isAccessBulkModalOpen = true;
+  }
+
+  onAccessBulkRolesToDeleteChange(roles: string[]): void {
+    this.accessBulkRolesToDelete = roles;
+  }
+
+  onAccessBulkRolesToAddChange(roles: string[]): void {
+    this.accessBulkRolesToAdd = roles;
+  }
+
+  closeAccessBulkModal(): void {
+    this.isAccessBulkModalOpen = false;
+    this.accessBulkRolesToDelete = [];
+    this.accessBulkRolesToAdd = [];
+    this.accessBulkSaving = false;
+  }
+
+  onAccessBulkSubmit(): void {
+    if (this.accessBulkSaving) return;
+    if (
+      this.accessBulkRolesToDelete.length === 0 &&
+      this.accessBulkRolesToAdd.length === 0
+    ) {
+      return;
+    }
+
+    this.accessBulkSaving = true;
+    const targets = this.selectedAccessGroups;
+    let pendingOps = 0;
+    let hasError = false;
+
+    // Count total operations
+    for (const group of targets) {
+      // Delete: only roles the user actually has
+      pendingOps += this.accessBulkRolesToDelete.filter((roleName) =>
+        group.allDashboardNames
+          .map((d) => d.toUpperCase())
+          .includes(roleName.toUpperCase()),
+      ).length;
+      // Add: only roles the user doesn't already have
+      pendingOps += this.accessBulkRolesToAdd.filter(
+        (roleName) =>
+          !group.allDashboardNames
+            .map((d) => d.toUpperCase())
+            .includes(roleName.toUpperCase()),
+      ).length;
+    }
+
+    if (pendingOps === 0) {
+      this.accessBulkSaving = false;
+      this.closeAccessBulkModal();
+      return;
+    }
+
+    let completed = 0;
+    const onComplete = () => {
+      completed++;
+      if (completed === pendingOps) {
+        this.accessBulkSaving = false;
+        if (hasError) {
+          alert('Some operations failed. Check console for details.');
+        }
+        this.closeAccessBulkModal();
+        this.selectedAccessGroupUserNames = new Set();
+        this.loadAccessUsers();
+      }
+    };
+
+    // DELETE roles
+    for (const group of targets) {
+      const rolesToDelete = this.accessBulkRolesToDelete.filter((roleName) =>
+        group.allDashboardNames
+          .map((d) => d.toUpperCase())
+          .includes(roleName.toUpperCase()),
+      );
+
+      for (const roleName of rolesToDelete) {
+        // Find the matching row to get the roleId
+        const matchingRow = group.rows.find(
+          (r) => r.DASHBOARD_NAME.toUpperCase() === roleName.toUpperCase(),
+        );
+        if (!matchingRow) {
+          onComplete();
+          continue;
+        }
+
+        this.http
+          .put(
+            'update-user-access-role',
+            {
+              userName: group.userName,
+              roleId: matchingRow.ROLE_ID,
+              enabledFlag: 'N',
+              admin: matchingRow.ADMIN ?? 'N',
+              readOnly: matchingRow.READ_ONLY ?? 'N',
+              lastUpdatedBy: this.username.toUpperCase(),
+            },
+            this.destroyManager,
+          )
+          .subscribe(
+            () => onComplete(),
+            (error) => {
+              hasError = true;
+              console.error('Error bulk-disabling access role:', error);
+              onComplete();
+            },
+          );
+      }
+    }
+
+    // ADD roles
+    for (const group of targets) {
+      const rolesToAdd = this.accessBulkRolesToAdd.filter(
+        (roleName) =>
+          !group.allDashboardNames
+            .map((d) => d.toUpperCase())
+            .includes(roleName.toUpperCase()),
+      );
+
+      for (const roleName of rolesToAdd) {
+        // Find the role ID from allRoles
+        const matchingRole = this.allRoles.find(
+          (r) =>
+            r.DASHBOARD_NAME.toUpperCase() === roleName.toUpperCase() &&
+            r.ENABLED_FLAG === 'Y',
+        );
+        if (!matchingRole) {
+          onComplete();
+          continue;
+        }
+
+        const payload = {
+          userName: group.userName,
+          userEmail: group.userEmail,
+          fullName: group.fullName,
+          roleId: matchingRole.ROLE_ID,
+          admin: 'N',
+          readOnly: 'N',
+          createdBy: this.username.toUpperCase(),
+        };
+
+        this.http
+          .post('create-user-access-role', payload, this.destroyManager)
+          .subscribe(
+            () => onComplete(),
+            (error) => {
+              hasError = true;
+              console.error('Error bulk-adding access role:', error);
+              onComplete();
+            },
+          );
+      }
+    }
+  }
+
   onBulkSubmit(): void {
     if (this.bulkSaving) return;
     if (
@@ -441,7 +928,7 @@ export class AdminComponent implements OnInit {
     this.detectAdminPrivileges();
     this.loadUserRoles();
     this.username = this.authService.getUserName();
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
 
     this.dataService.periodStatus$.subscribe((status) => {
       if (status) {
@@ -451,6 +938,63 @@ export class AdminComponent implements OnInit {
         };
       }
     });
+
+    this.http.get('roles', this.destroyManager).subscribe(
+      (data: any) => {
+        console.log(
+          'Roles loaded:',
+          data.map((r: any) => {
+            return {
+              role_name: r.ROLE_NAME,
+              dashboard_name: r.DASHBOARD_NAME,
+            };
+          }),
+        );
+        if (Array.isArray(data)) {
+          this.allRoles = data;
+        }
+      },
+      (error) => {
+        console.error('Error loading roles:', error);
+      },
+    );
+
+    this.loadAccessUsers();
+  }
+
+  private loadAccessUsers(): void {
+    this.isAccessLoading = true;
+    this.http.get('user-access-list', this.destroyManager).subscribe(
+      (data: any) => {
+        this.isAccessLoading = false;
+        if (Array.isArray(data)) {
+          // Sub-admin scoping: only show rows for managed roles
+          if (this.isSubAdminMode && this.managedRoles.length > 0) {
+            const managedUpper = this.managedRoles.map((r) => r.toUpperCase());
+            this.accessUsers = data.filter((row: UserAccessRow) =>
+              managedUpper.includes(row.ROLE_NAME?.toUpperCase()),
+            );
+          } else {
+            this.accessUsers = data;
+          }
+          const uniqueRoles = [
+            ...new Set(
+              this.accessUsers
+                .map((r: UserAccessRow) => r.DASHBOARD_NAME)
+                .filter(Boolean),
+            ),
+          ];
+          this.accessRoleOptions = uniqueRoles
+            .sort()
+            .map((r) => ({ label: r, value: r }));
+          this.applyAccessFilters();
+        }
+      },
+      (error) => {
+        this.isAccessLoading = false;
+        console.error('Error loading user access list:', error);
+      },
+    );
   }
 
   switchTab(tabKey: string): void {
@@ -480,7 +1024,7 @@ export class AdminComponent implements OnInit {
    * Priority: FULL_ADMIN > SUB_ADMIN (if user has both, they get full access)
    */
   private detectAdminPrivileges(): void {
-    this.currentUserRoles = this.authService.getRoles() || [];
+    this.currentUserRoles = this.authService.getUserAccessRoles() || [];
 
     // Check for full admin first (highest privilege)
     this.isFullAdmin = this.currentUserRoles.includes('ADMIN');
@@ -707,15 +1251,412 @@ export class AdminComponent implements OnInit {
   }
 
   onAddUser(): void {
-    this.isEditMode = false;
-    this.isSubAdminCreationMode = false;
-    this.currentUserData = {
-      userName: '',
-      email: '',
-      roles: [],
-      enabled: true,
+    this.showRoleView = true;
+  }
+
+  closeRoleView(): void {
+    this.showRoleView = false;
+  }
+
+  refreshRoles(): void {
+    this.http.get('roles', this.destroyManager).subscribe(
+      (data: any) => {
+        if (Array.isArray(data)) {
+          this.allRoles = data;
+        }
+      },
+      (error) => {
+        console.error('Error refreshing roles:', error);
+      },
+    );
+  }
+
+  // ── User Access List table methods ──
+
+  applyAccessFilters(): void {
+    let filtered = [...this.accessUsers];
+    if (this.accessSearchValue) {
+      const q = this.accessSearchValue.toLowerCase();
+      filtered = filtered.filter(
+        (u) =>
+          u.USER_NAME.toLowerCase().includes(q) ||
+          u.USER_EMAIL.toLowerCase().includes(q) ||
+          (u.FULL_NAME && u.FULL_NAME.toLowerCase().includes(q)) ||
+          u.ROLE_NAME.toLowerCase().includes(q) ||
+          u.DASHBOARD_NAME.toLowerCase().includes(q),
+      );
+    }
+    if (this.accessSelectedRoles.length > 0) {
+      filtered = filtered.filter((u) =>
+        this.accessSelectedRoles.includes(u.DASHBOARD_NAME),
+      );
+    }
+    if (this.accessSelectedStatuses.length > 0) {
+      filtered = filtered.filter((u) =>
+        this.accessSelectedStatuses.includes(u.ENABLED_FLAG),
+      );
+    }
+    this.filteredAccessGrouped = this.groupAccessUsers(filtered);
+    this.accessCurrentPage = 0;
+    this.paginateAccessGroups();
+  }
+
+  private groupAccessUsers(rows: UserAccessRow[]): GroupedAccessUser[] {
+    const map = new Map<string, UserAccessRow[]>();
+    rows.forEach((row) => {
+      const key = row.USER_NAME;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(row);
+    });
+
+    const prevExpand = new Map<string, boolean>();
+    this.filteredAccessGrouped.forEach((g) =>
+      prevExpand.set(g.userName, g.isExpanded),
+    );
+
+    return Array.from(map.entries()).map(([userName, rows]) => ({
+      userName,
+      userEmail: rows[0].USER_EMAIL,
+      fullName: rows[0].FULL_NAME || '',
+      rows,
+      allDashboardNames: [...new Set(rows.map((r) => r.DASHBOARD_NAME))],
+      enabledDashboardNames: [
+        ...new Set(
+          rows
+            .filter((r) => r.ENABLED_FLAG === 'Y')
+            .map((r) => r.DASHBOARD_NAME),
+        ),
+      ],
+      isAnyEnabled: rows.some((r) => r.ENABLED_FLAG === 'Y'),
+      isAnyAdmin: rows.some((r) => r.ADMIN === 'Y'),
+      isAnyReadOnly: rows.some((r) => r.READ_ONLY === 'Y'),
+      latestDate: new Date(
+        Math.max(...rows.map((r) => new Date(r.LAST_UPDATED_DATE).getTime())),
+      ),
+      isExpanded: prevExpand.get(userName) || false,
+    }));
+  }
+
+  private paginateAccessGroups(): void {
+    const start = this.accessCurrentPage * this.accessPageSize;
+    this.paginatedAccessGrouped = this.filteredAccessGrouped.slice(
+      start,
+      start + this.accessPageSize,
+    );
+  }
+
+  onAccessSearchChange(value: string): void {
+    this.accessSearchValue = value;
+    this.applyAccessFilters();
+  }
+
+  onAccessRoleFilterChange(roles: string[]): void {
+    this.accessSelectedRoles = roles;
+    this.applyAccessFilters();
+  }
+
+  onAccessStatusFilterChange(statuses: string[]): void {
+    this.accessSelectedStatuses = statuses;
+    this.applyAccessFilters();
+  }
+
+  onAccessAddUser(): void {
+    this.showAccessAddUserRow = true;
+    this.accessNewUser = { userName: '', fullName: '', userEmail: '' };
+    this.accessNewUserSelectedRoles = [];
+    this.accessNewUserSaving = false;
+    this.accessNewUserValidationErrors = {};
+  }
+
+  onAccessNewUserNameChange(value: string): void {
+    this.accessNewUser.userName = value;
+    this.accessNewUser.userEmail = value.trim()
+      ? value.trim().toLowerCase() + '@cisco.com'
+      : '';
+  }
+
+  onAccessNewUserRolesChange(roles: string[]): void {
+    this.accessNewUserSelectedRoles = roles;
+  }
+
+  onCancelAccessAddUser(): void {
+    this.showAccessAddUserRow = false;
+    this.accessNewUser = { userName: '', fullName: '', userEmail: '' };
+    this.accessNewUserSelectedRoles = [];
+    this.accessNewUserSaving = false;
+    this.accessNewUserValidationErrors = {};
+  }
+
+  getAllAccessAddUserRoleOptions(): SelectOption[] {
+    let roles = this.allRoles.filter((r) => r.ENABLED_FLAG === 'Y');
+    if (this.isSubAdminMode && this.managedRoles.length > 0) {
+      const managedUpper = this.managedRoles.map((m) => m.toUpperCase());
+      roles = roles.filter((r) =>
+        managedUpper.includes(r.ROLE_NAME?.toUpperCase()),
+      );
+    }
+    return roles
+      .sort((a, b) => a.DASHBOARD_NAME.localeCompare(b.DASHBOARD_NAME))
+      .map((r) => ({ label: r.DASHBOARD_NAME, value: String(r.ROLE_ID) }));
+  }
+
+  onSaveAccessAddUser(): void {
+    if (this.accessNewUserSaving) return;
+
+    // Validate
+    this.accessNewUserValidationErrors = {};
+    let isValid = true;
+
+    const userName = this.accessNewUser.userName.trim();
+    if (!userName) {
+      this.accessNewUserValidationErrors.userName = 'Username is required';
+      isValid = false;
+    } else if (/\s/.test(userName)) {
+      this.accessNewUserValidationErrors.userName = 'Username must be one word';
+      isValid = false;
+    }
+
+    if (!this.accessNewUser.fullName.trim()) {
+      this.accessNewUserValidationErrors.fullName = 'Full name is required';
+      isValid = false;
+    }
+
+    if (this.accessNewUserSelectedRoles.length === 0) {
+      this.accessNewUserValidationErrors.roles = 'Select at least one role';
+      isValid = false;
+    }
+
+    if (!isValid) return;
+
+    this.accessNewUserSaving = true;
+    let completed = 0;
+    let hasError = false;
+    const total = this.accessNewUserSelectedRoles.length;
+
+    for (const roleIdStr of this.accessNewUserSelectedRoles) {
+      const payload = {
+        userName: userName.toUpperCase(),
+        userEmail: this.accessNewUser.userEmail,
+        fullName: this.accessNewUser.fullName.trim(),
+        roleId: Number(roleIdStr),
+        admin: 'N',
+        readOnly: 'N',
+        createdBy: this.username.toUpperCase(),
+      };
+
+      this.http
+        .post('create-user-access-role', payload, this.destroyManager)
+        .subscribe(
+          () => {
+            completed++;
+            if (completed === total) {
+              this.accessNewUserSaving = false;
+              if (hasError) {
+                alert('Some roles failed to save. Check console for details.');
+              }
+              this.onCancelAccessAddUser();
+              this.loadAccessUsers();
+            }
+          },
+          (error) => {
+            completed++;
+            hasError = true;
+            console.error('Error adding user access role:', error);
+            if (completed === total) {
+              this.accessNewUserSaving = false;
+              alert('Some roles failed to save. Check console for details.');
+              this.onCancelAccessAddUser();
+              this.loadAccessUsers();
+            }
+          },
+        );
+    }
+  }
+
+  onAccessPageChange(event: PageChangeEvent): void {
+    this.accessCurrentPage = event.pageIndex;
+    this.accessPageSize = event.pageSize;
+    this.paginateAccessGroups();
+  }
+
+  toggleAccessExpand(group: GroupedAccessUser): void {
+    group.isExpanded = !group.isExpanded;
+  }
+
+  onAddAccessRole(group: GroupedAccessUser): void {
+    group.isExpanded = true;
+    this.accessAddRoleForGroup = group.userName;
+    this.selectedAccessAddRoleId = null;
+    this.accessAddRoleSaving = false;
+    this.accessAddValidationError = '';
+  }
+
+  onAccessAddRoleChange(roles: string[]): void {
+    this.selectedAccessAddRoleId = roles.length > 0 ? Number(roles[0]) : null;
+  }
+
+  onCancelAccessAddRole(): void {
+    this.accessAddRoleForGroup = null;
+    this.selectedAccessAddRoleId = null;
+    this.accessAddRoleSaving = false;
+    this.accessAddValidationError = '';
+  }
+
+  getAccessAddRoleOptions(group: GroupedAccessUser): SelectOption[] {
+    const existingRoleIds = new Set(group.rows.map((r) => r.ROLE_ID));
+    let roles = this.allRoles.filter(
+      (r) => r.ENABLED_FLAG === 'Y' && !existingRoleIds.has(r.ROLE_ID),
+    );
+    if (this.isSubAdminMode && this.managedRoles.length > 0) {
+      const managedUpper = this.managedRoles.map((m) => m.toUpperCase());
+      roles = roles.filter((r) =>
+        managedUpper.includes(r.ROLE_NAME?.toUpperCase()),
+      );
+    }
+    return roles
+      .sort((a, b) => a.DASHBOARD_NAME.localeCompare(b.DASHBOARD_NAME))
+      .map((r) => ({
+        label: r.DASHBOARD_NAME,
+        value: String(r.ROLE_ID),
+      }));
+  }
+
+  onSaveAccessAddRole(group: GroupedAccessUser): void {
+    if (this.accessAddRoleSaving) return;
+
+    if (!this.selectedAccessAddRoleId) {
+      this.accessAddValidationError = 'Select a role';
+      return;
+    }
+
+    this.accessAddRoleSaving = true;
+    this.accessAddValidationError = '';
+
+    const payload = {
+      userName: group.userName,
+      userEmail: group.userEmail,
+      fullName: group.fullName,
+      roleId: this.selectedAccessAddRoleId,
+      admin: 'N',
+      readOnly: 'N',
+      createdBy: this.username.toUpperCase(),
     };
-    this.isModalOpen = true;
+
+    this.http
+      .post('create-user-access-role', payload, this.destroyManager)
+      .subscribe(
+        () => {
+          this.accessAddRoleSaving = false;
+          this.accessAddRoleForGroup = null;
+          this.selectedAccessAddRoleId = null;
+          this.accessAddValidationError = '';
+          this.loadAccessUsers();
+        },
+        (error) => {
+          this.accessAddRoleSaving = false;
+          console.error('Error adding access role:', error);
+          this.accessAddValidationError =
+            error?.error?.message || 'Failed to add role';
+        },
+      );
+  }
+
+  onDeleteAccessRole(row: UserAccessRow, group: GroupedAccessUser): void {
+    this.accessDeletingRow = row;
+    this.accessDeletingGroup = group;
+    this.showAccessDeleteDialog = true;
+    this.accessDeleteLoading = false;
+  }
+
+  confirmAccessDelete(): void {
+    if (!this.accessDeletingRow) return;
+    this.accessDeleteLoading = true;
+    const row = this.accessDeletingRow;
+
+    this.http
+      .put(
+        'update-user-access-role',
+        {
+          userName: row.USER_NAME,
+          roleId: row.ROLE_ID,
+          enabledFlag: 'N',
+          admin: row.ADMIN ?? 'N',
+          readOnly: row.READ_ONLY ?? 'N',
+          lastUpdatedBy: this.authService.getUserName(),
+        },
+        this.destroyManager,
+      )
+      .subscribe(
+        () => {
+          this.cancelAccessDelete();
+          this.loadAccessUsers();
+        },
+        (error) => {
+          console.error('Error deleting access role:', error);
+          this.accessDeleteLoading = false;
+        },
+      );
+  }
+
+  cancelAccessDelete(): void {
+    this.showAccessDeleteDialog = false;
+    this.accessDeletingRow = null;
+    this.accessDeletingGroup = null;
+    this.accessDeleteLoading = false;
+  }
+
+  /**
+   * Handles toggle changes (Status, Admin, Read Only) on an expanded access child row.
+   * Sends the full current state of all three flags to the backend,
+   * then reloads the table from the server.
+   */
+  onAccessToggleChange(
+    row: UserAccessRow,
+    field: 'ENABLED_FLAG' | 'ADMIN' | 'READ_ONLY',
+    value: boolean,
+  ): void {
+    // Sub-admin guard: only allow toggling roles within managed scope
+    if (this.isSubAdminMode && this.managedRoles.length > 0) {
+      const managedUpper = this.managedRoles.map((m) => m.toUpperCase());
+      if (!managedUpper.includes(row.ROLE_NAME?.toUpperCase())) {
+        console.warn('Sub-admin cannot modify roles outside managed scope');
+        return;
+      }
+    }
+
+    const newValue = value ? 'Y' : 'N';
+
+    // Optimistically update the local value so the toggle doesn't flicker
+    row[field] = newValue;
+
+    this.http
+      .put(
+        'update-user-access-role',
+        {
+          userName: row.USER_NAME,
+          roleId: row.ROLE_ID,
+          enabledFlag: row.ENABLED_FLAG,
+          admin: row.ADMIN ?? 'N',
+          readOnly: row.READ_ONLY ?? 'N',
+          lastUpdatedBy: this.authService.getUserName(),
+        },
+        this.destroyManager,
+      )
+      .subscribe(
+        (res: any) => {
+          if (res?.isDeleted === 'TRUE') {
+            console.warn(
+              `Role ${row.ROLE_ID} for user ${row.USER_NAME} was previously deleted`,
+            );
+          }
+          this.loadAccessUsers();
+        },
+        (error) => {
+          console.error('Error updating access role:', error);
+          // Revert on failure
+          row[field] = value ? 'N' : 'Y';
+        },
+      );
   }
 
   /**

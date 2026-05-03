@@ -34,6 +34,7 @@ export class FilterBarComponent {
   @Output() addLineItemClick = new EventEmitter<void>();
   @Output() createSubAdminClick = new EventEmitter<void>();
   @Output() bulkUpdateClick = new EventEmitter<void>();
+  @Output() bulkAddUsersClick = new EventEmitter<void>();
 
   statusOptions: SelectOption[] = [
     { label: 'Enabled', value: 'Y' },
@@ -66,5 +67,9 @@ export class FilterBarComponent {
 
   onBulkUpdate(): void {
     this.bulkUpdateClick.emit();
+  }
+
+  onBulkAddUsers(): void {
+    this.bulkAddUsersClick.emit();
   }
 }

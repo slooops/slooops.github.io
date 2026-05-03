@@ -56,12 +56,19 @@
     }
     @if (isFullAdmin) {
       <app-button
-        label="Create Role"
+        label="Update Roles"
         variant="secondary"
         (clicked)="onAddUser()"
       >
       </app-button>
     }
+
+    <app-button
+      label="Bulk Add Users"
+      variant="secondary"
+      (clicked)="onBulkAddUsers()"
+    >
+    </app-button>
 
     <app-button
       label="Add User"

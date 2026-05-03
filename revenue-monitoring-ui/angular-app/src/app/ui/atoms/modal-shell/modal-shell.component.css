@@ -37,7 +37,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--fit-space-xs) var(--fit-space-md);
+  padding: 0.875rem;
   border-bottom: 1px solid var(--fit-color-border);
   background-color: #00bceb;
   border-radius: var(--fit-radius-lg) var(--fit-radius-lg) 0 0;

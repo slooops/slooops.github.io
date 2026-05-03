@@ -1,0 +1,533 @@
+@import "src/assets/ui.css";
+
+/* ═══════════════════════════════════════════
+   FULL-PAGE ROLE VIEW (rv__)
+   ═══════════════════════════════════════════ */
+
+.rv {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0 24px 24px;
+}
+
+/* ── Toolbar ── */
+.rv__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--fit-color-border);
+  flex-shrink: 0;
+}
+
+.rv__back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  border-radius: var(--fit-radius-sm);
+  color: var(--fit-color-text);
+  cursor: pointer;
+  transition:
+    background-color var(--fit-transition-fast),
+    color var(--fit-transition-fast);
+}
+
+.rv__back-btn:hover {
+  background-color: var(--fit-color-bg-subtle);
+  color: var(--fit-color-primary, #006782);
+}
+
+.rv__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fit-color-text);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.rv__toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.rv__search {
+  width: 260px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--fit-color-border);
+  border-radius: var(--fit-radius-pill);
+  font-family: var(--fit-font-family-base);
+  font-size: 13px;
+  color: var(--fit-color-text);
+  outline: none;
+  transition:
+    border-color var(--fit-transition-fast),
+    box-shadow var(--fit-transition-fast);
+}
+
+.rv__search:focus {
+  border-color: var(--fit-color-focus-ring);
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+.rv__search::placeholder {
+  color: var(--fit-color-text-muted);
+}
+
+.rv__count {
+  font-size: 12px;
+  color: var(--fit-color-text-muted);
+  white-space: nowrap;
+}
+
+.rv__add-btn {
+  font-size: 12px;
+  padding: 6px 16px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Table Container (bordered, matches admin) ── */
+.rv__table-container {
+  border: 1px solid var(--fit-color-border);
+  border-radius: var(--fit-radius-lg);
+  overflow: hidden;
+  margin-top: 16px;
+}
+
+.rv__table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.rv__th {
+  text-align: left;
+  padding: var(--fit-space-sm) var(--fit-space-md);
+  font-size: var(--fit-font-size-sm);
+  font-weight: var(--fit-font-weight-semibold);
+  color: var(--fit-color-text-muted);
+  background: var(--fit-color-bg-subtle);
+  border-bottom: 1px solid var(--fit-color-border);
+  white-space: nowrap;
+  text-transform: capitalize;
+  letter-spacing: 0.03em;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* Round inner corners so backgrounds don't bleed past container radius */
+.rv__table thead tr:first-child th:first-child {
+  border-top-left-radius: var(--fit-radius-lg);
+}
+
+.rv__table thead tr:first-child th:last-child {
+  border-top-right-radius: var(--fit-radius-lg);
+}
+
+.rv__table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: var(--fit-radius-lg);
+}
+
+.rv__table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: var(--fit-radius-lg);
+}
+
+.rv__table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.rv__th--status {
+  width: 80px;
+  text-align: center;
+}
+
+.rv__th--actions {
+  width: 80px;
+  text-align: center;
+}
+
+/* ── Rows ── */
+.rv__row {
+  border-bottom: 1px solid var(--fit-color-border);
+  transition: background-color var(--fit-transition-fast);
+}
+
+.rv__row:hover {
+  background-color: var(--fit-color-bg-subtle);
+}
+
+.rv__td {
+  padding: var(--fit-space-sm) var(--fit-space-md);
+  font-size: var(--fit-font-size-base);
+  color: var(--fit-color-text);
+  vertical-align: middle;
+}
+
+.rv__td--role {
+  font-weight: var(--fit-font-weight-medium);
+}
+
+.rv__td--desc {
+  color: var(--fit-color-text-muted);
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rv__td--date {
+  color: var(--fit-color-text-muted);
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.rv__td--status {
+  text-align: center;
+}
+
+.rv__td--actions {
+  text-align: center;
+}
+
+.rv__edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: var(--fit-radius-sm);
+  cursor: pointer;
+  color: var(--fit-color-text-muted);
+  padding: 4px;
+  opacity: 0.5;
+  transition:
+    opacity var(--fit-transition-fast),
+    color var(--fit-transition-fast),
+    background-color var(--fit-transition-fast);
+}
+
+.rv__row:hover .rv__edit-btn {
+  opacity: 1;
+}
+
+.rv__edit-btn:hover {
+  color: var(--fit-color-primary, #006782);
+  background-color: rgba(0, 188, 235, 0.1);
+  opacity: 1;
+}
+
+.rv__delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: var(--fit-radius-sm);
+  cursor: pointer;
+  color: var(--fit-color-text-muted);
+  padding: 4px;
+  margin-left: 4px;
+  opacity: 0.5;
+  transition:
+    opacity var(--fit-transition-fast),
+    color var(--fit-transition-fast),
+    background-color var(--fit-transition-fast);
+}
+
+.rv__row:hover .rv__delete-btn {
+  opacity: 1;
+}
+
+.rv__delete-btn:hover {
+  color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.1);
+  opacity: 1;
+}
+
+.rv__empty {
+  text-align: center;
+  color: var(--fit-color-text-muted);
+  padding: 32px var(--fit-space-md);
+  font-size: 13px;
+}
+
+.rv__pagination-wrap {
+  padding: 10px 0;
+}
+
+/* ═══════════════════════════════════════════
+   EDIT / ADD ROLE DIALOG (rd__)
+   ═══════════════════════════════════════════ */
+
+.rd__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: rd-fade-in 0.15s ease;
+}
+
+@keyframes rd-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.rd {
+  width: 500px;
+  max-width: 92vw;
+  background: #fff;
+  border-radius: var(--fit-radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  animation: rd-slide-in 0.2s ease;
+}
+
+@keyframes rd-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.rd__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background-color: #00bceb;
+  border-bottom: 1px solid var(--fit-color-border);
+}
+
+.rd__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.rd__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  border-radius: var(--fit-radius-sm);
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+  transition:
+    background-color var(--fit-transition-fast),
+    color var(--fit-transition-fast);
+}
+
+.rd__close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Form Body ── */
+.rd__body {
+  padding: 20px;
+}
+
+.rd__form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.rd__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rd__field--full {
+  grid-column: 1 / -1;
+}
+
+.rd__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fit-color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rd__input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: var(--fit-font-family-base);
+  border: 1px solid var(--fit-color-border);
+  border-radius: var(--fit-radius-md);
+  color: var(--fit-color-text);
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+
+.rd__input:focus {
+  border-color: var(--fit-color-primary, #00bceb);
+  box-shadow: 0 0 0 2px rgba(0, 188, 235, 0.15);
+}
+
+.rd__input--error {
+  border-color: var(--fit-color-error, #dc2626);
+}
+
+.rd__error {
+  font-size: 11px;
+  color: var(--fit-color-error, #dc2626);
+}
+
+/* ── Footer ── */
+.rd__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--fit-color-border);
+  background: var(--fit-color-bg-subtle);
+}
+
+.rd__btn {
+  padding: 7px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--fit-radius-md);
+  border: none;
+  cursor: pointer;
+  font-family: var(--fit-font-family-base);
+  transition:
+    background-color var(--fit-transition-fast),
+    opacity var(--fit-transition-fast);
+}
+
+.rd__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rd__btn--cancel {
+  background: #fff;
+  color: var(--fit-color-text);
+  border: 1px solid var(--fit-color-border);
+}
+
+.rd__btn--cancel:hover {
+  background: var(--fit-color-bg-subtle);
+}
+
+.rd__btn--save {
+  background: #00bceb;
+  color: #fff;
+}
+
+.rd__btn--save:not(:disabled):hover {
+  background: #009ec3;
+}
+
+/* ═══════════════════════════════════════════
+   DELETE CONFIRMATION DIALOG (dd__)
+   ═══════════════════════════════════════════ */
+
+.dd__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: rd-fade-in 0.15s ease;
+}
+
+.dd {
+  width: 400px;
+  max-width: 90vw;
+  background: #fff;
+  border-radius: var(--fit-radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: rd-slide-in 0.2s ease;
+}
+
+.dd__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: #00bceb;
+  color: #fff;
+}
+
+.dd__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.dd__body {
+  padding: 20px;
+}
+
+.dd__message {
+  font-size: 14px;
+  color: var(--fit-color-text);
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.dd__sub {
+  font-size: 12px;
+  color: var(--fit-color-text-muted);
+  margin: 0;
+}
+
+.dd__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--fit-color-border);
+  background: var(--fit-color-bg-subtle);
+}
+
+.dd__btn--delete {
+  background: #006782;
+  color: #fff;
+}
+
+.dd__btn--delete:not(:disabled):hover {
+  background: #c0392b;
+}
+
+.dd__btn--delete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
