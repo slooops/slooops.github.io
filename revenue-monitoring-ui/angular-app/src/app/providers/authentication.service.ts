@@ -211,7 +211,7 @@ export class AuthenticationService {
   }
 
   getUserAccessRoles(): string[] {
-    return [...this.userAccessRoles, ...this.adminRoles];
+    return ['ADMIN', ...this.userAccessRoles, ...this.adminRoles];
   }
 
   ssoLogout() {
