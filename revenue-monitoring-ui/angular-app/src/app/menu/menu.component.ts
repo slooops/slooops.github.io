@@ -179,19 +179,11 @@ export class MenuComponent {
     },
   ];
 
-  toggleSidebar(): void {
-    this.collapsed = !this.collapsed;
-    if (this.collapsed) {
-      this.activeDrawer = null;
-    }
-  }
-
   toggleDrawer(item: NavItem): void {
     if (!item.children?.length) {
       if (item.route) {
         this.navigateEvent.emit(item.route);
         this.activeDrawer = null;
-        this.collapsed = true;
       }
       return;
     }
@@ -214,7 +206,6 @@ export class MenuComponent {
   navigateTo(route: string): void {
     this.navigateEvent.emit(route);
     this.activeDrawer = null;
-    this.collapsed = true;
   }
 
   isVisible(item: NavItem): boolean {

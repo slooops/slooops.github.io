@@ -23,29 +23,15 @@ describe('MenuComponent', () => {
     expect(component.isAdmin).toBeFalse();
     expect(component.userRoles).toEqual([]);
     expect(component.currentUrl).toBe('');
-    expect(component.collapsed).toBeFalse();
-    expect(component.activeDrawer).toBeNull();
-  });
-
-  it('should toggle sidebar collapsed state', () => {
-    component.collapsed = false;
-    component.toggleSidebar();
     expect(component.collapsed).toBeTrue();
-  });
-
-  it('should clear activeDrawer when collapsing', () => {
-    component.activeDrawer = 'Monitoring';
-    component.collapsed = false;
-    component.toggleSidebar();
     expect(component.activeDrawer).toBeNull();
   });
 
-  it('should emit navigateEvent and collapse when navigating to route', () => {
+  it('should emit navigateEvent when navigating to route', () => {
     const spy = jasmine.createSpy('navigateEvent');
     component.navigateEvent.subscribe(spy);
     component.navigateTo('/some-route');
     expect(spy).toHaveBeenCalledWith('/some-route');
-    expect(component.collapsed).toBeTrue();
   });
 
   it('should emit navigateEvent on toggleDrawer for leaf item with route', () => {

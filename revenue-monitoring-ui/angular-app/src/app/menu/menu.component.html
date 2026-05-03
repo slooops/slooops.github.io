@@ -1,14 +1,6 @@
 <div class="ms-wrapper">
-  <!-- Level 1: Sidebar rail -->
-  <div class="ms-rail" [class.collapsed]="collapsed">
-    <!-- Toggle button -->
-    <!-- <button class="ms-toggle" (click)="toggleSidebar()">
-      <ng-icon name="phosphorListBold" size="20" />
-      @if (!collapsed) {
-        <span class="ms-toggle-label">Menu</span>
-      }
-    </button> -->
-
+  <!-- Level 1: Sidebar rail (always collapsed) -->
+  <div class="ms-rail collapsed">
     <nav class="ms-nav">
       @for (item of navItems; track item.label) {
         @if (isVisible(item)) {
@@ -22,19 +14,17 @@
             (click)="toggleDrawer(item)"
           >
             <ng-icon [name]="item.icon" size="26" class="ms-nav-icon" />
-            @if (!collapsed) {
-              <span class="ms-nav-label">{{ item.label }}</span>
+            <span class="ms-nav-label-collapsed">
+              {{ item.label }}
               @if (item.children?.length) {
                 <ng-icon
                   name="phosphorCaretRightBold"
-                  size="14"
-                  class="ms-nav-caret"
+                  size="10"
+                  class="ms-children-indicator"
                   [class.open]="activeDrawer === item.label"
                 />
               }
-            } @else {
-              <span class="ms-nav-label-collapsed">{{ item.label }}</span>
-            }
+            </span>
           </button>
         }
       }
@@ -44,11 +34,7 @@
     <div class="ms-footer-items">
       <div class="ms-nav-item ms-disabled">
         <ng-icon name="phosphorRocketBold" size="26" class="ms-nav-icon" />
-        @if (!collapsed) {
-          <span class="ms-nav-label">Coming Soon</span>
-        } @else {
-          <span class="ms-nav-label-collapsed">Coming Soon</span>
-        }
+        <span class="ms-nav-label-collapsed">Coming Soon</span>
       </div>
       <div class="ms-nav-item ms-disabled">
         <ng-icon
@@ -56,26 +42,9 @@
           size="26"
           class="ms-nav-icon"
         />
-        @if (!collapsed) {
-          <span class="ms-nav-label">Latest Updates</span>
-        } @else {
-          <span class="ms-nav-label-collapsed">Latest Updates</span>
-        }
+        <span class="ms-nav-label-collapsed">Latest Updates</span>
       </div>
     </div>
-
-    <!-- Collapse / expand toggle -->
-    <button class="ms-collapse-btn" (click)="toggleSidebar()">
-      <ng-icon
-        name="phosphorCaretRightBold"
-        size="26"
-        class="ms-collapse-icon"
-        [class.flipped]="!collapsed"
-      />
-      @if (!collapsed) {
-        <span class="ms-collapse-label">Collapse</span>
-      }
-    </button>
   </div>
 
   <!-- Level 2: Drawer -->

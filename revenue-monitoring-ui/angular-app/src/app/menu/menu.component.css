@@ -55,17 +55,13 @@
    Level 1 — The Rail
    ══════════════════════════════════ */
 .ms-rail {
-  width: var(--ms-rail-width);
-  min-width: var(--ms-rail-width);
+  width: var(--ms-rail-collapsed);
+  min-width: var(--ms-rail-collapsed);
   background: var(--ms-bg);
   box-shadow: 4px 0 10px -6px rgba(0, 0, 0, 0.06);
-  /* border-right: 1px solid var(--ms-border); */
   display: flex;
   flex-direction: column;
   padding: 0.5rem 0;
-  transition:
-    width var(--ms-transition),
-    min-width var(--ms-transition);
   overflow: hidden;
   z-index: 4;
 }
@@ -336,6 +332,30 @@
   color: var(--ms-active-text);
 }
 
+/* ── Children indicator (small caret beside label) ── */
+.ms-children-indicator {
+  display: inline-flex;
+  vertical-align: middle;
+  margin-left: 2px;
+  color: var(--ms-muted);
+  transition:
+    transform 0.2s ease,
+    color 0.15s ease;
+  opacity: 0.6;
+}
+
+.ms-children-indicator.open {
+  transform: rotate(180deg);
+  color: var(--ms-active-text);
+  opacity: 1;
+}
+
+.ms-nav-item.active .ms-children-indicator,
+.ms-nav-item.browsing .ms-children-indicator {
+  color: var(--ms-active-text);
+  opacity: 0.8;
+}
+
 .ms-nav-caret {
   flex-shrink: 0;
   margin-left: auto;
@@ -433,7 +453,7 @@
 .ms-drawer {
   position: absolute;
   top: 0;
-  left: var(--ms-rail-width);
+  left: var(--ms-rail-collapsed);
   height: 100%;
   width: var(--ms-drawer-width);
   overflow: hidden;
