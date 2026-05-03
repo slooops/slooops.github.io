@@ -47,7 +47,7 @@ class CommonControllerTest {
     }
 
     @Test void userRole() throws Exception {
-        when(service.getUserRoles("bob")).thenReturn(new UserRoleInfo("bob","bob@example.com", List.of(new RoleEntry(1, "ADMIN"))));
+        when(service.getUserRoles("bob")).thenReturn(new UserRoleInfo("bob","bob@example.com", List.of(new RoleEntry(1, "ADMIN", "N"))));
         mvc.perform(get("/api/user-role").param("username","bob"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("bob"));
