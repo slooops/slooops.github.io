@@ -73,8 +73,17 @@
       <section class="sh__charts-row">
         <!-- Exception Trends -->
         <div class="sh__chart-card sh__chart-card--2">
-          <div class="sh__card-header-row">
+          <div class="sh__card-header-row sh__card-header-row--spaced">
             <span class="sh__section-label">Exception Trends</span>
+            <select
+              class="sh__select sh__select--sm"
+              [(ngModel)]="trendCategory"
+              (ngModelChange)="onTrendCategoryChange($event)"
+            >
+              @for (cat of trendCategories; track cat) {
+                <option [value]="cat">{{ cat }}</option>
+              }
+            </select>
           </div>
           @if (trendLoading) {
             <div

@@ -82,6 +82,7 @@ interface TrendPoint {
   total: number;
   completed: number;
   failed: number;
+  rejected: number;
 }
 
 @Component({
@@ -339,24 +340,122 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
   }
 
   /* ── Trends ── */
+  trendCategory = 'All';
+  trendCategories = ['All', 'Revenue', 'Billing', 'Attribution'];
+
+  private readonly mockTrendData: Record<string, TrendPoint[]> = {
+    All: [
+      { date: '2026-04-05', total: 45, completed: 28, failed: 7, rejected: 10 },
+      { date: '2026-04-06', total: 52, completed: 34, failed: 8, rejected: 10 },
+      {
+        date: '2026-04-07',
+        total: 68,
+        completed: 40,
+        failed: 12,
+        rejected: 16,
+      },
+      {
+        date: '2026-04-08',
+        total: 95,
+        completed: 55,
+        failed: 18,
+        rejected: 22,
+      },
+      {
+        date: '2026-04-10',
+        total: 234,
+        completed: 120,
+        failed: 44,
+        rejected: 70,
+      },
+      {
+        date: '2026-04-13',
+        total: 78,
+        completed: 50,
+        failed: 12,
+        rejected: 16,
+      },
+      { date: '2026-04-16', total: 42, completed: 30, failed: 5, rejected: 7 },
+      { date: '2026-04-17', total: 38, completed: 25, failed: 6, rejected: 7 },
+      { date: '2026-04-21', total: 30, completed: 20, failed: 4, rejected: 6 },
+      { date: '2026-04-27', total: 35, completed: 22, failed: 5, rejected: 8 },
+      { date: '2026-04-30', total: 48, completed: 32, failed: 8, rejected: 8 },
+    ],
+    Revenue: [
+      { date: '2026-04-05', total: 22, completed: 18, failed: 2, rejected: 2 },
+      { date: '2026-04-06', total: 30, completed: 24, failed: 3, rejected: 3 },
+      { date: '2026-04-07', total: 55, completed: 42, failed: 5, rejected: 8 },
+      {
+        date: '2026-04-08',
+        total: 72,
+        completed: 50,
+        failed: 10,
+        rejected: 12,
+      },
+      {
+        date: '2026-04-10',
+        total: 160,
+        completed: 95,
+        failed: 30,
+        rejected: 35,
+      },
+      { date: '2026-04-13', total: 88, completed: 70, failed: 8, rejected: 10 },
+      { date: '2026-04-16', total: 60, completed: 48, failed: 6, rejected: 6 },
+      { date: '2026-04-17', total: 45, completed: 38, failed: 4, rejected: 3 },
+      { date: '2026-04-21', total: 35, completed: 28, failed: 3, rejected: 4 },
+      { date: '2026-04-27', total: 40, completed: 32, failed: 4, rejected: 4 },
+      { date: '2026-04-30', total: 50, completed: 40, failed: 5, rejected: 5 },
+    ],
+    Billing: [
+      { date: '2026-04-05', total: 8, completed: 3, failed: 3, rejected: 2 },
+      { date: '2026-04-06', total: 12, completed: 4, failed: 5, rejected: 3 },
+      { date: '2026-04-07', total: 18, completed: 6, failed: 7, rejected: 5 },
+      { date: '2026-04-08', total: 25, completed: 8, failed: 10, rejected: 7 },
+      {
+        date: '2026-04-10',
+        total: 65,
+        completed: 18,
+        failed: 28,
+        rejected: 19,
+      },
+      {
+        date: '2026-04-13',
+        total: 40,
+        completed: 12,
+        failed: 16,
+        rejected: 12,
+      },
+      { date: '2026-04-16', total: 22, completed: 9, failed: 8, rejected: 5 },
+      { date: '2026-04-17', total: 15, completed: 6, failed: 5, rejected: 4 },
+      { date: '2026-04-21', total: 10, completed: 4, failed: 3, rejected: 3 },
+      { date: '2026-04-27', total: 14, completed: 5, failed: 5, rejected: 4 },
+      { date: '2026-04-30', total: 20, completed: 7, failed: 8, rejected: 5 },
+    ],
+    Attribution: [
+      { date: '2026-04-05', total: 5, completed: 1, failed: 1, rejected: 3 },
+      { date: '2026-04-06', total: 7, completed: 2, failed: 1, rejected: 4 },
+      { date: '2026-04-07', total: 15, completed: 3, failed: 2, rejected: 10 },
+      { date: '2026-04-08', total: 20, completed: 4, failed: 3, rejected: 13 },
+      { date: '2026-04-10', total: 50, completed: 8, failed: 5, rejected: 37 },
+      { date: '2026-04-13', total: 32, completed: 6, failed: 4, rejected: 22 },
+      { date: '2026-04-16', total: 18, completed: 4, failed: 2, rejected: 12 },
+      { date: '2026-04-17', total: 12, completed: 3, failed: 1, rejected: 8 },
+      { date: '2026-04-21', total: 8, completed: 2, failed: 1, rejected: 5 },
+      { date: '2026-04-27', total: 10, completed: 3, failed: 1, rejected: 6 },
+      { date: '2026-04-30', total: 14, completed: 4, failed: 2, rejected: 8 },
+    ],
+  };
+
+  onTrendCategoryChange(category: string): void {
+    this.trendCategory = category;
+    this.trendData = this.mockTrendData[category] || this.mockTrendData['All'];
+    this.renderTrendChart();
+  }
+
   private fetchTrends(): void {
-    this.trendLoading = true;
-    this.http
-      .get<{
-        data: TrendPoint[];
-      }>('https://i2c-aria-dev.cisco.com/api/stats/trends?period=30d')
-      .subscribe({
-        next: (res) => {
-          this.trendData = (res.data || []).sort(
-            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-          );
-          this.trendLoading = false;
-          setTimeout(() => this.renderTrendChart(), 0);
-        },
-        error: () => {
-          this.trendLoading = false;
-        },
-      });
+    this.trendData = this.mockTrendData['All'];
+    this.trendLoading = false;
+    setTimeout(() => this.renderTrendChart(), 0);
   }
 
   private renderTrendChart(): void {
@@ -404,6 +503,17 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
             tension: 0.3,
             pointRadius: 4,
             pointBackgroundColor: '#e53935',
+            borderWidth: 2,
+          },
+          {
+            label: 'Rejected',
+            data: this.trendData.map((d) => d.rejected),
+            borderColor: '#ff6600',
+            backgroundColor: 'rgba(255, 102, 0, 0.05)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#ff6600',
             borderWidth: 2,
           },
         ],
