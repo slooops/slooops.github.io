@@ -16,6 +16,7 @@
 <!-- [data]="productMidCloseActuals" -->
 @if (showProductModal) {
   <app-modal
+    [darkMode]="themeService.isDarkMode"
     [headerBgColor]="'transparent'"
     [title]="'WD-0 Mid-Close Product Actuals'"
     (close)="showProductModal = false"
@@ -155,6 +156,7 @@
 <!-- Service Modal [data]="serviceMidCloseActuals" -->
 @if (showServiceModal) {
   <app-modal
+    [darkMode]="themeService.isDarkMode"
     [title]="'WD-0 Mid-Close Service Actuals'"
     (close)="showServiceModal = false"
     [headerBgColor]="'transparent'"
@@ -448,115 +450,104 @@
     </div>
   </div>
 
-  <div class="sortArrow" style="overflow: auto; max-width: unset">
-    <table
-      mat-table
-      [dataSource]="dataSource"
-      class="table table-responsive table-striped"
-      aria-label="WD+0 Mid Close Volumes Table"
-    >
-      @for (column of displayedColumns; track column; let i = $index) {
-        <ng-container [matColumnDef]="column">
-          <th mat-header-cell *matHeaderCellDef>
-            @if (column === "trend") {
-              QoQ Trend
-            } @else {
-              {{ formatColumnHeader(column) | uppercase }}
-            }
-          </th>
-          <td
-            mat-cell
-            *matCellDef="let row; let rowIndex = index"
-            [ngStyle]="
-              isProductTotalRow(row)
-                ? { 'border-bottom': '2px solid rgb(0, 158, 220)' }
-                : {}
-            "
-          >
-            @if (column !== "trend") {
-              @if (column === "ENTITY" || column === "LINE_TYPE") {
-                <span
-                  ><b> {{ row[column] }}</b></span
-                >
+  <div class="wd0-table-scroll">
+    <table class="wd0-table" aria-label="WD+0 Mid Close Volumes Table">
+      <thead>
+        <tr>
+          @for (column of displayedColumns; track column) {
+            <th>
+              @if (column === "trend") {
+                QoQ Trend
+              } @else {
+                {{ formatColumnHeader(column) | uppercase }}
               }
-              @if (column !== "ENTITY" && column !== "LINE_TYPE") {
-                <span>
-                  {{ row[column] | formatNumber }}
-                </span>
-              }
-            } @else {
-              @if (
-                getTrend(row, displayedColumns[i - 2], displayedColumns[i - 1])
-                  .trend === "up"
-              ) {
-                <span>
-                  ⬆
-                  {{
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of dataSource?.data; track row; let i = $index) {
+          <tr [class.product-total-row]="isProductTotalRow(row)">
+            @for (column of displayedColumns; track column; let ci = $index) {
+              <td [class.product-total-border]="isProductTotalRow(row)">
+                @if (column !== "trend") {
+                  @if (column === "ENTITY" || column === "LINE_TYPE") {
+                    <strong>{{ row[column] }}</strong>
+                  } @else {
+                    {{ row[column] | formatNumber }}
+                  }
+                } @else {
+                  @if (
                     getTrend(
                       row,
-                      displayedColumns[i - 2],
-                      displayedColumns[i - 1]
-                    ).change === "—"
-                      ? "—"
-                      : (getTrend(
+                      displayedColumns[ci - 2],
+                      displayedColumns[ci - 1]
+                    ).trend === "up"
+                  ) {
+                    <span class="trend-up">
+                      <ng-icon name="phosphorCaretUpBold" size="14" />
+                      {{
+                        getTrend(
                           row,
-                          displayedColumns[i - 2],
-                          displayedColumns[i - 1]
-                        ).change | number: "1.0-0") + "%"
-                  }}
-                </span>
-              }
-              @if (
-                getTrend(row, displayedColumns[i - 2], displayedColumns[i - 1])
-                  .trend === "down"
-              ) {
-                <span>
-                  ⬇
-                  {{
+                          displayedColumns[ci - 2],
+                          displayedColumns[ci - 1]
+                        ).change === "—"
+                          ? "—"
+                          : (getTrend(
+                              row,
+                              displayedColumns[ci - 2],
+                              displayedColumns[ci - 1]
+                            ).change | number: "1.0-0") + "%"
+                      }}
+                    </span>
+                  }
+                  @if (
                     getTrend(
                       row,
-                      displayedColumns[i - 2],
-                      displayedColumns[i - 1]
-                    ).change === "—"
-                      ? "—"
-                      : (getTrend(
+                      displayedColumns[ci - 2],
+                      displayedColumns[ci - 1]
+                    ).trend === "down"
+                  ) {
+                    <span class="trend-down">
+                      <ng-icon name="phosphorCaretDownBold" size="14" />
+                      {{
+                        getTrend(
                           row,
-                          displayedColumns[i - 2],
-                          displayedColumns[i - 1]
-                        ).change | number: "1.0-0") + "%"
-                  }}
-                </span>
-              }
-              @if (
-                getTrend(row, displayedColumns[i - 2], displayedColumns[i - 1])
-                  .trend === "same"
-              ) {
-                <span> — </span>
-              }
+                          displayedColumns[ci - 2],
+                          displayedColumns[ci - 1]
+                        ).change === "—"
+                          ? "—"
+                          : (getTrend(
+                              row,
+                              displayedColumns[ci - 2],
+                              displayedColumns[ci - 1]
+                            ).change | number: "1.0-0") + "%"
+                      }}
+                    </span>
+                  }
+                  @if (
+                    getTrend(
+                      row,
+                      displayedColumns[ci - 2],
+                      displayedColumns[ci - 1]
+                    ).trend === "same"
+                  ) {
+                    <span> — </span>
+                  }
+                }
+              </td>
             }
-          </td>
-        </ng-container>
-      }
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumns"
-        [ngStyle]="
-          isProductTotalRow(row)
-            ? { 'total-row-separator': 'total-row-separator' }
-            : {}
-        "
-      ></tr>
+          </tr>
+        }
+      </tbody>
     </table>
   </div>
 
   <div style="display: flex; justify-content: center">
     @if (!dataSource?.data?.length) {
-      <tr>
-        <td colspan="100%" style="text-align: center">
-          <app-loading-symbol></app-loading-symbol>
-        </td>
-      </tr>
+      <div style="text-align: center; padding: 2rem">
+        <app-loading-symbol></app-loading-symbol>
+      </div>
     }
   </div>
 </div>

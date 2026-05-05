@@ -16,6 +16,7 @@ import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { ExceptionsComponent } from './exceptions/exceptions.component';
 import { ExceptionDetailsComponent } from './exception-details/exception-details.component';
 import { SessionsComponent } from './sessions/sessions.component';
+import { ThemeService } from '../providers/theme.service';
 
 Chart.register(...registerables);
 
@@ -107,7 +108,10 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
   private trendChart: Chart | null = null;
   private categoryChart: Chart | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    public themeService: ThemeService,
+  ) {}
 
   /* ── Chart data ── */
   trendData: TrendPoint[] = [];
@@ -128,15 +132,10 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
   }
 
   /* ── Dark Mode ── */
-  isDarkMode = false;
 
   @HostBinding('class.dark-theme')
   get darkThemeClass() {
-    return this.isDarkMode;
-  }
-
-  toggleDarkMode(): void {
-    this.isDarkMode = !this.isDarkMode;
+    return this.themeService.isDarkMode;
   }
 
   /* ── Filters ── */

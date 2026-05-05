@@ -77,6 +77,19 @@
   --fit-z-tooltip: 1000;
   --fit-z-modal-backdrop: 1030;
   --fit-z-modal: 1040;
+
+  /* ── Dark mode palette ── */
+  --fit-dark-bg: #0f1923;
+  --fit-dark-surface: #111b25;
+  --fit-dark-card-bg: rgba(28, 44, 58, 0.85);
+  --fit-dark-card-border: rgba(42, 63, 80, 0.6);
+  --fit-dark-border: #2a3f50;
+  --fit-dark-text: #e0e6ed;
+  --fit-dark-muted: #8899a6;
+  --fit-dark-hover-bg: rgba(255, 255, 255, 0.06);
+  --fit-dark-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  --fit-dark-header-bg: rgba(26, 39, 51, 0.8);
+  --fit-dark-toolbar-bg: rgba(15, 25, 35, 0.9);
 }
 
 /* ------------------------------

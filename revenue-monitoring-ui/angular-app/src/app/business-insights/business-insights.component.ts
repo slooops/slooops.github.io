@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostBinding, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
@@ -6,6 +6,7 @@ import { ApiHttpService } from '../providers/http.service';
 import { SearchContextService } from '../search-context.service';
 import { DataService, PeriodStatus } from '../providers/data.service';
 import { ChatbotService } from '../chatbot/chatbot.service';
+import { ThemeService } from '../providers/theme.service';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -43,6 +44,14 @@ import {
   standalone: true,
 })
 export class BusinessInsightsComponent implements OnInit, OnDestroy {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode && this.activeTabSupportsDarkMode;
+  }
+
+  get activeTabSupportsDarkMode(): boolean {
+    return this.filteredTabs[this.selectedIndex]?.supportsDarkMode ?? false;
+  }
+
   constructor(
     private authService: AuthenticationService,
     private menuService: MenuService,
@@ -51,6 +60,7 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
     private dataService: DataService,
     private route: ActivatedRoute,
     private chatbotService: ChatbotService,
+    public themeService: ThemeService,
   ) {}
   roles: string[] = [];
   private userName: string = '';
@@ -130,6 +140,10 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
     this.updateTime();
     this.updateChatbotVisibility();
 
+    // Set toolbar toggle visibility based on initial tab
+    this.themeService.routeSupportsDarkMode =
+      this.filteredTabs[this.selectedIndex]?.supportsDarkMode ?? false;
+
     this.dataService.periodStatus$
       .pipe(takeUntil(this.destroy$))
       .subscribe((status) => {
@@ -174,6 +188,10 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
 
       this.searchContextService.setO2cSearchVisible(false);
 
+      // Show/hide toolbar dark-mode toggle based on tab capability
+      this.themeService.routeSupportsDarkMode =
+        selectedTab?.supportsDarkMode ?? false;
+
       // Refresh last updated time
       this.updateTime();
 
@@ -197,6 +215,7 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
     component: string;
     role: string[];
     disabled?: boolean;
+    supportsDarkMode?: boolean;
   }[] = [
     {
       label: 'Large Deal Tracker',
@@ -212,6 +231,7 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
       label: 'Midclose Volumes',
       component: 'app-wd0-historical-data',
       role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
+      supportsDarkMode: true,
     },
     {
       label: 'Active Incidents',
@@ -226,7 +246,12 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
   ];
 
   selectedIndex: number = 0;
-  filteredTabs: { label: string; component: string; disabled?: boolean }[] = [];
+  filteredTabs: {
+    label: string;
+    component: string;
+    disabled?: boolean;
+    supportsDarkMode?: boolean;
+  }[] = [];
 
   get menuItems(): MenuMiniItem[] {
     return this.filteredTabs.map((t) => ({

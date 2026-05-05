@@ -26,21 +26,21 @@
 
 /* ── Dark theme ── */
 :host(.dark-theme) {
-  --ms-bg: #1a2733;
-  --ms-surface: #0f1923;
-  --ms-text: #e0e6ed;
-  --ms-muted: #8899a6;
+  --ms-bg: rgba(24, 37, 50);
+  --ms-surface: var(--fit-dark-bg);
+  --ms-text: var(--fit-dark-text);
+  --ms-muted: var(--fit-dark-muted);
   --ms-icon: #8faabe;
   --ms-active-bg: rgba(0, 188, 235, 0.12);
   --ms-active-border: #00bceb;
   --ms-active-text: #00bceb;
-  --ms-hover-bg: rgba(255, 255, 255, 0.06);
-  --ms-border: rgba(42, 63, 80, 0.6);
+  --ms-hover-bg: var(--fit-dark-hover-bg);
+  --ms-border: rgba(26, 39, 51, 0.8);
   --ms-drawer-bg: rgba(26, 39, 51, 0.65);
   --ms-drawer-shadow:
     inset 8px 0 16px -6px rgba(0, 0, 0, 0.2),
     4px 0 16px -6px rgba(0, 0, 0, 0.15);
-  --ms-pill-bg: #1a2733;
+  --ms-pill-bg: var(--fit-dark-surface);
   --ms-pill-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
@@ -59,6 +59,7 @@
   min-width: var(--ms-rail-collapsed);
   background: var(--ms-bg);
   box-shadow: 4px 0 10px -6px rgba(0, 0, 0, 0.06);
+  border-right: 1px solid var(--ms-border);
   display: flex;
   flex-direction: column;
   padding: 0.5rem 0;

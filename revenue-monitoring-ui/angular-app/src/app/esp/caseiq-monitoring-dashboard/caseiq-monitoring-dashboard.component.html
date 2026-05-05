@@ -31,19 +31,8 @@
           <option [ngValue]="opt.value">{{ opt.label }}</option>
         }
       </select>
-      <button
-        class="ciq-btn ciq-btn-icon"
-        (click)="toggleTheme()"
-        [title]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
-      >
-        <ng-icon
-          [name]="isDarkMode ? 'phosphorSunBold' : 'phosphorMoonBold'"
-          size="16"
-        />
-      </button>
       <button class="ciq-btn ciq-btn-icon" (click)="refreshAll()">
         <ng-icon name="phosphorArrowClockwiseBold" size="14" />
-        Refresh
       </button>
 
       <span class="ciq-auto-refresh">Auto: 5m</span>
@@ -534,6 +523,5 @@
       </div>
     </div>
   }
+  <br /><br /><br />
 </div>
-
-<br /><br /><br />

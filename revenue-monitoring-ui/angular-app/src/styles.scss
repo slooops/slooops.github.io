@@ -280,6 +280,19 @@ h6 {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
+/* ── Dark mode overrides for global .card/.container ── */
+.dark-theme .card,
+.dark-theme .container {
+  background-color: var(--fit-dark-card-bg, rgba(28, 44, 58, 0.85));
+  border: 1px solid var(--fit-dark-card-border, rgba(42, 63, 80, 0.6));
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  color: var(--fit-dark-text, #e0e6ed);
+}
+
+.dark-theme .card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
 .card-stack {
   align-items: stretch;
   display: flex;

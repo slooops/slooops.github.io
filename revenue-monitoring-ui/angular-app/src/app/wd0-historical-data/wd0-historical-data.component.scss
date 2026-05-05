@@ -1,82 +1,108 @@
-// Table Styles
-.table-responsive {
-  overflow: auto;
+// ── Host theming ──
+:host {
+  --wd0-surface: #ffffff;
+  --wd0-card-bg: rgba(255, 255, 255, 0.72);
+  --wd0-card-border: rgba(255, 255, 255, 0.6);
+  --wd0-text: #1b1c1d;
+  --wd0-muted: #555;
+  --wd0-border: #e1e4e8;
+  --wd0-hover-bg: rgba(0, 112, 210, 0.04);
+  --wd0-th-bg: linear-gradient(
+    to bottom,
+    #ffffff 0%,
+    #ffffff 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  display: block;
+  background: var(--wd0-bg);
+  min-height: 100%;
 }
 
-.generic-table {
-  background: white;
-  color: black;
-  width: 100%;
+:host(.dark-theme) {
+  --wd0-bg: var(--fit-dark-bg);
+  --wd0-surface: var(--fit-dark-surface);
+  --wd0-card-bg: var(--fit-dark-card-bg);
+  --wd0-card-border: var(--fit-dark-card-border);
+  --wd0-text: var(--fit-dark-text);
+  --wd0-muted: var(--fit-dark-muted);
+  --wd0-border: var(--fit-dark-border);
+  --wd0-hover-bg: var(--fit-dark-hover-bg);
+  --wd0-th-bg: var(--fit-dark-card-bg);
+}
+
+// ── WD0 Table (CaseIQ style) ──
+.wd0-table-scroll {
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+.wd0-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.wd0-table th {
   text-align: center;
+  padding: 10px 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--wd0-text);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  white-space: nowrap;
 }
 
-// Material Table Overrides
-.mat-mdc-header-row {
-  background-color: #ffffff !important;
-  border-bottom: 2px solid #373c42 !important;
+.wd0-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--wd0-border);
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--wd0-text);
 }
 
-.mat-mdc-header-cell {
-  color: rgb(46, 46, 46) !important;
-  text-align: center !important;
-  border-bottom: 0px !important;
-  font-size: 12px !important;
-  padding: 1vh !important;
-}
-
-th.mat-mdc-header-cell {
-  padding-bottom: unset !important;
-  padding-top: unset !important;
-  padding-left: 15px !important;
-}
-
-tr.mat-mdc-header-row {
-  height: 40px;
-}
-
-.mat-mdc-cell {
-  font-size: 12px;
-  line-height: 2;
-}
-
-td.mat-mdc-cell {
-  padding: 4px 0 0 0;
-}
-
-tr.mat-mdc-row {
-  height: 25px;
+.wd0-table tr:last-child td {
   border-bottom: none;
 }
 
-tr.mat-mdc-footer-row {
-  border: 1px solid #e7e7e7;
-  font-weight: bold;
-  height: 10px !important;
+.wd0-table tr:hover td {
+  background: var(--wd0-hover-bg);
 }
 
-table.mat-mdc-table {
-  border-collapse: collapse;
+.product-total-border {
+  border-bottom: 2px solid rgb(143, 151, 155) !important;
 }
 
-td {
-  text-align: center !important;
-  font-size: 11px;
+.trend-up,
+.trend-down {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
 
-th {
-  text-align: center;
+.trend-up {
+  color: #1c8c4c;
 }
 
-td.mat-mdc-cell tr.mat-mdc-row.total-row-separator {
-  border-bottom: 1px solid black;
+.trend-down {
+  color: #e53935;
 }
 
-.boldrow {
-  font-weight: bold !important;
+:host(.dark-theme) .trend-up {
+  color: #6ebe4a;
 }
 
-// Chart & Card Styles
+:host(.dark-theme) .trend-down {
+  color: #ff6b6b;
+}
+
+// ── Chart & Card Styles ──
 .header-container {
   display: flex;
   justify-content: center;
@@ -85,15 +111,18 @@ td.mat-mdc-cell tr.mat-mdc-row.total-row-separator {
 
 .chart-description {
   font-size: 12px;
-  color: #6c6c6c;
+  color: var(--wd0-muted);
   margin-top: 10px;
   padding-left: 3vw;
 }
 
-// Chart Container - Ensures consistent width between loading and loaded states
 canvas {
   width: 100% !important;
   max-width: 100%;
+}
+
+:host(.dark-theme) .page-title {
+  color: var(--wd0-text);
 }
 
 .data-outdated-overlay {
@@ -257,4 +286,34 @@ canvas {
     padding: 1rem;
     max-height: 80vh;
   }
+}
+
+// ── Dark mode overrides ──
+:host(.dark-theme) .mc-table {
+  th,
+  td {
+    border-color: #2a3f50;
+    background: var(--wd0-surface);
+    color: var(--wd0-text);
+  }
+  th {
+    background: #1e3040;
+  }
+}
+
+:host(.dark-theme) .mc-h2,
+:host(.dark-theme) .mc-h3,
+:host(.dark-theme) .mc-h4,
+:host(.dark-theme) .mc-h5 {
+  color: var(--wd0-text);
+}
+
+:host(.dark-theme) .icon-shimmer {
+  background: linear-gradient(90deg, #1a2733 25%, #2a3f50 50%, #1a2733 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite ease-in-out;
+}
+
+:host(.dark-theme) .legend-item {
+  color: var(--wd0-text);
 }

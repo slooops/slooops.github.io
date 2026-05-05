@@ -1,6 +1,13 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  HostBinding,
+  Input,
+  Output,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIcon } from '@ng-icons/core';
+import { ThemeService } from '../providers/theme.service';
 
 export interface NavItem {
   label: string;
@@ -22,6 +29,13 @@ export class MenuComponent {
   @Input() userRoles: string[] = [];
   @Input() currentUrl = '';
   @Output() navigateEvent = new EventEmitter<string>();
+
+  @HostBinding('class.dark-theme')
+  get darkThemeClass(): boolean {
+    return this.themeService.isDarkMode;
+  }
+
+  constructor(public themeService: ThemeService) {}
 
   collapsed = true;
   activeDrawer: string | null = null;

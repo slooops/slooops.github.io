@@ -215,7 +215,7 @@
 
 .sh {
   width: 100%;
-  padding: 1rem 2rem;
+  padding: 1rem 1.5rem;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -1226,7 +1226,7 @@
 }
 
 :host(.dark-theme) .sh__table th {
-  background: var(--sh-surface);
+  background: transparent;
   border-bottom-color: rgba(42, 63, 80, 0.6);
 }
 
@@ -1780,12 +1780,12 @@
    Dark Mode
    ══════════════════════════════ */
 :host(.dark-theme) {
-  --sh-bg: #0f1923;
-  --sh-surface: #1a2733;
-  --sh-card-bg: rgba(28, 44, 58, 0.85);
-  --sh-card-border: rgba(42, 63, 80, 0.6);
-  --sh-text: #e0e6ed;
-  --sh-text-secondary: #8899a6;
+  --sh-bg: var(--fit-dark-bg);
+  --sh-surface: var(--fit-dark-surface);
+  --sh-card-bg: var(--fit-dark-card-bg);
+  --sh-card-border: var(--fit-dark-card-border);
+  --sh-text: var(--fit-dark-text);
+  --sh-text-secondary: var(--fit-dark-muted);
   --sh-muted: #6b7f8e;
   --sh-cyan: #00e5ff;
   --sh-blue: #2979ff;
@@ -1798,14 +1798,14 @@
   --sh-hover-bg: rgba(41, 121, 255, 0.08);
   --sh-row-bg: rgba(26, 39, 51, 0.8);
   --sh-row-hover: rgba(42, 63, 80, 0.6);
-  --sh-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  --sh-card-shadow: var(--fit-dark-card-shadow);
   --sh-tag-bg: rgba(26, 39, 51, 0.8);
   --sh-tag-success-bg: rgba(110, 190, 74, 0.12);
   --sh-tag-success-text: #6ebe4a;
 }
 
 :host(.dark-theme) .dashboard-header {
-  background: rgba(15, 25, 35, 0.8);
+  background: rgba(26, 39, 51, 0.8);
 }
 
 :host(.dark-theme) .sh__divider {

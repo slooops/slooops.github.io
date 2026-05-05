@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, HostBinding, OnInit, signal } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { Chart, ChartOptions, registerables } from 'chart.js';
@@ -12,6 +12,7 @@ import { HomeDataService } from 'src/app/home/home-data.service';
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
+import { ThemeService } from 'src/app/providers/theme.service';
 import {
   MenuMiniComponent,
   MenuMiniItem,
@@ -48,11 +49,15 @@ type PairConfig = {
   standalone: true,
 })
 export class EspCaseAnalyzerComponent implements OnInit {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
   constructor(
     http: ApiHttpService,
     private destroyManager: DestroyManager,
     private homeDataService: HomeDataService,
     private authService: AuthenticationService,
+    public themeService: ThemeService,
   ) {
     this.http = http;
     Chart.register(...registerables);

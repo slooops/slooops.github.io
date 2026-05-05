@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  HostBinding,
   HostListener,
   Input,
   Output,
@@ -25,6 +26,7 @@ export class MenuMiniComponent {
   @Input() items: MenuMiniItem[] = [];
   @Input() activeIndex = -1;
   @Input() activeKey = '';
+  @Input() @HostBinding('class.dark-theme') darkMode = false;
   @Output() selected = new EventEmitter<{
     index: number;
     item: MenuMiniItem;

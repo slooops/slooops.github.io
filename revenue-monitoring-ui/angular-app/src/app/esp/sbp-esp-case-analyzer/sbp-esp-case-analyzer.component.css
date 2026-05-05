@@ -1,11 +1,40 @@
+/* ── Light mode (default) ── */
+:host {
+  --esp-bg: #f0f4f8;
+  --esp-surface: #ffffff;
+  --esp-text: #1b1c1d;
+  --esp-muted: #555;
+  --esp-border: #e0e0e0;
+  --esp-card-bg: rgba(255, 255, 255, 0.72);
+  --esp-card-border: rgba(255, 255, 255, 0.6);
+  --esp-hover-bg: rgba(0, 112, 210, 0.04);
+  display: block;
+  background: var(--esp-bg);
+  min-height: 100%;
+}
+
+/* ── Dark mode ── */
+:host(.dark-theme) {
+  --esp-bg: var(--fit-dark-bg);
+  --esp-surface: var(--fit-dark-surface);
+  --esp-text: var(--fit-dark-text);
+  --esp-muted: var(--fit-dark-muted);
+  --esp-border: var(--fit-dark-border);
+  --esp-card-bg: var(--fit-dark-card-bg);
+  --esp-card-border: var(--fit-dark-card-border);
+  --esp-hover-bg: var(--fit-dark-hover-bg);
+}
+
 /* ===== Header Bar ===== */
 .analyzer-dashboard {
   width: 100%;
+  color: var(--esp-text);
 }
 
 .dashboard-header {
+  background: var(--esp-surface);
   padding: 0.5rem 1rem;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--esp-border);
 }
 
 .header-main {
@@ -25,7 +54,7 @@
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #1e1e1e;
+  color: var(--esp-text);
 }
 
 .header-right {
@@ -36,12 +65,12 @@
 
 .period-info {
   font-size: 14px;
-  color: #1e1e1e;
+  color: var(--esp-text);
   white-space: nowrap;
 }
 
 .period-info .divider {
-  color: #ccc;
+  color: var(--esp-muted);
 }
 
 /* ===== Tab Content ===== */
@@ -52,6 +81,7 @@
   font-size: 12px;
   margin: 2px 1.5rem -1rem 0;
   font-weight: 600;
+  color: var(--esp-muted);
 }
 
 /* ===== Responsive ===== */
@@ -65,96 +95,14 @@
   }
 }
 
-/* ===== Table Styles ===== */
-.mat-mdc-header-row {
-  background-color: #ffffff !important;
-  border-bottom: 2px solid #373c42 !important; /* Add a bar below the header row */
-}
-
-.mat-mdc-header-cell {
-  color: rgb(46, 46, 46) !important;
-  text-align: center !important;
-  border-bottom: 0px !important;
-  font-size: 12px !important;
-  padding: 1vh !important;
-}
-
-/* Styling for table rows */
-.mat-mdc-row:nth-child(odd) {
-  background-color: #f2f2f2 !important;
-}
-
-.mat-mdc-row:nth-child(even) {
-  background-color: #ffffff !important;
-}
-
-.mat-mdc-cell {
-  text-align: center !important;
-  font-size: 11px !important;
-  font-weight: 500 !important;
-  padding: 0.4vh !important;
-  border: 0px !important;
-}
-
-tr.mat-mdc-row {
-  height: 30px;
-  border-bottom: 0px;
-}
-
-td {
-  font-size: 11px;
-}
-
-th {
-  text-align: center !important;
-  border-bottom: 0px !important;
-  font-size: 12px;
-  padding: 0.5vh !important ;
-}
-
-td {
-  text-align: center !important;
-  font-size: 11px;
-  padding: 0.4vh !important ;
-  border: 0px !important;
-}
-
-tr.mat-mdc-header-row {
-  height: 28px;
-}
-
-.loading-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 28vw;
-  min-height: 14vw;
-  width: 100%;
-  height: 100%;
-}
-
-.dash-link {
-  color: #303030 !important;
-  margin: -3px 10px 0 0;
-}
-
-table.mat-mdc-table .mat-mdc-header-cell.wide-column,
-table.mat-mdc-table .mat-mdc-cell.wide-column {
-  /* min-width: 18rem; */
-}
-table.mat-mdc-table .mat-mdc-header-cell.wide-column,
-table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
-  min-width: 25rem;
-}
-
-/* Container for the charts */
+/* ===== Charts ===== */
 .chart-container {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
   width: 100%;
 }
-/* Canvas wrapper for positioning */
+
 .chart-canvas {
   position: relative;
   height: 300px;
@@ -164,6 +112,7 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
   flex-direction: column;
 }
 
+/* ===== Ask Ivan ===== */
 .ask-ivan-btn {
   display: flex;
   align-items: center;

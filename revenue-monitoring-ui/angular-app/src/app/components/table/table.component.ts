@@ -1,8 +1,6 @@
-import { Component, Input } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
+import { Component, HostBinding, Input } from '@angular/core';
 import * as XLSX from 'xlsx';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { phosphorArrowLineDownBold } from '@ng-icons/phosphor-icons/bold';
@@ -11,18 +9,22 @@ import { phosphorArrowLineDownBold } from '@ng-icons/phosphor-icons/bold';
   selector: 'app-table',
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.css'],
-  imports: [CommonModule, MatTableModule, LoadingSymbolComponent, NgIcon],
+  imports: [CommonModule, LoadingSymbolComponent, NgIcon],
   providers: [provideIcons({ phosphorArrowLineDownBold })],
   standalone: true,
 })
 export class TableComponent {
-  @Input() title!: string; // Table Title
-  @Input() dataSource!: MatTableDataSource<any>; // Data for the table
-  @Input() displayedColumns!: string[]; // Columns to display
-  @Input() exportFileName!: string; // File name for export
-  @Input() reportLink?: string; // Optional report link
-  @Input() serviceNowLink?: string; // Optional ServiceNow link
-  @Input() extraWideColumns: string[] = []; // Columns that should be wider
+  @Input() title!: string;
+  @Input() dataSource!: { data: any[] };
+  @Input() displayedColumns!: string[];
+  @Input() exportFileName!: string;
+  @Input() reportLink?: string;
+  @Input() serviceNowLink?: string;
+  @Input() extraWideColumns: string[] = [];
+  @Input() set darkMode(val: boolean) {
+    this._darkMode = val;
+  }
+  @HostBinding('class.dark-theme') _darkMode = false;
 
   removeUnderscores(key: string): string {
     return key.replace(/_/g, ' ');

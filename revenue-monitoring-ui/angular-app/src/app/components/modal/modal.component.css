@@ -54,3 +54,29 @@
   overflow-y: auto;
   flex-grow: 1;
 }
+
+/* ── Dark mode ── */
+:host(.dark-theme) .modal-overlay {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+:host(.dark-theme) .modal-content {
+  background: #1a2733;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+:host(.dark-theme) .modal-header {
+  background: #1e3040 !important;
+}
+
+:host(.dark-theme) .modal-title {
+  color: #e0e6ed;
+}
+
+:host(.dark-theme) .close-button {
+  color: #8899a6;
+}
+
+:host(.dark-theme) .close-button:hover {
+  color: #e0e6ed;
+}

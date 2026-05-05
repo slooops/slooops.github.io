@@ -30,13 +30,13 @@
 
 /* ── Dark mode ──────────────────────────────────────────────── */
 :host(.dark-theme) {
-  --ciq-bg: #0f1923;
-  --ciq-surface: #1a2733;
-  --ciq-card-bg: rgba(28, 44, 58, 0.85);
-  --ciq-card-border: rgba(42, 63, 80, 0.6);
-  --ciq-border: #2a3f50;
-  --ciq-text: #e0e6ed;
-  --ciq-muted: #8899a6;
+  --ciq-bg: var(--fit-dark-bg);
+  --ciq-surface: var(--fit-dark-surface);
+  --ciq-card-bg: var(--fit-dark-card-bg);
+  --ciq-card-border: var(--fit-dark-card-border);
+  --ciq-border: var(--fit-dark-border);
+  --ciq-text: var(--fit-dark-text);
+  --ciq-muted: var(--fit-dark-muted);
   --ciq-green: #6ebe4a;
   --ciq-yellow: #ffd600;
   --ciq-red: #ff1744;
@@ -45,8 +45,8 @@
   --ciq-purple: #aa00ff;
   --ciq-cyan: #00e5ff;
   --ciq-accent: #00bceb;
-  --ciq-hover-bg: rgba(41, 121, 255, 0.08);
-  --ciq-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  --ciq-hover-bg: var(--fit-dark-hover-bg);
+  --ciq-card-shadow: var(--fit-dark-card-shadow);
   --ciq-card-radius: 1rem;
   --ciq-kpi-bg: rgba(26, 39, 51, 0.8);
 }
@@ -120,6 +120,7 @@ h6 {
 }
 
 :host(.dark-theme) .ciq-header {
+  background: rgba(26, 39, 51, 0.8);
   border-bottom-color: var(--ciq-border);
 }
 
@@ -1217,7 +1218,7 @@ h6 {
 }
 
 :host(.dark-theme) .ciq-table th {
-  background: var(--ciq-card-bg);
+  background: transparent;
 }
 
 .ciq-table td {

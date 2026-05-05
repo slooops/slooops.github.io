@@ -1,4 +1,33 @@
+/* ── Host theming ── */
+:host {
+  --bi-bg: #ffffff;
+  --bi-surface: #ffffff;
+  --bi-text: #1b1c1d;
+  --bi-muted: #555;
+  --bi-border: rgba(0, 0, 0, 0.06);
+  --bi-header-bg: rgba(255, 255, 255, 0.75);
+  display: block;
+  background: var(--bi-bg);
+  min-height: 100%;
+}
+
+:host(.dark-theme) {
+  --bi-bg: var(--fit-dark-bg);
+  --bi-surface: var(--fit-dark-surface);
+  --bi-text: var(--fit-dark-text);
+  --bi-muted: var(--fit-dark-muted);
+  --bi-border: var(--fit-dark-border);
+  --bi-header-bg: var(--fit-dark-header-bg);
+}
+
 .dashboard-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: var(--bi-header-bg);
+  border-bottom: 1px solid var(--bi-border);
   margin-bottom: 0;
   text-align: left;
   padding: 0 10px;
@@ -16,13 +45,9 @@
 .header-main h2 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #000000;
+  color: var(--bi-text);
   margin: 0;
   white-space: nowrap;
-}
-
-hr {
-  margin: 0;
 }
 
 .header-left {
@@ -42,13 +67,14 @@ hr {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
-  color: #333;
+  font-size: 0.8125rem;
+  color: var(--bi-muted);
   white-space: nowrap;
 }
 
 .period-divider {
-  color: #999;
+  color: var(--bi-muted);
+  opacity: 0.5;
   margin: 0 2px;
 }
 

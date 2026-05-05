@@ -16,6 +16,7 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { HomeDataService } from './home-data.service';
 import { ExportService } from '../monitoring-dashboard/providers/export.service';
+import { ThemeService } from '../providers/theme.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { Chart, ChartConfiguration } from 'chart.js/auto';
 import { CommonModule } from '@angular/common';
@@ -64,7 +65,9 @@ import {
   standalone: true,
 })
 export class HomeComponent implements OnDestroy {
-  @HostBinding('class.dark-theme') isDarkMode = false;
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
   constructor(
     private router: Router,
     private http: ApiHttpService,
@@ -74,6 +77,7 @@ export class HomeComponent implements OnDestroy {
     private homeDataService: HomeDataService,
     private injector: Injector,
     private exportService: ExportService,
+    public themeService: ThemeService,
   ) {
     // Initialize user info
     this.userRoles.set(this.authService.getUserAccessRoles());

@@ -48,6 +48,7 @@ import {
   CtmDownstreamBlocked,
   CtmHourlyTrend,
 } from './ctm-alerts-data.service';
+import { ThemeService } from '../providers/theme.service';
 
 Chart.register(...registerables);
 
@@ -86,7 +87,9 @@ Chart.register(...registerables);
 export class CtmAlertsDashboardComponent
   implements OnInit, OnDestroy, AfterViewInit
 {
-  @HostBinding('class.dark-theme') isDarkMode = false;
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
 
   // State
   loading = true;
@@ -197,6 +200,7 @@ export class CtmAlertsDashboardComponent
     private readonly sharedDataService: DataService,
     private readonly dm: DestroyManager,
     private readonly cdr: ChangeDetectorRef,
+    public themeService: ThemeService,
   ) {}
 
   ngOnInit(): void {
@@ -225,7 +229,7 @@ export class CtmAlertsDashboardComponent
   }
 
   toggleTheme(): void {
-    this.isDarkMode = !this.isDarkMode;
+    this.themeService.toggle();
   }
 
   refreshAll(showLoading = true): void {
@@ -345,7 +349,7 @@ export class CtmAlertsDashboardComponent
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      const isDark = this.isDarkMode;
+      const isDark = this.themeService.isDarkMode;
       const textColor = isDark ? '#e0e6ed' : '#1b1c1d';
       const mutedColor = isDark ? '#8899a6' : '#555';
 
@@ -504,7 +508,7 @@ export class CtmAlertsDashboardComponent
         x: {
           grid: { display: false },
           ticks: {
-            color: this.isDarkMode ? '#8899a6' : '#555',
+            color: this.themeService.isDarkMode ? '#8899a6' : '#555',
             font: { size: 10, weight: 500 as any },
             maxRotation: 0,
             callback: function (_value, index) {
@@ -516,7 +520,7 @@ export class CtmAlertsDashboardComponent
         y: {
           grid: { display: false },
           ticks: {
-            color: this.isDarkMode ? '#8899a6' : '#555',
+            color: this.themeService.isDarkMode ? '#8899a6' : '#555',
             font: { size: 10, weight: 500 as any },
             maxTicksLimit: 4,
           },

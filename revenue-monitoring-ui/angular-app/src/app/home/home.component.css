@@ -32,12 +32,12 @@
 
 /* ── Dark mode ──────────────────────────────────────────── */
 :host(.dark-theme) {
-  --hm-bg: #0f1923;
-  --hm-surface: #1a2733;
-  --hm-card-bg: rgba(28, 44, 58, 0.85);
-  --hm-card-border: rgba(42, 63, 80, 0.6);
-  --hm-text: #e0e6ed;
-  --hm-muted: #8899a6;
+  --hm-bg: var(--fit-dark-bg);
+  --hm-surface: var(--fit-dark-surface);
+  --hm-card-bg: var(--fit-dark-card-bg);
+  --hm-card-border: var(--fit-dark-card-border);
+  --hm-text: var(--fit-dark-text);
+  --hm-muted: var(--fit-dark-muted);
   --hm-accent: #00bceb;
   --hm-cyan: #00e5ff;
   --hm-green: #6ebe4a;
@@ -45,8 +45,8 @@
   --hm-yellow: #ffd600;
   --hm-orange: #ff9100;
   --hm-purple: #aa00ff;
-  --hm-hover-bg: rgba(41, 121, 255, 0.08);
-  --hm-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  --hm-hover-bg: var(--fit-dark-hover-bg);
+  --hm-card-shadow: var(--fit-dark-card-shadow);
   --hm-kpi-bg: rgba(26, 39, 51, 0.8);
 }
 
@@ -78,7 +78,7 @@
 }
 
 :host(.dark-theme) .title-row {
-  background: rgba(15, 25, 35, 0.8);
+  background: rgba(26, 39, 51, 0.8);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 

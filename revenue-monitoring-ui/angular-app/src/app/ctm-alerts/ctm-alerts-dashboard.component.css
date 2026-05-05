@@ -30,13 +30,13 @@
 
 /* ── Dark mode ──────────────────────────────────────────────── */
 :host(.dark-theme) {
-  --ctm-bg: #0f1923;
-  --ctm-surface: #1a2733;
-  --ctm-card-bg: rgba(28, 44, 58, 0.85);
-  --ctm-card-border: rgba(42, 63, 80, 0.6);
-  --ctm-border: #2a3f50;
-  --ctm-text: #e0e6ed;
-  --ctm-muted: #8899a6;
+  --ctm-bg: var(--fit-dark-bg);
+  --ctm-surface: var(--fit-dark-surface);
+  --ctm-card-bg: var(--fit-dark-card-bg);
+  --ctm-card-border: var(--fit-dark-card-border);
+  --ctm-border: var(--fit-dark-border);
+  --ctm-text: var(--fit-dark-text);
+  --ctm-muted: var(--fit-dark-muted);
   --ctm-green: #6ebe4a;
   --ctm-yellow: #ffd600;
   --ctm-red: #ff1744;
@@ -45,8 +45,8 @@
   --ctm-purple: #aa00ff;
   --ctm-cyan: #00e5ff;
   --ctm-accent: #00bceb;
-  --ctm-hover-bg: rgba(41, 121, 255, 0.08);
-  --ctm-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  --ctm-hover-bg: var(--fit-dark-hover-bg);
+  --ctm-card-shadow: var(--fit-dark-card-shadow);
   --ctm-card-radius: 1rem;
   --ctm-kpi-bg: rgba(26, 39, 51, 0.8);
 }
@@ -100,6 +100,7 @@ h6 {
 }
 
 :host(.dark-theme) .ctm-header {
+  background: rgba(26, 39, 51, 0.8);
   border-bottom-color: var(--ctm-border);
 }
 

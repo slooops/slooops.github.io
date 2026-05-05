@@ -42,6 +42,7 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'Operations Dashboard',
+      supportsDarkMode: true,
     },
   },
   {
@@ -96,6 +97,7 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'ESP Case Manager > I2C Case Analyzer',
+      supportsDarkMode: true,
     },
   },
   {
@@ -114,6 +116,7 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'ESP Case Manager > SBP Case Analyzer',
+      supportsDarkMode: true,
     },
   },
   {
@@ -310,6 +313,7 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'ESP Case Manager > CaseIQ Monitoring',
+      supportsDarkMode: true,
     },
   },
 
@@ -320,6 +324,7 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'Continuous Monitoring > Self-Healing Dashboard',
+      supportsDarkMode: true,
     },
   },
   {
@@ -338,6 +343,7 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'CTM AI Alerts Dashboard',
+      supportsDarkMode: true,
     },
   },
 ];

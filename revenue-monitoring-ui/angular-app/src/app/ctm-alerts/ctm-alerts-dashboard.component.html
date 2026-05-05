@@ -16,16 +16,6 @@
       }
     </div>
     <div class="ctm-header-controls">
-      <button
-        class="ctm-btn ctm-btn-icon"
-        (click)="toggleTheme()"
-        [title]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
-      >
-        <ng-icon
-          [name]="isDarkMode ? 'phosphorSunBold' : 'phosphorMoonBold'"
-          size="16"
-        />
-      </button>
       <button class="ctm-btn ctm-btn-icon" (click)="refreshAll()">
         <ng-icon name="phosphorArrowClockwiseBold" size="14" />
         Refresh

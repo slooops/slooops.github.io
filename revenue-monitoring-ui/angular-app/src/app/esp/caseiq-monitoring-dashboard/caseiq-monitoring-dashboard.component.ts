@@ -27,6 +27,7 @@ Chart.register(...registerables);
 import { DestroyManager } from '../../providers/destroy-manager.service';
 import { DataService, PeriodStatus } from '../../providers/data.service';
 import { CaseiqMonitoringDataService } from './caseiq-monitoring-data.service';
+import { ThemeService } from '../../providers/theme.service';
 import { HealthRingComponent } from './health-ring/health-ring.component';
 import {
   HealthOverview,
@@ -68,7 +69,9 @@ import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.comp
   styleUrls: ['./caseiq-monitoring-dashboard.component.css'],
 })
 export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
-  @HostBinding('class.dark-theme') isDarkMode = false;
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
 
   // Controls
   lookbackHours = 24;
@@ -238,6 +241,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     private dataService: CaseiqMonitoringDataService,
     private sharedDataService: DataService,
     private dm: DestroyManager,
+    public themeService: ThemeService,
   ) {}
 
   ngOnInit(): void {
@@ -265,13 +269,13 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   }
 
   toggleTheme(): void {
-    this.isDarkMode = !this.isDarkMode;
+    this.themeService.toggle();
     this.updateThroughputChartTheme();
   }
 
   private updateThroughputChartTheme(): void {
     if (!this.throughputChart) return;
-    const tickColor = this.isDarkMode ? '#8899a6' : '#555';
+    const tickColor = this.themeService.isDarkMode ? '#8899a6' : '#555';
     const xScale = this.throughputChart.options.scales?.['x'];
     const yScale = this.throughputChart.options.scales?.['y'];
     if (xScale?.ticks) xScale.ticks.color = tickColor;
@@ -634,7 +638,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
         x: {
           grid: { display: false },
           ticks: {
-            color: this.isDarkMode ? '#8899a6' : '#555',
+            color: this.themeService.isDarkMode ? '#8899a6' : '#555',
             font: { size: 10, weight: 500 as any },
             maxRotation: 0,
             autoSkip: false,
@@ -649,7 +653,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
         y: {
           grid: { display: false },
           ticks: {
-            color: this.isDarkMode ? '#8899a6' : '#555',
+            color: this.themeService.isDarkMode ? '#8899a6' : '#555',
             font: { size: 10, weight: 500 as any },
             maxTicksLimit: 4,
           },

@@ -1,5 +1,6 @@
 import {
   Component,
+  HostBinding,
   OnInit,
   AfterViewInit,
   OnDestroy,
@@ -12,6 +13,7 @@ import * as XLSX from 'xlsx';
 import { RegressionService } from '../regression.service';
 import { Chart, registerables } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { ThemeService } from '../providers/theme.service';
 import { ChartData, ChartDataset } from 'chart.js/auto';
 import { ChartOptions } from 'chart.js'; // Import ChartOptions for proper typing
 
@@ -37,6 +39,9 @@ Chart.register(...registerables);
 export class Wd0HistoricalDataComponent
   implements OnInit, OnDestroy, AfterViewInit
 {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
   protected http: ApiHttpService;
   loading: boolean = true;
   serviceLoading: boolean = true;
@@ -68,7 +73,8 @@ export class Wd0HistoricalDataComponent
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
     private ngZone: NgZone,
-    private exportToExcelService: ExportToExcelService
+    private exportToExcelService: ExportToExcelService,
+    public themeService: ThemeService,
   ) {
     Chart.register(...registerables, ChartDataLabels);
     this.http = http;
@@ -134,7 +140,7 @@ export class Wd0HistoricalDataComponent
         const nowPacificTime = new Date(
           new Date().toLocaleString('en-US', {
             timeZone: 'America/Los_Angeles',
-          })
+          }),
         );
 
         let effectiveWd = null;
@@ -211,7 +217,7 @@ export class Wd0HistoricalDataComponent
                 this.newMonthName = data[0].PERIOD_NAME;
                 this.latestPeriodName = this.newMonthName; // Set latestPeriodName for wd-0
               }),
-              switchMap(() => this.getEndpointData('wd0-regression'))
+              switchMap(() => this.getEndpointData('wd0-regression')),
             )
             .subscribe((data: any) => {
               let serviceActuals = [null, null, null];
@@ -219,7 +225,7 @@ export class Wd0HistoricalDataComponent
 
               // Check if the new month's data is present
               const newMonthDataExists = data.some(
-                (entry: any) => entry.PERIOD_NAME === this.newMonthName
+                (entry: any) => entry.PERIOD_NAME === this.newMonthName,
               );
 
               // If the new month's data exists, extract actuals. Otherwise, keep them as null.
@@ -251,7 +257,7 @@ export class Wd0HistoricalDataComponent
                 this.newMonthName = data[0].PERIOD_NAME;
                 this.latestPeriodName = this.newMonthName; // Set latestPeriodName for wd-1
               }),
-              switchMap(() => this.getEndpointData('wd0-regression'))
+              switchMap(() => this.getEndpointData('wd0-regression')),
             )
             .subscribe((data: any) => {
               let productActuals = [null, null, null];
@@ -294,7 +300,7 @@ export class Wd0HistoricalDataComponent
       .get('wd0-midclose-actuals-product', this.destroyManager)
       .subscribe((data: any) => {
         this.productMidCloseActuals = data.map(
-          ({ PERIOD_NAME, PRODUCT_CATEGORY, ...rest }) => rest
+          ({ PERIOD_NAME, PRODUCT_CATEGORY, ...rest }) => rest,
         );
         // console.log('productMidCloseActuals', this.productMidCloseActuals);
         this.productActualsLoading = false;
@@ -315,7 +321,7 @@ export class Wd0HistoricalDataComponent
       .get('wd0-midclose-actuals-service', this.destroyManager)
       .subscribe((data: any) => {
         this.serviceMidCloseActuals = data.map(
-          ({ PERIOD_NAME, PRODUCT_CATEGORY, ...rest }) => rest
+          ({ PERIOD_NAME, PRODUCT_CATEGORY, ...rest }) => rest,
         );
         // console.log('serviceMidCloseActuals', this.serviceMidCloseActuals);
         this.serviceActualsLoading = false;
@@ -332,7 +338,7 @@ export class Wd0HistoricalDataComponent
   customLegend: { label: string; color: string }[] = [];
   renderPieChart(
     data: { BATCH_SOURCE: string; TOTAL_COUNT: number }[],
-    canvasId: string
+    canvasId: string,
   ): void {
     const pieColors = [
       'rgba(54, 162, 235, 0.6)', // Blue
@@ -348,7 +354,8 @@ export class Wd0HistoricalDataComponent
     ];
 
     const labels = data.map(
-      (entry) => `${entry.TOTAL_COUNT.toLocaleString()} - ${entry.BATCH_SOURCE}`
+      (entry) =>
+        `${entry.TOTAL_COUNT.toLocaleString()} - ${entry.BATCH_SOURCE}`,
     );
     const counts = data.map((entry) => entry.TOTAL_COUNT);
     const colors = data.map((_, index) => pieColors[index % pieColors.length]);
@@ -432,7 +439,7 @@ export class Wd0HistoricalDataComponent
       // Step 2: Check if WD-1 data exists
       const wd1Exists = data.some(
         (entry: any) =>
-          entry.WD === 'WD-1' && entry.FISCAL_PERIOD === mostRecentFiscalPeriod
+          entry.WD === 'WD-1' && entry.FISCAL_PERIOD === mostRecentFiscalPeriod,
       );
 
       if (!wd1Exists) {
@@ -453,14 +460,14 @@ export class Wd0HistoricalDataComponent
             RECORD_COUNT_LOW: null,
             RUN_DATE: null,
             WD: 'WD-1',
-          }
+          },
         );
       }
 
       // Step 3: Check if WD-2 data exists
       const wd2Exists = data.some(
         (entry: any) =>
-          entry.WD === 'WD-2' && entry.FISCAL_PERIOD === mostRecentFiscalPeriod
+          entry.WD === 'WD-2' && entry.FISCAL_PERIOD === mostRecentFiscalPeriod,
       );
 
       if (!wd2Exists) {
@@ -481,13 +488,13 @@ export class Wd0HistoricalDataComponent
             RECORD_COUNT_LOW: null,
             RUN_DATE: null,
             WD: 'WD-2',
-          }
+          },
         );
       }
 
       // Step 3: Filter the data for the most recent period
       const recentData = data.filter(
-        (entry: any) => entry.FISCAL_PERIOD === mostRecentFiscalPeriod
+        (entry: any) => entry.FISCAL_PERIOD === mostRecentFiscalPeriod,
       );
 
       // Step 4: Organize by PRODUCT_TYPE and sort by WD
@@ -510,7 +517,7 @@ export class Wd0HistoricalDataComponent
           ? { period: entry.FISCAL_PERIOD, date: entryDate }
           : latest;
       },
-      { period: null, date: 0 }
+      { period: null, date: 0 },
     );
 
     this.latestPeriodName = mostRecentEntry.period;
@@ -523,7 +530,7 @@ export class Wd0HistoricalDataComponent
   filterAndSortData(data: any[], productType: string): any[] {
     // Filter the data by product type
     const filteredData = data.filter(
-      (entry: any) => entry.PRODUCT_TYPE === productType
+      (entry: any) => entry.PRODUCT_TYPE === productType,
     );
 
     // Sort the filtered data by WD and RUN_DATE, keeping only the latest entry for each WD
@@ -626,7 +633,7 @@ export class Wd0HistoricalDataComponent
       sanitizedData.unshift(
         grandTotalObject,
         serviceTotalObject,
-        productTotalObject
+        productTotalObject,
       );
 
       // Now remove duplicate entries
@@ -635,7 +642,7 @@ export class Wd0HistoricalDataComponent
       this.historicalData = sanitizedData;
 
       this.dataSource = new MatTableDataSource<HistoricalDataModel>(
-        this.historicalData
+        this.historicalData,
       );
 
       // this.generateBarChart(this.historicalData);
@@ -703,7 +710,7 @@ export class Wd0HistoricalDataComponent
     }
 
     const canvas = document.getElementById(
-      'q3ServiceLinePredictiveModel'
+      'q3ServiceLinePredictiveModel',
     ) as HTMLCanvasElement;
 
     // Check if canvas is available
@@ -805,7 +812,7 @@ export class Wd0HistoricalDataComponent
     }
 
     const canvas = document.getElementById(
-      'productLinePredictiveModel'
+      'productLinePredictiveModel',
     ) as HTMLCanvasElement;
 
     // Check if canvas is available
@@ -1017,7 +1024,7 @@ export class Wd0HistoricalDataComponent
   getTrend(
     row: any,
     prevColumn: string,
-    currentColumn: string
+    currentColumn: string,
   ): { trend: 'up' | 'down' | 'same'; change: string | number } {
     // Note the change type includes string now
     const prevValue = parseFloat(row[prevColumn]);
@@ -1069,7 +1076,7 @@ export class Wd0HistoricalDataComponent
 
     // Convert the Set to an array and filter out ENTITY and LINE_TYPE
     const columnArray = Array.from(allKeys).filter(
-      (key) => key !== 'ENTITY' && key !== 'LINE_TYPE'
+      (key) => key !== 'ENTITY' && key !== 'LINE_TYPE',
     );
 
     // Keep only the last 8 columns along with ENTITY and LINE_TYPE
@@ -1161,7 +1168,7 @@ export class Wd0HistoricalDataComponent
 
     const polling$ = interval(this.refreshInterval).pipe(
       startWith(0), // Emit initial value immediately
-      switchMap(() => this.http.get(cacheBustingUrl, this.destroyManager))
+      switchMap(() => this.http.get(cacheBustingUrl, this.destroyManager)),
     );
     return polling$;
   }
@@ -1176,11 +1183,11 @@ export class Wd0HistoricalDataComponent
 
     // Get recent months names for graph
     const productEntries = filteredData.filter(
-      (entry: any) => entry.LINE_TYPE === 'PRODUCT'
+      (entry: any) => entry.LINE_TYPE === 'PRODUCT',
     );
     const recentProductEntries = productEntries.slice(-this.numberOfMonths); // Get the last few months
     const recentMonthNames = recentProductEntries.map(
-      (entry: any) => entry.PERIOD_NAME
+      (entry: any) => entry.PERIOD_NAME,
     );
 
     // Only push newMonthName if it's not already in recentMonthNames
@@ -1210,7 +1217,7 @@ export class Wd0HistoricalDataComponent
 
     // Step 1: Filter out excluded periods
     const filteredData = data.filter(
-      (entry) => !excludePeriods.includes(entry.PERIOD_NAME)
+      (entry) => !excludePeriods.includes(entry.PERIOD_NAME),
     );
 
     // Step 2: Group data by PERIOD_NAME
@@ -1254,7 +1261,7 @@ export class Wd0HistoricalDataComponent
 
   executeRegression = async (
     regressionData: { X: number[][]; y: number[][] },
-    recentMonthNames: string[]
+    recentMonthNames: string[],
   ) => {
     try {
       if (regressionData.X.length === 0 || regressionData.y.length === 0) {
@@ -1265,7 +1272,7 @@ export class Wd0HistoricalDataComponent
 
       this.regressionService.performMultipleLinearRegression(
         regressionData.X,
-        regressionData.y
+        regressionData.y,
       );
 
       // Collect recent months of data for graph
@@ -1278,7 +1285,7 @@ export class Wd0HistoricalDataComponent
             degreesOfFreedom:
               degreesOfFreedomBase - (this.numberOfMonths - 1 - index), // Adjust the index for the last 12 months
           };
-        }
+        },
       );
 
       let fastestTimes = [];
@@ -1288,7 +1295,7 @@ export class Wd0HistoricalDataComponent
       combineRecentMonthsWithDFData.forEach((data) => {
         const result = this.regressionService.predictWithConfidenceIntervals(
           data.X,
-          data.degreesOfFreedom
+          data.degreesOfFreedom,
         );
         fastestTimes.push(+result.lowerCI.toFixed(2));
         slowestTimes.push(+result.upperCI.toFixed(2));
@@ -1298,7 +1305,7 @@ export class Wd0HistoricalDataComponent
       const upcomingMonthPrediction =
         this.regressionService.predictWithConfidenceIntervals(
           this.newMonthData,
-          regressionData.X.length - 1
+          regressionData.X.length - 1,
         );
       fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
       slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
@@ -1319,7 +1326,7 @@ export class Wd0HistoricalDataComponent
         slowestTimes,
         recentMonthNames,
         recentMonthsData,
-        actualTimes
+        actualTimes,
       );
     } catch (error) {
       console.error('Error fetching data', error);
@@ -1333,7 +1340,7 @@ export class Wd0HistoricalDataComponent
 
   createLineGraph(fastestTimes, slowestTimes, labels, lines, actualTimes) {
     const canvas = document.getElementById(
-      'lineChartCanvas'
+      'lineChartCanvas',
     ) as HTMLCanvasElement;
 
     if (canvas) {
@@ -1458,7 +1465,7 @@ export class Wd0HistoricalDataComponent
             slowestTimes,
             labels,
             lines,
-            actualTimes
+            actualTimes,
           );
         }, 1000);
       } else {

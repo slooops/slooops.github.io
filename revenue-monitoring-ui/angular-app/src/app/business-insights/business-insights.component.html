@@ -4,6 +4,7 @@
       <app-menu-mini
         [items]="menuItems"
         [activeIndex]="selectedIndex"
+        [darkMode]="themeService.isDarkMode && activeTabSupportsDarkMode"
         (selected)="onGridMenuItemClick($event.index)"
       />
       <h2>{{ filteredTabs[selectedIndex]?.label || "Business Insights" }}</h2>
@@ -48,8 +49,6 @@
     <div class="header-right"></div>
   </div>
 </div>
-
-<hr />
 
 <div class="bi-content">
   @if (filteredTabs.length > 0) {

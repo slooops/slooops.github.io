@@ -11,12 +11,11 @@ import { MenuService } from './providers/menu.service';
 import { SearchContextService } from './search-context.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { HelpDataComponent } from './help-data/help-data.component';
 import { ChatbotComponent } from './chatbot/chatbot.component';
 import { ChatbotService } from './chatbot/chatbot.service';
+import { ThemeService } from './providers/theme.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   phosphorIdentificationCardBold,
@@ -48,6 +47,8 @@ import {
   phosphorClockCounterClockwiseBold,
   phosphorListBold,
   phosphorCaretRightBold,
+  phosphorCaretUpBold,
+  phosphorCaretDownBold,
   phosphorXBold,
   phosphorRocketBold,
   phosphorMegaphoneSimpleBold,
@@ -111,6 +112,8 @@ import { MenuComponent } from './menu/menu.component';
       phosphorClockCounterClockwiseBold,
       phosphorListBold,
       phosphorCaretRightBold,
+      phosphorCaretUpBold,
+      phosphorCaretDownBold,
       phosphorXBold,
       phosphorIdentificationCardDuotone,
       phosphorEyeDuotone,
@@ -138,7 +141,6 @@ import { MenuComponent } from './menu/menu.component';
   imports: [
     CommonModule,
     RouterModule,
-    MatToolbarModule,
     MatTooltipModule,
     NgIcon,
     // MenuComponent,
@@ -164,6 +166,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private searchContextService: SearchContextService,
     private http: ApiHttpService,
     private chatbotService: ChatbotService,
+    public themeService: ThemeService,
   ) {}
 
   menuOpened = false;
@@ -327,6 +330,8 @@ export class AppComponent implements OnInit, OnDestroy {
         this.titleService.setTitle(data['title']);
         this.header = data['header'];
         this.subHeader = data['subHeader'] || '';
+        this.themeService.routeSupportsDarkMode =
+          data['supportsDarkMode'] ?? false;
         this.dataService.setHeader(data['header']);
         const hiddenRoutes = [
           '/operations-dashboard',

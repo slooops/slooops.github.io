@@ -5,6 +5,7 @@
         <app-menu-mini
           [items]="menuItems"
           [activeIndex]="selectedTabIndex"
+          [darkMode]="themeService.isDarkMode"
           (selected)="selectTab($event.index)"
         />
         <h2>{{ quarterPairs[selectedTabIndex]?.key }}</h2>
@@ -49,8 +50,9 @@
           </div>
         </div>
       </div>
-      <app-card [container]="true">
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
         <app-table
+          [darkMode]="themeService.isDarkMode"
           title="Case Summary for {{ quarterPairs[0]?.right?.slice(0, -4) }}"
           [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[0]?.right]"
           [displayedColumns]="
@@ -62,8 +64,9 @@
           [extraWideColumns]="['SERVICE_OFFERING']"
         ></app-table>
       </app-card>
-      <app-card [container]="true">
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
         <app-table
+          [darkMode]="themeService.isDarkMode"
           title="Aging Backlog for {{ quarterPairs[0]?.right?.slice(0, -4) }}"
           [dataSource]="dataSourceAgingBacklog[quarterPairs[0]?.right]"
           [displayedColumns]="
@@ -100,8 +103,9 @@
           </div>
         </div>
       </div>
-      <app-card [container]="true">
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
         <app-table
+          [darkMode]="themeService.isDarkMode"
           title="Case Summary for {{ quarterPairs[1]?.right?.slice(0, -4) }}"
           [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[1]?.right]"
           [displayedColumns]="
@@ -113,8 +117,9 @@
           [extraWideColumns]="['SERVICE_OFFERING']"
         ></app-table>
       </app-card>
-      <app-card [container]="true">
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
         <app-table
+          [darkMode]="themeService.isDarkMode"
           title="Aging Backlog for {{ quarterPairs[1]?.right?.slice(0, -4) }}"
           [dataSource]="dataSourceAgingBacklog[quarterPairs[1]?.right]"
           [displayedColumns]="
@@ -151,8 +156,9 @@
           </div>
         </div>
       </div>
-      <app-card [container]="true">
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
         <app-table
+          [darkMode]="themeService.isDarkMode"
           title="Case Summary for {{ quarterPairs[2]?.right?.slice(0, -4) }}"
           [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[2]?.right]"
           [displayedColumns]="
@@ -164,8 +170,9 @@
           [extraWideColumns]="['SERVICE_OFFERING']"
         ></app-table>
       </app-card>
-      <app-card [container]="true">
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
         <app-table
+          [darkMode]="themeService.isDarkMode"
           title="Aging Backlog for {{ quarterPairs[2]?.right?.slice(0, -4) }}"
           [dataSource]="dataSourceAgingBacklog[quarterPairs[2]?.right]"
           [displayedColumns]="
@@ -202,8 +209,9 @@
           </div>
         </div>
       </div>
-      <app-card [container]="true">
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
         <app-table
+          [darkMode]="themeService.isDarkMode"
           title="Case Summary for {{ quarterPairs[3]?.right?.slice(0, -4) }}"
           [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[3]?.right]"
           [displayedColumns]="
@@ -215,8 +223,9 @@
           [extraWideColumns]="['SERVICE_OFFERING']"
         ></app-table>
       </app-card>
-      <app-card [container]="true">
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
         <app-table
+          [darkMode]="themeService.isDarkMode"
           title="Aging Backlog for {{ quarterPairs[3]?.right?.slice(0, -4) }}"
           [dataSource]="dataSourceAgingBacklog[quarterPairs[3]?.right]"
           [displayedColumns]="
@@ -228,6 +237,7 @@
       </app-card>
     </div>
   }
+  <br /><br /><br />
 </div>
 
 <!-- @if (!showGridMenu) {
