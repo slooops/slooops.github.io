@@ -748,7 +748,7 @@
   box-shadow: var(--sh-card-shadow);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  padding: 1rem 1.25rem;
+  padding: 1rem;
   min-width: 0;
 }
 

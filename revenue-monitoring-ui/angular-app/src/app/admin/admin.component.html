@@ -1,11 +1,6 @@
 <div class="dashboard-header">
   <div class="header-main">
     <div class="header-left">
-      <app-menu-mini
-        [items]="menuItems"
-        [activeKey]="selectedTab"
-        (selected)="switchTab($event.item.key!)"
-      />
       <h2>{{ currentTabLabel }}</h2>
     </div>
 

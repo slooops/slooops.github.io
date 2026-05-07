@@ -13,6 +13,7 @@ export interface NavItem {
   label: string;
   icon: string;
   route?: string;
+  queryParams?: Record<string, string>;
   roles?: string[];
   children?: NavItem[];
 }
@@ -28,7 +29,10 @@ export class MenuComponent {
   @Input() isAdmin = false;
   @Input() userRoles: string[] = [];
   @Input() currentUrl = '';
-  @Output() navigateEvent = new EventEmitter<string>();
+  @Output() navigateEvent = new EventEmitter<{
+    route: string;
+    queryParams?: Record<string, string>;
+  }>();
 
   @HostBinding('class.dark-theme')
   get darkThemeClass(): boolean {
@@ -45,7 +49,6 @@ export class MenuComponent {
     {
       label: 'Access & Analytics',
       icon: 'phosphorIdentificationCardBold',
-      route: '/access-management-and-analytics',
       roles: [
         'MONITORING_I2C_ADMIN',
         'MONITORING_GL_AR_ADMIN',
@@ -53,6 +56,29 @@ export class MenuComponent {
         'MONITORING_OM_ADMIN',
         'MONITORING_WIPS_ADMIN',
         'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
+      children: [
+        {
+          label: 'Identity & Access',
+          icon: 'phosphorShieldCheckBold',
+          route: '/access-management-and-analytics',
+          queryParams: { tab: 'admin' },
+          roles: [
+            'MONITORING_I2C_ADMIN',
+            'MONITORING_GL_AR_ADMIN',
+            'MONITORING_AIT_ADMIN',
+            'MONITORING_OM_ADMIN',
+            'MONITORING_WIPS_ADMIN',
+            'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+          ],
+        },
+        {
+          label: 'Control Tower Analytics',
+          icon: 'phosphorChartPieSliceBold',
+          route: '/access-management-and-analytics',
+          queryParams: { tab: 'analytics' },
+          roles: ['ADMIN'],
+        },
       ],
     },
     {
@@ -126,8 +152,51 @@ export class MenuComponent {
     {
       label: 'Business Insights',
       icon: 'phosphorLightbulbBold',
-      route: '/business-insights',
-      roles: ['LARGE_DEAL', 'WD0', 'MIDCLOSE_VOLUMES', 'ISSUE_RESOLUTION'],
+      roles: [
+        'LARGE_DEAL',
+        'WD0',
+        'MIDCLOSE_VOLUMES',
+        'ISSUE_RESOLUTION',
+        'ISSUE_APPROVAL',
+        'SUBSCRIPTION_LIFE_CYCLE',
+      ],
+      children: [
+        {
+          label: 'Large Deal Tracker',
+          icon: 'phosphorTrendUpBold',
+          route: '/business-insights',
+          queryParams: { tab: 'app-large-deal' },
+          roles: ['ADMIN', 'LARGE_DEAL'],
+        },
+        {
+          label: 'Midclose Status',
+          icon: 'phosphorClockBold',
+          route: '/business-insights',
+          queryParams: { tab: 'app-wd0-status' },
+          roles: ['ADMIN', 'WD0'],
+        },
+        {
+          label: 'Midclose Volumes',
+          icon: 'phosphorChartBarBold',
+          route: '/business-insights',
+          queryParams: { tab: 'app-wd0-historical-data' },
+          roles: ['ADMIN', 'MIDCLOSE_VOLUMES'],
+        },
+        {
+          label: 'Active Incidents',
+          icon: 'phosphorWarningCircleBold',
+          route: '/business-insights',
+          queryParams: { tab: 'app-issue-reporting' },
+          roles: ['ADMIN', 'ISSUE_RESOLUTION', 'ISSUE_APPROVAL'],
+        },
+        {
+          label: 'O2C Insights',
+          icon: 'phosphorMagnifyingGlassBold',
+          route: '/business-insights',
+          queryParams: { tab: 'o2c-insights' },
+          roles: ['ADMIN', 'SUBSCRIPTION_LIFE_CYCLE'],
+        },
+      ],
     },
     {
       label: 'ESP Case Manager',
@@ -196,7 +265,10 @@ export class MenuComponent {
   toggleDrawer(item: NavItem): void {
     if (!item.children?.length) {
       if (item.route) {
-        this.navigateEvent.emit(item.route);
+        this.navigateEvent.emit({
+          route: item.route,
+          queryParams: item.queryParams,
+        });
         this.activeDrawer = null;
       }
       return;
@@ -217,8 +289,13 @@ export class MenuComponent {
     }
   }
 
-  navigateTo(route: string): void {
-    this.navigateEvent.emit(route);
+  navigateTo(child: NavItem): void {
+    if (child.route) {
+      this.navigateEvent.emit({
+        route: child.route,
+        queryParams: child.queryParams,
+      });
+    }
     this.activeDrawer = null;
   }
 
@@ -231,6 +308,20 @@ export class MenuComponent {
   isRouteActive(route?: string): boolean {
     if (!route) return false;
     return this.currentUrl.includes(route);
+  }
+
+  isChildActive(child: NavItem): boolean {
+    if (!child.route) return false;
+    if (!this.currentUrl.includes(child.route)) return false;
+    if (child.queryParams) {
+      return Object.entries(child.queryParams).every(([key, value]) =>
+        this.currentUrl.includes(`${key}=${value}`),
+      );
+    }
+    // If child has no queryParams but other siblings do, only match if URL has no query
+    return (
+      !this.currentUrl.includes('?') || this.currentUrl.endsWith(child.route)
+    );
   }
 
   isParentActive(item: NavItem): boolean {

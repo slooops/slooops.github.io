@@ -54,6 +54,13 @@ import {
   phosphorMegaphoneSimpleBold,
   phosphorArrowLineDownBold,
   phosphorSirenBold,
+  phosphorTrendUpBold,
+  phosphorClockBold,
+  phosphorChartBarBold,
+  phosphorWarningCircleBold,
+  phosphorMagnifyingGlassBold,
+  phosphorShieldCheckBold,
+  phosphorChartPieSliceBold,
 } from '@ng-icons/phosphor-icons/bold';
 import {
   phosphorIdentificationCardDuotone,
@@ -136,6 +143,13 @@ import { MenuComponent } from './menu/menu.component';
       phosphorMegaphoneSimpleBold,
       phosphorArrowLineDownBold,
       phosphorSirenBold,
+      phosphorTrendUpBold,
+      phosphorClockBold,
+      phosphorChartBarBold,
+      phosphorWarningCircleBold,
+      phosphorMagnifyingGlassBold,
+      phosphorShieldCheckBold,
+      phosphorChartPieSliceBold,
     }),
   ],
   imports: [
@@ -455,8 +469,12 @@ export class AppComponent implements OnInit, OnDestroy {
     this.isChatOpen = !this.isChatOpen;
   }
 
-  navigateTo(route: string) {
-    this.router.navigate([route]);
+  navigateTo(event: { route: string; queryParams?: Record<string, string> }) {
+    if (event.queryParams) {
+      this.router.navigate([event.route], { queryParams: event.queryParams });
+    } else {
+      this.router.navigate([event.route]);
+    }
     this.showCmMenu = false;
     this.showEspMenu = false;
     this.showMobileMenu = false;

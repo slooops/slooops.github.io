@@ -17,10 +17,6 @@ import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  MenuMiniComponent,
-  MenuMiniItem,
-} from '../shared/menu-mini/menu-mini.component';
 
 @Component({
   selector: 'app-business-insights',
@@ -33,7 +29,6 @@ import {
     BusinessInsightsModule,
     O2cEmbedComponent,
     MatIconModule,
-    MenuMiniComponent,
   ],
   providers: [
     DestroyManager,
@@ -136,6 +131,21 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
         this.selectedIndex = tabIndex;
       }
     }
+
+    // React to query param changes (e.g. from sidebar drawer navigation)
+    this.route.queryParamMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
+        const tab = params.get('tab');
+        if (tab) {
+          const tabIndex = this.filteredTabs.findIndex(
+            (t) => t.component === tab,
+          );
+          if (tabIndex >= 0 && tabIndex !== this.selectedIndex) {
+            this.onTabChange(tabIndex);
+          }
+        }
+      });
 
     this.updateTime();
     this.updateChatbotVisibility();
@@ -252,13 +262,6 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
     disabled?: boolean;
     supportsDarkMode?: boolean;
   }[] = [];
-
-  get menuItems(): MenuMiniItem[] {
-    return this.filteredTabs.map((t) => ({
-      label: t.label,
-      disabled: t.disabled,
-    }));
-  }
 
   getDefaultTabIndex() {
     this.filteredTabs = this.visibleTabs.filter((tab) =>

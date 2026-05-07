@@ -62,8 +62,8 @@
             @for (child of getVisibleChildren(item); track child.label) {
               <button
                 class="ms-drawer-item"
-                [class.active]="isRouteActive(child.route)"
-                (click)="navigateTo(child.route!)"
+                [class.active]="isChildActive(child)"
+                (click)="navigateTo(child)"
               >
                 <ng-icon
                   [name]="child.icon"

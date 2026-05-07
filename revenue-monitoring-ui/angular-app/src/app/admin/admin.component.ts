@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { DataService, PeriodStatus } from 'src/app/providers/data.service';
@@ -26,10 +27,6 @@ import {
   phosphorXBold,
 } from '@ng-icons/phosphor-icons/bold';
 import { AnalyticsDashboardComponent } from '../analytics-dashboard/analytics-dashboard.component';
-import {
-  MenuMiniComponent,
-  MenuMiniItem,
-} from '../shared/menu-mini/menu-mini.component';
 import {
   UpdateRoleDialogComponent,
   RoleRow,
@@ -105,7 +102,6 @@ export interface GroupedAccessUser {
     NgIcon,
     PaginationComponent,
     AnalyticsDashboardComponent,
-    MenuMiniComponent,
     UpdateRoleDialogComponent,
   ],
 })
@@ -912,21 +908,26 @@ export class AdminComponent implements OnInit {
     );
   }
 
-  get menuItems(): MenuMiniItem[] {
-    return this.filteredAdminTabs.map((t) => ({ label: t.label, key: t.key }));
-  }
-
   constructor(
     private http: ApiHttpService,
     private destroyManager: DestroyManager,
     private authService: AuthenticationService,
     private datePipe: DatePipe,
     private dataService: DataService,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
     this.detectAdminPrivileges();
     this.loadUserRoles();
+
+    // React to query param tab selection from sidebar drawer
+    this.route.queryParamMap.subscribe((params) => {
+      const tab = params.get('tab');
+      if (tab && (tab === 'admin' || tab === 'analytics')) {
+        this.switchTab(tab);
+      }
+    });
     this.username = this.authService.getUserName();
     this.roles = this.authService.getUserAccessRoles();
 

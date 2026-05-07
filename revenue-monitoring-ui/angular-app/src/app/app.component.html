@@ -103,7 +103,7 @@
             class="toolbar-actions"
             (click)="
               routeToAdminPage() &&
-                navigateTo('/access-management-and-analytics')
+                navigateTo({ route: '/access-management-and-analytics' })
             "
             [style.cursor]="routeToAdminPage() ? 'pointer' : 'default'"
             [class.admin-clickable]="routeToAdminPage()"
