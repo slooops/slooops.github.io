@@ -106,7 +106,10 @@ export class EspCaseAnalyzerComponent implements OnInit {
   ngOnInit(): void {
     this.updateTime();
     this.loadPeriodInfo();
-    this.roles = this.authService.getUserAccessRoles();
+    this.roles = this.authService.getRoles();
+
+    // Update chart colors when theme changes
+    this.themeService.isDarkMode$.subscribe(() => this.updateChartTheme());
 
     this.http
       .get('esp-weekly-comparison-summary', this.destroyManager, {
@@ -376,34 +379,39 @@ export class EspCaseAnalyzerComponent implements OnInit {
     }
   }
 
-  sharedChartOptions: ChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: true,
-        position: 'top',
-      },
-      tooltip: {
-        // mode: 'index',
-        // intersect: false,
-      },
-      datalabels: {
-        display: false, // Disable data point labels
-      },
-    },
-    scales: {
-      x: {
-        beginAtZero: true,
-        grid: {
+  get sharedChartOptions(): ChartOptions {
+    const isDark = this.themeService.isDarkMode;
+    const textColor = isDark ? '#e0e6ed' : '#666';
+    const gridColor = isDark ? 'rgba(136,153,166,0.18)' : 'rgba(0,0,0,0.1)';
+
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: { color: textColor },
+        },
+        tooltip: {},
+        datalabels: {
           display: false,
         },
       },
-      y: {
-        beginAtZero: true,
+      scales: {
+        x: {
+          beginAtZero: true,
+          grid: { display: false },
+          ticks: { color: textColor },
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: gridColor },
+          ticks: { color: textColor },
+        },
       },
-    },
-  };
+    };
+  }
 
   transformData(fiscalQuarter: string, category: string): number[] {
     const labels = this.getSortedLabels();
@@ -460,6 +468,27 @@ export class EspCaseAnalyzerComponent implements OnInit {
     setTimeout(() => {
       this.generateChartForPair(pair.left, pair.right, chartName);
     }, 100);
+  }
+
+  /** Re-apply theme colors to all live Chart.js instances */
+  private updateChartTheme(): void {
+    const opts = this.sharedChartOptions;
+    const charts = [
+      this.birChartQ1Q2,
+      this.birChartQ2Q3,
+      this.birChartQ3Q4,
+      this.birChartQ4Q1,
+      this.prmcChartQ1Q2,
+      this.prmcChartQ2Q3,
+      this.prmcChartQ3Q4,
+      this.prmcChartQ4Q1,
+    ];
+    for (const chart of charts) {
+      if (!chart) continue;
+      chart.options.scales = opts.scales;
+      chart.options.plugins!.legend = opts.plugins!.legend;
+      chart.update();
+    }
   }
 
   destroyCharts(): void {

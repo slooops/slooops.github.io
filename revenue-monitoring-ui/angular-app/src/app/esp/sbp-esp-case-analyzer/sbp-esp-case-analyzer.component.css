@@ -1,6 +1,6 @@
 /* ── Light mode (default) ── */
 :host {
-  --esp-bg: #f0f4f8;
+  --esp-bg: #ffffff;
   --esp-surface: #ffffff;
   --esp-text: #1b1c1d;
   --esp-muted: #555;
