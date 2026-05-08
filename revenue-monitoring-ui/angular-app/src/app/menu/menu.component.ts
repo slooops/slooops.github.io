@@ -74,7 +74,7 @@ export class MenuComponent {
         },
         {
           label: 'Control Tower Analytics',
-          icon: 'phosphorChartPieSliceBold',
+          icon: 'phosphorPresentationChartBold',
           route: '/access-management-and-analytics',
           queryParams: { tab: 'analytics' },
           roles: ['ADMIN'],

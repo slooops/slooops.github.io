@@ -61,6 +61,7 @@ import {
   phosphorMagnifyingGlassBold,
   phosphorShieldCheckBold,
   phosphorChartPieSliceBold,
+  phosphorPresentationChartBold,
 } from '@ng-icons/phosphor-icons/bold';
 import {
   phosphorIdentificationCardDuotone,
@@ -150,6 +151,7 @@ import { MenuComponent } from './menu/menu.component';
       phosphorMagnifyingGlassBold,
       phosphorShieldCheckBold,
       phosphorChartPieSliceBold,
+      phosphorPresentationChartBold,
     }),
   ],
   imports: [
