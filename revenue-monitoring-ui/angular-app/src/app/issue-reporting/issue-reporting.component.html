@@ -1,468 +1,300 @@
-<div class="container rol-error-summary-container">
-  <div class="header-container">
-    <span class="action-buttons">
-      &nbsp;
-      <form [formGroup]="searchForm" class="search__form">
-        <mat-form-field appearance="fill" [style.width.px]="150">
-          <mat-select
-            id="track"
-            name="track"
-            formControlName="track"
-            [(value)]="trackFilter"
-            panelClass="progPanel"
-            placeholder="Select Track"
-            multiple
-          >
-            @for (track of trackOptions; track track) {
-            <mat-option [value]="track" (onSelectionChange)="filter()">{{
-              track
-            }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        &nbsp;
-        <mat-form-field appearance="fill" [style.width.px]="150">
-          <mat-select
-            id="quarter"
-            name="quarter"
-            formControlName="quarter"
-            [(value)]="quarterFilter"
-            panelClass="progPanel"
-            placeholder="Select Quarter"
-            multiple
-          >
-            @for (acc of quarterOptions; track acc) {
-            <mat-option [value]="acc" (onSelectionChange)="filter()">{{
-              acc
-            }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        &nbsp;
-        <mat-form-field appearance="fill" [style.width.px]="150">
-          <mat-select
-            id="status"
-            name="status"
-            formControlName="status"
-            [(value)]="statusFilter"
-            panelClass="progPanel"
-            placeholder="Select Status"
-            multiple
-          >
-            @for (status of statusOptions; track status) {
-            <mat-option [value]="status" (onSelectionChange)="filter()">{{
-              status
-            }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        &nbsp;
-        <mat-form-field
-          appearance="fill"
-          class="filter"
-          floatLabel="auto"
-          [style.width.px]="150"
-        >
-          <input
-            matInput
-            (keyup)="filter()"
-            formControlName="incidentNum"
-            placeholder="Incident Num"
-          />
-          <i
-            matSuffix
-            class="fa fa-search hoverIcon"
-            style="color: gray; padding-right: 5px"
-            (click)="filter()"
-          ></i>
-        </mat-form-field>
-        &nbsp;
-        <button class="custom-button-reset" (click)="clearFilters()">
-          Reset
-        </button>
-        &nbsp; @if ( roles.includes('ISSUE_APPROVAL') &&
-        selection.selected.length === 1 ) {
-        <button
-          class="custom-button-primary"
-          style="background-color: #04aa6d"
-          (click)="openDialog('Approve')"
-        >
-          Approve
-        </button>
-        } &nbsp; @if ( roles.includes('ISSUE_APPROVAL') &&
-        selection.selected.length === 1 ) {
-        <button
-          class="custom-button-primary"
-          style="background-color: #f44336"
-          (click)="openDialog('Reject')"
-        >
-          Reject
-        </button>
-        } &nbsp; @if ( roles.includes('ISSUE_APPROVAL') &&
-        selection.selected.length > 1 ) {
-        <button
-          class="custom-button-primary"
-          style="background-color: #185996"
-          (click)="bulkApproveReject()"
-        >
-          Approve/ Reject
-        </button>
-        }
-        <!-- &nbsp; -->
-        @if (selection.selected.length > 0) {
-        <a (click)="resetSelection()"> Clear Selection </a>
-        }
-      </form>
-      <!-- <button
-            class="custom-button-primary"
-            (click)="viewTransactionDetails()"
-            >
-            View Details
-          </button>
-          &nbsp;&nbsp; -->
-    </span>
+<div class="ir-container">
+  <!-- Filter/Action Bar -->
+  <app-filter-button-bar
+    title="Issue Reporting"
+    [filters]="filterConfigs"
+    [filterValues]="filterValues"
+    [actions]="actionButtons"
+    [totalCount]="summaryDatasource?.data?.length || 0"
+    [filteredCount]="
+      summaryDatasource?.filteredData?.length ??
+      summaryDatasource?.data?.length ??
+      0
+    "
+    [showFilterToggle]="!!summaryDatasource?.data?.length"
+    countLabel="issues"
+    (filterChange)="onFilterChange($event)"
+    (filterClear)="onFilterClear()"
+    (actionClick)="onActionButtonClick($event)"
+  ></app-filter-button-bar>
 
-    <div class="action-buttons">
-      <span
-        style="
-          float: right !important;
-          text-align: right !important;
-          margin-right: 5px;
-          font-size: 12px;
-          margin-top: 15px;
-        "
-      >
-        <a
-          style="color: black; text-decoration: none"
-          [matMenuTriggerFor]="dropdownMenu"
-          >Options&nbsp;&nbsp;
-          <i
-            class="fa fa-ellipsis-v"
-            aria-hidden="true"
-            style="
-              font-size: large;
-              color: #4f5051;
-              justify-content: end;
-              float: right;
-            "
-          ></i>
-        </a>
-      </span>
-    </div>
-  </div>
-
-  @if (summaryDatasource?.data?.length) {
-  <div class="table-container" style="overflow-y: hidden !important">
-    <table
-      mat-table
-      [dataSource]="summaryDatasource"
-      class="custom-table table-responsive"
+  @if (selection.selected.length > 0) {
+    <span class="ir-clear-selection" (click)="resetSelection()"
+      >Clear Selection ({{ selection.selected.length }})</span
     >
-      <ng-container matColumnDef="select" style="padding-top: 10px !important">
-        <th mat-header-cell *matHeaderCellDef>
-          @if (!areAllRowsApproved()) {
-          <mat-checkbox
-            (change)="toggleSelectAll($event)"
-            [checked]="isAllSelected()"
-            [indeterminate]="isSomeSelected()"
-          >
-          </mat-checkbox>
-          }
-        </th>
-        <td mat-cell *matCellDef="let row">
-          @if (row.STATUS !== 'Closed') {
-          <mat-checkbox
-            (click)="$event.stopPropagation()"
-            (change)="onRowSelectionChange($event, row)"
-            [checked]="selection.isSelected(row)"
-          >
-          </mat-checkbox>
-          }
-        </td>
-      </ng-container>
-      @for (column of summaryColumns; track column) {
-      <ng-container [matColumnDef]="column">
-        <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
-          @switch (column) { @default {
-          {{ replaceUnderscore(column) }}
-          } }
-        </th>
-        <td
-          mat-cell
-          *matCellDef="let element"
-          [class.comments-cell]="column === 'COMMENTS'"
-          [class.issue-description-cell]="column === 'ISSUE_DESCRIPTION'"
-          [class.fix-details-cell]="column === 'FIX_DETAILS'"
-        >
-          @switch (column) { @case ('ISSUE_DESCRIPTION') { @if ( editingRow ===
-          element && editingField === 'ISSUE_DESCRIPTION' ) {
-          <div class="edit-container">
-            <textarea
-              [(ngModel)]="element.ISSUE_DESCRIPTION"
-              class="edit-textarea"
-            ></textarea>
-            <div class="edit-actions">
-              <i
-                class="fa fa-check edit-icon confirm"
-                (click)="saveEdit(element)"
-              ></i>
-              <i
-                class="fa fa-close edit-icon cancel"
-                (click)="cancelEdit()"
-              ></i>
-            </div>
-          </div>
-          } @if ( !( editingRow === element && editingField ===
-          'ISSUE_DESCRIPTION' ) ) { @for ( part of
-          formatIssueDescription(element[column]) ; track part) { @if
-          (part.breakBefore) {
-          <span>
-            <br />
-            <br />
-          </span>
-          }
-          <!-- Line break before "Root Cause:" and "Business Impact:" -->
-          <span [style.font-weight]="part.bold ? 'bold' : '500'">
-            {{ part.text }}
-          </span>
-          @if (part.breakAfter) {
-          <br />
-          }
-          <!-- Line break after "Issue:", "Root Cause:", and "Business Impact:" -->
-          } &nbsp; &nbsp;
-          <i
-            class="fa fa-pencil-square-o"
-            style="font-weight: bold; color: rgb(79, 78, 78)"
-            aria-hidden="true"
-            (click)="editField(element, 'ISSUE_DESCRIPTION')"
-          ></i>
-          } }
-          <!-- Editable COMMENTS Column -->
-          @case ('COMMENTS') { @if ( editingRow === element && editingField ===
-          'COMMENTS' ) {
-          <div class="edit-container">
-            <textarea
-              [(ngModel)]="element.COMMENTS"
-              class="edit-textarea"
-            ></textarea>
-            <div class="edit-actions">
-              <i
-                class="fa fa-check edit-icon confirm"
-                (click)="saveEdit(element)"
-              ></i>
-              <i
-                class="fa fa-close edit-icon cancel"
-                (click)="cancelEdit()"
-              ></i>
-            </div>
-          </div>
-          } @if ( !(editingRow === element && editingField === 'COMMENTS') ) {
-          <span>{{ element.COMMENTS }}</span>
-          &nbsp;
-          <i
-            class="fa fa-pencil-square-o"
-            style="font-weight: bold; color: rgb(79, 78, 78)"
-            aria-hidden="true"
-            (click)="editField(element, 'COMMENTS')"
-          ></i>
-          } } @case ('FIX_DETAILS') { @if ( editingRow === element &&
-          editingField === 'FIX_DETAILS' ) {
-          <div class="edit-container">
-            <textarea
-              [(ngModel)]="element.FIX_DETAILS"
-              class="edit-textarea"
-            ></textarea>
-            <div class="edit-actions">
-              <i
-                class="fa fa-check edit-icon confirm"
-                (click)="saveEdit(element)"
-              ></i>
-              <i
-                class="fa fa-close edit-icon cancel"
-                (click)="cancelEdit()"
-              ></i>
-            </div>
-          </div>
-          } @if ( !( editingRow === element && editingField === 'FIX_DETAILS' )
-          ) { @for (part of formatFixDetails(element[column]); track part) { @if
-          (part.breakBefore) {
-          <span>
-            <br />
-          </span>
-          } @if (part.longTerm) {
-          <span>
-            <br />
-            <br />
-          </span>
-          } @if (part.bold) {
-          <span style="font-weight: bold">
-            {{ part.text }}
-          </span>
-          }
-          <!-- <span *ngIf="part.longTerm">
-                          <br />
-                        </span> -->
-          @if (part.bullet) {
-          <span>
-            {{ part.text }}
-          </span>
-          } @if (!part.bold && !part.bullet) {
-          <span>{{ part.text }}</span>
-          } } &nbsp; &nbsp;
-          <i
-            class="fa fa-pencil-square-o"
-            style="font-weight: bold; color: rgb(79, 78, 78)"
-            aria-hidden="true"
-            (click)="editField(element, 'FIX_DETAILS')"
-          ></i>
-          } }
-          <!-- Editable FIX_DETAILS Column -->
-          <!-- <ng-container *ngSwitchCase="'FIX_DETAILS'">
-                  <ng-container
-                      *ngIf="
-                        editingRow === element && editingField === 'FIX_DETAILS'
-                      "
-                    >
-                    <div class="edit-container">
-                      <textarea
-                        [(ngModel)]="element.FIX_DETAILS"
-                        class="edit-textarea"
-                      ></textarea>
-                      <div class="edit-actions">
-                        <i
-                          class="fa fa-check edit-icon confirm"
-                          (click)="saveEdit(element)"
-                        ></i>
-                        <i
-                          class="fa fa-close edit-icon cancel"
-                          (click)="cancelEdit()"
-                        ></i>
-                      </div>
-                    </div>
-                  </ng-container>
-                  <ng-container
-                      *ngIf="
-                        !(
-                          editingRow === element &&
-                          editingField === 'FIX_DETAILS'
-                        )
-                      "
-                    >
-                    <span>{{ element.FIX_DETAILS }}</span>
-                    &nbsp;
-                    <i
-                      class="fa fa-pencil-square-o"
-                      style="font-weight: bold; color: rgb(79, 78, 78)"
-                      aria-hidden="true"
-                      (click)="editField(element, 'FIX_DETAILS')"
-                    ></i>
-                  </ng-container>
-                </ng-container> -->
-          @case ('STATUS') { @if ( element[column] === 'Open' &&
-          (roles.includes('ISSUE_APPROVAL') || roles.includes('ADMIN')) ) {
-          <span>
-            <mat-form-field
-              appearance="fill"
-              style="text-align: center; font-weight: 500; max-width: 5vw"
-            >
-              <mat-select
-                [(ngModel)]="element[column]"
-                (selectionChange)="onStatusChange(element)"
-                placeholder="Status"
-              >
-                @for (status of statusOps; track status) {
-                <mat-option [value]="status">{{ status }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </span>
-          } @if ( element[column] === 'Closed' || !(
-          roles.includes('ISSUE_APPROVAL') || roles.includes('ADMIN') ) ) {
-          <span>
-            {{ element[column] }}
-          </span>
-          } } @case ('INCIDENT_NUMBER') { @if (element[column]) {
-          <a (click)="openIncidentDetails(element[column])">
-            {{ element[column] }}
-          </a>
-          } } @default {
-          {{ element[column] }}
-          } }
-        </td>
-      </ng-container>
-      }
-      <tr mat-header-row *matHeaderRowDef="summaryDisplayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: summaryDisplayedColumns"></tr>
-    </table>
-  </div>
-  } @if (!summaryDatasource?.data?.length && isLoading) {
-  <div class="loading-container">
-    <app-loading-symbol></app-loading-symbol>
-    <div class="circle-subcaption"></div>
-    <br /><br /><br />
-  </div>
-  } @if (!summaryDatasource?.data?.length && !isLoading) {
-  <div class="loading-container">
-    <img
-      src="assets/thumbnails/noDataFound.png"
-      alt="No Data Found"
-      class="no-data-image"
-      style="width: 160px; justify-content: center; align-items: center"
-    />
-    <div class="card-subtitle" style="font-weight: 600; color: gray">
-      No Open Incidents Found
-    </div>
-    <br /><br />
-  </div>
   }
 
+  <!-- Table -->
+  <div class="ir-table-container">
+    @if (summaryDatasource?.data?.length) {
+      <div class="table-container">
+        <table
+          mat-table
+          [dataSource]="summaryDatasource"
+          class="custom-table table-responsive"
+        >
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef>
+              @if (!areAllRowsApproved()) {
+                <input
+                  type="checkbox"
+                  class="fit-bulk-checkbox"
+                  (change)="toggleSelectAll($event)"
+                  [checked]="isAllSelected()"
+                  [indeterminate]="isSomeSelected()"
+                />
+              }
+            </th>
+            <td mat-cell *matCellDef="let row">
+              @if (row.STATUS !== "Closed") {
+                <input
+                  type="checkbox"
+                  class="fit-bulk-checkbox"
+                  (click)="$event.stopPropagation()"
+                  (change)="onRowSelectionChange($event, row)"
+                  [checked]="selection.isSelected(row)"
+                />
+              }
+            </td>
+          </ng-container>
+          @for (column of summaryColumns; track column) {
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
+                {{ replaceUnderscore(column) }}
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                [class.comments-cell]="column === 'COMMENTS'"
+                [class.issue-description-cell]="column === 'ISSUE_DESCRIPTION'"
+                [class.fix-details-cell]="column === 'FIX_DETAILS'"
+              >
+                @switch (column) {
+                  @case ("ISSUE_DESCRIPTION") {
+                    @if (
+                      editingRow === element &&
+                      editingField === "ISSUE_DESCRIPTION"
+                    ) {
+                      <div class="edit-container">
+                        <textarea
+                          [(ngModel)]="element.ISSUE_DESCRIPTION"
+                          class="edit-textarea"
+                        ></textarea>
+                        <div class="edit-actions">
+                          <i
+                            class="fa fa-check edit-icon confirm"
+                            (click)="saveEdit(element)"
+                          ></i>
+                          <i
+                            class="fa fa-close edit-icon cancel"
+                            (click)="cancelEdit()"
+                          ></i>
+                        </div>
+                      </div>
+                    }
+                    @if (
+                      !(
+                        editingRow === element &&
+                        editingField === "ISSUE_DESCRIPTION"
+                      )
+                    ) {
+                      @for (
+                        part of formatIssueDescription(element[column]);
+                        track part
+                      ) {
+                        @if (part.breakBefore) {
+                          <span><br /><br /></span>
+                        }
+                        <span
+                          [style.font-weight]="part.bold ? 'bold' : '500'"
+                          >{{ part.text }}</span
+                        >
+                        @if (part.breakAfter) {
+                          <br />
+                        }
+                      }
+                      &nbsp;&nbsp;
+                      <i
+                        class="fa fa-pencil-square-o edit-pencil"
+                        aria-hidden="true"
+                        (click)="editField(element, 'ISSUE_DESCRIPTION')"
+                      ></i>
+                    }
+                  }
+                  @case ("COMMENTS") {
+                    @if (
+                      editingRow === element && editingField === "COMMENTS"
+                    ) {
+                      <div class="edit-container">
+                        <textarea
+                          [(ngModel)]="element.COMMENTS"
+                          class="edit-textarea"
+                        ></textarea>
+                        <div class="edit-actions">
+                          <i
+                            class="fa fa-check edit-icon confirm"
+                            (click)="saveEdit(element)"
+                          ></i>
+                          <i
+                            class="fa fa-close edit-icon cancel"
+                            (click)="cancelEdit()"
+                          ></i>
+                        </div>
+                      </div>
+                    }
+                    @if (
+                      !(editingRow === element && editingField === "COMMENTS")
+                    ) {
+                      <span>{{ element.COMMENTS }}</span
+                      >&nbsp;
+                      <i
+                        class="fa fa-pencil-square-o edit-pencil"
+                        aria-hidden="true"
+                        (click)="editField(element, 'COMMENTS')"
+                      ></i>
+                    }
+                  }
+                  @case ("FIX_DETAILS") {
+                    @if (
+                      editingRow === element && editingField === "FIX_DETAILS"
+                    ) {
+                      <div class="edit-container">
+                        <textarea
+                          [(ngModel)]="element.FIX_DETAILS"
+                          class="edit-textarea"
+                        ></textarea>
+                        <div class="edit-actions">
+                          <i
+                            class="fa fa-check edit-icon confirm"
+                            (click)="saveEdit(element)"
+                          ></i>
+                          <i
+                            class="fa fa-close edit-icon cancel"
+                            (click)="cancelEdit()"
+                          ></i>
+                        </div>
+                      </div>
+                    }
+                    @if (
+                      !(
+                        editingRow === element && editingField === "FIX_DETAILS"
+                      )
+                    ) {
+                      @for (
+                        part of formatFixDetails(element[column]);
+                        track part
+                      ) {
+                        @if (part.breakBefore) {
+                          <span><br /></span>
+                        }
+                        @if (part.longTerm) {
+                          <span><br /><br /></span>
+                        }
+                        @if (part.bold) {
+                          <span style="font-weight: bold">{{ part.text }}</span>
+                        }
+                        @if (part.bullet) {
+                          <span>{{ part.text }}</span>
+                        }
+                        @if (!part.bold && !part.bullet) {
+                          <span>{{ part.text }}</span>
+                        }
+                      }
+                      &nbsp;&nbsp;
+                      <i
+                        class="fa fa-pencil-square-o edit-pencil"
+                        aria-hidden="true"
+                        (click)="editField(element, 'FIX_DETAILS')"
+                      ></i>
+                    }
+                  }
+                  @case ("STATUS") {
+                    @if (
+                      element[column] === "Open" &&
+                      (roles.includes("ISSUE_APPROVAL") ||
+                        roles.includes("ADMIN"))
+                    ) {
+                      <select
+                        class="ir-status-select"
+                        [(ngModel)]="element[column]"
+                        (change)="onStatusChange(element)"
+                      >
+                        @for (status of statusOps; track status) {
+                          <option [value]="status">{{ status }}</option>
+                        }
+                      </select>
+                    }
+                    @if (
+                      element[column] === "Closed" ||
+                      !(
+                        roles.includes("ISSUE_APPROVAL") ||
+                        roles.includes("ADMIN")
+                      )
+                    ) {
+                      <span>{{ element[column] }}</span>
+                    }
+                  }
+                  @case ("INCIDENT_NUMBER") {
+                    @if (element[column]) {
+                      <a
+                        class="ir-link"
+                        (click)="openIncidentDetails(element[column])"
+                        >{{ element[column] }}</a
+                      >
+                    }
+                  }
+                  @default {
+                    {{ element[column] }}
+                  }
+                }
+              </td>
+            </ng-container>
+          }
+          <tr mat-header-row *matHeaderRowDef="summaryDisplayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: summaryDisplayedColumns"
+          ></tr>
+        </table>
+      </div>
+    }
+    @if (!summaryDatasource?.data?.length && isLoading) {
+      <div class="ir-empty-state">
+        <app-loading-symbol></app-loading-symbol>
+        <br /><br /><br />
+      </div>
+    }
+    @if (!summaryDatasource?.data?.length && !isLoading) {
+      <div class="ir-empty-state">
+        <img
+          src="assets/thumbnails/noDataFound.png"
+          alt="No Data Found"
+          class="ir-no-data-image"
+        />
+        <div class="ir-empty-text">No Open Incidents Found</div>
+      </div>
+    }
+  </div>
+
+  <!-- Hidden mat-paginator (drives data slicing) -->
   <mat-paginator
-    [pageSize]="10"
-    length="length"
+    [pageSize]="pageSize"
     [pageSizeOptions]="[]"
     showFirstLastButtons
-    aria-label="Select page"
+    style="display: none"
   ></mat-paginator>
-</div>
 
-<mat-menu #dropdownMenu="matMenu" class="custom-menu">
-  <div
-    mat-menu-item
-    (click)="openSummaryDialog()"
-    class="viewHighlight"
-    style="font-size: small; font-weight: 500"
-  >
-    <i
-      class="fa fa-angle-right"
-      aria-hidden="true"
-      style="font-size: medium"
-    ></i
-    >&nbsp;&nbsp;View Summary
-  </div>
-  <div
-    mat-menu-item
-    (click)="uploadFile()"
-    class="viewHighlight"
-    style="font-size: small; font-weight: 500"
-  >
-    <i
-      class="fa fa-angle-right"
-      aria-hidden="true"
-      style="font-size: medium"
-    ></i
-    >&nbsp;&nbsp;Upload Issues
-  </div>
-  <div
-    mat-menu-item
-    class="viewHighlight"
-    style="font-size: small; font-weight: 500"
-    (click)="exportSummaryData()"
-  >
-    <i
-      class="fa fa-angle-right"
-      aria-hidden="true"
-      style="font-size: medium"
-    ></i>
-    &nbsp;&nbsp;Download
-  </div>
-</mat-menu>
+  @if (summaryDatasource?.data?.length) {
+    <app-pagination
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [totalItems]="
+        summaryDatasource?.filteredData?.length ??
+        summaryDatasource?.data?.length ??
+        0
+      "
+      [pageSizeOptions]="[10, 25, 50]"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  }
+</div>

@@ -1,0 +1,41 @@
+<div class="md-pagination">
+  @if (showItemCount) {
+    <div class="md-pagination__info">
+      <span class="md-pagination__text">
+        {{ startItem }} - {{ endItem }} of {{ totalItems }}
+      </span>
+    </div>
+  }
+
+  <div class="md-pagination__controls">
+    @if (showPageSizeSelector) {
+      <select
+        class="md-pagination__select"
+        [value]="pageSize.toString()"
+        (change)="onPageSizeChange($event)"
+      >
+        @for (size of pageSizeOptions; track size) {
+          <option [value]="size" [selected]="size === pageSize">
+            {{ size }} per page
+          </option>
+        }
+      </select>
+    }
+
+    <button
+      class="md-pagination__btn"
+      [disabled]="!hasPrevious"
+      (click)="onPrevious()"
+    >
+      Previous
+    </button>
+
+    <span class="md-pagination__page-indicator">
+      Page {{ pageIndex + 1 }} of {{ totalPages }}
+    </span>
+
+    <button class="md-pagination__btn" [disabled]="!hasNext" (click)="onNext()">
+      Next
+    </button>
+  </div>
+</div>
