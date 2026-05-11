@@ -83,6 +83,9 @@ export class HomeComponent implements OnDestroy {
     this.userRoles.set(this.authService.getUserAccessRoles());
     this.username.set(this.authService.getUserName());
 
+    // Re-render charts when theme changes
+    this.themeService.isDarkMode$.subscribe(() => this.updateChartTheme());
+
     // Load dashboard data
     this.loadDashboardData();
   }
@@ -1088,6 +1091,7 @@ export class HomeComponent implements OnDestroy {
             borderWidth: 1,
             barPercentage: 0.7,
             categoryPercentage: 0.8,
+            order: 2,
           },
           {
             type: 'bar',
@@ -1098,6 +1102,7 @@ export class HomeComponent implements OnDestroy {
             borderWidth: 1,
             barPercentage: 0.7,
             categoryPercentage: 0.8,
+            order: 2,
           },
           {
             type: 'line',
@@ -1105,11 +1110,17 @@ export class HomeComponent implements OnDestroy {
             data: chartData.resolvedOps,
             borderColor: '#9933ff',
             backgroundColor: purpleGrad,
+            pointBackgroundColor: this.themeService.isDarkMode
+              ? '#2a3f50'
+              : '#fff',
+            pointBorderColor: '#9933ff',
+            pointBorderWidth: 2,
             tension: 0.25,
             pointRadius: 3,
             pointHoverRadius: 5,
             borderWidth: 2,
             fill: 'origin',
+            order: 1,
           },
           {
             type: 'line',
@@ -1117,11 +1128,17 @@ export class HomeComponent implements OnDestroy {
             data: chartData.resolvedAgent,
             borderColor: '#6ebe4a',
             backgroundColor: greenGrad,
+            pointBackgroundColor: this.themeService.isDarkMode
+              ? '#2a3f50'
+              : '#fff',
+            pointBorderColor: '#6ebe4a',
+            pointBorderWidth: 2,
             tension: 0.25,
             pointRadius: 3,
             pointHoverRadius: 5,
             borderWidth: 2,
             fill: 'origin',
+            order: 1,
           },
         ],
       },
@@ -1192,6 +1209,7 @@ export class HomeComponent implements OnDestroy {
             borderWidth: 1,
             barPercentage: 0.7,
             categoryPercentage: 0.8,
+            order: 2,
           },
           {
             type: 'bar',
@@ -1202,6 +1220,7 @@ export class HomeComponent implements OnDestroy {
             borderWidth: 1,
             barPercentage: 0.7,
             categoryPercentage: 0.8,
+            order: 2,
           },
           {
             type: 'line',
@@ -1209,11 +1228,17 @@ export class HomeComponent implements OnDestroy {
             data: chartData.resolvedOps,
             borderColor: '#9933ff',
             backgroundColor: purpleGrad,
+            pointBackgroundColor: this.themeService.isDarkMode
+              ? '#2a3f50'
+              : '#fff',
+            pointBorderColor: '#9933ff',
+            pointBorderWidth: 2,
             tension: 0.25,
             pointRadius: 3,
             pointHoverRadius: 5,
             borderWidth: 2,
             fill: 'origin',
+            order: 1,
           },
           {
             type: 'line',
@@ -1221,11 +1246,17 @@ export class HomeComponent implements OnDestroy {
             data: chartData.resolvedAgent,
             borderColor: '#6ebe4a',
             backgroundColor: greenGrad,
+            pointBackgroundColor: this.themeService.isDarkMode
+              ? '#2a3f50'
+              : '#fff',
+            pointBorderColor: '#6ebe4a',
+            pointBorderWidth: 2,
             tension: 0.25,
             pointRadius: 3,
             pointHoverRadius: 5,
             borderWidth: 2,
             fill: 'origin',
+            order: 1,
           },
         ],
       },
@@ -1280,6 +1311,11 @@ export class HomeComponent implements OnDestroy {
   }
 
   private mixedChartOptions(title: string): ChartConfiguration['options'] {
+    const isDark = this.themeService.isDarkMode;
+    const legendColor = isDark ? '#e0e6ed' : '#4f4f4f';
+    const tickColor = isDark ? '#8899a6' : '#666';
+    const gridColor = isDark ? 'rgba(136,153,166,0.18)' : '#f0f0f0';
+
     return {
       responsive: true,
       maintainAspectRatio: false,
@@ -1296,18 +1332,27 @@ export class HomeComponent implements OnDestroy {
             boxHeight: 8,
             padding: 15,
             font: { family: 'Inter, sans-serif', size: 12, weight: 'normal' },
-            color: '#4f4f4f',
+            color: legendColor,
           },
         },
         title: { display: false },
         tooltip: {
           enabled: true,
-          displayColors: false,
+          displayColors: true,
           backgroundColor: '#222',
           titleColor: '#fff',
           bodyColor: '#fff',
           padding: 10,
           cornerRadius: 4,
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: function (context: any) {
+              let label = context.dataset.label || '';
+              label = label.replace(/\s*\([\d,]+\)\s*$/, '');
+              return label + ': ' + (context.parsed.y ?? context.raw);
+            },
+          },
         },
         datalabels: {
           display: false,
@@ -1316,9 +1361,10 @@ export class HomeComponent implements OnDestroy {
       scales: {
         x: {
           grid: { display: false },
+          border: { display: false },
           ticks: {
             font: { family: 'Inter, sans-serif', size: 11, weight: 'normal' },
-            color: '#666',
+            color: tickColor,
             maxRotation: 45,
             minRotation: 45,
             autoSkip: false,
@@ -1329,10 +1375,11 @@ export class HomeComponent implements OnDestroy {
         },
         y: {
           beginAtZero: true,
-          grid: { color: '#f0f0f0', lineWidth: 1 },
+          border: { display: false },
+          grid: { color: gridColor, lineWidth: 1 },
           ticks: {
             font: { family: 'Inter, sans-serif', size: 11 },
-            color: '#999',
+            color: isDark ? '#8899a6' : '#999',
             stepSize: 10,
           },
         },
@@ -1343,6 +1390,11 @@ export class HomeComponent implements OnDestroy {
   private mixedChartWithSecondaryAxis(
     title: string,
   ): ChartConfiguration['options'] {
+    const isDark = this.themeService.isDarkMode;
+    const legendColor = isDark ? '#e0e6ed' : '#4f4f4f';
+    const tickColor = isDark ? '#8899a6' : '#666';
+    const gridColor = isDark ? 'rgba(136,153,166,0.18)' : '#f0f0f0';
+
     return {
       responsive: true,
       maintainAspectRatio: false,
@@ -1359,18 +1411,27 @@ export class HomeComponent implements OnDestroy {
             boxHeight: 8,
             padding: 15,
             font: { family: 'Inter, sans-serif', size: 12, weight: 'normal' },
-            color: '#4f4f4f',
+            color: legendColor,
           },
         },
         title: { display: false },
         tooltip: {
           enabled: true,
-          displayColors: false,
+          displayColors: true,
           backgroundColor: '#222',
           titleColor: '#fff',
           bodyColor: '#fff',
           padding: 10,
           cornerRadius: 4,
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: function (context: any) {
+              let label = context.dataset.label || '';
+              label = label.replace(/\s*\([\d,]+\)\s*$/, '');
+              return label + ': ' + (context.parsed.y ?? context.raw);
+            },
+          },
         },
         datalabels: {
           display: false,
@@ -1379,9 +1440,10 @@ export class HomeComponent implements OnDestroy {
       scales: {
         x: {
           grid: { display: false },
+          border: { display: false },
           ticks: {
             font: { family: 'Inter, sans-serif', size: 11, weight: 'normal' },
-            color: '#666',
+            color: tickColor,
             maxRotation: 0,
             minRotation: 0,
             callback: function (value, index) {
@@ -1394,10 +1456,11 @@ export class HomeComponent implements OnDestroy {
           display: true,
           position: 'left',
           beginAtZero: true,
-          grid: { color: '#f0f0f0', lineWidth: 1 },
+          border: { display: false },
+          grid: { color: gridColor, lineWidth: 1 },
           ticks: {
             font: { family: 'Inter, sans-serif', size: 11 },
-            color: '#999',
+            color: isDark ? '#8899a6' : '#999',
           },
         },
         y1: {
@@ -1405,6 +1468,7 @@ export class HomeComponent implements OnDestroy {
           display: true,
           position: 'right',
           beginAtZero: true,
+          border: { display: false },
           grid: {
             drawOnChartArea: false,
           },
@@ -1420,5 +1484,47 @@ export class HomeComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.transactionFailuresChart?.destroy();
     this.espCasesChart?.destroy();
+  }
+
+  /** Re-apply theme colors to all live Chart.js instances */
+  private updateChartTheme(): void {
+    const isDark = this.themeService.isDarkMode;
+    const legendColor = isDark ? '#e0e6ed' : '#4f4f4f';
+    const tickColor = isDark ? '#8899a6' : '#666';
+    const yTickColor = isDark ? '#8899a6' : '#999';
+    const gridColor = isDark ? 'rgba(136,153,166,0.18)' : '#f0f0f0';
+    const pointFill = isDark ? '#2a3f50' : '#fff';
+
+    const charts = [this.transactionFailuresChart, this.espCasesChart];
+    for (const chart of charts) {
+      if (!chart) continue;
+
+      // Update legend
+      if (chart.options.plugins?.legend?.labels) {
+        (chart.options.plugins.legend.labels as any).color = legendColor;
+      }
+
+      // Update scales
+      const xScale = chart.options.scales?.['x'] as any;
+      const yScale = chart.options.scales?.['y'] as any;
+      if (xScale) {
+        if (xScale.ticks) xScale.ticks.color = tickColor;
+        if (xScale.border) xScale.border.display = false;
+      }
+      if (yScale) {
+        if (yScale.ticks) yScale.ticks.color = yTickColor;
+        if (yScale.grid) yScale.grid.color = gridColor;
+        if (yScale.border) yScale.border.display = false;
+      }
+
+      // Update point fill colors on line datasets
+      chart.data.datasets.forEach((ds: any) => {
+        if (ds.type === 'line' && ds.pointBackgroundColor) {
+          ds.pointBackgroundColor = pointFill;
+        }
+      });
+
+      chart.update();
+    }
   }
 }

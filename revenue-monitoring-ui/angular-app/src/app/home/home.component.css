@@ -278,7 +278,7 @@
 .kpi-bars {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  margin: 1rem 1.5rem 0 1.5rem;
+  margin: 1rem 1rem 0;
   gap: 1rem;
 }
 
@@ -373,7 +373,7 @@
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 1rem;
-  padding: 1rem 1.5rem 0;
+  padding: 1rem 1rem 0;
   box-sizing: border-box;
 }
 
@@ -531,7 +531,7 @@
   border: 1px solid var(--hm-card-border);
   border-radius: var(--hm-card-radius);
   box-shadow: var(--hm-card-shadow);
-  margin: 1rem 1.5rem;
+  margin: 1rem;
   padding: 0.25rem 1rem 0.5rem;
 }
 

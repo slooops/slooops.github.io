@@ -843,6 +843,24 @@ h6 {
   margin: 0 !important;
 }
 
+/* CaseIQ Expand Dialog — CTM-style modal panel */
+.caseiq-expand-dialog .mat-mdc-dialog-container,
+.caseiq-expand-dialog .mat-dialog-container {
+  border-radius: 16px !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18) !important;
+  overflow: hidden !important;
+}
+
+.caseiq-expand-dialog .mat-mdc-dialog-surface,
+.caseiq-expand-dialog .mdc-dialog__surface {
+  border-radius: 16px !important;
+  overflow: hidden !important;
+}
+
+.caseiq-expand-dialog.mat-mdc-dialog-panel {
+  max-width: 2000px !important;
+}
+
 /* Tooltip Overrides */
 ::ng-deep .mat-mdc-tooltip,
 ::ng-deep .mat-tooltip {

@@ -1,167 +1,208 @@
-<div class="caseiq-header-box">
-  <div class="caseiq-header-row">
-    <!-- ESP Group -->
-    <div class="caseiq-header-group caseiq-header-group-esp">
-      <div class="caseiq-header-cell">
-        <span class="caseiq-header-label">Case Analyzer Accuracy</span>
-        <span class="caseiq-header-sep">-</span>
-        <span class="caseiq-header-value">{{
+<div class="caseiq-kpi-strip">
+  <!-- Accuracy KPI -->
+  <div class="caseiq-kpi accent">
+    <span class="caseiq-kpi-title">Case Analyzer Accuracy</span>
+    <div class="caseiq-kpi-body">
+      <div class="caseiq-pill">
+        <div
+          class="caseiq-pill-fill accent"
+          [style.width.%]="totalAccuracy !== '-' ? +totalAccuracy : 0"
+        ></div>
+        <span class="caseiq-pill-text">{{
           totalAccuracy !== "-" ? totalAccuracy + "%" : "--"
         }}</span>
       </div>
     </div>
+  </div>
 
-    <!-- Agent Group -->
-    <div class="caseiq-header-group caseiq-header-group-agent">
-      <div class="caseiq-header-cell">
-        <span class="caseiq-header-label">In Progress</span>
-        <span class="caseiq-header-sep">-</span>
-        <span class="caseiq-header-value"
-          >{{
+  <!-- In Progress -->
+  <div class="caseiq-kpi cyan">
+    <span class="caseiq-kpi-title">In Progress</span>
+    <div class="caseiq-kpi-body">
+      <div class="caseiq-pill">
+        <div
+          class="caseiq-pill-fill cyan"
+          [style.width.%]="
+            filteredCaseIqMetrics
+              ? (filteredCaseIqMetrics.IN_PROGRESS_AGENT_PERCENTAGE ?? 0)
+              : 0
+          "
+        ></div>
+        <span class="caseiq-pill-text">
+          {{
             filteredCaseIqMetrics
               ? (filteredCaseIqMetrics.IN_PROGRESS_AGENT ?? 0)
               : "--"
-          }}<span style="font-size: calc(1em - 1px)">
-            /
-            {{
-              filteredCaseIqMetrics
-                ? (filteredCaseIqMetrics.IN_PROGRESS ?? 0)
-                : "--"
-            }}</span
-          >
+          }}
+          /
           {{
             filteredCaseIqMetrics
-              ? "(" +
-                (filteredCaseIqMetrics.IN_PROGRESS_AGENT_PERCENTAGE ?? 0) +
-                "%)"
-              : "(--)"
-          }}</span
-        >
+              ? (filteredCaseIqMetrics.IN_PROGRESS ?? 0)
+              : "--"
+          }}
+        </span>
       </div>
+      <span class="caseiq-kpi-pct">{{
+        filteredCaseIqMetrics
+          ? (filteredCaseIqMetrics.IN_PROGRESS_AGENT_PERCENTAGE ?? 0) + "%"
+          : "--"
+      }}</span>
+    </div>
+  </div>
 
-      <div class="caseiq-header-cell">
-        <span class="caseiq-header-label">Routed Out</span>
-        <span class="caseiq-header-sep">-</span>
-        <span class="caseiq-header-value"
-          >{{
+  <!-- Routed Out -->
+  <div class="caseiq-kpi purple">
+    <span class="caseiq-kpi-title">Routed Out</span>
+    <div class="caseiq-kpi-body">
+      <div class="caseiq-pill">
+        <div
+          class="caseiq-pill-fill purple"
+          [style.width.%]="
+            filteredCaseIqMetrics
+              ? (filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT_PERCENTAGE ?? 0)
+              : 0
+          "
+        ></div>
+        <span class="caseiq-pill-text">
+          {{
             filteredCaseIqMetrics
               ? (filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT ?? 0)
               : "--"
-          }}<span style="font-size: calc(1em - 1px)">
-            /
-            {{
-              filteredCaseIqMetrics
-                ? (filteredCaseIqMetrics.ROUTED_OUT ?? 0)
-                : "--"
-            }}</span
-          >
+          }}
+          /
           {{
             filteredCaseIqMetrics
-              ? "(" +
-                (filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT_PERCENTAGE ?? 0) +
-                "%)"
-              : "(--)"
-          }}</span
-        >
+              ? (filteredCaseIqMetrics.ROUTED_OUT ?? 0)
+              : "--"
+          }}
+        </span>
       </div>
+      <span class="caseiq-kpi-pct">{{
+        filteredCaseIqMetrics
+          ? (filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT_PERCENTAGE ?? 0) + "%"
+          : "--"
+      }}</span>
+    </div>
+  </div>
 
-      <div class="caseiq-header-cell">
-        <span class="caseiq-header-label">Cancelled</span>
-        <span class="caseiq-header-sep">-</span>
-        <span class="caseiq-header-value"
-          >{{
+  <!-- Cancelled -->
+  <div class="caseiq-kpi amber">
+    <span class="caseiq-kpi-title">Cancelled</span>
+    <div class="caseiq-kpi-body">
+      <div class="caseiq-pill">
+        <div
+          class="caseiq-pill-fill amber"
+          [style.width.%]="
+            filteredCaseIqMetrics
+              ? (filteredCaseIqMetrics.RECOMMENDED_CANCELLED_PERCENTAGE ?? 0)
+              : 0
+          "
+        ></div>
+        <span class="caseiq-pill-text">
+          {{
             filteredCaseIqMetrics
               ? (filteredCaseIqMetrics.RECOMMENDED_CANCELLED ?? 0)
               : "--"
-          }}<span style="font-size: calc(1em - 1px)">
-            /
-            {{
-              filteredCaseIqMetrics
-                ? (filteredCaseIqMetrics.CANCELLED ?? 0)
-                : "--"
-            }}</span
-          >
+          }}
+          /
           {{
             filteredCaseIqMetrics
-              ? "(" +
-                (filteredCaseIqMetrics.RECOMMENDED_CANCELLED_PERCENTAGE ?? 0) +
-                "%)"
-              : "(--)"
-          }}</span
-        >
+              ? (filteredCaseIqMetrics.CANCELLED ?? 0)
+              : "--"
+          }}
+        </span>
       </div>
+      <span class="caseiq-kpi-pct">{{
+        filteredCaseIqMetrics
+          ? (filteredCaseIqMetrics.RECOMMENDED_CANCELLED_PERCENTAGE ?? 0) + "%"
+          : "--"
+      }}</span>
+    </div>
+  </div>
 
-      <div class="caseiq-header-cell">
-        <span class="caseiq-header-label">Service Requests</span>
-        <span class="caseiq-header-sep">-</span>
-        <span class="caseiq-header-value"
-          >{{
+  <!-- Service Requests -->
+  <div class="caseiq-kpi green">
+    <span class="caseiq-kpi-title">Service Requests</span>
+    <div class="caseiq-kpi-body">
+      <div class="caseiq-pill">
+        <div
+          class="caseiq-pill-fill green"
+          [style.width.%]="
+            filteredCaseIqMetrics
+              ? (filteredCaseIqMetrics.RESOLVED_PERCENTAGE_AGENT ?? 0)
+              : 0
+          "
+        ></div>
+        <span class="caseiq-pill-text">
+          {{
             filteredCaseIqMetrics
               ? (filteredCaseIqMetrics.RESOLVED_AGENT ?? 0)
               : "--"
-          }}<span style="font-size: calc(1em - 1px)">
-            /
-            {{
-              filteredCaseIqMetrics
-                ? (filteredCaseIqMetrics.RESOLVED ?? 0)
-                : "--"
-            }}</span
-          >
+          }}
+          /
           {{
-            filteredCaseIqMetrics
-              ? "(" +
-                (filteredCaseIqMetrics.RESOLVED_PERCENTAGE_AGENT ?? 0) +
-                "%)"
-              : "(--)"
-          }}</span
-        >
+            filteredCaseIqMetrics ? (filteredCaseIqMetrics.RESOLVED ?? 0) : "--"
+          }}
+        </span>
       </div>
+      <span class="caseiq-kpi-pct">{{
+        filteredCaseIqMetrics
+          ? (filteredCaseIqMetrics.RESOLVED_PERCENTAGE_AGENT ?? 0) + "%"
+          : "--"
+      }}</span>
+    </div>
+  </div>
 
-      <div class="caseiq-header-cell">
-        <span class="caseiq-header-label">Total Cases (Agent)</span>
-        <span class="caseiq-header-sep">-</span>
-        <span class="caseiq-header-value"
-          >{{
+  <!-- Total Cases -->
+  <div class="caseiq-kpi accent">
+    <span class="caseiq-kpi-title">Total Cases (Agent)</span>
+    <div class="caseiq-kpi-body">
+      <div class="caseiq-pill">
+        <div
+          class="caseiq-pill-fill accent"
+          [style.width.%]="getAgentRatio()"
+        ></div>
+        <span class="caseiq-pill-text">
+          {{
             filteredCaseIqMetrics
               ? (filteredCaseIqMetrics.IN_PROGRESS_AGENT ?? 0) +
                 (filteredCaseIqMetrics.RESOLVED_AGENT ?? 0) +
                 (filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT ?? 0) +
                 (filteredCaseIqMetrics.RECOMMENDED_CANCELLED ?? 0)
               : "--"
-          }}<span style="font-size: calc(1em - 1px)">
-            /
-            {{
-              filteredCaseIqMetrics
-                ? (filteredCaseIqMetrics.TOTAL_CASES ?? 0) -
-                  (filteredCaseIqMetrics.SERVICE_INCIDENTS ?? 0)
-                : "--"
-            }}</span
-          ></span
-        >
+          }}
+          /
+          {{
+            filteredCaseIqMetrics
+              ? (filteredCaseIqMetrics.TOTAL_CASES ?? 0) -
+                (filteredCaseIqMetrics.SERVICE_INCIDENTS ?? 0)
+              : "--"
+          }}
+        </span>
       </div>
+      <span class="caseiq-kpi-pct">{{ getAgentRatio() }}%</span>
+    </div>
+  </div>
 
-      <div class="caseiq-header-cell caseiq-cell-ratio-bar">
-        <span class="caseiq-header-label">Agent vs Ops %</span>
-        <span class="caseiq-header-sep">-</span>
-        <div class="ratio-bar-container">
-          <div class="ratio-bar-agent" [style.width.%]="getAgentRatio()">
-            @if (getAgentRatio() >= 10) {
-              <span class="ratio-bar-label" style="color: white"
-                >{{ getAgentRatio() }}%</span
-              >
-            }
-          </div>
-          <div class="ratio-bar-ops" [style.width.%]="100 - getAgentRatio()">
-            @if (100 - getAgentRatio() >= 10) {
-              <span class="ratio-bar-label">{{ 100 - getAgentRatio() }}%</span>
-            }
-          </div>
+  <!-- Agent vs Ops ratio -->
+  <div class="caseiq-kpi dual">
+    <span class="caseiq-kpi-title">Agent vs Ops %</span>
+    <div class="caseiq-kpi-body">
+      <div class="caseiq-pill caseiq-pill-dual">
+        <div class="caseiq-pill-fill cyan" [style.width.%]="getAgentRatio()">
+          @if (getAgentRatio() >= 12) {
+            <span class="caseiq-pill-text">{{ getAgentRatio() }}%</span>
+          }
+        </div>
+        <div class="caseiq-pill-remainder">
+          @if (100 - getAgentRatio() >= 12) {
+            <span class="caseiq-pill-text">{{ 100 - getAgentRatio() }}%</span>
+          }
         </div>
       </div>
     </div>
   </div>
 </div>
-
 <!-- Data refresh overlay - covers only this tab content -->
 @if (refreshingData) {
   <div class="table-loading-overlay">
@@ -174,34 +215,44 @@
   <div class="chart-section">
     <div class="chart-header-row">
       <div class="chart-title-block">
-        <h4>Category Accuracy - {{ categoryAccuracy }}%</h4>
+        <span class="table-title"
+          >Category Accuracy - {{ categoryAccuracy }}%</span
+        >
       </div>
       <div class="flex-row header-metrics">
-        <h4>
-          No. of cases shown below: {{ visibleCategoryTotal }}/
-          {{ totalCases }}
-        </h4>
-        &nbsp;
-        <mat-icon
-          style="font-size: 15px; padding-top: 5px"
-          matTooltip="Note: Displays only categories with case count greater than
-                {{ categoryMinThreshold }}. Use the expand option to view all
-                categories."
-          >info_outline</mat-icon
-        >
-        &nbsp; &nbsp;
+        @if (i2cChartData.length > 10) {
+          <span
+            class="chart-label chart-label--warning"
+            (click)="onExpandChart('CATEGORY')"
+          >
+            <ng-icon name="phosphorWarningFill" size="12"></ng-icon>
+            Expand to see all cases
+          </span>
+          <ng-icon
+            name="phosphorInfoBold"
+            size="16"
+            class="chart-info-icon"
+            matTooltip="Displays only the top 10 categories by case count. Use the expand option to view all categories."
+          ></ng-icon>
+        } @else {
+          <span class="chart-label">
+            <ng-icon name="phosphorCheckFatFill" size="12"></ng-icon>
+            All cases shown
+          </span>
+        }
 
         <div class="filter-wrapper">
-          <mat-icon
-            style="cursor: pointer; font-size: 24px"
+          <button
+            class="chart-icon-btn"
             (click)="toggleCategoryFilters()"
             (keydown.enter)="toggleCategoryFilters()"
             (keydown.space)="toggleCategoryFilters()"
             tabindex="0"
             title="Category Chart Filters"
             aria-label="Category Chart Filters"
-            >filter_list</mat-icon
           >
+            <ng-icon name="phosphorFunnelSimpleBold" size="16"></ng-icon>
+          </button>
           @if (showCategoryFilters) {
             <div
               class="chart-filter-panel"
@@ -285,18 +336,17 @@
             </div>
           }
         </div>
-        &nbsp;&nbsp;
-        <mat-icon
+        <button
+          class="chart-icon-btn expand-icon"
           (click)="onExpandChart('CATEGORY')"
           (keydown.enter)="onExpandChart('CATEGORY')"
           (keydown.space)="onExpandChart('CATEGORY')"
           tabindex="0"
-          class="expand-icon"
           title="Expand Category Chart"
           aria-label="Expand Category Chart"
-          style="cursor: pointer"
-          >open_in_full</mat-icon
         >
+          <ng-icon name="coolExpand" size="16"></ng-icon>
+        </button>
       </div>
     </div>
 
@@ -305,6 +355,7 @@
         [data]="i2cChartData"
         [stacked]="true"
         [isLoading]="false"
+        [maxBars]="10"
         canvasId="p2pStackedChart"
       >
       </app-bar-chart>
@@ -313,34 +364,44 @@
   <div class="chart-section">
     <div class="chart-header-row">
       <div class="chart-title-block">
-        <h4>Core Issue Accuracy - {{ coreIssueAccuracy }}%</h4>
+        <span class="table-title"
+          >Core Issue Accuracy - {{ coreIssueAccuracy }}%</span
+        >
       </div>
 
       <div class="flex-row header-metrics">
-        <h4>
-          No. of cases shown below: {{ visibleCoreIssueTotal }}/
-          {{ totalCases }}
-        </h4>
-        &nbsp;
-        <mat-icon
-          style="font-size: 15px; padding-top: 5px"
-          matTooltip="Note: Displays only core issues with case count greater than
-              {{ coreIssueMinThreshold }}. Use the expand option to view all
-              core issues."
-          >info_outline</mat-icon
-        >
-        &nbsp; &nbsp;
+        @if (i2cSimpleChartData.length > 10) {
+          <span
+            class="chart-label chart-label--warning"
+            (click)="onExpandChart('CORE_ISSUE')"
+          >
+            <ng-icon name="phosphorWarningFill" size="12"></ng-icon>
+            Expand to see all cases
+          </span>
+          <ng-icon
+            name="phosphorInfoBold"
+            size="16"
+            class="chart-info-icon"
+            matTooltip="Displays only the top 10 core issues by case count. Use the expand option to view all core issues."
+          ></ng-icon>
+        } @else {
+          <span class="chart-label">
+            <ng-icon name="phosphorCheckFatFill" size="12"></ng-icon>
+            All cases shown
+          </span>
+        }
         <div class="filter-wrapper">
-          <mat-icon
-            style="cursor: pointer; font-size: 24px"
+          <button
+            class="chart-icon-btn"
             (click)="toggleCoreIssueFilters()"
             (keydown.enter)="toggleCoreIssueFilters()"
             (keydown.space)="toggleCoreIssueFilters()"
             tabindex="0"
             title="Core Issue Chart Filters"
             aria-label="Core Issue Chart Filters"
-            >filter_list</mat-icon
           >
+            <ng-icon name="phosphorFunnelSimpleBold" size="16"></ng-icon>
+          </button>
           @if (showCoreIssueFilters) {
             <div
               class="chart-filter-panel"
@@ -425,18 +486,17 @@
             </div>
           }
         </div>
-        &nbsp;&nbsp;
-        <mat-icon
+        <button
+          class="chart-icon-btn expand-icon"
           (click)="onExpandChart('CORE_ISSUE')"
           (keydown.enter)="onExpandChart('CORE_ISSUE')"
           (keydown.space)="onExpandChart('CORE_ISSUE')"
           tabindex="0"
-          class="expand-icon"
           title="Expand Core Issue Chart"
           aria-label="Expand Core Issue Chart"
-          style="cursor: pointer"
-          >open_in_full</mat-icon
         >
+          <ng-icon name="coolExpand" size="16"></ng-icon>
+        </button>
       </div>
     </div>
 
@@ -445,6 +505,7 @@
         [data]="i2cSimpleChartData"
         [stacked]="true"
         [isLoading]="false"
+        [maxBars]="10"
         canvasId="p2pSimpleChart"
       >
       </app-bar-chart>
@@ -452,21 +513,15 @@
   </div>
 </div>
 
-<div class="metric-box">
-  <h4>P2P Classification Summary</h4>
-
-  <p>
-    Note: Use the Upload button to submit and validate the data for accuracy.
-    Default filter applied to display for category match or core issue match is
-    N or NULL
-  </p>
-</div>
-
 <app-caseiq-table
   #p2pTable
   [dataSource]="i2cTableData"
   [displayedColumns]="i2cTableColumns"
   [exportFileName]="'P2P_Validation_Summary'"
+  [tableTitle]="'P2P Classification Summary'"
+  [tableTitleTooltip]="
+    'Use the Upload button to submit and validate the data for accuracy. Default filter applied to display for category match or core issue match is N or NULL.'
+  "
   [extraWideColumns]="['Case Summary - Description']"
   [enablePagination]="true"
   [pageSize]="10"
@@ -475,5 +530,24 @@
   (uploadResult)="handleUploadResult($event)"
 >
 </app-caseiq-table>
+
+@if (expandedChart) {
+  <app-caseiq-expand-modal
+    [title]="
+      'P2P ' +
+      (expandedChart.type === 'CATEGORY' ? 'Category' : 'Core Issue') +
+      ' Details'
+    "
+    [type]="expandedChart.type"
+    [categoryAccuracy]="categoryAccuracy"
+    [coreIssueAccuracy]="coreIssueAccuracy"
+    [categoryData]="expandedCategoryData"
+    [coreIssueData]="expandedCoreIssueData"
+    [categoryTotal]="expandedCategoryTotal"
+    [coreIssueTotal]="expandedCoreIssueTotal"
+    canvasPrefix="expandedP2p"
+    (close)="closeExpandModal()"
+  />
+}
 
 <br />

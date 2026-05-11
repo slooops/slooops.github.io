@@ -1,69 +1,104 @@
-/* table,
-th,
-td,
-.mat-mdc-header-row,
-.mat-mdc-header-cell,
-.mat-mdc-row,
-.mat-mdc-cell {
-  font-family: "Inter", sans-serif !important;
-} */
-
-.mat-mdc-header-row {
-  background-color: #ffffff !important;
-  border-bottom: 1px solid #ebebeb !important; /* Add a bar below the header row */
+/* ── Glass Card Wrapper ──────────────────────────────────── */
+.ciq-table-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 1rem;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  padding: 1rem;
+  overflow: hidden;
+  margin-top: 0.5rem;
 }
 
-.mat-mdc-header-cell {
-  color: rgb(46, 46, 46);
-  border-bottom: 0px;
-  font-size: 12px;
+/* ── Table Title ────────────────────────────────────────── */
+.table-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1b1c1d;
   white-space: nowrap;
-  padding: 0.1rem 0.5rem;
-  /* text-transform: uppercase; */
 }
 
-/* Styling for table rows */
-.mat-mdc-row:nth-child(odd) {
-  background-color: #f4f5f6 !important;
+.table-title-info {
+  color: #555;
+  cursor: help;
+  display: inline-flex;
+  align-items: center;
 }
 
-.mat-mdc-row:nth-child(even) {
-  background-color: #ffffff !important;
+/* ── Plain table – CaseIQ style ── */
+.ciq-table-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  margin: 0 -1rem 0.5rem -1rem;
 }
 
-.mat-mdc-cell {
-  font-size: 11px !important;
-  font-weight: 400;
-  border: 0px;
+.ciq-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.ciq-table th {
+  text-align: left;
+  padding: 10px 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: linear-gradient(
+    to bottom,
+    #ffffff 0%,
+    #ffffff 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  color: #1b1c1d;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.ciq-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #e1e4e8;
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.ciq-table tr:last-child td {
+  border-bottom: none;
+}
+
+.ciq-table tr:hover td {
+  background: rgba(0, 112, 210, 0.04);
+}
+
+.ciq-table .extra-wide-column {
+  min-width: 25rem;
   word-break: break-word;
   overflow-wrap: break-word;
-  padding: 0.1rem 0.5rem;
+  white-space: normal;
+  line-height: 1.4;
 }
 
-tr.mat-mdc-row {
-  height: 30px;
-  border-bottom: 0px;
+:host(.dark-theme) .ciq-table th {
+  background: transparent;
+  color: #e0e6ed;
 }
 
-td {
-  font-size: 11px;
+:host(.dark-theme) .ciq-table td {
+  border-bottom-color: #2a3f50;
+  color: #e0e6ed;
 }
 
-th {
-  text-align: left !important;
-  border-bottom: 0px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-td {
-  text-align: left !important;
-  font-size: 11px;
-  border: 0px;
-}
-
-tr.mat-mdc-header-row {
-  height: 28px;
+:host(.dark-theme) .ciq-table tr:hover td {
+  background: rgba(0, 188, 235, 0.06);
 }
 
 .loading-container {
@@ -81,31 +116,19 @@ tr.mat-mdc-header-row {
   margin: -3px 10px 0 0;
 }
 
-table.mat-mdc-table .mat-mdc-header-cell.extra-wide-column {
-  min-width: 30rem;
-}
-
-table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
-  white-space: break-spaces;
-  min-width: 30rem;
-  word-break: break-all;
-  overflow-wrap: break-word;
-  hyphens: auto;
-  line-height: 1.4;
-}
-
-/* Specific handling for very long text content like URLs/emails */
-table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
-  min-width: 30rem;
-  word-wrap: break-word;
-  overflow-wrap: anywhere;
-}
-
 .table-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin: 8px 0 0 0;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 0.5rem 0;
+  flex-wrap: wrap;
+}
+
+.table-links {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
 }
 
 .search-and-filters {
@@ -151,13 +174,13 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
 .filters-btn {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.375rem;
   border: none;
   border-radius: 0;
   height: 1.75rem;
   padding: 0 0.75rem;
   font-size: 0.8rem;
-  background-color: #ffffff;
+  background-color: transparent;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -503,13 +526,17 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
 }
 
 .btn-base {
-  border-radius: 20px;
-  padding: 0rem 2rem;
-  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border-radius: 999px;
+  padding: 0 1.25rem;
+  font-size: 0.75rem;
   height: 1.75rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   width: fit-content;
   white-space: nowrap;
   background-color: transparent;
@@ -561,10 +588,6 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
   color: #444;
   z-index: 10;
   pointer-events: none;
-}
-
-.table-scroll-wrapper {
-  position: relative; /* so overlay positions against this container only */
 }
 
 .table-loading-overlay .loading-text {
@@ -645,22 +668,4 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
   color: #666;
   text-align: center;
   max-width: 240px;
-}
-
-/* Prevent text wrapping for specific columns */
-.mat-column-INCIDENT_NUMBER,
-.mat-column-IMPACTED_SERVICE_OFFERING,
-.mat-column-LLM_SUMMARY,
-.mat-column-CATEGORY,
-.mat-column-CATEGORY_ACTUAL,
-.mat-column-CORE_ISSUE,
-.mat-column-CORE_ISSUE_ACTUAL,
-.mat-column-INCIDENT_STATE,
-.mat-column-Cancel_Prediction,
-.mat-column-CANCEL_PREDICTION,
-.mat-column-Resolution_Response,
-.mat-column-COMMENTS {
-  white-space: nowrap !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }

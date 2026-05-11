@@ -19,9 +19,8 @@
 
 .summary-kpi-card {
   background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 20px 24px;
+  border-radius: 16px;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -74,17 +73,15 @@
 
 .tiles-row-wrapper {
   display: flex;
-  gap: 17px;
-  margin-bottom: 16px;
-  margin-top: 16px;
+  gap: 1rem;
+  margin: 1rem 0;
 }
 
 .tiles-row {
   background: #fff;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  border-radius: 10px;
-  padding: 20px 24px;
-  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
 }
@@ -113,8 +110,8 @@
 
 .fit-tiles-row {
   display: flex;
-  gap: 12px;
-  margin-top: 12px;
+  gap: 1rem;
+  margin-top: 1rem;
   align-items: stretch;
   flex: 1;
 }
@@ -125,9 +122,8 @@
 }
 
 .fit-tile {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  box-shadow: inset 0 0 14px 0px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
   padding: clamp(8px, 0.8vw, 14px) clamp(6px, 0.6vw, 12px);
   text-align: center;
   display: flex;
@@ -267,17 +263,16 @@
 .summary-table-card {
   background: #fff;
   border: none;
-  border-radius: 10px;
-  padding: 20px 24px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
 .summary-table-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
 }
 
 .summary-table-title {
@@ -458,9 +453,8 @@
 }
 
 .track-agent-card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  box-shadow: inset 0 0 14px 0px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
   padding: clamp(6px, 0.55vw, 10px) clamp(4px, 0.45vw, 8px);
   text-align: center;
 }

@@ -35,13 +35,11 @@ interface LegendItem {
 }
 
 @Component({
-    selector: 'app-bar-chart',
-    templateUrl: './bar-chart.component.html',
-    styleUrl: './bar-chart.component.css',
-    imports: [
-    CommonModule
-  ],
-  standalone: true
+  selector: 'app-bar-chart',
+  templateUrl: './bar-chart.component.html',
+  styleUrl: './bar-chart.component.css',
+  imports: [CommonModule],
+  standalone: true,
 })
 export class BarChartComponent implements OnChanges, AfterViewInit {
   @ViewChild('barChartContainer', { static: true })
@@ -58,6 +56,8 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
   @Input() labelRotation: number = -45;
   @Input() showLegend: boolean = true;
   @Input() titleCaseLabels: boolean = true;
+  /** When set, keeps only the top N bars by total value, dropping lowest first */
+  @Input() maxBars: number | undefined;
   @Input() titleCaseExceptions: string[] = [
     'N/A',
     'NA',
@@ -141,7 +141,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       .map((word) => {
         // Check if word is in exceptions array (case-insensitive check)
         const matchingException = this.titleCaseExceptions.find(
-          (exception) => exception.toLowerCase() === word.toLowerCase()
+          (exception) => exception.toLowerCase() === word.toLowerCase(),
         );
 
         if (matchingException) {
@@ -195,10 +195,18 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
     const data = this.data as BarChartDataPoint[];
 
     // Replace null/undefined labels with empty string
-    const normalizedData = data.map((d) => ({
+    let normalizedData = data.map((d) => ({
       ...d,
       label: d.label ?? '',
     }));
+
+    // Limit to top N bars by value if maxBars is set
+    if (this.maxBars != null && normalizedData.length > this.maxBars) {
+      normalizedData = normalizedData
+        .slice()
+        .sort((a, b) => b.value - a.value)
+        .slice(0, this.maxBars);
+    }
 
     // Create SVG
     this.svg = d3
@@ -270,15 +278,15 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       .attr('height', (d) => height - y(d.value))
       .attr(
         'fill',
-        (d, i) => d.color || this.defaultColors[i % this.defaultColors.length]
+        (d, i) => d.color || this.defaultColors[i % this.defaultColors.length],
       )
       .on('mouseover', (event: MouseEvent, d) => {
         tooltip
           .style('opacity', 0.95)
           .html(
             `<strong>${this.toTitleCase(
-              d.label || '(empty)'
-            )}</strong><br/>Count: ${d.value}`
+              d.label || '(empty)',
+            )}</strong><br/>Count: ${d.value}`,
           );
       })
       .on('mousemove', (event: MouseEvent) => {
@@ -290,7 +298,6 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
         tooltip.style('opacity', 0);
       })
       .on('click', (event, d) => {
-        console.log('Bar clicked:', d);
         this.barClick.emit(d.label);
       });
 
@@ -317,11 +324,31 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       label: d.label ?? '',
     }));
 
-    console.log('chart data', data);
-
+    // Limit to top N bars by total segment value if maxBars is set
+    if (this.maxBars != null) {
+      console.log(
+        `[BarChart] maxBars=${this.maxBars}, received ${data.length} bars`,
+      );
+      if (data.length > this.maxBars) {
+        const sorted = data.slice().sort((a, b) => {
+          const totalA = a.segments.reduce((sum, s) => sum + s.value, 0);
+          const totalB = b.segments.reduce((sum, s) => sum + s.value, 0);
+          return totalB - totalA;
+        });
+        const dropped = sorted.slice(this.maxBars);
+        console.log(
+          `[BarChart] Keeping top ${this.maxBars}, dropping ${dropped.length}:`,
+          dropped.map(
+            (d) =>
+              `${d.label}(${d.segments.reduce((s, seg) => s + seg.value, 0)})`,
+          ),
+        );
+        data = sorted.slice(0, this.maxBars);
+      }
+    }
     // Ensure labels are in ascending alphabetical order (A-Z) regardless of input order
     data.sort((a, b) =>
-      a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })
+      a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }),
     );
 
     // Extract unique segment names for legend and calculate totals
@@ -378,7 +405,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
     // Calculate max value for y scale
     const maxValue =
       d3.max(data, (d) =>
-        d.segments.reduce((sum, seg) => sum + seg.value, 0)
+        d.segments.reduce((sum, seg) => sum + seg.value, 0),
       ) || 0;
 
     // Scales
@@ -446,14 +473,13 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
             'fill',
             segment.color ||
               this.legendItems.find(
-                (l) => l.name === this.toTitleCase(segment.name)
+                (l) => l.name === this.toTitleCase(segment.name),
               )?.color ||
-              '#ccc'
+              '#ccc',
           )
           .style('cursor', 'pointer')
           .on('click', (event: MouseEvent) => {
             event.stopPropagation();
-            console.log('Segment clicked:', { label: item.label, segment });
             this.barClick.emit(item.label);
           })
           .on('mouseover', (event: MouseEvent) => {
@@ -461,10 +487,10 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
               .style('opacity', 0.95)
               .html(
                 `<strong>${this.toTitleCase(
-                  item.label
+                  item.label,
                 )}</strong><br/>${this.toTitleCase(segment.name)}: ${
                   segment.value
-                }`
+                }`,
               );
           })
           .on('mousemove', (event: MouseEvent) => {

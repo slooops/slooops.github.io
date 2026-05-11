@@ -82,6 +82,11 @@ import {
   phosphorFirstAidKitDuotone,
   phosphorListDuotone,
 } from '@ng-icons/phosphor-icons/duotone';
+import {
+  phosphorCheckFatFill,
+  phosphorWarningFill,
+} from '@ng-icons/phosphor-icons/fill';
+import { coolExpand } from '@ng-icons/coolicons';
 import { MenuComponent } from './menu/menu.component';
 
 @Component({
@@ -152,6 +157,9 @@ import { MenuComponent } from './menu/menu.component';
       phosphorShieldCheckBold,
       phosphorChartPieSliceBold,
       phosphorPresentationChartBold,
+      phosphorCheckFatFill,
+      phosphorWarningFill,
+      coolExpand,
     }),
   ],
   imports: [

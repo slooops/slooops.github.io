@@ -1,0 +1,272 @@
+/* ── CaseIQ Expand Modal — CTM-style overlay ─────────────── */
+
+.ciq-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  animation: ciqBackdropIn 0.15s ease;
+}
+
+@keyframes ciqBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ciq-modal {
+  width: 80%;
+  max-width: 2000px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  animation: ciqModalIn 0.2s ease;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+
+@keyframes ciqModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.ciq-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 10px;
+  gap: 16px;
+}
+
+.ciq-modal__title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1b1c1d;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.ciq-modal__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.ciq-modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  transition:
+    background 150ms,
+    color 150ms;
+}
+
+.ciq-modal__close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #1b1c1d;
+}
+
+/* ── Body ────────────────────────────────────────────────── */
+.ciq-modal__body {
+  padding: 0 20px 20px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Chart Frame ─────────────────────────────────────────── */
+.ciq-chart-frame {
+  border-radius: 10px;
+  padding: 8px 12px 0;
+}
+
+/* ── Filter toggle button ────────────────────────────────── */
+.ciq-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #555;
+  cursor: pointer;
+  transition:
+    background 150ms,
+    border-color 150ms,
+    color 150ms;
+}
+
+.ciq-filter-toggle:hover {
+  background: rgba(0, 112, 210, 0.06);
+  border-color: #0070d2;
+  color: #0070d2;
+}
+
+/* ── Filter panel ────────────────────────────────────────── */
+.ciq-filter-wrapper {
+  position: relative;
+}
+
+.ciq-filter-panel {
+  position: absolute;
+  top: 38px;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e1e4e8;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 12px 14px 14px;
+  width: 220px;
+  z-index: 60;
+  font-size: 12px;
+}
+
+.ciq-multi-select-wrapper {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.ciq-multi-select-trigger {
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #e1e4e8;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 6px;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.ciq-multi-select-trigger:hover {
+  border-color: #0070d2;
+}
+
+.ciq-multi-select-trigger:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 112, 210, 0.2);
+}
+
+.ciq-chevron {
+  transition: transform 0.2s ease;
+  font-size: 10px;
+}
+
+.ciq-chevron.open {
+  transform: rotate(180deg);
+}
+
+.ciq-multi-select-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  background: #fff;
+  border: 1px solid #e1e4e8;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+}
+
+.ciq-multi-select-options {
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.ciq-multi-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 0 4px;
+}
+
+.ciq-multi-option:hover {
+  background: rgba(0, 112, 210, 0.06);
+}
+
+.ciq-multi-option.selected {
+  font-weight: 600;
+  background: rgba(0, 112, 210, 0.08);
+}
+
+.ciq-multi-option input {
+  pointer-events: none;
+}
+
+.ciq-multi-select-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-top: 1px solid #e5e7eb;
+  gap: 8px;
+}
+
+.ciq-multi-select-actions .ciq-clear-btn,
+.ciq-multi-select-actions .ciq-close-btn {
+  flex: 1;
+  border: none;
+  background: #0070d2;
+  color: #fff;
+  font-size: 11px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ciq-multi-select-actions .ciq-clear-btn[disabled] {
+  background: #b0d4f1;
+  cursor: not-allowed;
+}
+
+.ciq-multi-select-actions .ciq-clear-btn:hover:not([disabled]),
+.ciq-multi-select-actions .ciq-close-btn:hover {
+  background: #005bb5;
+}
+
+.ciq-filter-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #888;
+}

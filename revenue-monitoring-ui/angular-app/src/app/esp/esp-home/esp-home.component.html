@@ -23,43 +23,39 @@
 
         <div class="quarter-filter">
           <label>Quarter:</label>
-          <div
-            class="quarter-dropdown-wrapper"
-            (click)="$event.stopPropagation()"
-          >
+          <div class="qtr-dropdown" (click)="$event.stopPropagation()">
             <button
               type="button"
-              class="quarter-dropdown-button"
+              class="qtr-trigger"
               (click)="toggleQuarterDropdown($event)"
             >
-              {{ selectedQuarter }}
-              <span class="dropdown-arrow" [class.open]="showQuarterDropdown"
-                >▾</span
+              <span class="qtr-trigger-label">{{ selectedQuarter }}</span>
+              <svg
+                class="qtr-chevron"
+                [class.open]="showQuarterDropdown"
+                width="12"
+                height="12"
+                viewBox="0 0 256 256"
+                fill="currentColor"
               >
+                <path
+                  d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"
+                />
+              </svg>
             </button>
+
             @if (showQuarterDropdown) {
-              <div
-                class="quarter-dropdown-menu"
-                (click)="$event.stopPropagation()"
-              >
-                <!-- <div class="quarter-dropdown-header">
-                  <span>Select</span>
-                </div> -->
-                <div class="quarter-options">
-                  @for (quarter of quarters; track quarter.value) {
-                    <div
-                      class="quarter-option"
-                      (click)="selectQuarter(quarter.value)"
-                    >
-                      <input
-                        type="radio"
-                        [checked]="selectedQuarter === quarter.value"
-                        readonly
-                      />
-                      <span class="option-label">{{ quarter.label }}</span>
-                    </div>
-                  }
-                </div>
+              <div class="qtr-menu">
+                @for (quarter of quarters; track quarter.value) {
+                  <button
+                    type="button"
+                    class="qtr-option"
+                    [class.selected]="quarter.value === selectedQuarter"
+                    (click)="selectQuarter(quarter.value)"
+                  >
+                    {{ quarter.label }}
+                  </button>
+                }
               </div>
             }
           </div>

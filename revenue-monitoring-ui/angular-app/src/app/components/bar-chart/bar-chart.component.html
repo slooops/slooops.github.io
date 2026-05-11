@@ -18,7 +18,7 @@
     <div
       class="chart-legend"
       >
-      @for (item of legendItems; track item) {
+      @for (item of legendItems; track item.name) {
         <div class="legend-item">
           <span class="legend-color" [style.background-color]="item.color"></span>
           <span class="legend-label">{{ item.total }} {{ item.name }}</span>

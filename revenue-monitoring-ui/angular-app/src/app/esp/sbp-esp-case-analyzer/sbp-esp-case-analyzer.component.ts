@@ -350,19 +350,38 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
 
   get sharedChartOptions(): ChartOptions {
     const isDark = this.themeService.isDarkMode;
-    const textColor = isDark ? '#e0e6ed' : '#666';
-    const gridColor = isDark ? 'rgba(136,153,166,0.18)' : 'rgba(0,0,0,0.1)';
+    const legendColor = isDark ? '#e0e6ed' : '#4f4f4f';
+    const tickColor = isDark ? '#8899a6' : '#666';
+    const gridColor = isDark ? 'rgba(136,153,166,0.18)' : '#f0f0f0';
 
     return {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: { mode: 'nearest', intersect: false },
       plugins: {
         legend: {
           display: true,
           position: 'top',
-          labels: { color: textColor },
+          align: 'center',
+          labels: {
+            usePointStyle: true,
+            pointStyle: 'circle',
+            boxWidth: 8,
+            boxHeight: 8,
+            padding: 15,
+            font: { family: 'Inter, sans-serif', size: 12, weight: 'normal' },
+            color: legendColor,
+          },
         },
-        tooltip: {},
+        tooltip: {
+          enabled: true,
+          displayColors: false,
+          backgroundColor: '#222',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          padding: 10,
+          cornerRadius: 4,
+        },
         datalabels: {
           display: false,
         },
@@ -371,12 +390,21 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
         x: {
           beginAtZero: true,
           grid: { display: false },
-          ticks: { color: textColor },
+          border: { display: false },
+          ticks: {
+            font: { family: 'Inter, sans-serif', size: 11, weight: 'normal' },
+            color: tickColor,
+            maxRotation: 0,
+          },
         },
         y: {
           beginAtZero: true,
-          grid: { color: gridColor },
-          ticks: { color: textColor },
+          border: { display: false },
+          grid: { color: gridColor, lineWidth: 1 },
+          ticks: {
+            font: { family: 'Inter, sans-serif', size: 11 },
+            color: isDark ? '#8899a6' : '#999',
+          },
         },
       },
     };
@@ -483,10 +511,21 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
       this.sbpPrmcChartQ3Q4,
       this.sbpPrmcChartQ4Q1,
     ];
+    const isDark = this.themeService.isDarkMode;
+    const dotFill = isDark ? '#2a3f50' : '#fff';
     for (const chart of charts) {
       if (!chart) continue;
       chart.options.scales = opts.scales;
       chart.options.plugins!.legend = opts.plugins!.legend;
+      // Update dot fill color on line datasets
+      for (const ds of chart.data.datasets) {
+        if (
+          (ds as any).type === 'line' ||
+          (!(ds as any).type && (chart.config as any).type === 'line')
+        ) {
+          (ds as any).pointBackgroundColor = dotFill;
+        }
+      }
       chart.update();
     }
   }
@@ -799,6 +838,26 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
     return pairs;
   }
 
+  private lineGradient(borderColor: string): (ctx: any) => any {
+    const match = borderColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!match) return () => borderColor;
+    const [, r, g, b] = match;
+    return (ctx: any) => {
+      const chart = ctx.chart;
+      const { ctx: canvasCtx, chartArea } = chart;
+      if (!chartArea) return `rgba(${r}, ${g}, ${b}, 0.1)`;
+      const gradient = canvasCtx.createLinearGradient(
+        0,
+        chartArea.top,
+        0,
+        chartArea.bottom,
+      );
+      gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.35)`);
+      gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+      return gradient;
+    };
+  }
+
   generateDatasetsForQuarterComparison(
     firstQuarter: string | null,
     secondQuarter: string | null,
@@ -827,17 +886,37 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
 
+    const isDark = this.themeService.isDarkMode;
+    const dotFill = isDark ? '#2a3f50' : '#fff';
+
     const datasets = categories.flatMap((category) => {
       const mappedKey =
         categoryColorKeyMap[category.toLowerCase()] ||
         category.toLowerCase().replace(/[\s_]+/g, '');
 
-      const chartType = ['PDF', 'BACKLOG'].includes(category.toUpperCase())
-        ? undefined
-        : 'line';
+      const isLine = !['PDF', 'BACKLOG'].includes(category.toUpperCase());
+      const chartType = isLine ? 'line' : undefined;
 
       const previousColor = colors[`${mappedKey}Previous`];
       const currentColor = colors[`${mappedKey}Current`];
+
+      const lineProps = (colorObj: any) =>
+        isLine
+          ? {
+              tension: 0.25,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              pointBackgroundColor: dotFill,
+              pointBorderColor: colorObj?.borderColor,
+              pointBorderWidth: 2,
+              borderWidth: 2,
+              fill: 'origin',
+              order: 1,
+              backgroundColor: this.lineGradient(
+                colorObj?.borderColor || 'rgba(0,0,0,1)',
+              ),
+            }
+          : { order: 2 };
 
       const displayName =
         category.toUpperCase() === 'PDF' ? 'PDF' : toTitleCase(category);
@@ -847,12 +926,14 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
           label: `${displayName} ${firstQuarter.slice(0, 2)}`,
           data: this.transformData(firstQuarter, category),
           ...(previousColor || {}),
+          ...lineProps(previousColor),
           ...(chartType && { type: chartType }),
         },
         {
           label: `${displayName} ${secondQuarter.slice(0, 2)}`,
           data: this.transformData(secondQuarter, category),
           ...(currentColor || {}),
+          ...lineProps(currentColor),
           ...(chartType && { type: chartType }),
         },
       ];

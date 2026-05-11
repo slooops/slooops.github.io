@@ -13,14 +13,20 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { UploadScreenComponent } from 'src/app/esp/esp-home/upload-screen/upload-screen.component';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
 import * as XLSX from 'xlsx';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
+import { PaginationComponent } from '../../ui/atoms/pagination/pagination.component';
+import { PageChangeEvent } from '../../ui';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  phosphorArrowLineDownBold,
+  phosphorCloudArrowUpBold,
+  phosphorInfoBold,
+  phosphorFunnelSimpleBold,
+} from '@ng-icons/phosphor-icons/bold';
 
 interface FilterTag {
   id: string;
@@ -36,10 +42,18 @@ interface FilterTag {
   imports: [
     CommonModule,
     FormsModule,
-    MatIconModule,
-    MatTableModule,
-    MatPaginatorModule,
+    MatTooltipModule,
+    NgIcon,
     LoadingSymbolComponent,
+    PaginationComponent,
+  ],
+  providers: [
+    provideIcons({
+      phosphorArrowLineDownBold,
+      phosphorCloudArrowUpBold,
+      phosphorInfoBold,
+      phosphorFunnelSimpleBold,
+    }),
   ],
   standalone: true,
 })
@@ -52,11 +66,13 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() pageSize: number = 10; // Records per page
   @Input() totalRecords: number = 0; // Total number of records
   @Input() source: string;
+  @Input() tableTitle: string = '';
+  @Input() tableTitleTooltip: string = '';
   @Output() uploadResult = new EventEmitter<any>();
   @Output() bothYRequested = new EventEmitter<void>();
   @Input() backendLoading: boolean = false; // Show loading overlay during backend fetch
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  currentPage: number = 0;
 
   constructor(private dialog: MatDialog) {}
 
@@ -236,43 +252,31 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
+  get paginatedData(): any[] {
+    if (!this.dataSource?.data) return [];
+    if (!this.enablePagination) return this.dataSource.data;
+    const start = this.currentPage * this.pageSize;
+    return this.dataSource.data.slice(start, start + this.pageSize);
+  }
+
   private setupPaginator() {
     if (
       !this.enablePagination ||
       !this.dataSource ||
-      this.dataSource.data.length === 0 ||
-      !this.paginator
+      this.dataSource.data.length === 0
     ) {
       return;
     }
-
-    // Set the paginator length to match the current data length
-    this.paginator.length = this.dataSource.data.length;
-    this.paginator.pageIndex = 0; // Start at first page
-    this.dataSource.paginator = this.paginator;
-
-    // Force a refresh of the table
-    this.dataSource._updateChangeSubscription();
+    this.currentPage = 0;
   }
 
   /**
    * Helper method to properly update pagination when data changes
-   * This ensures the paginator is in sync with the data
+   * Resets to first page.
    */
   private updatePagination(dataLength: number) {
-    if (this.enablePagination && this.paginator) {
-      // Temporarily disconnect paginator to avoid issues
-      this.dataSource.paginator = null;
-
-      // Update paginator properties
-      this.paginator.length = dataLength;
-      this.paginator.pageIndex = 0;
-
-      // Reconnect paginator
-      this.dataSource.paginator = this.paginator;
-
-      // Force paginator to first page
-      this.paginator.firstPage();
+    if (this.enablePagination) {
+      this.currentPage = 0;
     }
   }
 
@@ -281,6 +285,11 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     setTimeout(() => {
       this.setupPaginator();
     }, 0);
+  }
+
+  onPageChange(event: PageChangeEvent) {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
   }
 
   removeUnderscores(key: string): string {

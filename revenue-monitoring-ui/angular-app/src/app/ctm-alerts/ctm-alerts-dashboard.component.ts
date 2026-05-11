@@ -215,6 +215,7 @@ export class CtmAlertsDashboardComponent
     });
     this.refreshAll(true);
     this.refreshSub = interval(60000).subscribe(() => this.refreshAll(false));
+    this.themeService.isDarkMode$.subscribe(() => this.updateDonutTheme());
   }
 
   ngAfterViewInit(): void {
@@ -349,9 +350,7 @@ export class CtmAlertsDashboardComponent
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      const isDark = this.themeService.isDarkMode;
-      const textColor = isDark ? '#e0e6ed' : '#1b1c1d';
-      const mutedColor = isDark ? '#8899a6' : '#555';
+      const themeRef = this.themeService;
 
       const chart = new Chart<'doughnut'>(ctx, {
         type: 'doughnut',
@@ -362,7 +361,7 @@ export class CtmAlertsDashboardComponent
               data: data.values,
               backgroundColor: data.colors,
               borderWidth: 2,
-              borderColor: isDark ? '#1a2733' : '#ffffff',
+              borderColor: themeRef.isDarkMode ? '#1a2733' : '#ffffff',
               hoverOffset: 6,
             },
           ],
@@ -392,16 +391,17 @@ export class CtmAlertsDashboardComponent
             beforeDraw(chart) {
               const { width, height, ctx: c } = chart;
               if (!c) return;
+              const dark = themeRef.isDarkMode;
               c.save();
               c.textAlign = 'center';
               c.textBaseline = 'middle';
               const cx = width / 2;
               const cy = height / 2;
               c.font = `700 ${Math.min(width, height) * 0.16}px Inter, system-ui, sans-serif`;
-              c.fillStyle = textColor;
+              c.fillStyle = dark ? '#e0e6ed' : '#1b1c1d';
               c.fillText(String(total), cx, cy - 6);
               c.font = `600 ${Math.min(width, height) * 0.065}px Inter, system-ui, sans-serif`;
-              c.fillStyle = mutedColor;
+              c.fillStyle = dark ? '#8899a6' : '#555';
               c.fillText(subtitle.toUpperCase(), cx, cy + 14);
               c.restore();
             },
@@ -415,6 +415,16 @@ export class CtmAlertsDashboardComponent
         this.priorityChart = chart;
       }
     });
+  }
+
+  private updateDonutTheme(): void {
+    const isDark = this.themeService.isDarkMode;
+    const borderColor = isDark ? '#1a2733' : '#ffffff';
+    for (const chart of [this.alertTypeChart, this.priorityChart]) {
+      if (!chart) continue;
+      chart.data.datasets.forEach((ds) => (ds.borderColor = borderColor));
+      chart.update();
+    }
   }
 
   private processDownstream(data: CtmDownstreamBlocked[]): void {

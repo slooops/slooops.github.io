@@ -6,16 +6,9 @@ import {
   Input,
   ViewChild,
   HostListener,
-  Inject,
   Output,
   EventEmitter,
 } from '@angular/core';
-import {
-  MatDialog,
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-} from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
@@ -25,6 +18,13 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  phosphorInfoBold,
+  phosphorFunnelSimpleBold,
+} from '@ng-icons/phosphor-icons/bold';
+import { coolExpand } from '@ng-icons/coolicons';
+import { CaseiqExpandModalComponent } from 'src/app/components/caseiq-expand-modal/caseiq-expand-modal.component';
 import { BarChartComponent } from '../../../components/bar-chart/bar-chart.component';
 
 interface AitAccuracyData {
@@ -44,8 +44,17 @@ interface AitAccuracyData {
     MatIconModule,
     MatTabsModule,
     MatTooltipModule,
+    NgIcon,
     BarChartComponent,
     CaseiqTableComponent,
+    CaseiqExpandModalComponent,
+  ],
+  providers: [
+    provideIcons({
+      phosphorInfoBold,
+      phosphorFunnelSimpleBold,
+      coolExpand,
+    }),
   ],
   standalone: true,
 })
@@ -58,7 +67,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
   constructor(
     private readonly http: ApiHttpService,
     private readonly destroyManager: DestroyManager,
-    private readonly dialog: MatDialog,
   ) {}
 
   i2cChartData: StackedBarChartDataPoint[] = [];
@@ -71,8 +79,8 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
   // Chart filter state
   showCategoryFilters: boolean = false; // controls category chart filter popover
   showCoreIssueFilters: boolean = false; // controls core issue chart filter popover
-  categoryMinThreshold: number = 10; // default threshold for category chart
-  coreIssueMinThreshold: number = 10; // default threshold for core issue chart
+  categoryMinThreshold: number = 0;
+  coreIssueMinThreshold: number = 0;
 
   // Multi-select dropdown filter state for charts
   allCategoryLabels: string[] = [];
@@ -225,8 +233,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
     this.http
       .get('xxcaseiq-category-graph-v-ait', this.destroyManager)
       .subscribe((data: any) => {
-        console.log('xxcaseiqCategoryGraphVAit:', data);
-
         // Filter data by selected quarter
         const filteredByQuarter = this.selectedQuarter
           ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
@@ -260,9 +266,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
         // If no data passes threshold, show all data instead
         if (filteredData.length === 0 && mergedData.length > 0) {
           filteredData = mergedData;
-          console.log(
-            `AIT Category: All data has count <= ${this.categoryMinThreshold}, showing all ${mergedData.length} items`,
-          );
         }
 
         this.i2cChartData = this.transformMatchStatusData(
@@ -284,8 +287,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
     this.http
       .get('xxcaseiq-core-issue-graph-v-ait', this.destroyManager)
       .subscribe((data: any) => {
-        console.log('xxcaseiqCoreIssueGraphVAit:', data);
-
         // Filter data by selected quarter
         const filteredByQuarter = this.selectedQuarter
           ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
@@ -319,9 +320,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
         // If no data passes threshold, show all data instead
         if (filteredData.length === 0 && mergedData.length > 0) {
           filteredData = mergedData;
-          console.log(
-            `AIT Core Issue: All data has count <= ${this.coreIssueMinThreshold}, showing all ${mergedData.length} items`,
-          );
         }
 
         this.i2cSimpleChartData = this.transformMatchStatusData(
@@ -376,8 +374,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
   // Handle upload dialog results (emitted from table component)
   handleUploadResult(result: any) {
     if (result?.success) {
-      console.log('Upload succeeded, refreshing all AIT data (table + charts)');
-
       // Emit event to parent component to refresh overall accuracy
       this.uploadSuccess.emit();
 
@@ -387,7 +383,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
       // Refresh all data sources
       Promise.all([this.refreshAllData()])
         .then(() => {
-          console.log('All AIT data refreshed successfully');
           // Hide overlay after a brief delay to show completion
           setTimeout(() => {
             this.refreshingData = false;
@@ -428,7 +423,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
         .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
         .subscribe({
           next: (data: any) => {
-            console.log('Refreshed accuracy data');
             this.updateAitMetrics(data);
             checkComplete();
           },
@@ -444,7 +438,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
         .get('xxcaseiq-category-graph-v-ait', this.destroyManager)
         .subscribe({
           next: (data: any) => {
-            console.log('Refreshed category chart data');
             const mergedData = this.mergeByCategoryOrIssue(
               data,
               'CATEGORY',
@@ -489,7 +482,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
         .get('xxcaseiq-core-issue-graph-v-ait', this.destroyManager)
         .subscribe({
           next: (data: any) => {
-            console.log('Refreshed core issue chart data');
             const mergedData = this.mergeByCategoryOrIssue(
               data,
               'CORE_ISSUE',
@@ -534,7 +526,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
         .get('xxcaseiq-ait-case-details-v', this.destroyManager)
         .subscribe({
           next: (data: any) => {
-            console.log('Refreshed table data');
             this.updateTableData(data);
             checkComplete();
           },
@@ -664,7 +655,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
 
   // Handle category bar click
   onCategoryBarClick(categoryLabel: string): void {
-    console.log('Category bar clicked:', categoryLabel);
     // Toggle: if already selected, clear it; otherwise set it as the only selection
     if (this.selectedCategoryLabels.has(categoryLabel)) {
       this.selectedCategoryLabels.clear();
@@ -679,7 +669,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
 
   // Handle core issue bar click
   onCoreIssueBarClick(coreIssueLabel: string): void {
-    console.log('Core issue bar clicked:', coreIssueLabel);
     // Toggle: if already selected, clear it; otherwise set it as the only selection
     if (this.selectedCoreIssueLabels.has(coreIssueLabel)) {
       this.selectedCoreIssueLabels.clear();
@@ -712,9 +701,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
 
     // If no filters active, show all data and clear any table filters
     if (categoryFilters.length === 0 && coreIssueFilters.length === 0) {
-      console.log(
-        'AIT: No filters active, clearing table and resetting both charts to normal',
-      );
       this.aitTable.clearAllFilters();
 
       // Reset both charts to their original filtered state (based on threshold)
@@ -745,9 +731,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
 
     // Apply filters to table
     let filteredData = [...this.fullTableData];
-
-    console.log(categoryFilters, coreIssueFilters);
-
     if (categoryFilters.length > 0) {
       const categoryFiltersLower = categoryFilters.map((f) => f.toLowerCase());
       filteredData = filteredData.filter((row) =>
@@ -763,9 +746,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
         coreIssueFiltersLower.includes((row.CORE_ISSUE || '').toLowerCase()),
       );
     }
-
-    console.log('AIT: Filtered table data:', filteredData);
-
     // Dynamically filter charts based on filtered table data
     if (categoryFilters.length > 0) {
       // Extract unique CORE_ISSUE values from filtered data
@@ -776,11 +756,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
             .filter((v) => v),
         ),
       );
-      console.log(
-        'AIT: Filtering Core Issue chart to show only:',
-        uniqueCoreIssues,
-      );
-
       // Filter core issue chart to show only these values
       this.i2cSimpleChartData = this.completeI2cSimpleChartData.filter((item) =>
         uniqueCoreIssues.includes(item.label.toLowerCase()),
@@ -790,7 +765,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
       );
     } else if (coreIssueFilters.length === 0) {
       // Only reset core issue chart if no core issue filters are active
-      console.log('AIT: Resetting Core Issue chart to normal');
       const effectiveData = this.completeCoreIssueRaw.filter(
         (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold,
       );
@@ -813,11 +787,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
             .filter((v) => v),
         ),
       );
-      console.log(
-        'AIT: Filtering Category chart to show only:',
-        uniqueCategories,
-      );
-
       // Filter category chart to show only these values
       this.i2cChartData = this.completeI2cChartData.filter((item) =>
         uniqueCategories.includes(item.label.toLowerCase()),
@@ -825,7 +794,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
       this.visibleCategoryTotal = this.computeStackedTotal(this.i2cChartData);
     } else if (categoryFilters.length === 0) {
       // Only reset category chart if no category filters are active
-      console.log('AIT: Resetting Category chart to normal');
       const effectiveData = this.completeCategoryRaw.filter(
         (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold,
       );
@@ -839,9 +807,7 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
 
     // Update table data source
     this.aitTable.dataSource.data = filteredData;
-    if (this.aitTable.paginator) {
-      this.aitTable.paginator.firstPage();
-    }
+    this.aitTable.currentPage = 0;
   }
 
   // Get filter text for display
@@ -878,7 +844,7 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
   }
 
   // Computes total of all segment values across all bars
-  private computeStackedTotal(data: StackedBarChartDataPoint[]): number {
+  computeStackedTotal(data: StackedBarChartDataPoint[]): number {
     if (!Array.isArray(data)) return 0;
     return data.reduce((sum, dp) => {
       if (!dp?.segments) return sum;
@@ -892,26 +858,15 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
     }, 0);
   }
 
-  // Open dialog when expand icon clicked
+  // Expand chart modal state
+  expandedChart: { type: 'CATEGORY' | 'CORE_ISSUE' } | null = null;
+
   onExpandChart(type: 'CATEGORY' | 'CORE_ISSUE') {
-    // Lazy inline component data passed to dialog
-    this.dialog.open(CaseiqAitExpandDialogComponent, {
-      width: '90vw',
-      maxWidth: '2000px',
-      height: '70vh',
-      data: {
-        type,
-        categoryAccuracy: this.categoryAccuracy,
-        coreIssueAccuracy: this.coreIssueAccuracy,
-        categoryData: this.completeI2cChartData,
-        coreIssueData: this.completeI2cSimpleChartData,
-        categoryTotal: this.computeStackedTotal(this.completeI2cChartData),
-        coreIssueTotal: this.computeStackedTotal(
-          this.completeI2cSimpleChartData,
-        ),
-      },
-      panelClass: 'caseiq-expand-dialog',
-    });
+    this.expandedChart = { type };
+  }
+
+  closeExpandModal() {
+    this.expandedChart = null;
   }
 
   /**
@@ -966,7 +921,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
     countColumn: string,
   ): StackedBarChartDataPoint[] {
     if (!Array.isArray(apiData)) {
-      console.log(`No ${groupColumn.toLowerCase()} match data to transform`);
       return [];
     }
 
@@ -1011,530 +965,5 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
       default:
         return '#E5E5E5';
     }
-  }
-}
-
-// Simple dialog component for expanded charts
-@Component({
-  selector: 'app-caseiq-ait-expand-dialog',
-  template: `
-    <div class="expand-dialog-header" role="heading" aria-level="2">
-      <span class="expand-dialog-title">
-        AIT {{ data.type === 'CATEGORY' ? 'Category' : 'Core Issue' }} Details
-      </span>
-      <a style="text-decoration: none; cursor: pointer">
-        <i
-          class="fa fa-close"
-          style="font-size: 16px; color: white"
-          (click)="onClose()"
-        ></i>
-      </a>
-    </div>
-    <mat-dialog-content class="expand-dialog-content" tabindex="0">
-      <div class="expand-charts-wrapper">
-        @if (data.type === 'CATEGORY') {
-          <div class="expand-chart-block">
-            <div class="expand-chart-header">
-              <h3 class="subheading">
-                Category Accuracy – {{ data.categoryAccuracy }}% ( Total:
-                {{ data.categoryTotal }} )
-              </h3>
-              <div class="filter-wrapper">
-                <mat-icon
-                  style="cursor: pointer; font-size: 24px"
-                  (click)="toggleCategoryFiltersInDialog()"
-                  (keydown.enter)="toggleCategoryFiltersInDialog()"
-                  (keydown.space)="toggleCategoryFiltersInDialog()"
-                  tabindex="0"
-                  title="Category Chart Filters"
-                  aria-label="Category Chart Filters"
-                  >filter_list</mat-icon
-                >
-                @if (showCategoryFiltersInDialog) {
-                  <div
-                    class="chart-filter-panel"
-                    aria-label="Expanded category chart filters panel"
-                  >
-                    <div class="multi-select-wrapper">
-                      <button
-                        class="multi-select-trigger"
-                        (click)="toggleCategorySelectInDialog()"
-                        type="button"
-                      >
-                        Filter
-                        <span
-                          class="chevron"
-                          [class.open]="showCategorySelectInDialog"
-                          >▾</span
-                        >
-                      </button>
-                      @if (showCategorySelectInDialog) {
-                        <div
-                          class="multi-select-dropdown"
-                          (click)="$event.stopPropagation()"
-                        >
-                          <div class="multi-select-options">
-                            @for (label of dialogCategoryLabels; track label) {
-                              <div
-                                class="multi-option"
-                                [class.selected]="
-                                  selectedCategoryLabelsInDialog.has(label)
-                                "
-                                (click)="toggleCategorySelectionInDialog(label)"
-                              >
-                                <input
-                                  type="checkbox"
-                                  [checked]="
-                                    selectedCategoryLabelsInDialog.has(label)
-                                  "
-                                />
-                                <span class="option-label">{{ label }}</span>
-                              </div>
-                            }
-                          </div>
-                          <div class="multi-select-actions">
-                            <button
-                              type="button"
-                              class="clear-btn"
-                              (click)="clearCategorySelectionInDialog($event)"
-                              [disabled]="
-                                selectedCategoryLabelsInDialog.size === 0
-                              "
-                            >
-                              Clear
-                            </button>
-                            <button
-                              type="button"
-                              class="close-btn"
-                              (click)="toggleCategorySelectInDialog()"
-                            >
-                              Close
-                            </button>
-                          </div>
-                        </div>
-                      }
-                    </div>
-                    @if (selectedCategoryLabelsInDialog.size === 0) {
-                      <div class="filter-hint">Showing all categories.</div>
-                    }
-                    @if (selectedCategoryLabelsInDialog.size > 0) {
-                      <div class="filter-hint">
-                        Showing
-                        {{ selectedCategoryLabelsInDialog.size }} selected
-                        category(ies).
-                      </div>
-                    }
-                  </div>
-                }
-              </div>
-            </div>
-            <div class="chart-frame">
-              <app-bar-chart
-                [data]="filteredCategoryData"
-                [stacked]="true"
-                [isLoading]="false"
-                [chartHeight]="510"
-                canvasId="expandedCategoryChart"
-              ></app-bar-chart>
-            </div>
-          </div>
-        }
-        @if (data.type === 'CORE_ISSUE') {
-          <div class="expand-chart-block">
-            <div class="expand-chart-header">
-              <h3 class="subheading">
-                Core Issue Accuracy – {{ data.coreIssueAccuracy }}% ( Total:
-                {{ data.coreIssueTotal }} )
-              </h3>
-              <div class="filter-wrapper">
-                <mat-icon
-                  style="cursor: pointer; font-size: 24px"
-                  (click)="toggleCoreIssueFiltersInDialog()"
-                  (keydown.enter)="toggleCoreIssueFiltersInDialog()"
-                  (keydown.space)="toggleCoreIssueFiltersInDialog()"
-                  tabindex="0"
-                  title="Core Issue Chart Filters"
-                  aria-label="Core Issue Chart Filters"
-                  >filter_list</mat-icon
-                >
-                @if (showCoreIssueFiltersInDialog) {
-                  <div
-                    class="chart-filter-panel"
-                    aria-label="Expanded core issue chart filters panel"
-                  >
-                    <div class="multi-select-wrapper">
-                      <button
-                        class="multi-select-trigger"
-                        (click)="toggleCoreIssueSelectInDialog()"
-                        type="button"
-                      >
-                        Filter
-                        <span
-                          class="chevron"
-                          [class.open]="showCoreIssueSelectInDialog"
-                          >▾</span
-                        >
-                      </button>
-                      @if (showCoreIssueSelectInDialog) {
-                        <div
-                          class="multi-select-dropdown"
-                          (click)="$event.stopPropagation()"
-                        >
-                          <div class="multi-select-options">
-                            @for (label of dialogCoreIssueLabels; track label) {
-                              <div
-                                class="multi-option"
-                                [class.selected]="
-                                  selectedCoreIssueLabelsInDialog.has(label)
-                                "
-                                (click)="
-                                  toggleCoreIssueSelectionInDialog(label)
-                                "
-                              >
-                                <input
-                                  type="checkbox"
-                                  [checked]="
-                                    selectedCoreIssueLabelsInDialog.has(label)
-                                  "
-                                />
-                                <span class="option-label">{{ label }}</span>
-                              </div>
-                            }
-                          </div>
-                          <div class="multi-select-actions">
-                            <button
-                              type="button"
-                              class="clear-btn"
-                              (click)="clearCoreIssueSelectionInDialog($event)"
-                              [disabled]="
-                                selectedCoreIssueLabelsInDialog.size === 0
-                              "
-                            >
-                              Clear
-                            </button>
-                            <button
-                              type="button"
-                              class="close-btn"
-                              (click)="toggleCoreIssueSelectInDialog()"
-                            >
-                              Close
-                            </button>
-                          </div>
-                        </div>
-                      }
-                    </div>
-                    @if (selectedCoreIssueLabelsInDialog.size === 0) {
-                      <div class="filter-hint">Showing all core issues.</div>
-                    }
-                    @if (selectedCoreIssueLabelsInDialog.size > 0) {
-                      <div class="filter-hint">
-                        Showing
-                        {{ selectedCoreIssueLabelsInDialog.size }} selected core
-                        issue(s).
-                      </div>
-                    }
-                  </div>
-                }
-              </div>
-            </div>
-            <div class="chart-frame">
-              <app-bar-chart
-                [data]="filteredCoreIssueData"
-                [stacked]="true"
-                [isLoading]="false"
-                [chartHeight]="510"
-                canvasId="expandedCoreIssueChart"
-              ></app-bar-chart>
-            </div>
-          </div>
-        }
-      </div>
-    </mat-dialog-content>
-  `,
-  styles: [
-    `
-      .expand-charts-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-      }
-      .expand-dialog-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 20px 10px 20px;
-        background-color: #00bceb;
-        color: #ffffff;
-        font-weight: 600;
-        font-size: 16px;
-        border-top-left-radius: 4px;
-        border-top-right-radius: 4px;
-      }
-      .expand-dialog-title {
-        line-height: 1.2;
-      }
-      .close-icon {
-        cursor: pointer;
-        user-select: none;
-        font-size: 24px;
-      }
-      .close-icon:hover {
-        opacity: 0.85;
-      }
-      .close-icon:focus {
-        outline: 2px solid #ffffff;
-        outline-offset: 2px;
-        border-radius: 4px;
-      }
-      .subheading {
-        font-weight: 500;
-        margin: 12px 0 8px;
-      }
-      .expand-chart-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-      }
-      .chart-frame {
-        border-radius: 6px;
-        padding: 8px 12px 0;
-        background: #ffffff;
-      }
-      .filter-wrapper {
-        position: relative;
-        margin-top: 10px;
-      }
-      .chart-filter-panel {
-        position: absolute;
-        top: 32px;
-        right: 0;
-        background: #fff;
-        border: 1px solid #d0d7de;
-        border-radius: 4px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-        padding: 12px 14px 14px;
-        width: 220px;
-        z-index: 60;
-        font-size: 12px;
-      }
-      .multi-select-wrapper {
-        position: relative;
-        margin-bottom: 10px;
-      }
-      .multi-select-trigger {
-        width: 100%;
-        text-align: left;
-        background: #fff;
-        border: 1px solid #d0d7de;
-        padding: 6px 10px;
-        font-size: 12px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-radius: 4px;
-        transition:
-          border-color 0.15s ease,
-          box-shadow 0.15s ease;
-      }
-      .multi-select-trigger:hover {
-        border-color: #00bceb;
-      }
-      .multi-select-trigger:focus {
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(8, 172, 228, 0.3);
-      }
-      .chevron {
-        transition: transform 0.2s ease;
-        font-size: 10px;
-      }
-      .chevron.open {
-        transform: rotate(180deg);
-      }
-      .multi-select-dropdown {
-        position: absolute;
-        top: calc(100% + 4px);
-        left: 0;
-        width: 100%;
-        max-height: 200px;
-        background: #fff;
-        border: 1px solid #d0d7de;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-        border-radius: 4px;
-        z-index: 70;
-        display: flex;
-        flex-direction: column;
-      }
-      .multi-select-options {
-        overflow-y: auto;
-        padding: 4px 0;
-      }
-      .multi-option {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 10px;
-        font-size: 12px;
-        cursor: pointer;
-      }
-      .multi-option:hover {
-        background: #f3f4f6;
-      }
-      .multi-option.selected {
-        font-weight: 600;
-        background: #eef7ff;
-      }
-      .multi-option input {
-        pointer-events: none;
-      }
-      .multi-select-actions {
-        display: flex;
-        justify-content: space-between;
-        padding: 6px 8px;
-        border-top: 1px solid #e5e7eb;
-        gap: 8px;
-      }
-      .multi-select-actions .clear-btn,
-      .multi-select-actions .close-btn {
-        flex: 1;
-        border: none;
-        background: #00bceb;
-        color: #fff;
-        font-size: 11px;
-        padding: 6px 8px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background 0.15s ease;
-      }
-      .multi-select-actions .clear-btn[disabled] {
-        background: #c8e9f5;
-        cursor: not-allowed;
-      }
-      .multi-select-actions .clear-btn:hover:not([disabled]),
-      .multi-select-actions .close-btn:hover {
-        background: #0692c2;
-      }
-      .filter-hint {
-        margin-top: 8px;
-        font-size: 11px;
-        color: #555;
-      }
-    `,
-  ],
-  imports: [
-    CommonModule,
-    MatIconModule,
-    MatTabsModule,
-    MatTooltipModule,
-    BarChartComponent,
-    // CaseiqTableComponent,
-    MatDialogModule,
-  ],
-  standalone: true,
-})
-export class CaseiqAitExpandDialogComponent {
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private dialogRef: MatDialogRef<CaseiqAitExpandDialogComponent>,
-  ) {}
-
-  onClose() {
-    this.dialogRef.close();
-  }
-
-  // Dialog-specific multi-select state
-  showCategorySelectInDialog: boolean = false;
-  showCoreIssueSelectInDialog: boolean = false;
-  dialogCategoryLabels: string[] = [];
-  dialogCoreIssueLabels: string[] = [];
-  selectedCategoryLabelsInDialog: Set<string> = new Set();
-  selectedCoreIssueLabelsInDialog: Set<string> = new Set();
-  filteredCategoryData: StackedBarChartDataPoint[] = [];
-  filteredCoreIssueData: StackedBarChartDataPoint[] = [];
-  showCategoryFiltersInDialog: boolean = false;
-  showCoreIssueFiltersInDialog: boolean = false;
-
-  toggleCategoryFiltersInDialog() {
-    this.showCategoryFiltersInDialog = !this.showCategoryFiltersInDialog;
-    if (this.showCategoryFiltersInDialog) {
-      this.showCoreIssueFiltersInDialog = false;
-    }
-  }
-
-  toggleCoreIssueFiltersInDialog() {
-    this.showCoreIssueFiltersInDialog = !this.showCoreIssueFiltersInDialog;
-    if (this.showCoreIssueFiltersInDialog) {
-      this.showCategoryFiltersInDialog = false;
-    }
-  }
-
-  ngOnInit() {
-    // Initialize labels from passed data
-    if (Array.isArray(this.data?.categoryData)) {
-      this.dialogCategoryLabels = this.data.categoryData
-        .map((d: any) => d.label)
-        .sort((a: string, b: string) => a.localeCompare(b));
-      this.filteredCategoryData = this.data.categoryData;
-    }
-    if (Array.isArray(this.data?.coreIssueData)) {
-      this.dialogCoreIssueLabels = this.data.coreIssueData
-        .map((d: any) => d.label)
-        .sort((a: string, b: string) => a.localeCompare(b));
-      this.filteredCoreIssueData = this.data.coreIssueData;
-    }
-  }
-
-  // Toggle dropdown visibility
-  toggleCategorySelectInDialog() {
-    this.showCategorySelectInDialog = !this.showCategorySelectInDialog;
-  }
-  toggleCoreIssueSelectInDialog() {
-    this.showCoreIssueSelectInDialog = !this.showCoreIssueSelectInDialog;
-  }
-
-  // Selection handlers
-  toggleCategorySelectionInDialog(label: string) {
-    if (this.selectedCategoryLabelsInDialog.has(label)) {
-      this.selectedCategoryLabelsInDialog.delete(label);
-    } else {
-      this.selectedCategoryLabelsInDialog.add(label);
-    }
-    this.applyDialogCategoryFilter();
-  }
-  clearCategorySelectionInDialog(event?: Event) {
-    if (event) event.stopPropagation();
-    this.selectedCategoryLabelsInDialog.clear();
-    this.applyDialogCategoryFilter();
-  }
-  toggleCoreIssueSelectionInDialog(label: string) {
-    if (this.selectedCoreIssueLabelsInDialog.has(label)) {
-      this.selectedCoreIssueLabelsInDialog.delete(label);
-    } else {
-      this.selectedCoreIssueLabelsInDialog.add(label);
-    }
-    this.applyDialogCoreIssueFilter();
-  }
-  clearCoreIssueSelectionInDialog(event?: Event) {
-    if (event) event.stopPropagation();
-    this.selectedCoreIssueLabelsInDialog.clear();
-    this.applyDialogCoreIssueFilter();
-  }
-
-  private applyDialogCategoryFilter() {
-    if (!Array.isArray(this.data?.categoryData)) return;
-    this.filteredCategoryData = this.selectedCategoryLabelsInDialog.size
-      ? this.data.categoryData.filter((d: any) =>
-          this.selectedCategoryLabelsInDialog.has(d.label),
-        )
-      : this.data.categoryData;
-  }
-  private applyDialogCoreIssueFilter() {
-    if (!Array.isArray(this.data?.coreIssueData)) return;
-    this.filteredCoreIssueData = this.selectedCoreIssueLabelsInDialog.size
-      ? this.data.coreIssueData.filter((d: any) =>
-          this.selectedCoreIssueLabelsInDialog.has(d.label),
-        )
-      : this.data.coreIssueData;
   }
 }
