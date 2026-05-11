@@ -21,6 +21,11 @@ import { CloUpdatesComponent } from './clo-updates/clo-updates.component';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
+import {
+  FilterConfig,
+  ActionButtonConfig,
+  FilterValues,
+} from '../components/filter-button-bar/filter-button-bar.component';
 
 @Component({
   selector: 'app-invoice-status',
@@ -111,6 +116,215 @@ export class OrderLifecycleComponent implements OnInit {
   dealIdFilter: string = '';
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
+
+  // Filter-button-bar config
+  filterConfigs: FilterConfig[] = [];
+  filterValues: FilterValues = {
+    progName: [],
+    account: [],
+    orderStats: [],
+    invoiceStats: [],
+    salesOrdr: '',
+    dealId: '',
+  };
+  pageIndex: number = 0;
+  pageSize: number = 100;
+
+  get actionButtons(): ActionButtonConfig[] {
+    return [
+      {
+        id: 'delete',
+        label: 'Delete',
+        variant: 'danger',
+        visible: this.selection.hasValue() && this.dealUploadFlag,
+      },
+      {
+        id: 'revSummary',
+        label: 'Revenue Summary',
+        variant: 'secondary',
+        visible: true,
+      },
+      {
+        id: 'dealSummary',
+        label: 'Deal Summary',
+        variant: 'secondary',
+        visible: true,
+      },
+      {
+        id: 'columnFilter',
+        label: 'Displayed Columns',
+        variant: 'secondary',
+        visible: true,
+      },
+      {
+        id: 'cloUpdates',
+        label: 'CLO Updates',
+        variant: 'secondary',
+        icon: 'phosphorArrowLineUpBold',
+        visible: this.updateClo,
+      },
+      {
+        id: 'dealUpload',
+        label: 'Deal Upload',
+        variant: 'secondary',
+        icon: 'phosphorArrowLineUpBold',
+        visible: this.dealUploadFlag,
+      },
+      {
+        id: 'download',
+        label: 'Download',
+        variant: 'secondary',
+        icon: 'phosphorArrowLineDownBold',
+        visible: true,
+      },
+    ];
+  }
+
+  onFilterChange(values: FilterValues): void {
+    this.filterValues = values;
+    this.programNameFilter = (values['progName'] as string[]) || [];
+    this.accountFilter = (values['account'] as string[]) || [];
+    this.orderStatusFilter = (values['orderStats'] as string[]) || [];
+    this.invoiceStatusFilter = (values['invoiceStats'] as string[]) || [];
+    this.salesOrderFilter = (values['salesOrdr'] as string) || '';
+    this.dealIdFilter = (values['dealId'] as string) || '';
+
+    // Update account options based on program name selection
+    if (this.programNameFilter.length > 0) {
+      const filteredAccounts = this.filterAccountByProgramNames(
+        this.orderLifecycleStatus,
+        this.programNameFilter,
+      );
+      this.accountOptions = [...new Set(filteredAccounts)];
+      this.accountFilter = this.accountFilter.filter((a) =>
+        this.accountOptions.includes(a),
+      );
+      this.rebuildFilterConfigs();
+    } else {
+      this.accountOptions = [...new Set(this.accountTemp)];
+      this.rebuildFilterConfigs();
+    }
+
+    this.dataSource.filter = JSON.stringify({
+      progNameFilter: this.programNameFilter,
+      accountFilter: this.accountFilter,
+      orderStatusFilter: this.orderStatusFilter,
+      invoiceStatusFilter: this.invoiceStatusFilter,
+      salesOrderFilter: this.salesOrderFilter,
+      dealIdFilter: this.dealIdFilter,
+    });
+    this.pageIndex = 0;
+  }
+
+  onFilterClear(): void {
+    this.filterValues = {
+      progName: [],
+      account: [],
+      orderStats: [],
+      invoiceStats: [],
+      salesOrdr: '',
+      dealId: '',
+    };
+    this.programNameFilter = [];
+    this.accountFilter = [];
+    this.orderStatusFilter = [];
+    this.invoiceStatusFilter = [];
+    this.salesOrderFilter = '';
+    this.dealIdFilter = '';
+    this.accountOptions = [...new Set(this.accountTemp)];
+    this.rebuildFilterConfigs();
+    this.dataSource.filter = '';
+  }
+
+  onActionButtonClick(actionId: string): void {
+    switch (actionId) {
+      case 'delete':
+        this.deleteSelectedRows(this.dialogConfirmTemplate);
+        break;
+      case 'revSummary':
+        this.openRevSummaryDialog();
+        break;
+      case 'dealSummary':
+        this.openDialog();
+        break;
+      case 'cloUpdates':
+        this.openCloUpdateDialog();
+        break;
+      case 'dealUpload':
+        this.openUploadDialog();
+        break;
+      case 'download':
+        this.export('Large Deal Tracker', 'large_deal_tracker');
+        break;
+      case 'columnFilter':
+        this.logSelectedColumns();
+        break;
+    }
+  }
+
+  onPageChange(event: any): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    if (this.paginator) {
+      this.paginator.pageIndex = event.pageIndex;
+      this.paginator.pageSize = event.pageSize;
+      this.paginator.page.emit({
+        pageIndex: event.pageIndex,
+        pageSize: event.pageSize,
+        length: this.paginator.length,
+      });
+    }
+  }
+
+  rebuildFilterConfigs(): void {
+    this.filterConfigs = [
+      {
+        id: 'progName',
+        label: 'Program Name',
+        type: 'multi-select',
+        placeholder: 'Select Program',
+        options: this.progNameOptions.map((p) => ({ label: p, value: p })),
+      },
+      {
+        id: 'account',
+        label: 'Account',
+        type: 'multi-select',
+        placeholder: 'Select Account',
+        options: this.accountOptions.map((a) => ({ label: a, value: a })),
+      },
+      {
+        id: 'orderStats',
+        label: 'Booking Status',
+        type: 'multi-select',
+        placeholder: 'Select Status',
+        options: this.orderStatusOptions.map((o) => ({ label: o, value: o })),
+      },
+      {
+        id: 'invoiceStats',
+        label: 'Invoicing Status',
+        type: 'multi-select',
+        placeholder: 'Select Status',
+        options: this.invoiceStatusOptions.map((i) => ({
+          label: i,
+          value: i,
+        })),
+      },
+      {
+        id: 'dealId',
+        label: 'Deal ID',
+        type: 'text',
+        placeholder: 'Enter Deal ID',
+      },
+      {
+        id: 'salesOrdr',
+        label: 'Order #',
+        type: 'text',
+        placeholder: 'Enter Order #',
+      },
+    ];
+  }
+
+  @ViewChild('dialogConfirmTemplate') dialogConfirmTemplate: TemplateRef<any>;
 
   orderLifecycleStatus: OrderLifecycleModel[];
   orderLifeCycleDownload: OrderLifecycleModel[];
@@ -281,6 +495,7 @@ export class OrderLifecycleComponent implements OnInit {
     this.accountOptions = [...new Set(this.accountTemp)];
     this.orderStatusOptions = [...new Set(this.orderStatusTemp)];
     this.invoiceStatusOptions = [...new Set(this.invoiceStatusTemp)];
+    this.rebuildFilterConfigs();
   }
 
   filterPredicate = (data: OrderLifecycleModel, filter: any) => {
@@ -400,13 +615,15 @@ export class OrderLifecycleComponent implements OnInit {
 
   openDialog() {
     this.dialog.open(OrderLifecycleSummaryComponent, {
-      width: '450px',
+      width: '500px',
+      panelClass: 'rounded-dialog',
     });
   }
 
   openUploadDialog() {
     const dialogRef = this.dialog.open(OrderLifecycleUploadComponent, {
       width: '400px',
+      panelClass: 'rounded-dialog',
     });
 
     dialogRef.afterClosed().subscribe((data) => {
@@ -419,12 +636,15 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   openRevSummaryDialog() {
-    this.dialog.open(OrderLifecycleRevSummaryComponent, {});
+    this.dialog.open(OrderLifecycleRevSummaryComponent, {
+      panelClass: 'rounded-dialog',
+    });
   }
 
   openCloUpdateDialog() {
     const dialogRef = this.dialog.open(CloUpdatesComponent, {
       width: '600px',
+      panelClass: 'rounded-dialog',
     });
 
     dialogRef.afterClosed().subscribe((data) => {
@@ -533,6 +753,7 @@ export class OrderLifecycleComponent implements OnInit {
     const dialogRef = this.dialog.open(ColumnSelectComponent, {
       width: '350px',
       data: this.selectedColumnsToDisplay,
+      panelClass: 'rounded-dialog',
     });
 
     dialogRef.afterClosed().subscribe((data) => {
@@ -564,7 +785,11 @@ export class OrderLifecycleComponent implements OnInit {
 
   setSortAndPaginator() {
     this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
+    setTimeout(() => {
+      if (this.paginator) {
+        this.dataSource.paginator = this.paginator;
+      }
+    });
   }
 
   @Input() data: any;

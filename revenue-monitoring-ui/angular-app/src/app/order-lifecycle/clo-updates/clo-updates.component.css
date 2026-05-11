@@ -3,6 +3,7 @@
   padding: 20px;
   text-align: center;
   cursor: pointer;
+  border-radius: 12px;
 }
 
 .selected-files {

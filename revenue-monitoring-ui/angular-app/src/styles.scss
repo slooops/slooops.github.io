@@ -11,6 +11,7 @@ body {
   margin: 0;
   font-family: "Inter", sans-serif !important;
   background-color: #ffffff !important;
+  overflow-x: hidden;
 }
 
 /* Reset heading sizes to sensible defaults */
@@ -993,4 +994,9 @@ h6 {
 
 .mat-mdc-select-min-line {
   font-size: 11px !important;
+}
+
+.rounded-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 16px !important;
+  overflow: hidden;
 }
