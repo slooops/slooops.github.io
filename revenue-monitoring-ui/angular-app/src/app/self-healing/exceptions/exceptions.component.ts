@@ -11,23 +11,21 @@ interface RunRecord {
   config_id: number;
   record_id: string;
   id_column_type: string | null;
-  error_table: string | null;
-  pattern_id: string | null;
-  core_issue_label: string | null;
   category: string | null;
+  core_issue_label: string | null;
   root_cause_text: string | null;
   findings_text: string | null;
-  resolution_text: string | null;
-  proposed_fix_sql: string | null;
-  tools_called_json: string | null;
-  agent_flow_json: string | null;
-  response_time_sec: number | null;
-  llm_call_count: number | null;
-  total_tokens: number | null;
-  analysis_mode: string;
   run_status: string;
   review_status: string;
-  created_at: string;
+  analysis_mode: string;
+  agent_flow_json: string | null;
+  run_created_at: string;
+  session_id: string | null;
+  session_status: string | null;
+  upstream_contact: string | null;
+  follow_up_count: number | null;
+  session_created_at: string | null;
+  last_activity_at: string | null;
 }
 
 @Component({
@@ -45,7 +43,7 @@ interface RunRecord {
 export class ExceptionsComponent implements OnInit {
   @Output() viewException = new EventEmitter<string>();
 
-  private readonly API_URL = 'https://i2c-aria-dev.cisco.com/api/runs';
+  private readonly API_URL = 'https://i2c-aria-dev.cisco.com/api/runs/combined';
 
   searchQuery = '';
   selectedModes: string[] = [];
@@ -215,5 +213,14 @@ export class ExceptionsComponent implements OnInit {
   formatStatus(status: string): string {
     if (!status) return '—';
     return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
+  formatDateShort(dateStr: string | null): string {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${mm}/${dd}/${yyyy}`;
   }
 }

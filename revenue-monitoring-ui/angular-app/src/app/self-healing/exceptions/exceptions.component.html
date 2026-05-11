@@ -49,11 +49,16 @@
         <thead>
           <tr>
             <th>Record ID</th>
-            <th>Analysis Mode</th>
             <th>Category</th>
             <th>Run Status</th>
             <th>Review Status</th>
-            <th>Created At</th>
+            <th>Analysis Mode</th>
+            <th>Run Created</th>
+            <th>Session Status</th>
+            <th>Upstream Contact</th>
+            <th>Follow-ups</th>
+            <th>Session Created</th>
+            <th>Last Activity</th>
           </tr>
         </thead>
         <tbody>
@@ -64,11 +69,6 @@
             >
               <td>
                 <span class="eq__mono-id">{{ run.record_id || "—" }}</span>
-              </td>
-              <td>
-                <span class="eq__mode-badge">{{
-                  run.analysis_mode || "—"
-                }}</span>
               </td>
               <td>{{ run.category || "—" }}</td>
               <td>
@@ -87,12 +87,32 @@
                   {{ formatStatus(run.review_status) }}
                 </span>
               </td>
-              <td class="eq__date-cell">{{ formatDate(run.created_at) }}</td>
+              <td>
+                <span class="eq__mode-badge">{{
+                  run.analysis_mode || "—"
+                }}</span>
+              </td>
+              <td class="eq__date-cell">
+                {{ formatDateShort(run.run_created_at) }}
+              </td>
+              <td>
+                <span class="eq__status-pill">{{
+                  formatStatus(run.session_status || "")
+                }}</span>
+              </td>
+              <td>{{ run.upstream_contact || "—" }}</td>
+              <td>{{ run.follow_up_count ?? "—" }}</td>
+              <td class="eq__date-cell">
+                {{ formatDateShort(run.session_created_at) }}
+              </td>
+              <td class="eq__date-cell">
+                {{ formatDateShort(run.last_activity_at) }}
+              </td>
             </tr>
           }
           @if (filteredExceptions.length === 0) {
             <tr>
-              <td colspan="6" class="eq__empty">No exceptions found.</td>
+              <td colspan="11" class="eq__empty">No exceptions found.</td>
             </tr>
           }
         </tbody>

@@ -64,7 +64,13 @@ interface RecentRun {
   analysis_mode: string;
   run_status: string;
   review_status: string;
-  created_at: string;
+  run_created_at: string;
+  session_id: string | null;
+  session_status: string | null;
+  upstream_contact: string | null;
+  follow_up_count: number | null;
+  session_created_at: string | null;
+  last_activity_at: string | null;
 }
 
 interface PatternRow {
@@ -79,10 +85,10 @@ interface PatternRow {
 
 interface TrendPoint {
   date: string;
-  total: number;
-  completed: number;
-  failed: number;
-  rejected: number;
+  reviewCompleted: number;
+  reviewRejected: number;
+  analysisCompleted: number;
+  analysisFailed: number;
 }
 
 @Component({
@@ -123,8 +129,7 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
     this.fetchRecentSessions();
     this.fetchStatsOverview();
     this.fetchTrends();
-    // Category data is static — render after view initializes
-    setTimeout(() => this.renderCategoryChart(), 0);
+    this.fetchCategoryModeData();
   }
 
   ngOnDestroy(): void {
@@ -297,6 +302,7 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
     },
     { label: 'Auto-Routing Active', value: '—', bars: [40, 40, 40, 40] },
     { label: 'Avg Analysis Time', value: '—', bars: [60, 40, 20, 15] },
+    { label: 'Token Usage', value: '—', bars: [50, 70, 45, 60] },
   ];
 
   private fetchStatsOverview(): void {
@@ -308,6 +314,7 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
             pending_review: number;
             reviewed: number;
             avg_response_sec: string;
+            total_tokens_used: number;
           };
         };
       }>('https://i2c-aria-dev.cisco.com/api/stats/overview')
@@ -329,10 +336,21 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
             },
             {
               label: 'Auto-Routing Active',
-              value: '—',
+              value: '0',
               bars: [40, 40, 40, 40],
             },
-            { label: 'Avg Analysis Time', value: '—', bars: [60, 40, 20, 15] },
+            {
+              label: 'Avg Analysis Time',
+              value: t.avg_response_sec.toLocaleString() + ' sec',
+              bars: [60, 40, 20, 15],
+            },
+            {
+              label: 'Token Usage',
+              value: t.total_tokens_used
+                ? t.total_tokens_used.toLocaleString()
+                : '0',
+              bars: [50, 70, 45, 60],
+            },
           ];
         },
         error: () => {},
@@ -340,122 +358,28 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
   }
 
   /* ── Trends ── */
-  trendCategory = 'All';
-  trendCategories = ['All', 'Revenue', 'Billing', 'Attribution'];
-
-  private readonly mockTrendData: Record<string, TrendPoint[]> = {
-    All: [
-      { date: '2026-04-05', total: 45, completed: 28, failed: 7, rejected: 10 },
-      { date: '2026-04-06', total: 52, completed: 34, failed: 8, rejected: 10 },
-      {
-        date: '2026-04-07',
-        total: 68,
-        completed: 40,
-        failed: 12,
-        rejected: 16,
-      },
-      {
-        date: '2026-04-08',
-        total: 95,
-        completed: 55,
-        failed: 18,
-        rejected: 22,
-      },
-      {
-        date: '2026-04-10',
-        total: 234,
-        completed: 120,
-        failed: 44,
-        rejected: 70,
-      },
-      {
-        date: '2026-04-13',
-        total: 78,
-        completed: 50,
-        failed: 12,
-        rejected: 16,
-      },
-      { date: '2026-04-16', total: 42, completed: 30, failed: 5, rejected: 7 },
-      { date: '2026-04-17', total: 38, completed: 25, failed: 6, rejected: 7 },
-      { date: '2026-04-21', total: 30, completed: 20, failed: 4, rejected: 6 },
-      { date: '2026-04-27', total: 35, completed: 22, failed: 5, rejected: 8 },
-      { date: '2026-04-30', total: 48, completed: 32, failed: 8, rejected: 8 },
-    ],
-    Revenue: [
-      { date: '2026-04-05', total: 22, completed: 18, failed: 2, rejected: 2 },
-      { date: '2026-04-06', total: 30, completed: 24, failed: 3, rejected: 3 },
-      { date: '2026-04-07', total: 55, completed: 42, failed: 5, rejected: 8 },
-      {
-        date: '2026-04-08',
-        total: 72,
-        completed: 50,
-        failed: 10,
-        rejected: 12,
-      },
-      {
-        date: '2026-04-10',
-        total: 160,
-        completed: 95,
-        failed: 30,
-        rejected: 35,
-      },
-      { date: '2026-04-13', total: 88, completed: 70, failed: 8, rejected: 10 },
-      { date: '2026-04-16', total: 60, completed: 48, failed: 6, rejected: 6 },
-      { date: '2026-04-17', total: 45, completed: 38, failed: 4, rejected: 3 },
-      { date: '2026-04-21', total: 35, completed: 28, failed: 3, rejected: 4 },
-      { date: '2026-04-27', total: 40, completed: 32, failed: 4, rejected: 4 },
-      { date: '2026-04-30', total: 50, completed: 40, failed: 5, rejected: 5 },
-    ],
-    Billing: [
-      { date: '2026-04-05', total: 8, completed: 3, failed: 3, rejected: 2 },
-      { date: '2026-04-06', total: 12, completed: 4, failed: 5, rejected: 3 },
-      { date: '2026-04-07', total: 18, completed: 6, failed: 7, rejected: 5 },
-      { date: '2026-04-08', total: 25, completed: 8, failed: 10, rejected: 7 },
-      {
-        date: '2026-04-10',
-        total: 65,
-        completed: 18,
-        failed: 28,
-        rejected: 19,
-      },
-      {
-        date: '2026-04-13',
-        total: 40,
-        completed: 12,
-        failed: 16,
-        rejected: 12,
-      },
-      { date: '2026-04-16', total: 22, completed: 9, failed: 8, rejected: 5 },
-      { date: '2026-04-17', total: 15, completed: 6, failed: 5, rejected: 4 },
-      { date: '2026-04-21', total: 10, completed: 4, failed: 3, rejected: 3 },
-      { date: '2026-04-27', total: 14, completed: 5, failed: 5, rejected: 4 },
-      { date: '2026-04-30', total: 20, completed: 7, failed: 8, rejected: 5 },
-    ],
-    Attribution: [
-      { date: '2026-04-05', total: 5, completed: 1, failed: 1, rejected: 3 },
-      { date: '2026-04-06', total: 7, completed: 2, failed: 1, rejected: 4 },
-      { date: '2026-04-07', total: 15, completed: 3, failed: 2, rejected: 10 },
-      { date: '2026-04-08', total: 20, completed: 4, failed: 3, rejected: 13 },
-      { date: '2026-04-10', total: 50, completed: 8, failed: 5, rejected: 37 },
-      { date: '2026-04-13', total: 32, completed: 6, failed: 4, rejected: 22 },
-      { date: '2026-04-16', total: 18, completed: 4, failed: 2, rejected: 12 },
-      { date: '2026-04-17', total: 12, completed: 3, failed: 1, rejected: 8 },
-      { date: '2026-04-21', total: 8, completed: 2, failed: 1, rejected: 5 },
-      { date: '2026-04-27', total: 10, completed: 3, failed: 1, rejected: 6 },
-      { date: '2026-04-30', total: 14, completed: 4, failed: 2, rejected: 8 },
-    ],
-  };
-
-  onTrendCategoryChange(category: string): void {
-    this.trendCategory = category;
-    this.trendData = this.mockTrendData[category] || this.mockTrendData['All'];
-    this.renderTrendChart();
-  }
 
   private fetchTrends(): void {
-    this.trendData = this.mockTrendData['All'];
-    this.trendLoading = false;
-    setTimeout(() => this.renderTrendChart(), 0);
+    this.trendLoading = true;
+    this.http
+      .get<any>('https://i2c-aria-dev.cisco.com/api/stats/trends')
+      .subscribe({
+        next: (res) => {
+          const items: any[] = Array.isArray(res) ? res : res.data || [];
+          this.trendData = items.map((d: any) => ({
+            date: d.date,
+            reviewCompleted: 0,
+            reviewRejected: 0,
+            analysisCompleted: d.completed ?? 0,
+            analysisFailed: d.failed ?? 0,
+          }));
+          this.trendLoading = false;
+          setTimeout(() => this.renderTrendChart(), 0);
+        },
+        error: () => {
+          this.trendLoading = false;
+        },
+      });
   }
 
   private renderTrendChart(): void {
@@ -473,8 +397,8 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
         labels,
         datasets: [
           {
-            label: 'Total',
-            data: this.trendData.map((d) => d.total),
+            label: 'Analysis Completed',
+            data: this.trendData.map((d) => d.analysisCompleted),
             borderColor: '#0070d2',
             backgroundColor: 'rgba(0, 112, 210, 0.08)',
             fill: true,
@@ -484,19 +408,8 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
             borderWidth: 2,
           },
           {
-            label: 'Completed',
-            data: this.trendData.map((d) => d.completed),
-            borderColor: '#6ebe4a',
-            backgroundColor: 'rgba(110, 190, 74, 0.08)',
-            fill: true,
-            tension: 0.3,
-            pointRadius: 4,
-            pointBackgroundColor: '#6ebe4a',
-            borderWidth: 2,
-          },
-          {
-            label: 'Failed',
-            data: this.trendData.map((d) => d.failed),
+            label: 'Analysis Failed',
+            data: this.trendData.map((d) => d.analysisFailed),
             borderColor: '#e53935',
             backgroundColor: 'rgba(229, 57, 53, 0.05)',
             fill: true,
@@ -506,8 +419,19 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
             borderWidth: 2,
           },
           {
-            label: 'Rejected',
-            data: this.trendData.map((d) => d.rejected),
+            label: 'Review Accepted',
+            data: this.trendData.map((d) => d.reviewCompleted),
+            borderColor: '#6ebe4a',
+            backgroundColor: 'rgba(110, 190, 74, 0.08)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#6ebe4a',
+            borderWidth: 2,
+          },
+          {
+            label: 'Review Rejected',
+            data: this.trendData.map((d) => d.reviewRejected),
             borderColor: '#ff6600',
             backgroundColor: 'rgba(255, 102, 0, 0.05)',
             fill: true,
@@ -543,44 +467,58 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
   }
 
   /* ── Exceptions by Category × Analysis Mode (stacked bar) ── */
-  categoryModeData = [
-    { category: 'Revenue', agentFull: 180, static: 12, patternMatch: 45 },
-    { category: 'Billing', agentFull: 62, static: 5, patternMatch: 18 },
-    { category: 'Attribution', agentFull: 25, static: 3, patternMatch: 9 },
-  ];
+  categoryModeData: { category: string; [mode: string]: string | number }[] =
+    [];
+
+  private fetchCategoryModeData(): void {
+    this.http
+      .get<any>('https://i2c-aria-dev.cisco.com/api/stats/resolution-modes')
+      .subscribe({
+        next: (res) => {
+          const items: any[] = Array.isArray(res) ? res : res.data || [];
+          const categories = [
+            ...new Set(items.map((r: any) => r.category)),
+          ] as string[];
+          const modes = [...new Set(items.map((r: any) => r.mode))] as string[];
+          this.categoryModeData = categories.map((cat) => {
+            const row: any = { category: cat };
+            for (const mode of modes) {
+              const match = items.find(
+                (r: any) => r.category === cat && r.mode === mode,
+              );
+              row[mode] = match ? match.count : 0;
+            }
+            return row;
+          });
+          this.categoryModes = modes;
+          setTimeout(() => this.renderCategoryChart(), 0);
+        },
+        error: () => {},
+      });
+  }
+
+  categoryModes: string[] = [];
+
+  private readonly modeColors: Record<string, string> = {
+    AGENT_FULL: '#0070d2',
+    STATIC: '#00bceb',
+    PATTERN_MATCH: '#9933ff',
+  };
 
   renderCategoryChart(): void {
     if (!this.categoryCanvasRef || !this.categoryModeData.length) return;
     this.categoryChart?.destroy();
-    const labels = this.categoryModeData.map((r) => r.category);
+    const labels = this.categoryModeData.map((r) => r.category as string);
+    const datasets = this.categoryModes.map((mode) => ({
+      label: this.formatStatus(mode),
+      data: this.categoryModeData.map((r) => (r[mode] as number) || 0),
+      backgroundColor: this.modeColors[mode] || '#888',
+      borderRadius: 4,
+      maxBarThickness: 48,
+    }));
     this.categoryChart = new Chart(this.categoryCanvasRef.nativeElement, {
       type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Agent Full',
-            data: this.categoryModeData.map((r) => r.agentFull),
-            backgroundColor: '#0070d2',
-            borderRadius: 4,
-            maxBarThickness: 48,
-          },
-          {
-            label: 'Static',
-            data: this.categoryModeData.map((r) => r.static),
-            backgroundColor: '#00bceb',
-            borderRadius: 4,
-            maxBarThickness: 48,
-          },
-          {
-            label: 'Pattern Match',
-            data: this.categoryModeData.map((r) => r.patternMatch),
-            backgroundColor: '#9933ff',
-            borderRadius: 4,
-            maxBarThickness: 48,
-          },
-        ],
-      },
+      data: { labels, datasets },
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -838,16 +776,16 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
       .get<{
         data: RecentRun[];
         meta: any;
-      }>(`${this.API_URL}?page=1&page_size=4`)
+      }>(`${this.API_URL}/combined?page=1&page_size=8`)
       .subscribe({
         next: (res) => {
           this.recentExceptions = res.data
             .sort(
               (a, b) =>
-                new Date(b.created_at).getTime() -
-                new Date(a.created_at).getTime(),
+                new Date(b.run_created_at).getTime() -
+                new Date(a.run_created_at).getTime(),
             )
-            .slice(0, 4);
+            .slice(0, 8);
           this.recentExceptionsLoading = false;
         },
         error: () => {
@@ -885,5 +823,14 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
     if (hrs < 24) return `${hrs}h ago`;
     const days = Math.floor(hrs / 24);
     return `${days}d ago`;
+  }
+
+  formatDateShort(dateStr: string | null): string {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${mm}/${dd}/${yyyy}`;
   }
 }

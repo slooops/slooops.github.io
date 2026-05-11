@@ -691,7 +691,7 @@
    ══════════════════════════════ */
 .sh__kpi-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 1rem;
 }
 
@@ -760,7 +760,7 @@
 
 .sh__recent-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1rem;
 }
 
@@ -1204,8 +1204,7 @@
 }
 
 .sh__table-scroll {
-  max-height: 280px;
-  overflow-y: auto;
+  overflow-x: auto;
   padding: 0;
 }
 

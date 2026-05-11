@@ -10,6 +10,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 import { AuthenticationService } from '../../providers/authentication.service';
 
 interface RunDetail {
@@ -61,6 +63,7 @@ interface TimelineEvent {
 export class ExceptionDetailsComponent implements OnInit, OnChanges {
   @Input() exceptionId: string = '';
   @Input() backLabel: string = 'Back to Queue';
+  @Input() apiEndpoint: 'direct' | 'by-record' = 'direct';
   @Output() back = new EventEmitter<void>();
 
   private readonly API_URL = 'https://i2c-aria-dev.cisco.com/api/runs';
@@ -93,12 +96,23 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
   timelineLoading = false;
   expandedEventIds = new Set<number>();
 
+  private isRoutedView = false;
+
   constructor(
     private http: HttpClient,
     private authService: AuthenticationService,
+    private route: ActivatedRoute,
+    private location: Location,
   ) {}
 
   ngOnInit(): void {
+    const routeId = this.route.snapshot.paramMap.get('id');
+    if (routeId) {
+      this.exceptionId = routeId;
+      this.apiEndpoint = 'by-record';
+      this.backLabel = 'Back to Error Details';
+      this.isRoutedView = true;
+    }
     if (this.exceptionId) {
       this.fetchRunDetail();
     }
@@ -116,19 +130,30 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
 
   private fetchRunDetail(): void {
     this.isLoading = true;
-    this.http
-      .get<{ data: RunDetail }>(`${this.API_URL}/${this.exceptionId}`)
-      .subscribe({
-        next: (res) => {
+    const url =
+      this.apiEndpoint === 'by-record'
+        ? `${this.API_URL}/by-record/${this.exceptionId}`
+        : `${this.API_URL}/${this.exceptionId}`;
+    this.http.get<any>(url).subscribe({
+      next: (res) => {
+        if (this.apiEndpoint === 'by-record') {
+          // Response: { record_id, data: RunDetail[] }
+          const runs = res.data as RunDetail[];
+          this.run = runs && runs.length > 0 ? runs[0] : null;
+        } else {
+          // Response: { data: RunDetail }
           this.run = res.data;
-          this.isLoading = false;
-          this.fetchTimeline();
-        },
-        error: (err) => {
-          console.error('Failed to fetch run detail:', err);
-          this.isLoading = false;
-        },
-      });
+        }
+        this.isLoading = false;
+        if (this.run) {
+          this.fetchTimeline(this.run.run_id);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to fetch run detail:', err);
+        this.isLoading = false;
+      },
+    });
   }
 
   private cleanRootCauseText(text: string): string {
@@ -194,7 +219,11 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
   }
 
   goBack(): void {
-    this.back.emit();
+    if (this.isRoutedView) {
+      this.location.back();
+    } else {
+      this.back.emit();
+    }
   }
 
   saveReview(): void {
@@ -244,12 +273,12 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
   }
 
   /* ── Timeline ── */
-  private fetchTimeline(): void {
+  private fetchTimeline(runId: number): void {
     this.timelineLoading = true;
     this.http
       .get<{
         data: TimelineEvent[];
-      }>(`${this.API_URL}/${this.exceptionId}/timeline`)
+      }>(`${this.API_URL}/${runId}/timeline`)
       .subscribe({
         next: (res) => {
           this.timelineEvents = (res.data || []).sort(
