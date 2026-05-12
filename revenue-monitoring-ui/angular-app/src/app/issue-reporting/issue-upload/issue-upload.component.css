@@ -3,8 +3,13 @@
   font-family: "Inter", sans-serif;
 }
 
+::ng-deep .rounded-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+  padding: 0 !important;
+}
+
 .iu-dialog {
-  width: 400px;
+  width: 100%;
+  overflow: hidden;
 }
 
 /* Header */
