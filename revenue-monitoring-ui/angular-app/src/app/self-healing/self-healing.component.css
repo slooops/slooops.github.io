@@ -424,7 +424,7 @@
 
 .sh__badge-label {
   font-size: 0.625rem;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.15em;
   font-weight: 700;
   color: var(--sh-cyan);
@@ -979,7 +979,7 @@
   font-size: 0.55rem;
   font-weight: 600;
   fill: var(--sh-text-secondary);
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.06em;
 }
 
@@ -1081,8 +1081,8 @@
 }
 
 .sh__kpi-label {
-  font-size: 0.625rem;
-  text-transform: uppercase;
+  font-size: 0.7rem;
+  text-transform: capitalize;
   letter-spacing: 0.1em;
   font-weight: 700;
   color: var(--sh-text-secondary);
@@ -1220,7 +1220,7 @@
   background: #ffffff;
   color: var(--sh-text);
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: capitalize;
   font-size: 0.7rem;
   letter-spacing: 0.5px;
   position: sticky;
@@ -1315,7 +1315,7 @@
 
 .sh__donut-label {
   font-size: 0.625rem;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.15em;
   color: var(--sh-text-secondary);
 }
@@ -1447,7 +1447,7 @@
   font-size: 0.625rem;
   font-weight: 900;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
+  text-transform: capitalize;
   color: #006782;
 }
 
@@ -1610,7 +1610,7 @@
   display: block;
   font-size: 0.625rem;
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: -0.02em;
   color: var(--sh-text-secondary);
 }
@@ -1661,8 +1661,8 @@
    Section label (shared)
    ══════════════════════════════ */
 .sh__section-label {
-  font-size: 0.625rem !important;
-  text-transform: uppercase;
+  font-size: 0.7rem !important;
+  text-transform: capitalize;
   letter-spacing: 0.15em;
   font-weight: 700;
   color: var(--sh-text-secondary);
@@ -2009,7 +2009,7 @@
   font-size: 0.625rem;
   font-weight: 900;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
+  text-transform: capitalize;
   color: #006782;
 }
 
@@ -2224,7 +2224,7 @@
   font-size: 0.625rem;
   font-weight: 800;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
+  text-transform: capitalize;
   color: #006782;
 }
 

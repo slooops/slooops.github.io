@@ -30,6 +30,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { UserAssignmentComponent } from './user-assignment/user-assignment.component';
 import { ProcessFlowTooltipComponent } from './process-flow-tooltip/process-flow-tooltip.component';
 import { LoadingSymbolComponent } from './shared/loading-symbol/loading-symbol.component';
+import { ExceptionDetailsComponent } from '../self-healing/exception-details/exception-details.component';
 
 export interface UserContext {
   username: string;
@@ -56,12 +57,23 @@ export interface UserContext {
     UserAssignmentComponent,
     ProcessFlowTooltipComponent,
     LoadingSymbolComponent,
+    ExceptionDetailsComponent,
   ],
   standalone: true,
 })
 export class MonitoringDashboardComponent<T> extends BaseComponent {
   @ViewChild('detailsPaginator') detailsPaginator: MatPaginator;
   @ViewChild('summaryPaginator') summaryPaginator: MatPaginator;
+
+  selectedTransactionId: string | null = null;
+
+  openExceptionDetails(transactionId: string): void {
+    this.selectedTransactionId = transactionId;
+  }
+
+  closeExceptionDetails(): void {
+    this.selectedTransactionId = null;
+  }
 
   urls = input.required<{ [key: string]: string }>();
   keysToMap = input.required<string[]>();

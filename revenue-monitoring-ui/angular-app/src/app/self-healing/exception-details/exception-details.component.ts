@@ -239,6 +239,7 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
       feedback: this.accuracyAssessment || '',
       notes: this.reviewerNotes,
       reviewer: this.authService.getUserID(),
+      is_training_example: this.markAsTraining,
     };
 
     const engagementBody = {
