@@ -69,7 +69,7 @@ export class ExceptionsComponent implements OnInit {
       .get<{
         data: RunRecord[];
         meta: any;
-      }>(this.API_URL)
+      }>(this.API_URL, { params: { page_size: '10000' } })
       .subscribe({
         next: (res) => {
           this.allRecords = res.data;
