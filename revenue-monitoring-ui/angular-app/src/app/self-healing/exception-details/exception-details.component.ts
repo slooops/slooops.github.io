@@ -71,7 +71,6 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
   activeTab: 'review' | 'trace' = 'review';
   accuracyAssessment: 'correct' | 'partially_correct' | 'incorrect' | null =
     'correct';
-  qualityScore = 4;
   reviewerNotes = '';
   markAsTraining = false;
   needsCrossTeam = false;
@@ -206,14 +205,6 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
     this.showFullSql = !this.showFullSql;
   }
 
-  get starArray(): boolean[] {
-    return Array.from({ length: 5 }, (_, i) => i < this.qualityScore);
-  }
-
-  setQualityScore(score: number): void {
-    this.qualityScore = score;
-  }
-
   setAssessment(value: 'correct' | 'partially_correct' | 'incorrect'): void {
     this.accuracyAssessment = value;
   }
@@ -239,6 +230,7 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
       feedback: this.accuracyAssessment || '',
       notes: this.reviewerNotes,
       reviewer: this.authService.getUserID(),
+      is_training_example: this.markAsTraining,
     };
 
     const engagementBody = {
@@ -286,7 +278,7 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
       },
     });
 
-    this.http.post(`${patternUrl}/engagement`, engagementBody).subscribe({
+    this.http.patch(`${patternUrl}/engagement`, engagementBody).subscribe({
       next: () => {
         engagementDone = true;
         checkComplete();

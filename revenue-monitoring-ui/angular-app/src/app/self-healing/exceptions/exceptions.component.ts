@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
 import { TextInputComponent } from '../../ui/atoms/text-input/text-input.component';
 import { MultiSelectDropdownComponent } from '../../ui/atoms/multi-select-dropdown/multi-select-dropdown.component';
 import { PaginationComponent } from '../../ui/atoms/pagination/pagination.component';
@@ -53,41 +54,79 @@ export class ExceptionsComponent implements OnInit {
   modeOptions: SelectOption[] = [];
   statusOptions: SelectOption[] = [];
 
-  exceptions: RunRecord[] = [];
-  allFetchedRecords: RunRecord[] = [];
+  allRecords: RunRecord[] = [];
   currentPage = 1;
-  totalPages = 1;
-  totalExceptions = 0;
   pageSize = 25;
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.fetchFilterOptions();
-    this.fetchRuns();
+    this.fetchAllRuns();
   }
 
-  /** Fetch all records once to extract distinct filter values */
-  private fetchFilterOptions(): void {
+  private fetchAllRuns(): void {
+    this.isLoading = true;
+    // First call to get page 1 and total pages
     this.http
       .get<{
         data: RunRecord[];
-        meta: any;
+        meta: { total: number; page: number; page_size: number; pages: number };
       }>(this.API_URL)
       .subscribe({
-        next: (res) => {
-          this.allFetchedRecords = res.data;
-          this.modeOptions = this.buildDistinctOptions(
-            res.data,
-            'analysis_mode',
-          );
-          this.statusOptions = this.buildDistinctOptions(
-            res.data,
-            'run_status',
-          );
+        next: (firstRes) => {
+          const totalPages = firstRes.meta.pages;
+
+          if (totalPages <= 1) {
+            // Only one page, we're done
+            this.allRecords = firstRes.data;
+            this.buildFiltersAndFinish();
+            return;
+          }
+
+          // Fetch remaining pages (2..totalPages) in parallel
+          const pageRequests = [];
+          for (let p = 2; p <= totalPages; p++) {
+            pageRequests.push(
+              this.http.get<{ data: RunRecord[]; meta: any }>(this.API_URL, {
+                params: { page: p.toString() },
+              }),
+            );
+          }
+
+          forkJoin(pageRequests).subscribe({
+            next: (responses) => {
+              this.allRecords = [
+                ...firstRes.data,
+                ...responses.flatMap((r) => r.data),
+              ];
+              this.buildFiltersAndFinish();
+            },
+            error: (err) => {
+              console.error('Failed to fetch remaining pages:', err);
+              // Fall back to just page 1
+              this.allRecords = firstRes.data;
+              this.buildFiltersAndFinish();
+            },
+          });
         },
-        error: () => {},
+        error: (err) => {
+          console.error('Failed to fetch runs:', err);
+          this.isLoading = false;
+        },
       });
+  }
+
+  private buildFiltersAndFinish(): void {
+    this.modeOptions = this.buildDistinctOptions(
+      this.allRecords,
+      'analysis_mode',
+    );
+    this.statusOptions = this.buildDistinctOptions(
+      this.allRecords,
+      'run_status',
+    );
+    this.currentPage = 1;
+    this.isLoading = false;
   }
 
   private buildDistinctOptions(
@@ -103,40 +142,19 @@ export class ExceptionsComponent implements OnInit {
     }));
   }
 
-  fetchRuns(): void {
-    this.isLoading = true;
-    const url = `${this.API_URL}?page=${this.currentPage}&page_size=${this.pageSize}`;
-
-    this.http
-      .get<{
-        data: RunRecord[];
-        meta: { total: number; page: number; page_size: number; pages: number };
-      }>(url)
-      .subscribe({
-        next: (res) => {
-          this.exceptions = res.data;
-          this.totalExceptions = res.meta.total;
-          this.totalPages = res.meta.pages;
-          this.currentPage = res.meta.page;
-          this.isLoading = false;
-        },
-        error: (err) => {
-          console.error('Failed to fetch runs:', err);
-          this.isLoading = false;
-        },
-      });
-  }
-
   onSearchChange(value: string): void {
     this.searchQuery = value;
+    this.currentPage = 1;
   }
 
   onModeChange(values: string[]): void {
     this.selectedModes = values;
+    this.currentPage = 1;
   }
 
   onStatusChange(values: string[]): void {
     this.selectedStatuses = values;
+    this.currentPage = 1;
   }
 
   onViewException(id: string): void {
@@ -144,7 +162,7 @@ export class ExceptionsComponent implements OnInit {
   }
 
   get filteredExceptions(): RunRecord[] {
-    let list = this.exceptions;
+    let list = this.allRecords;
     if (this.searchQuery) {
       const q = this.searchQuery.toLowerCase();
       list = list.filter(
@@ -168,10 +186,18 @@ export class ExceptionsComponent implements OnInit {
     return list;
   }
 
+  get totalExceptions(): number {
+    return this.filteredExceptions.length;
+  }
+
+  get paginatedExceptions(): RunRecord[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredExceptions.slice(start, start + this.pageSize);
+  }
+
   onPageChange(event: PageChangeEvent): void {
-    this.currentPage = event.pageIndex + 1; // API is 1-based
+    this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
-    this.fetchRuns();
   }
 
   getStatusClass(status: string): string {
@@ -196,18 +222,6 @@ export class ExceptionsComponent implements OnInit {
       default:
         return 'eq__review--default';
     }
-  }
-
-  formatDate(dateStr: string): string {
-    if (!dateStr) return '—';
-    const d = new Date(dateStr);
-    return d.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   }
 
   formatStatus(status: string): string {

@@ -50,18 +50,18 @@
           <tr>
             <th>Transaction ID</th>
             <th>Category</th>
-            <th>Exception Status</th>
+            <th>Analysis Status</th>
             <th>Review Status</th>
             <th>Analysis Mode</th>
-            <th>Exception Created</th>
+            <th>Exception Date</th>
             <th>Session Status</th>
-            <th>Upstream Contact</th>
+            <th>Assigned To</th>
             <th>Follow-ups</th>
             <th>Last Activity</th>
           </tr>
         </thead>
         <tbody>
-          @for (run of filteredExceptions; track run.run_id) {
+          @for (run of paginatedExceptions; track run.run_id) {
             <tr
               class="eq__row"
               (click)="onViewException(run.run_id.toString())"
@@ -106,7 +106,7 @@
               </td>
             </tr>
           }
-          @if (filteredExceptions.length === 0) {
+          @if (paginatedExceptions.length === 0) {
             <tr>
               <td colspan="11" class="eq__empty">No exceptions found.</td>
             </tr>
@@ -120,9 +120,9 @@
   @if (totalExceptions > 0) {
     <app-pagination
       [pageIndex]="currentPage - 1"
-      [pageSize]="25"
+      [pageSize]="pageSize"
       [totalItems]="totalExceptions"
-      [showPageSizeSelector]="false"
+      [showPageSizeSelector]="true"
       (pageChange)="onPageChange($event)"
     ></app-pagination>
   }

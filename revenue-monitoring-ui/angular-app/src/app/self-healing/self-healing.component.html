@@ -3,9 +3,6 @@
   <div class="header-main">
     <div class="header-left">
       <h2>I2C Self-Healing Bot</h2>
-      <!-- <span class="sh__health-tag sh__health-tag--success"
-        >Performance: Optimal</span
-      > -->
     </div>
 
     <div class="period-info">
@@ -38,10 +35,6 @@
         <ng-icon name="phosphorArrowClockwiseBold" size="14" />
         Refresh
       </button>
-      <!-- <button class="sh__btn" (click)="toggleLogHistory()">
-        <ng-icon name="phosphorClockCounterClockwiseBold" size="14" />
-        View Log History
-      </button> -->
     </div>
   </div>
 </div>
@@ -52,12 +45,7 @@
   @case (0) {
     <!-- Command Center -->
     <div class="sh">
-      <!-- ═══════════════════════════════════════
-       Header
-       ═══════════════════════════════════════ -->
-      <!-- ═══════════════════════════════════════
-       Row 1 — KPI tiles
-       ═══════════════════════════════════════ -->
+      <!-- KPI tiles -->
       <section class="sh__kpi-row">
         @for (kpi of kpiCards; track kpi.label) {
           <div class="sh__kpi">
@@ -67,9 +55,7 @@
         }
       </section>
 
-      <!-- ═══════════════════════════════════════
-       Row 2 — Charts: Trends (2) | Modes (2) | Category (1)
-       ═══════════════════════════════════════ -->
+      <!-- Charts -->
       <section class="sh__charts-row">
         <!-- Exception Trends -->
         <div class="sh__chart-card sh__chart-card--2">
@@ -112,9 +98,7 @@
         </div>
       </section>
 
-      <!-- ═══════════════════════════════════════
-       Row 3 — Recent Exceptions + Recent Sessions
-       ═══════════════════════════════════════ -->
+      <!-- Recent Exceptions -->
       <section class="sh__recent-row">
         <!-- Recent Exceptions -->
         <div class="sh__recent-card">
@@ -130,12 +114,12 @@
                 <tr>
                   <th>Transaction ID</th>
                   <th>Category</th>
-                  <th>Exception Status</th>
+                  <th>Analysis Status</th>
                   <th>Review Status</th>
                   <th>Analysis Mode</th>
-                  <th>Exception Created</th>
+                  <th>Exception Date</th>
                   <th>Session Status</th>
-                  <th>Upstream Contact</th>
+                  <th>Assigned To</th>
                   <th>Follow-ups</th>
                   <th>Last Activity</th>
                 </tr>
@@ -208,46 +192,6 @@
         </div>
       </section>
     </div>
-
-    <!-- Log History Overlay -->
-    @if (showLogHistory) {
-      <div class="sh__overlay-backdrop" (click)="toggleLogHistory()"></div>
-      <div class="sh__log-overlay">
-        <div class="sh__log-overlay-header">
-          <div class="sh__card-header-row">
-            <div class="sh__card-icon sh__card-icon--cyan">
-              <ng-icon name="phosphorClockCounterClockwiseBold" size="18" />
-            </div>
-            <span class="sh__log-overlay-title">Action Log History</span>
-          </div>
-          <button class="sh__log-overlay-close" (click)="toggleLogHistory()">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-              <path
-                d="M12.854 3.146a.5.5 0 0 0-.708 0L8 7.293 3.854 3.146a.5.5 0 1 0-.708.708L7.293 8l-4.147 4.146a.5.5 0 0 0 .708.708L8 8.707l4.146 4.147a.5.5 0 0 0 .708-.708L8.707 8l4.147-4.146a.5.5 0 0 0 0-.708z"
-              />
-            </svg>
-          </button>
-        </div>
-        <div class="sh__log-overlay-body">
-          @for (log of actionLogs; track log.title) {
-            <div class="sh__log-item">
-              <div
-                class="sh__log-bar"
-                [class.sh__log-bar--amber]="log.color === 'amber'"
-                [class.sh__log-bar--primary]="log.color === 'primary'"
-                [class.sh__log-bar--primary-light]="
-                  log.color === 'primary-light'
-                "
-              ></div>
-              <div class="sh__log-text">
-                <p class="sh__log-title">{{ log.title }}</p>
-                <p class="sh__log-sub">{{ log.subtitle }}</p>
-              </div>
-            </div>
-          }
-        </div>
-      </div>
-    }
   }
   @case (1) {
     <!-- Exceptions Queue / Detail -->
@@ -255,9 +199,7 @@
       <app-exception-details
         [exceptionId]="selectedExceptionId"
         [backLabel]="
-          exceptionOrigin === 'command-center'
-            ? 'Back to Command Center'
-            : 'Back to Queue'
+          exceptionOrigin === 'command-center' ? 'Back' : 'Back to Queue'
         "
         (back)="backFromExceptionDetail()"
       ></app-exception-details>
@@ -277,7 +219,7 @@
             <path d="M19 12H5" />
             <polyline points="12 19 5 12 12 5" />
           </svg>
-          Back to Command Center
+          Back
         </button>
       </div>
       <app-exceptions
@@ -286,28 +228,6 @@
     }
   }
   @case (2) {
-    <!-- Sessions -->
-    <div class="sh__sub-back">
-      <button class="sh__back-btn" (click)="goBackToCommandCenter()">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M19 12H5" />
-          <polyline points="12 19 5 12 12 5" />
-        </svg>
-        Back to Command Center
-      </button>
-    </div>
-    <app-sessions></app-sessions>
-  }
-  @case (3) {
     <!-- Patterns Full View -->
     <div class="sh__sub-back">
       <button class="sh__back-btn" (click)="goBackToCommandCenter()">
@@ -324,7 +244,7 @@
           <path d="M19 12H5" />
           <polyline points="12 19 5 12 12 5" />
         </svg>
-        Back to Command Center
+        Back
       </button>
     </div>
     <div class="sh sh__patterns">

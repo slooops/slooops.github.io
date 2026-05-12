@@ -150,7 +150,7 @@
 .ed__status-tag-label {
   font-size: 0.6rem;
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.08em;
   color: #3d494e;
 }
@@ -465,7 +465,7 @@
   display: block;
   font-size: 0.625rem;
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.1em;
   color: #3d494e;
   margin-bottom: 0.5rem;
