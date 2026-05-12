@@ -24,6 +24,12 @@ import { BulkApproveRejectComponent } from './bulk-approve-reject/bulk-approve-r
 import { FormGroup, FormControl } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
+import {
+  FilterConfig,
+  ActionButtonConfig,
+  FilterValues,
+} from '../components/filter-button-bar/filter-button-bar.component';
+import { SelectOption } from '../ui/types/common.types';
 // Imports needed by inline dialog components that remain standalone
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -34,8 +40,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
+import { provideIcons } from '@ng-icons/core';
 
 @Component({
   selector: 'app-issue-reporting',
@@ -88,6 +93,127 @@ export class IssueReportingComponent implements OnInit {
   incidentNumFilter: string = '';
   isLoading: boolean = false;
 
+  // Filter-button-bar config
+  filterConfigs: FilterConfig[] = [];
+  filterValues: FilterValues = {
+    track: [],
+    quarter: [],
+    status: [],
+    incidentNum: '',
+  };
+  pageIndex: number = 0;
+  pageSize: number = 10;
+
+  get actionButtons(): ActionButtonConfig[] {
+    return [
+      {
+        id: 'approve',
+        label: 'Approve',
+        variant: 'success',
+        visible:
+          this.roles.includes('ISSUE_APPROVAL') &&
+          this.selection.selected.length === 1,
+      },
+      {
+        id: 'reject',
+        label: 'Reject',
+        variant: 'danger',
+        visible:
+          this.roles.includes('ISSUE_APPROVAL') &&
+          this.selection.selected.length === 1,
+      },
+      {
+        id: 'bulkApproveReject',
+        label: 'Approve / Reject',
+        variant: 'primary',
+        visible:
+          this.roles.includes('ISSUE_APPROVAL') &&
+          this.selection.selected.length > 1,
+      },
+      {
+        id: 'viewSummary',
+        label: 'View Summary',
+        variant: 'secondary',
+        visible: true,
+      },
+      {
+        id: 'upload',
+        label: 'Upload',
+        variant: 'secondary',
+        icon: 'phosphorCloudArrowUpBold',
+        visible: true,
+      },
+      {
+        id: 'download',
+        label: 'Download',
+        variant: 'secondary',
+        icon: 'phosphorArrowLineDownBold',
+        visible: true,
+      },
+    ];
+  }
+
+  onFilterChange(values: FilterValues): void {
+    this.filterValues = values;
+    this.trackFilter = (values['track'] as string[]) || [];
+    this.quarterFilter = (values['quarter'] as string[]) || [];
+    this.statusFilter = (values['status'] as string[]) || [];
+    this.incidentNumFilter = (values['incidentNum'] as string) || '';
+    this.summaryDatasource.filter = JSON.stringify({
+      trackFilter: this.trackFilter,
+      statusFilter: this.statusFilter,
+      quarterFilter: this.quarterFilter,
+      incidentNumFilter: this.incidentNumFilter,
+    });
+    this.pageIndex = 0;
+  }
+
+  onFilterClear(): void {
+    this.filterValues = { track: [], quarter: [], status: [], incidentNum: '' };
+    this.trackFilter = [];
+    this.quarterFilter = [];
+    this.statusFilter = [];
+    this.incidentNumFilter = '';
+    this.summaryDatasource.filter = '';
+  }
+
+  onActionButtonClick(actionId: string): void {
+    switch (actionId) {
+      case 'approve':
+        this.openDialog('Approve');
+        break;
+      case 'reject':
+        this.openDialog('Reject');
+        break;
+      case 'bulkApproveReject':
+        this.bulkApproveReject();
+        break;
+      case 'viewSummary':
+        this.openSummaryDialog();
+        break;
+      case 'upload':
+        this.uploadFile();
+        break;
+      case 'download':
+        this.exportSummaryData();
+        break;
+    }
+  }
+
+  onPageChange(event: any): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    if (this.paginator) {
+      this.paginator.pageIndex = event.pageIndex;
+      this.paginator.pageSize = event.pageSize;
+      this.paginator.page.emit({
+        pageIndex: event.pageIndex,
+        pageSize: event.pageSize,
+        length: this.paginator.length,
+      });
+    }
+  }
+
   statusOps: string[] = ['Open', 'Closed'];
   getIssueReporting() {
     this.isLoading = true;
@@ -133,6 +259,37 @@ export class IssueReportingComponent implements OnInit {
     this.trackOptions = [...new Set(this.trackTemp)];
     this.quarterOptions = [...new Set(this.quarterTemp)];
     this.statusOptions = [...new Set(this.statusTemp)];
+
+    // Build filter configs for the filter-button-bar
+    this.filterConfigs = [
+      {
+        id: 'track',
+        label: 'Track',
+        type: 'multi-select',
+        placeholder: 'Select Track',
+        options: this.trackOptions.map((t) => ({ label: t, value: t })),
+      },
+      {
+        id: 'quarter',
+        label: 'Quarter',
+        type: 'multi-select',
+        placeholder: 'Select Quarter',
+        options: this.quarterOptions.map((q) => ({ label: q, value: q })),
+      },
+      {
+        id: 'status',
+        label: 'Status',
+        type: 'multi-select',
+        placeholder: 'Select Status',
+        options: this.statusOptions.map((s) => ({ label: s, value: s })),
+      },
+      {
+        id: 'incidentNum',
+        label: 'Incident Number',
+        type: 'text',
+        placeholder: 'e.g., INC1234',
+      },
+    ];
   }
 
   filterPredicate = (data: any, filter: any) => {
@@ -191,11 +348,13 @@ export class IssueReportingComponent implements OnInit {
   uploadFile() {
     const dialogRef = this.dialog.open(IssueUploadComponent, {
       width: '400px',
+      panelClass: 'rounded-dialog',
     });
   }
 
   toggleSelectAll(event: any): void {
-    if (event.checked) {
+    const checked = event?.target?.checked ?? event?.checked;
+    if (checked) {
       this.selection.select(...this.summaryDatasource.data);
     } else {
       this.selection.clear();
@@ -224,9 +383,10 @@ export class IssueReportingComponent implements OnInit {
   selectedSummaryData: any[] = [];
   isModalOpen: boolean = false;
   selectedRows: any[] = [];
-  onRowSelectionChange(event: MatCheckboxChange, row: any) {
+  onRowSelectionChange(event: any, row: any) {
+    const checked = event?.target?.checked ?? event?.checked;
     this.selection.toggle(row);
-    if (event.checked) {
+    if (checked) {
       this.selectedRows.push(row);
     } else {
       this.selectedRows = this.selectedRows.filter(
@@ -400,6 +560,7 @@ export class IssueReportingComponent implements OnInit {
   openDialog(message: string) {
     const dialogRef = this.dialog.open(DialogBox, {
       width: '400px',
+      panelClass: 'rounded-dialog',
       data: { message }, // Pass data to dialog
     });
 
@@ -422,6 +583,7 @@ export class IssueReportingComponent implements OnInit {
   openSummaryDialog() {
     const dialogRef = this.dialog.open(SummaryDialog, {
       width: '550px',
+      panelClass: 'rounded-dialog',
       data: this.issueSummaryData,
     });
   }
@@ -463,6 +625,7 @@ export class IssueReportingComponent implements OnInit {
 
     const dialogRef = this.dialog.open(BulkApproveRejectComponent, {
       width: '400px',
+      panelClass: 'rounded-dialog',
       data: this.selectedRows.map((data) => ({
         incidentNumber: data.INCIDENT_NUMBER,
         status: data.IT_APPROVAL, // Default empty status
@@ -486,6 +649,7 @@ export class IssueReportingComponent implements OnInit {
   onStatusChange(element: any) {
     const dialogRef = this.dialog.open(StatusDialog, {
       width: '450px',
+      panelClass: 'rounded-dialog',
       data: {
         status: element.STATUS,
         incidentNumber: element.INCIDENT_NUMBER,
@@ -691,148 +855,140 @@ export class StatusDialog {
 
 @Component({
   template: `
-    <div
-      style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background-color: #00bceb; color: white"
-    >
-      <h5 style="margin: 0; font-weight: bold">Summary</h5>
+    <div class="summary-header">
+      <h5 class="summary-title">Summary</h5>
       <button
-        mat-icon-button
+        class="summary-close-btn"
         (click)="closeDialog()"
         aria-label="Close"
-        style="margin-left: auto; font-size: 24px; font-weight: bold;"
       >
-        <mat-icon style="color: white">close</mat-icon>
+        ✕
       </button>
     </div>
 
-    <div style="margin: 20px">
-      <table mat-table [dataSource]="dataSource">
-        <!-- Track Column -->
-        <ng-container matColumnDef="Track">
-          <th mat-header-cell *matHeaderCellDef>Track</th>
-          <td mat-cell *matCellDef="let element">{{ element['Track'] }}</td>
-        </ng-container>
-
-        <!-- Count Column -->
-        <ng-container matColumnDef="Count">
-          <th mat-header-cell *matHeaderCellDef>Count</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element['Count'] || '' }}
-          </td>
-        </ng-container>
-
-        <!-- Issue Status Column -->
-        <ng-container matColumnDef="Issue Status">
-          <th mat-header-cell *matHeaderCellDef>Issue Status</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element['Issue Status'] || '' }}
-          </td>
-        </ng-container>
-
-        <!-- IT Approval Column -->
-        <ng-container matColumnDef="IT Approval">
-          <th mat-header-cell *matHeaderCellDef>IT Approval</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element['IT Approval'] || '' }}
-          </td>
-        </ng-container>
-
-        <!-- Approved On Column -->
-        <!-- <ng-container matColumnDef="Approved On">
-          <th mat-header-cell *matHeaderCellDef>Approved On</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element['Approved On'] || '' }}
-          </td>
-        </ng-container> -->
-
-        <!-- Issue Description Column -->
-        <!-- <ng-container matColumnDef="Issue Description">
-          <th mat-header-cell *matHeaderCellDef>Issue Description</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element['Issue Description'] || '' }}
-          </td>
-        </ng-container> -->
-
-        <!-- Header and Row Declarations -->
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: displayedColumns"
-          [ngClass]="{
-            'bold-row':
-              row['Track']?.toLowerCase()?.includes('sub total') ||
-              row['Track']?.toLowerCase()?.includes('total'),
-          }"
-        ></tr>
-      </table>
+    <div class="summary-table-wrapper">
+      <div class="summary-table-container">
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th>Track</th>
+              <th>Count</th>
+              <th>Issue Status</th>
+              <th>IT Approval</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of data; track row) {
+              <tr
+                [class.bold-row]="
+                  row['Track']?.toLowerCase()?.includes('sub total') ||
+                  row['Track']?.toLowerCase()?.includes('total')
+                "
+              >
+                <td>{{ row['Track'] }}</td>
+                <td>{{ row['Count'] || '' }}</td>
+                <td>{{ row['Issue Status'] || '' }}</td>
+                <td>{{ row['IT Approval'] || '' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
   `,
   styles: [
     `
-      table {
-        width: 100%;
-        border-collapse: separate; /* Allows spacing between cells */
-        border-spacing: 0 2px; /* Adds vertical spacing between rows (optional) */
+      .summary-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1.25rem;
+        background: #00bceb;
+        border-bottom: 1px solid #e5e7eb;
       }
 
-      th.mat-header-cell,
-      td.mat-cell {
-        padding: 8px 12px; /* Horizontal padding creates gap between columns */
-        font-size: 13px;
-        text-align: center;
-      }
-
-      th.mat-header-cell {
-        white-space: nowrap;
-        font-weight: bold;
-        background-color: #00bceb;
+      .summary-title {
+        margin: 0;
+        font-size: 0.875rem;
+        font-weight: 600;
         color: white;
       }
 
-      td.mat-cell {
+      .summary-close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+        padding: 0.25rem;
+        line-height: 1;
+      }
+
+      .summary-close-btn:hover {
+        color: #1b1c1d;
+      }
+
+      .summary-table-wrapper {
+        padding: 1rem 1.25rem 1.25rem;
+      }
+
+      .summary-table-container {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .summary-table thead tr {
+        background-color: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .summary-table th {
+        color: #64748b;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.75rem 1rem;
+        white-space: nowrap;
+      }
+
+      .summary-table td {
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 400;
+        padding: 0.625rem 1rem;
+        color: #1b1c1d;
+        border-bottom: 1px solid #f1f5f9;
         vertical-align: top;
       }
 
-      /* Bold rows for Sub Total and Total */
-      tr.bold-row td {
-        font-weight: bold;
+      .summary-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      .summary-table tbody tr:hover {
+        background-color: #f8fafc;
+      }
+
+      .bold-row td {
+        font-weight: 600;
+        background-color: #f9fafb;
       }
     `,
   ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatMenuModule,
-    // LoadingSymbolComponent,
-    MatDialogModule,
-    MatIconModule,
-    MatButtonModule,
-  ],
+  imports: [CommonModule],
   standalone: true,
 })
 export class SummaryDialog {
-  displayedColumns: string[] = [
-    'Track',
-    'Count',
-    'Issue Status',
-    'IT Approval',
-    // 'Approved On',
-    // 'Issue Description',
-  ];
-  dataSource: MatTableDataSource<any>;
   constructor(
     private dialogRef: MatDialogRef<StatusDialog>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-  ) {
-    this.dataSource = new MatTableDataSource(this.data);
-  }
+  ) {}
 
   closeDialog() {
     this.dialogRef.close();

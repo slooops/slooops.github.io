@@ -1,25 +1,27 @@
-<div class="flowchart-container" [style.width.px]="containerWidth()">
-  <div class="slider-bar">
-    @for (step of processSteps(); track step.PROCESS_FLOW; let i = $index) {
-    <div>
-      <div class="circle-wrapper-loop">
-        <p class="circle-caption-loop">{{ formatLabel(step.PROCESS_FLOW) }}</p>
-        <p class="circle-loop"></p>
-        <p class="circle-subcaption">
-          Total: @if (step.TYPE === 'Value') {
-          <span>{{ formatAmount(step.AMOUNT) }}</span>
-          } @if (step.TYPE === 'Count') {
-          <span>{{ step.AMOUNT }}</span>
-          }
-        </p>
-      </div>
-      @if (i < processSteps().length - 1) {
-      <div class="chevron-wrapper-loop">
-        <div class="chevron"></div>
-        <div class="chevron-white"></div>
-      </div>
-      }
+<div class="flow-chips">
+  @for (
+    step of processSteps();
+    track step.PROCESS_FLOW;
+    let i = $index;
+    let last = $last
+  ) {
+    <div class="flow-chip">
+      <span class="flow-chip__name">{{ formatLabel(step.PROCESS_FLOW) }}</span>
+      <span class="flow-chip__divider"></span>
+      <span class="flow-chip__amount">
+        @if (step.TYPE === "Value") {
+          {{ formatAmount(step.AMOUNT) }}
+        } @else {
+          {{ step.AMOUNT }}
+        }
+      </span>
     </div>
+    @if (!last) {
+      <span class="flow-connector">
+        <span class="flow-connector__dot"></span>
+        <span class="flow-connector__line"></span>
+        <span class="flow-connector__dot"></span>
+      </span>
     }
-  </div>
+  }
 </div>

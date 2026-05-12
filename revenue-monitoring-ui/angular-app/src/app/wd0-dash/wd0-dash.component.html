@@ -1,11 +1,17 @@
-<div class="grid-1">
-  <div class="row media" style="margin-bottom: 5px; margin-top: 5px">
-    <span class="col-sm-9 media" style="font-size: small">
-      <label class="labelFont">Expected Mid Close Start Time:</label>
+<div class="wd-info-bar">
+  <div
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    "
+  >
+    <div>
+      <label>Expected Mid Close Start Time:</label>
       {{ expectedStartTime }} &nbsp;|&nbsp;
-      <label class="labelFont">Expected Mid Close End Time:</label>
+      <label>Expected Mid Close End Time:</label>
       {{ expectedEndTime }} &nbsp;|&nbsp;
-      <label class="labelFont">Actual Mid Close Start Time:</label> &nbsp;
+      <label>Actual Mid Close Start Time:</label>&nbsp;
       <span
         [ngClass]="
           actualStartDate <= expectedStartDate ? 'color-green' : 'color-orange'
@@ -13,78 +19,47 @@
         >{{ actualStartTime }}</span
       >
       &nbsp;|&nbsp;
-      <label class="labelFont">Actual Mid Close End Time:</label> &nbsp;
+      <label>Actual Mid Close End Time:</label>&nbsp;
       <span
         [ngClass]="
           actualEndDate <= expectedEndDate ? 'color-green' : 'color-orange'
         "
         >{{ actualEndTime }}</span
-      >&nbsp;|&nbsp;
+      >
       <br />
-      <label class="labelFont"
-        >Eliminations, Stat Rules and Consolidations Expected End
-        Time:&nbsp;</label
-      >
-      {{ elimStatConsExpectedEndTime }} &nbsp;|&nbsp;
-      <label class="labelFont"
-        >Eliminations, Stat Rules and Consolidations Actual End
-        Time:&nbsp;</label
-      >
+      <label
+        >Eliminations, Stat Rules and Consolidations Expected End Time:</label
+      >&nbsp; {{ elimStatConsExpectedEndTime }} &nbsp;|&nbsp;
+      <label>Eliminations, Stat Rules and Consolidations Actual End Time:</label
+      >&nbsp;
       {{ elimStatConsActualEndTime }}
-    </span>
-    <span
-      class="col-sm-3"
-      style="
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 2px;
-      "
-    >
-      <!-- <div style="margin-right: 5px; font-size: 12px; white-space: nowrap">
-        Dashboard updated: Today at {{ timeNow }}
-      </div> -->
-      <div style="margin-right: 5px; font-size: 12px; white-space: nowrap">
-        <b>Quarter:</b>
-        {{ quarter }}
-      </div>
-    </span>
-  </div>
-
-  <div class="row">
-    <div
-      class="col-sm-12 media"
-      style="font-size: small; margin-top: 4px; margin-right: 5px"
-    >
-      <p class="clearfix">
-        <label class="reduce-space labelFont"
-          >Sequence Infomation: &nbsp;</label
-        >
-        <span class="collapsable float-left">
-          {{
-            info.length > firstCount
-              ? (info | slice: 0 : counter) + "..."
-              : info
-          }}
-          @if (info.length > 201) {
-            <span class="blueTxt" (click)="toggleSkil()">
-              {{ showTxt }}
-            </span>
-          }
-        </span>
-      </p>
     </div>
+    <div class="wd-quarter"><b>Quarter:</b> {{ quarter }}</div>
   </div>
 </div>
 
-<div class="arclosetable container grid-1">
-  <table class="table table-responsive equal-width media">
+<div class="wd-seq-info">
+  <p class="reduce-space">
+    <label>Sequence Information:&nbsp;</label>
+    <span>
+      {{
+        info.length > firstCount ? (info | slice: 0 : counter) + "..." : info
+      }}
+      @if (info.length > 201) {
+        <span class="blueTxt" (click)="toggleSkil()">
+          {{ showTxt }}
+        </span>
+      }
+    </span>
+  </p>
+</div>
+
+<div class="wd-table-container">
+  <table class="wd-table">
     <thead>
       <tr>
         @for (col of displayedColumns; track col) {
-          <th>
-            <span style="font-weight: bold">{{ col | uppercase }}</span>
-          </th>
+          <th>{{ col }}</th>
         }
       </tr>
     </thead>
@@ -94,15 +69,12 @@
           @for (category of templateObject.keys(row); track category) {
             <td>
               @if (row[category] === "Completed") {
-                <span class="color-green"> {{ row[category] }}</span>
-              }
-              <!-- <span
-                          *ngIf="row[category].toLowerCase() === 'delayed'"
-                          class="color-orange"
-                          >
-                          {{ row[category] }}</span
-                          > -->
-              @if (["Completed"].indexOf(row[category]) === -1) {
+                <span class="wd-status--completed">{{ row[category] }}</span>
+              } @else if (row[category] === "In Progress") {
+                <span class="wd-status--in-progress">{{ row[category] }}</span>
+              } @else if (row[category] === "Yet To Start") {
+                <span class="wd-status--yet-to-start">{{ row[category] }}</span>
+              } @else {
                 <span>{{ row[category] }}</span>
               }
             </td>
@@ -112,6 +84,3 @@
     </tbody>
   </table>
 </div>
-
-<br />
-<br />

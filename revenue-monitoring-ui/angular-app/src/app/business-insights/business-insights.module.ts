@@ -27,6 +27,8 @@ import { IssueReportingComponent } from '../issue-reporting/issue-reporting.comp
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import { ModalComponent } from '../components/modal/modal.component';
 import { FormatNumberPipe } from '../format-number.pipe';
+import { FilterButtonBarComponent } from '../components/filter-button-bar/filter-button-bar.component';
+import { PaginationComponent } from '../ui/atoms/pagination/pagination.component';
 
 @NgModule({
   declarations: [
@@ -55,6 +57,8 @@ import { FormatNumberPipe } from '../format-number.pipe';
     ModalComponent,
     FormatNumberPipe,
     NgIcon,
+    FilterButtonBarComponent,
+    PaginationComponent,
   ],
   exports: [
     OrderLifecycleComponent,

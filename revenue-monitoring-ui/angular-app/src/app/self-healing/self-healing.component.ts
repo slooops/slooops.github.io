@@ -460,11 +460,28 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
 
   getAnalysisModeClass(mode: string): string {
     switch (mode?.toUpperCase()) {
-      case 'AGENT_FULL': return 'sh__mode--agent-full';
-      case 'STATIC': return 'sh__mode--static';
-      case 'PATTERN_MATCH': return 'sh__mode--pattern-match';
-      default: return '';
+      case 'AGENT_FULL':
+        return 'sh__mode--agent-full';
+      case 'STATIC':
+        return 'sh__mode--static';
+      case 'PATTERN_MATCH':
+        return 'sh__mode--pattern-match';
+      default:
+        return '';
     }
+  }
+
+  formatTimeAgo(dateStr: string): string {
+    if (!dateStr) return '';
+    const now = new Date();
+    const d = new Date(dateStr);
+    const diffMs = now.getTime() - d.getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
   }
 
   formatDateShort(dateStr: string | null): string {

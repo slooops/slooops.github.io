@@ -6,6 +6,7 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -118,13 +119,13 @@ class CommonTest {
 
     @Test
     void calculateAgingIso() {
-        String twoDaysAgo = LocalDate.now().minusDays(2).toString();
+        String twoDaysAgo = LocalDate.now(ZoneId.of("America/Los_Angeles")).minusDays(2).toString();
         assertEquals("2 days", common.calculateAging(twoDaysAgo));
     }
 
     @Test
     void calculateAgingSlashFormat() {
-        String fiveDaysAgo = LocalDate.now().minusDays(5)
+        String fiveDaysAgo = LocalDate.now(ZoneId.of("America/Los_Angeles")).minusDays(5)
                 .format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
         assertEquals("5 days", common.calculateAging(fiveDaysAgo));
     }

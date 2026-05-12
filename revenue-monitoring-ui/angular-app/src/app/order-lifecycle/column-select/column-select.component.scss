@@ -1,33 +1,134 @@
-::ng-deep {
-  .mat-accent .mat-pseudo-checkbox-checked,
-  .mat-accent .mat-pseudo-checkbox-indeterminate {
-    background: gray !important;
+:host {
+  display: block;
+  font-family: "Inter", sans-serif;
+}
+
+/* ═══ Header ═══ */
+.cs-header {
+  background-color: #00bceb;
+  padding: 0.75rem 1rem;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cs-title {
+  margin: 0;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.cs-icon-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem;
+  opacity: 0.9;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 1;
   }
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
+/* ═══ Content ═══ */
+.cs-content {
+  padding: 0.75rem !important;
+  max-height: 70vh;
+}
+
+/* ═══ Table ═══ */
+.cs-table-container {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cs-table-scroll {
+  overflow-y: auto;
+  max-height: 58vh;
+}
+
+.cs-table {
   width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  border-collapse: collapse;
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  th {
+    background-color: #f8fafc;
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: left;
+    padding: 0.625rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+  }
+
+  td {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #1b1c1d;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: left;
+  }
+}
+
+.cs-th-check,
+.cs-td-check {
+  text-align: center !important;
+  width: 60px;
+}
+
+.cs-row {
+  cursor: pointer;
+  transition: background-color 0.1s;
+
+  &:hover {
+    background-color: #f8fafc;
+  }
+
+  &:last-child td {
+    border-bottom: none;
+  }
+}
+
+/* ═══ Checkbox ═══ */
+.fit-bulk-checkbox {
+  width: 15px;
+  height: 15px;
+  accent-color: #0070d2;
+  cursor: pointer;
+}
+
+/* ═══ Footer ═══ */
+.cs-footer {
   display: flex;
   justify-content: center;
-  align-items: center;
-  z-index: 1000; /* Ensure it is on top */
+  padding: 0.75rem 1rem 0.25rem;
 }
 
-.modal-box {
-  background-color: #fff;
-  padding: 1.5vw;
-  border-radius: 8px;
-  max-width: 80%;
-  max-height: 80%;
-  overflow-y: auto;
-  z-index: 1001; /* Above overlay */
-}
+.cs-save-btn {
+  background-color: #0070d2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 2rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s;
 
-mat-dialog-content {
-  padding-right: 18px;
+  &:hover {
+    background-color: #005bb5;
+  }
 }

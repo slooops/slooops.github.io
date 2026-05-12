@@ -5,16 +5,32 @@ import { AuthenticationService } from 'src/app/providers/authentication.service'
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  phosphorArrowLineDownBold,
+  phosphorCloudArrowUpBold,
+  phosphorXBold,
+  phosphorFileBold,
+  phosphorCheckCircleBold,
+  phosphorTrashBold,
+} from '@ng-icons/phosphor-icons/bold';
 
 @Component({
-    selector: 'app-issue-upload',
-    templateUrl: './issue-upload.component.html',
-    styleUrl: './issue-upload.component.css',
-    imports: [
-    CommonModule,
-    MatButtonModule
+  selector: 'app-issue-upload',
+  templateUrl: './issue-upload.component.html',
+  styleUrl: './issue-upload.component.css',
+  imports: [CommonModule, MatButtonModule, NgIcon],
+  providers: [
+    provideIcons({
+      phosphorArrowLineDownBold,
+      phosphorCloudArrowUpBold,
+      phosphorXBold,
+      phosphorFileBold,
+      phosphorCheckCircleBold,
+      phosphorTrashBold,
+    }),
   ],
-  standalone: true
+  standalone: true,
 })
 export class IssueUploadComponent {
   updateForm: FormGroup;
@@ -24,7 +40,7 @@ export class IssueUploadComponent {
     public http: ApiHttpService,
     public dialog: MatDialog,
     private dialogRef: MatDialogRef<IssueUploadComponent>,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
   ) {}
 
   ngOnInit(): void {
@@ -74,7 +90,7 @@ export class IssueUploadComponent {
           (error) => {
             console.error('Error uploading file:', error);
             this.closeDialog('error');
-          }
+          },
         );
     }
   }
