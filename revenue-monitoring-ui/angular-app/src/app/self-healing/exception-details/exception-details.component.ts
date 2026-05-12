@@ -71,7 +71,6 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
   activeTab: 'review' | 'trace' = 'review';
   accuracyAssessment: 'correct' | 'partially_correct' | 'incorrect' | null =
     'correct';
-  qualityScore = 4;
   reviewerNotes = '';
   markAsTraining = false;
   needsCrossTeam = false;
@@ -204,14 +203,6 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
 
   toggleSql(): void {
     this.showFullSql = !this.showFullSql;
-  }
-
-  get starArray(): boolean[] {
-    return Array.from({ length: 5 }, (_, i) => i < this.qualityScore);
-  }
-
-  setQualityScore(score: number): void {
-    this.qualityScore = score;
   }
 
   setAssessment(value: 'correct' | 'partially_correct' | 'incorrect'): void {

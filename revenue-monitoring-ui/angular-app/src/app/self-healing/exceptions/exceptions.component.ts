@@ -224,18 +224,6 @@ export class ExceptionsComponent implements OnInit {
     }
   }
 
-  formatDate(dateStr: string): string {
-    if (!dateStr) return '—';
-    const d = new Date(dateStr);
-    return d.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  }
-
   formatStatus(status: string): string {
     if (!status) return '—';
     return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
