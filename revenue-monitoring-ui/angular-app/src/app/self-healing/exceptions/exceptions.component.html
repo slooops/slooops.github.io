@@ -120,9 +120,9 @@
   @if (totalExceptions > 0) {
     <app-pagination
       [pageIndex]="currentPage - 1"
-      [pageSize]="25"
+      [pageSize]="pageSize"
       [totalItems]="totalExceptions"
-      [showPageSizeSelector]="false"
+      [showPageSizeSelector]="true"
       (pageChange)="onPageChange($event)"
     ></app-pagination>
   }

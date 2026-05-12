@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
 import { TextInputComponent } from '../../ui/atoms/text-input/text-input.component';
 import { MultiSelectDropdownComponent } from '../../ui/atoms/multi-select-dropdown/multi-select-dropdown.component';
 import { PaginationComponent } from '../../ui/atoms/pagination/pagination.component';
@@ -65,30 +66,67 @@ export class ExceptionsComponent implements OnInit {
 
   private fetchAllRuns(): void {
     this.isLoading = true;
+    // First call to get page 1 and total pages
     this.http
       .get<{
         data: RunRecord[];
-        meta: any;
-      }>(this.API_URL, { params: { page_size: '10000' } })
+        meta: { total: number; page: number; page_size: number; pages: number };
+      }>(this.API_URL)
       .subscribe({
-        next: (res) => {
-          this.allRecords = res.data;
-          this.modeOptions = this.buildDistinctOptions(
-            res.data,
-            'analysis_mode',
-          );
-          this.statusOptions = this.buildDistinctOptions(
-            res.data,
-            'run_status',
-          );
-          this.currentPage = 1;
-          this.isLoading = false;
+        next: (firstRes) => {
+          const totalPages = firstRes.meta.pages;
+
+          if (totalPages <= 1) {
+            // Only one page, we're done
+            this.allRecords = firstRes.data;
+            this.buildFiltersAndFinish();
+            return;
+          }
+
+          // Fetch remaining pages (2..totalPages) in parallel
+          const pageRequests = [];
+          for (let p = 2; p <= totalPages; p++) {
+            pageRequests.push(
+              this.http.get<{ data: RunRecord[]; meta: any }>(this.API_URL, {
+                params: { page: p.toString() },
+              }),
+            );
+          }
+
+          forkJoin(pageRequests).subscribe({
+            next: (responses) => {
+              this.allRecords = [
+                ...firstRes.data,
+                ...responses.flatMap((r) => r.data),
+              ];
+              this.buildFiltersAndFinish();
+            },
+            error: (err) => {
+              console.error('Failed to fetch remaining pages:', err);
+              // Fall back to just page 1
+              this.allRecords = firstRes.data;
+              this.buildFiltersAndFinish();
+            },
+          });
         },
         error: (err) => {
           console.error('Failed to fetch runs:', err);
           this.isLoading = false;
         },
       });
+  }
+
+  private buildFiltersAndFinish(): void {
+    this.modeOptions = this.buildDistinctOptions(
+      this.allRecords,
+      'analysis_mode',
+    );
+    this.statusOptions = this.buildDistinctOptions(
+      this.allRecords,
+      'run_status',
+    );
+    this.currentPage = 1;
+    this.isLoading = false;
   }
 
   private buildDistinctOptions(
