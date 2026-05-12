@@ -160,14 +160,14 @@ export class OrderLifecycleComponent implements OnInit {
         id: 'cloUpdates',
         label: 'CLO Updates',
         variant: 'secondary',
-        icon: 'phosphorArrowLineUpBold',
+        icon: 'phosphorCloudArrowUpBold',
         visible: this.updateClo,
       },
       {
         id: 'dealUpload',
         label: 'Deal Upload',
         variant: 'secondary',
-        icon: 'phosphorArrowLineUpBold',
+        icon: 'phosphorCloudArrowUpBold',
         visible: this.dealUploadFlag,
       },
       {

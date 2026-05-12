@@ -815,6 +815,32 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
     }
   }
 
+  getReviewStatusClass(status: string): string {
+    switch (status) {
+      case 'reviewed':
+        return 'sh__review--reviewed';
+      case 'pending_review':
+        return 'sh__review--pending';
+      case 'rejected':
+        return 'sh__review--rejected';
+      default:
+        return '';
+    }
+  }
+
+  getAnalysisModeClass(mode: string): string {
+    switch (mode?.toUpperCase()) {
+      case 'AGENT_FULL':
+        return 'sh__mode--agent-full';
+      case 'STATIC':
+        return 'sh__mode--static';
+      case 'PATTERN_MATCH':
+        return 'sh__mode--pattern-match';
+      default:
+        return '';
+    }
+  }
+
   formatTimeAgo(dateStr: string): string {
     if (!dateStr) return '';
     const now = new Date();

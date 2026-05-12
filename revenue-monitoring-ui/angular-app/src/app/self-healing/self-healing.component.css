@@ -1538,6 +1538,58 @@
   color: #8899a6;
 }
 
+/* Review status */
+.sh__review--pending {
+  background: #fff3cd;
+  color: #856404;
+}
+.sh__review--reviewed {
+  background: #d4edda;
+  color: #155724;
+}
+.sh__review--rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+:host(.dark-theme) .sh__review--pending {
+  background: rgba(230, 168, 0, 0.18);
+  color: #f5c842;
+}
+:host(.dark-theme) .sh__review--reviewed {
+  background: rgba(110, 190, 74, 0.18);
+  color: #6ebe4a;
+}
+:host(.dark-theme) .sh__review--rejected {
+  background: rgba(229, 57, 53, 0.18);
+  color: #ef5350;
+}
+
+/* Analysis mode */
+.sh__mode--agent-full {
+  background: rgba(0, 112, 210, 0.12);
+  color: #005bb5;
+}
+.sh__mode--static {
+  background: rgba(0, 188, 235, 0.12);
+  color: #006782;
+}
+.sh__mode--pattern-match {
+  background: rgba(153, 51, 255, 0.1);
+  color: #7a29cc;
+}
+:host(.dark-theme) .sh__mode--agent-full {
+  background: rgba(0, 112, 210, 0.18);
+  color: #4da3ff;
+}
+:host(.dark-theme) .sh__mode--static {
+  background: rgba(0, 188, 235, 0.15);
+  color: #00bceb;
+}
+:host(.dark-theme) .sh__mode--pattern-match {
+  background: rgba(153, 51, 255, 0.15);
+  color: #b366ff;
+}
+
 .sh__muted-text {
   font-size: 0.75rem;
   color: var(--sh-muted);

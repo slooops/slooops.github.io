@@ -13,7 +13,7 @@ import { SelectOption } from '../../ui/types/common.types';
 import { provideIcons, NgIconComponent } from '@ng-icons/core';
 import {
   phosphorArrowLineDownBold,
-  phosphorArrowLineUpBold,
+  phosphorCloudArrowUpBold,
 } from '@ng-icons/phosphor-icons/bold';
 
 export interface FilterConfig {
@@ -49,7 +49,7 @@ export interface FilterValues {
     NgIconComponent,
   ],
   providers: [
-    provideIcons({ phosphorArrowLineDownBold, phosphorArrowLineUpBold }),
+    provideIcons({ phosphorArrowLineDownBold, phosphorCloudArrowUpBold }),
   ],
 })
 export class FilterButtonBarComponent {

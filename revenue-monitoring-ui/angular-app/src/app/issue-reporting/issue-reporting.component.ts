@@ -140,7 +140,7 @@ export class IssueReportingComponent implements OnInit {
         id: 'upload',
         label: 'Upload',
         variant: 'secondary',
-        icon: 'phosphorArrowLineUpBold',
+        icon: 'phosphorCloudArrowUpBold',
         visible: true,
       },
       {
