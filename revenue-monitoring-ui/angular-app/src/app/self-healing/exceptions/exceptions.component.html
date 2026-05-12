@@ -61,7 +61,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (run of filteredExceptions; track run.run_id) {
+          @for (run of paginatedExceptions; track run.run_id) {
             <tr
               class="eq__row"
               (click)="onViewException(run.run_id.toString())"
@@ -106,7 +106,7 @@
               </td>
             </tr>
           }
-          @if (filteredExceptions.length === 0) {
+          @if (paginatedExceptions.length === 0) {
             <tr>
               <td colspan="11" class="eq__empty">No exceptions found.</td>
             </tr>

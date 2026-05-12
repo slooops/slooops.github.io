@@ -287,7 +287,7 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
       },
     });
 
-    this.http.post(`${patternUrl}/engagement`, engagementBody).subscribe({
+    this.http.patch(`${patternUrl}/engagement`, engagementBody).subscribe({
       next: () => {
         engagementDone = true;
         checkComplete();
