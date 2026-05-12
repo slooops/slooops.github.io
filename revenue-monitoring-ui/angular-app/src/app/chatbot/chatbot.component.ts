@@ -76,6 +76,11 @@ export class ChatbotComponent
   ngOnInit(): void {
     this.userName = this.authService.getUserName();
     this.userEmail = this.authService.getUserID();
+    if (!this.apiUrl) {
+      this.apiUrl = this.authService.getControlTowerSupportAgentApiUrl() || 'http://localhost:8000';
+    }
+    console.log('[Chatbot] apiUrl:', this.apiUrl);
+    console.log('[Chatbot] userName:', this.userName, 'userEmail:', this.userEmail);
   }
 
   ngOnDestroy(): void {
@@ -149,14 +154,19 @@ export class ChatbotComponent
   private callAgent(message: string): void {
     this.isLoading = true;
 
+    const url = `${this.apiUrl}/control-tower-ui-chat`;
+    const body = {
+      userName: this.userEmail,
+      userEmail: this.userEmail.toLowerCase() + '@cisco.com',
+      message,
+    };
+    console.log('[Chatbot] POST', url, body);
+
     this.httpClient
-      .post<{ response: string }>(`${this.apiUrl}/control-tower-ui-chat`, {
-        userName: this.userEmail,
-        userEmail: this.userEmail.toLowerCase() + '@cisco.com',
-        message,
-      })
+      .post<{ response: string }>(url, body)
       .subscribe({
         next: (res) => {
+          console.log('[Chatbot] Response:', res);
           this.isLoading = false;
           this.messages.push({
             text: res.response || 'No response received.',

@@ -742,6 +742,7 @@ h6 {
 .ctm-table td {
   padding: 6px 10px;
   border-bottom: 1px solid var(--ctm-border);
+  white-space: nowrap;
 }
 
 .ctm-table tr:last-child td {

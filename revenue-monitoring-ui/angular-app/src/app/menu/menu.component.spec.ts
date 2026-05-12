@@ -30,7 +30,8 @@ describe('MenuComponent', () => {
   it('should emit navigateEvent when navigating to route', () => {
     const spy = jasmine.createSpy('navigateEvent');
     component.navigateEvent.subscribe(spy);
-    component.navigateTo('/some-route');
+    const item: NavItem = { label: 'Test', icon: 'x', route: '/some-route' };
+    component.navigateTo(item);
     expect(spy).toHaveBeenCalledWith('/some-route');
   });
 

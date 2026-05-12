@@ -129,6 +129,7 @@
         <app-caseiq
           [selectedQuarter]="selectedQuarter"
           [caseIqMetrics]="componentLevelMetrics"
+          (teamNavigate)="onTileClick($event)"
         ></app-caseiq>
       </div>
     }

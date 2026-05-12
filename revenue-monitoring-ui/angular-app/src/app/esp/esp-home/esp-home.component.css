@@ -1460,6 +1460,18 @@ p {
   background: linear-gradient(135deg, #16a34a, #4ade80);
 }
 
+.caseiq-pill-fill.grey {
+  background: linear-gradient(135deg, #6b7280, #9ca3af);
+}
+
+.caseiq-pill-fill.neutral {
+  background: linear-gradient(135deg, #d1d5db, #e5e7eb);
+}
+
+.caseiq-pill-fill.orange {
+  background: linear-gradient(135deg, #ea580c, #fb923c);
+}
+
 /* Dark mode gradient adjustments — slightly more vivid */
 :host(.dark-theme) .caseiq-pill-fill.accent {
   background: linear-gradient(135deg, #0080e6, #00d4ff);
@@ -1481,6 +1493,18 @@ p {
   background: linear-gradient(135deg, #22c55e, #86efac);
 }
 
+:host(.dark-theme) .caseiq-pill-fill.grey {
+  background: linear-gradient(135deg, #9ca3af, #d1d5db);
+}
+
+:host(.dark-theme) .caseiq-pill-fill.neutral {
+  background: linear-gradient(135deg, #4b5563, #6b7280);
+}
+
+:host(.dark-theme) .caseiq-pill-fill.orange {
+  background: linear-gradient(135deg, #f97316, #fdba74);
+}
+
 .caseiq-pill-text {
   position: relative;
   z-index: 1;
@@ -1491,6 +1515,7 @@ p {
   color: var(--ciq-text);
   white-space: nowrap;
   text-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+  line-height: normal;
 }
 
 :host(.dark-theme) .caseiq-pill-text {
@@ -1524,6 +1549,7 @@ p {
 .caseiq-pill-dual .caseiq-pill-text {
   width: auto;
   text-shadow: none;
+  line-height: normal;
 }
 
 .caseiq-pill-remainder {

@@ -201,4 +201,49 @@ public class CaseIQMonitoringController {
     public ResponseEntity<List<String>> availableQuarters() {
         return new ResponseEntity<>(service.getDistinctQuarters(), HttpStatus.OK);
     }
+
+    // ─── CaseIQ Analytics Chart Endpoints ───────────────────────────────────────
+
+    @GetMapping("/charts/weekly-volume-by-team")
+    public ResponseEntity<List<Map<String, Object>>> weeklyVolumeByTeam(
+            @RequestParam(defaultValue = "180") int lookbackDays,
+            @RequestParam(required = false) String fiscQtr) {
+        List<Map<String, Object>> data = service.getWeeklyCaseVolumeByTeam(lookbackDays, fiscQtr);
+        return new ResponseEntity<>(data, HttpStatus.OK);
+    }
+
+    @GetMapping("/charts/weekly-volume-by-state")
+    public ResponseEntity<List<Map<String, Object>>> weeklyVolumeByState(
+            @RequestParam(defaultValue = "180") int lookbackDays,
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getWeeklyCaseVolumeByState(lookbackDays, fiscQtr), HttpStatus.OK);
+    }
+
+    @GetMapping("/charts/top-core-issues")
+    public ResponseEntity<List<Map<String, Object>>> topCoreIssues(
+            @RequestParam(defaultValue = "180") int lookbackDays,
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getTopCoreIssues(lookbackDays, fiscQtr), HttpStatus.OK);
+    }
+
+    @GetMapping("/charts/hourly-case-pattern")
+    public ResponseEntity<List<Map<String, Object>>> hourlyCasePattern(
+            @RequestParam(defaultValue = "180") int lookbackDays,
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getHourlyCaseOpenPattern(lookbackDays, fiscQtr), HttpStatus.OK);
+    }
+
+    @GetMapping("/charts/category-accuracy")
+    public ResponseEntity<List<Map<String, Object>>> categoryAccuracy(
+            @RequestParam(defaultValue = "180") int lookbackDays,
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getCategoryAccuracy(lookbackDays, fiscQtr), HttpStatus.OK);
+    }
+
+    @GetMapping("/charts/accuracy-over-time")
+    public ResponseEntity<List<Map<String, Object>>> accuracyOverTime(
+            @RequestParam(defaultValue = "120") int lookbackDays,
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getAccuracyOverTime(lookbackDays, fiscQtr), HttpStatus.OK);
+    }
 }

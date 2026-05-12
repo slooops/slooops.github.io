@@ -1,9 +1,11 @@
 import {
   AfterViewInit,
   Component,
+  EventEmitter,
   Input,
   OnChanges,
   OnDestroy,
+  Output,
   SimpleChanges,
   signal,
 } from '@angular/core';
@@ -13,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.component';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { phosphorLinkBold } from '@ng-icons/phosphor-icons/bold';
+import { phosphorLinkBold, phosphorArrowsClockwiseBold } from '@ng-icons/phosphor-icons/bold';
 import { Chart } from 'chart.js/auto';
 import { Router } from '@angular/router';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
@@ -49,7 +51,7 @@ interface CaseIqTableRow {
     LoadingSymbolComponent,
     NgIcon,
   ],
-  providers: [provideIcons({ phosphorLinkBold })],
+  providers: [provideIcons({ phosphorLinkBold, phosphorArrowsClockwiseBold })],
   standalone: true,
 })
 export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
@@ -106,6 +108,21 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   @Input() caseIqMetrics: any;
   @Input() selectedQuarter: string = '';
+  @Output() teamNavigate = new EventEmitter<string>();
+
+  // ── Analytics chart data ──────────────────────────────────
+  weeklyVolumeByTeamData: any[] = [];
+  weeklyVolumeByStateData: any[] = [];
+  topCoreIssuesData: any[] = [];
+  hourlyCasePatternData: any[] = [];
+  categoryAccuracyData: any[] = [];
+  accuracyOverTimeData: any[] = [];
+  analyticsChartsLoading = true;
+  private analyticsDataReady = false;
+  private analyticsCharts: any[] = [];
+  teamCardFlipped = false;
+  private teamChart: any = null;
+  private accuracyTimeChart: any = null;
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('caseIqMetrics' in changes) {
@@ -113,14 +130,16 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       this.buildSectionsFromMetrics();
 
       // If view is already initialized, (re)create charts and update data
-      // Use setTimeout to ensure Angular has updated the DOM with new canvases
       if (this.viewInitialized) {
         this.showLoadingForMoment();
       }
     }
 
-    if ('selectedQuarter' in changes) {
-      // Quarter changed; rebuild charts to reflect the filtered metrics
+    if (
+      'selectedQuarter' in changes &&
+      !changes['selectedQuarter'].firstChange
+    ) {
+      // Quarter changed by user — rebuild KPI charts (analytics charts use rolling window, no refetch needed)
       if (this.viewInitialized) {
         this.showLoadingForMoment();
       }
@@ -136,8 +155,10 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     // Fetch accuracy data
     this.fetchAccuracyData();
 
+    // Always fetch analytics chart data on init
+    this.fetchAnalyticsCharts();
+
     // Initial build of sections/charts once view is ready
-    // Use setTimeout to ensure Angular has updated the DOM
     this.buildSectionsFromMetrics();
     this.showLoadingForMoment();
   }
@@ -145,6 +166,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   ngOnDestroy(): void {
     this.charts.forEach((chart) => chart.destroy());
     this.charts = [];
+    this.analyticsCharts.forEach((chart) => chart.destroy());
+    this.analyticsCharts = [];
     document.removeEventListener('click', this.outsideClickListener);
   }
 
@@ -161,6 +184,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       // !isLoading), create all charts against the live DOM.
       setTimeout(() => {
         this.createAllCharts();
+        // Also try building analytics charts now that canvases are in the DOM
+        this.tryBuildAnalyticsCharts();
       }, 0);
     }, 800);
   }
@@ -1028,5 +1053,883 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (!match) return null;
     const val = Number(match['Total Cases']);
     return Number.isFinite(val) ? val : null;
+  }
+
+  /** Return a pill color class based on accuracy percentage thresholds */
+  getAccuracyColor(sectionName: string): string {
+    const val = this.getAccuracyForSection(sectionName);
+    if (val == null || val === 0) return 'neutral';
+    if (val >= 75) return 'green';
+    if (val >= 50) return 'grey';
+    if (val >= 25) return 'amber';
+    return 'orange';
+  }
+
+  /** Map section names to tile names used by esp-home tabs */
+  private readonly sectionToTile: Record<string, string> = {
+    OM: 'OM',
+    SM: 'SM',
+    I2C: 'I2C',
+    AIT: 'AIT',
+    FPP: 'FPP',
+    P2P: 'P2P',
+    CAPITAL: 'Capital',
+  };
+
+  /** Navigate to the component's team tab */
+  navigateToTeam(sectionName: string): void {
+    const tileName = this.sectionToTile[sectionName] ?? sectionName;
+    this.teamNavigate.emit(tileName);
+  }
+
+  // ── Analytics Charts ──────────────────────────────────────
+
+  fetchAnalyticsCharts(): void {
+    this.analyticsChartsLoading = true;
+    this.analyticsDataReady = false;
+    const base = 'caseiq/charts';
+
+    let completed = 0;
+    const total = 6;
+    const done = () => {
+      completed++;
+      if (completed >= total) {
+        this.analyticsChartsLoading = false;
+        this.analyticsDataReady = true;
+        this.tryBuildAnalyticsCharts();
+      }
+    };
+
+    this.http
+      .get(`${base}/weekly-volume-by-team?lookbackDays=90`, this.destroyManager)
+      .subscribe({
+        next: (d: any) => {
+          this.weeklyVolumeByTeamData = d;
+          done();
+        },
+        error: () => done(),
+      });
+
+    this.http
+      .get(
+        `${base}/weekly-volume-by-state?lookbackDays=90`,
+        this.destroyManager,
+      )
+      .subscribe({
+        next: (d: any) => {
+          this.weeklyVolumeByStateData = d;
+          done();
+        },
+        error: () => done(),
+      });
+
+    this.http
+      .get(`${base}/top-core-issues?lookbackDays=90`, this.destroyManager)
+      .subscribe({
+        next: (d: any) => {
+          this.topCoreIssuesData = d;
+          done();
+        },
+        error: () => done(),
+      });
+
+    this.http
+      .get(`${base}/hourly-case-pattern?lookbackDays=90`, this.destroyManager)
+      .subscribe({
+        next: (d: any) => {
+          this.hourlyCasePatternData = d;
+          done();
+        },
+        error: () => done(),
+      });
+
+    this.http
+      .get(`${base}/category-accuracy?lookbackDays=90`, this.destroyManager)
+      .subscribe({
+        next: (d: any) => {
+          this.categoryAccuracyData = d;
+          done();
+        },
+        error: () => done(),
+      });
+
+    this.http
+      .get(`${base}/accuracy-over-time?lookbackDays=120`, this.destroyManager)
+      .subscribe({
+        next: (d: any) => {
+          this.accuracyOverTimeData = d;
+          done();
+        },
+        error: () => done(),
+      });
+  }
+
+  private tryBuildAnalyticsCharts(): void {
+    if (!this.analyticsDataReady || this.isLoading) return;
+    setTimeout(() => {
+      const testCanvas = document.getElementById('chart-weekly-team');
+      if (!testCanvas) {
+        // Canvases not in DOM yet — retry once more after a short delay
+        setTimeout(() => this.buildAnalyticsCharts(), 200);
+        return;
+      }
+      this.buildAnalyticsCharts();
+    }, 0);
+  }
+
+  private buildAnalyticsCharts(): void {
+    this.analyticsCharts.forEach((c) => c.destroy());
+    this.analyticsCharts = [];
+
+    this.buildWeeklyVolumeByTeamChart();
+    this.buildWeeklyVolumeByStateChart();
+    this.buildTopCoreIssuesChart();
+    this.buildHourlyCasePatternChart();
+    this.buildCategoryAccuracyChart();
+  }
+
+  private readonly teamColors: Record<string, string> = {
+    OM: '#0070d2',
+    SM: '#00bceb',
+    I2C: '#6ebe4a',
+    AIT: '#e6a800',
+    FPP: '#9933ff',
+    P2P: '#ff6600',
+    CAPITAL: '#e53935',
+  };
+
+  private readonly stateColors: Record<string, string> = {
+    Closed: '#6ebe4a',
+    Resolved: '#0070d2',
+    Cancelled: '#e53935',
+    'Work In Progress': '#e6a800',
+    Pending: '#ff6600',
+    'Awaiting Assignment': '#9933ff',
+    Unknown: '#8899a6',
+    'Escalated to EOC': '#00bceb',
+  };
+
+  private buildWeeklyVolumeByTeamChart(): void {
+    const canvas = document.getElementById(
+      'chart-weekly-team',
+    ) as HTMLCanvasElement;
+    if (!canvas) return;
+
+    // Pivot data: { weekStart: { team: count } }
+    const weekMap = new Map<string, Map<string, number>>();
+    const teams = new Set<string>();
+    for (const row of this.weeklyVolumeByTeamData) {
+      const week = row.WEEK_START;
+      const team = row.TEAM_NAME;
+      teams.add(team);
+      if (!weekMap.has(week)) weekMap.set(week, new Map());
+      weekMap.get(week)?.set(team, row.CASE_COUNT);
+    }
+
+    const weeks = Array.from(weekMap.keys()).sort((a, b) => a.localeCompare(b));
+    const labels = weeks.map((w) => {
+      const d = new Date(w);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+
+    const teamColorHex = this.teamColors;
+    const datasets = Array.from(teams)
+      .filter((t) => t !== 'UNKNOWN')
+      .sort((a, b) => a.localeCompare(b))
+      .map((team) => {
+        const hex = teamColorHex[team] ?? '#555555';
+        // Parse hex to RGB for gradient
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return {
+          label: team,
+          data: weeks.map((w) => weekMap.get(w)?.get(team) ?? 0),
+          borderColor: hex,
+          backgroundColor: (ctx: any) => {
+            const chart = ctx.chart;
+            const { ctx: canvasCtx, chartArea } = chart;
+            if (!chartArea) return `rgba(${r}, ${g}, ${b}, 0.1)`;
+            const gradient = canvasCtx.createLinearGradient(
+              0,
+              chartArea.top,
+              0,
+              chartArea.bottom,
+            );
+            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.25)`);
+            gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+            return gradient;
+          },
+          borderWidth: 2,
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          tension: 0.4,
+          fill: true,
+        };
+      });
+
+    const chart = new Chart(canvas, {
+      type: 'line',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: { boxWidth: 10, font: { size: 10 }, padding: 12 },
+          },
+          tooltip: {
+            backgroundColor: 'rgba(20, 30, 40, 0.9)',
+            titleFont: { size: 10 },
+            bodyFont: { size: 11 },
+            borderColor: 'rgba(0, 188, 235, 0.3)',
+            borderWidth: 1,
+            cornerRadius: 10,
+            padding: 8,
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 9 },
+              maxRotation: 45,
+              autoSkip: true,
+              maxTicksLimit: 12,
+            },
+            border: { display: false },
+          },
+          y: {
+            grid: { color: 'rgba(0,0,0,0.04)' },
+            ticks: { font: { size: 10 }, maxTicksLimit: 5 },
+            border: { display: false },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+    this.teamChart = chart;
+    this.analyticsCharts.push(chart);
+  }
+
+  flipTeamCard(): void {
+    this.teamCardFlipped = !this.teamCardFlipped;
+    // Destroy current chart on the face being hidden
+    setTimeout(() => {
+      if (this.teamCardFlipped) {
+        this.buildAccuracyOverTimeChart();
+      } else {
+        if (this.accuracyTimeChart) {
+          this.accuracyTimeChart.destroy();
+          this.accuracyTimeChart = null;
+        }
+        this.buildWeeklyVolumeByTeamChart();
+      }
+    }, 50);
+  }
+
+  private buildAccuracyOverTimeChart(): void {
+    const canvas = document.getElementById('chart-accuracy-time') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    if (this.teamChart) {
+      this.teamChart.destroy();
+      this.teamChart = null;
+    }
+
+    const sorted = [...this.accuracyOverTimeData].sort((a: any, b: any) =>
+      (a.WEEK_START ?? '').localeCompare(b.WEEK_START ?? ''));
+    const labels = sorted.map((r: any) => {
+      const d = new Date(r.WEEK_START);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+    const catAccuracy = sorted.map((r: any) => r.CATEGORY_ACCURACY ?? null);
+    const coreAccuracy = sorted.map((r: any) => r.CORE_ISSUE_ACCURACY ?? null);
+
+    this.accuracyTimeChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Category',
+            data: catAccuracy,
+            borderColor: '#00bceb',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#00bceb',
+            pointBorderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5.5,
+            tension: 0.4,
+            fill: true,
+            backgroundColor: (ctx: any) => {
+              const chart = ctx.chart;
+              const { ctx: canvasCtx, chartArea } = chart;
+              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
+              const gradient = canvasCtx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(0, 188, 235, 0.3)');
+              gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
+              return gradient;
+            },
+          },
+          {
+            label: 'Core Issue',
+            data: coreAccuracy,
+            borderColor: '#0070d2',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#0070d2',
+            pointBorderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5.5,
+            tension: 0.4,
+            fill: true,
+            backgroundColor: (ctx: any) => {
+              const chart = ctx.chart;
+              const { ctx: canvasCtx, chartArea } = chart;
+              if (!chartArea) return 'rgba(0, 112, 210, 0.1)';
+              const gradient = canvasCtx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(0, 112, 210, 0.25)');
+              gradient.addColorStop(1, 'rgba(0, 112, 210, 0)');
+              return gradient;
+            },
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { top: 8 } },
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: { boxWidth: 10, font: { size: 10 }, padding: 12, usePointStyle: true },
+          },
+          tooltip: {
+            backgroundColor: 'rgba(20, 30, 40, 0.85)',
+            titleFont: { size: 10, weight: 'normal' as const },
+            titleColor: '#8899a6',
+            bodyFont: { size: 12, weight: 'bold' as const },
+            borderColor: 'rgba(0, 188, 235, 0.3)',
+            borderWidth: 1,
+            cornerRadius: 10,
+            padding: { top: 6, bottom: 6, left: 10, right: 10 },
+            callbacks: {
+              label: (item) => `${item.dataset.label}: ${item.parsed.y}%`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 9 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 12 },
+            border: { display: false },
+          },
+          y: {
+            min: 0,
+            max: 100,
+            grid: { display: false },
+            ticks: { font: { size: 10 }, callback: (v) => v + '%', maxTicksLimit: 5 },
+            border: { display: false },
+          },
+        },
+      },
+    });
+    this.analyticsCharts.push(this.accuracyTimeChart);
+  }
+
+  private buildWeeklyVolumeByStateChart(): void {
+    const canvas = document.getElementById(
+      'chart-weekly-state',
+    ) as HTMLCanvasElement;
+    if (!canvas) return;
+
+    // Simple weekly total volume (incident_state is unpopulated in recent data)
+    const rows = this.weeklyVolumeByStateData;
+    const sorted = [...rows].sort((a: any, b: any) =>
+      (a.WEEK_START ?? '').localeCompare(b.WEEK_START ?? ''),
+    );
+    const labels = sorted.map((r: any) => {
+      const d = new Date(r.WEEK_START);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+    const values = sorted.map((r: any) => r.CASE_COUNT ?? 0);
+
+    const chart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            data: values,
+            borderColor: '#00bceb',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#00bceb',
+            pointBorderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5.5,
+            tension: 0.4,
+            fill: true,
+            backgroundColor: (ctx: any) => {
+              const chart = ctx.chart;
+              const { ctx: canvasCtx, chartArea } = chart;
+              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
+              const gradient = canvasCtx.createLinearGradient(
+                0,
+                chartArea.top,
+                0,
+                chartArea.bottom,
+              );
+              gradient.addColorStop(0, 'rgba(0, 188, 235, 0.35)');
+              gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
+              return gradient;
+            },
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(20, 30, 40, 0.85)',
+            titleFont: { size: 10, weight: 'normal' as const },
+            titleColor: '#8899a6',
+            bodyFont: { size: 14, weight: 'bold' as const },
+            bodyColor: '#00bceb',
+            borderColor: 'rgba(0, 188, 235, 0.3)',
+            borderWidth: 1,
+            cornerRadius: 10,
+            padding: { top: 6, bottom: 6, left: 10, right: 10 },
+            displayColors: false,
+            callbacks: {
+              label: (item) => item.parsed.y.toLocaleString() + ' cases',
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 9 },
+              maxRotation: 0,
+              autoSkip: true,
+              maxTicksLimit: 12,
+            },
+            border: { display: false },
+          },
+          y: {
+            grid: { display: false },
+            ticks: { font: { size: 10 }, maxTicksLimit: 4 },
+            border: { display: false },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+    this.analyticsCharts.push(chart);
+  }
+
+  private buildTopCoreIssuesChart(): void {
+    const canvas = document.getElementById(
+      'chart-core-issues',
+    ) as HTMLCanvasElement;
+    if (!canvas) return;
+
+    // Filter out NA and take top 12
+    const data = this.topCoreIssuesData
+      .filter((d: any) => d.CORE_ISSUE && d.CORE_ISSUE.toUpperCase() !== 'NA')
+      .slice(0, 12);
+    const labels = data.map((d: any) => d.CORE_ISSUE ?? 'Unknown');
+    const values = data.map((d: any) => d.TOTAL_CASES ?? 0);
+    const accuracies = data.map((d: any) => d.ACCURACY_PCT ?? 0);
+
+    const chart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          // Line dataset first so it renders on top of bars
+          {
+            type: 'line' as const,
+            label: 'AI Accuracy',
+            data: accuracies,
+            borderColor: '#00bceb',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#00bceb',
+            pointBorderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5.5,
+            tension: 0.4,
+            fill: true,
+            backgroundColor: (ctx: any) => {
+              const chart = ctx.chart;
+              const { ctx: canvasCtx, chartArea } = chart;
+              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
+              const gradient = canvasCtx.createLinearGradient(
+                chartArea.left,
+                0,
+                chartArea.right,
+                0,
+              );
+              gradient.addColorStop(0, 'rgba(0, 188, 235, 0)');
+              gradient.addColorStop(1, 'rgba(0, 188, 235, 0.35)');
+              return gradient;
+            },
+            xAxisID: 'xAccuracy',
+            indexAxis: 'y' as const,
+            order: 0,
+          },
+          // Bar dataset
+          {
+            type: 'bar' as const,
+            label: 'Cases',
+            data: values,
+            backgroundColor: 'rgba(100, 120, 140, 0.45)',
+            hoverBackgroundColor: 'rgba(100, 120, 140, 0.65)',
+            borderWidth: 0,
+            borderRadius: 4,
+            xAxisID: 'x',
+            order: 1,
+          },
+        ],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+              boxWidth: 10,
+              boxHeight: 10,
+              padding: 14,
+              font: { size: 9 },
+              usePointStyle: true,
+            },
+          },
+          tooltip: {
+            backgroundColor: 'rgba(20, 30, 40, 0.9)',
+            titleFont: { size: 10 },
+            bodyFont: { size: 11 },
+            borderColor: 'rgba(0, 188, 235, 0.3)',
+            borderWidth: 1,
+            cornerRadius: 10,
+            padding: 8,
+            callbacks: {
+              label: (ctx) => {
+                if (ctx.datasetIndex === 0)
+                  return `AI Accuracy: ${ctx.parsed.x}%`;
+                return `Cases: ${ctx.parsed.x.toLocaleString()}`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            position: 'bottom',
+            grid: { color: 'rgba(0,0,0,0.04)' },
+            ticks: { font: { size: 10 }, maxTicksLimit: 5 },
+            border: { display: false },
+            title: { display: false },
+          },
+          xAccuracy: {
+            position: 'top',
+            min: 0,
+            max: 100,
+            grid: { display: false },
+            ticks: {
+              font: { size: 9 },
+              callback: (val) => val + '%',
+              maxTicksLimit: 5,
+            },
+            border: { display: false },
+          },
+          y: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 9 },
+              callback: function (_value, index) {
+                const lbl = labels[index] ?? '';
+                return lbl.length > 22 ? lbl.substring(0, 20) + '…' : lbl;
+              },
+            },
+            border: { display: false },
+          },
+        },
+      },
+    });
+    this.analyticsCharts.push(chart);
+  }
+
+  private buildHourlyCasePatternChart(): void {
+    const canvas = document.getElementById(
+      'chart-hourly-pattern',
+    ) as HTMLCanvasElement;
+    if (!canvas) return;
+
+    // Gap-fill 0–23
+    const hourMap = new Map<number, number>();
+    for (const row of this.hourlyCasePatternData) {
+      hourMap.set(row.HOUR_OF_DAY, row.CASE_COUNT);
+    }
+    const hours = Array.from({ length: 24 }, (_, i) => i);
+    const values = hours.map((h) => hourMap.get(h) ?? 0);
+    const labels = hours.map((h) => {
+      const suffix = h >= 12 ? 'pm' : 'am';
+      let display = h % 12;
+      if (display === 0) display = 12;
+      return `${display}${suffix}`;
+    });
+
+    const chart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            data: values,
+            borderColor: '#00bceb',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#00bceb',
+            pointBorderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5.5,
+            tension: 0.4,
+            fill: true,
+            backgroundColor: (ctx: any) => {
+              const chart = ctx.chart;
+              const { ctx: canvasCtx, chartArea } = chart;
+              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
+              const gradient = canvasCtx.createLinearGradient(
+                0,
+                chartArea.top,
+                0,
+                chartArea.bottom,
+              );
+              gradient.addColorStop(0, 'rgba(0, 188, 235, 0.35)');
+              gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
+              return gradient;
+            },
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(20, 30, 40, 0.85)',
+            titleFont: { size: 10, weight: 'normal' as const },
+            titleColor: '#8899a6',
+            bodyFont: { size: 14, weight: 'bold' as const },
+            bodyColor: '#00bceb',
+            borderColor: 'rgba(0, 188, 235, 0.3)',
+            borderWidth: 1,
+            cornerRadius: 10,
+            padding: { top: 6, bottom: 6, left: 10, right: 10 },
+            displayColors: false,
+            callbacks: {
+              title: (items) =>
+                items[0]?.label ? `${items[0].label} UTC` : '',
+              label: (item) => item.parsed.y.toLocaleString() + ' cases',
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 9 },
+              maxRotation: 0,
+              autoSkip: false,
+              callback: function (_value, index) {
+                return index % 3 === 0 ? labels[index] : '';
+              },
+            },
+            border: { display: false },
+          },
+          y: {
+            grid: { display: false },
+            ticks: { font: { size: 10 }, maxTicksLimit: 4 },
+            border: { display: false },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+    this.analyticsCharts.push(chart);
+  }
+
+  private buildCategoryAccuracyChart(): void {
+    const canvas = document.getElementById(
+      'chart-category-accuracy',
+    ) as HTMLCanvasElement;
+    if (!canvas) return;
+
+    // Take top 20 categories by volume, then sort by accuracy descending
+    const data = this.categoryAccuracyData
+      .slice(0, 20)
+      .sort((a: any, b: any) => (b.ACCURACY_PCT ?? 0) - (a.ACCURACY_PCT ?? 0));
+    const labels = data.map((d: any) => d.CATEGORY ?? 'Unknown');
+    const accuracies = data.map((d: any) => d.ACCURACY_PCT ?? 0);
+    const totals = data.map((d: any) => d.TOTAL ?? 0);
+
+    // Color based on accuracy — red to green gradient
+    const bgColors = accuracies.map((pct: number) => {
+      if (pct >= 90) return 'rgba(110, 190, 74, 0.85)';
+      if (pct >= 75) return 'rgba(110, 190, 74, 0.55)';
+      if (pct >= 60) return 'rgba(0, 188, 235, 0.65)';
+      if (pct >= 40) return 'rgba(230, 168, 0, 0.65)';
+      if (pct >= 20) return 'rgba(255, 102, 0, 0.65)';
+      return 'rgba(229, 57, 53, 0.7)';
+    });
+
+    const chart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          // Line dataset first so it renders on top of bars
+          {
+            type: 'line' as const,
+            label: 'Case Count',
+            data: totals,
+            borderColor: '#00bceb',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#00bceb',
+            pointBorderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5.5,
+            tension: 0.4,
+            fill: true,
+            backgroundColor: (ctx: any) => {
+              const chart = ctx.chart;
+              const { ctx: canvasCtx, chartArea } = chart;
+              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
+              const gradient = canvasCtx.createLinearGradient(
+                chartArea.left,
+                0,
+                chartArea.right,
+                0,
+              );
+              gradient.addColorStop(0, 'rgba(0, 188, 235, 0)');
+              gradient.addColorStop(1, 'rgba(0, 188, 235, 0.35)');
+              return gradient;
+            },
+            xAxisID: 'xCases',
+            indexAxis: 'y' as const,
+            order: 0,
+          },
+          // Bar dataset
+          {
+            type: 'bar' as const,
+            label: 'Accuracy',
+            data: accuracies,
+            backgroundColor: bgColors,
+            borderWidth: 0,
+            borderRadius: 3,
+            xAxisID: 'x',
+            order: 1,
+          },
+        ],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+              boxWidth: 10,
+              boxHeight: 10,
+              padding: 14,
+              font: { size: 9 },
+              usePointStyle: true,
+            },
+          },
+          tooltip: {
+            backgroundColor: 'rgba(20, 30, 40, 0.9)',
+            titleFont: { size: 10 },
+            bodyFont: { size: 11 },
+            borderColor: 'rgba(0, 188, 235, 0.3)',
+            borderWidth: 1,
+            cornerRadius: 10,
+            padding: 8,
+            callbacks: {
+              label: (ctx) => {
+                if (ctx.datasetIndex === 0)
+                  return `Cases: ${ctx.parsed.x.toLocaleString()}`;
+                return `Accuracy: ${ctx.parsed.x}%`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            position: 'bottom',
+            min: 0,
+            max: 100,
+            grid: { color: 'rgba(0,0,0,0.04)' },
+            ticks: { font: { size: 10 }, callback: (v) => v + '%' },
+            border: { display: false },
+          },
+          xCases: {
+            position: 'top',
+            grid: { display: false },
+            ticks: { font: { size: 9 }, maxTicksLimit: 5 },
+            border: { display: false },
+          },
+          y: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 8 },
+              callback: function (_value, index) {
+                const lbl = labels[index] ?? '';
+                return lbl.length > 20 ? lbl.substring(0, 18) + '…' : lbl;
+              },
+            },
+            border: { display: false },
+          },
+        },
+      },
+    });
+    this.analyticsCharts.push(chart);
+  }
+
+  getCoreIssuesDateRange(): string {
+    if (!this.topCoreIssuesData.length) return '';
+    const earliest = this.topCoreIssuesData.reduce(
+      (min: string, d: any) =>
+        d.EARLIEST_DATE && d.EARLIEST_DATE < min ? d.EARLIEST_DATE : min,
+      this.topCoreIssuesData[0]?.EARLIEST_DATE ?? '',
+    );
+    const latest = this.topCoreIssuesData.reduce(
+      (max: string, d: any) =>
+        d.LATEST_DATE && d.LATEST_DATE > max ? d.LATEST_DATE : max,
+      this.topCoreIssuesData[0]?.LATEST_DATE ?? '',
+    );
+    if (!earliest || !latest) return '';
+    return `${new Date(earliest).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} – ${new Date(latest).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
   }
 }

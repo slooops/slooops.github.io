@@ -1,37 +1,95 @@
-<div class="expand-dialog-header" role="heading" aria-level="2">
-  <span class="expand-dialog-title"> Upload </span>
-  <!-- <mat-icon
-  class="close-icon"
-  (click)="onClose()"
-  tabindex="0"
-  role="button"
-  aria-label="Close dialog"
-  (keydown.enter)="onClose()"
-  (keydown.space)="onClose()"
-  >close</mat-icon
-  > -->
-  <a style="text-decoration: none; cursor: pointer">
-    <i
-      class="fa fa-close"
-      style="font-size: 16px; color: white"
-      (click)="onClose()"
-    ></i>
-  </a>
-</div>
-<div class="upload-container">
-  <!-- Right upload area box -->
-  <div class="metric-box upload-area-box">
-    <div class="flex-row" style="align-items: center">
-      <h4>
-        <p style="font-size: 0.75rem; color: #606162; font-weight: 400">
-          You can upload one file in CSV or XLSX format with the maximum size of
-          20 MB. Select the MACD Type and download the template.
-        </p>
-      </h4>
+<div class="upload-backdrop" (click)="onClose()">
+  <div
+    class="upload-modal"
+    role="dialog"
+    aria-modal="true"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div class="upload-modal__header">
+      <div class="upload-modal__title">Upload File</div>
+      <button
+        class="upload-modal__close"
+        (click)="onClose()"
+        aria-label="Close"
+      >
+        <ng-icon name="phosphorXBold" size="16" />
+      </button>
+    </div>
 
+    <!-- Body -->
+    <div class="upload-modal__body">
+      <p class="upload-hint">
+        Upload one file in CSV or XLSX format (max 20 MB).
+      </p>
+
+      <div
+        class="upload-dropzone"
+        [class.file-selected]="selectedFile && !isUploadSuccess"
+        [class.upload-success]="isUploadSuccess"
+        [class.dragover]="isDragOver"
+        (click)="triggerFileInput()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onFileDropped($event)"
+      >
+        <!-- Upload Success State -->
+        @if (isUploadSuccess) {
+          <ng-icon
+            name="phosphorCheckCircleBold"
+            size="32"
+            class="dropzone-icon success-icon"
+          />
+          <div class="dropzone-text-block">
+            <p class="dropzone-title">Upload Complete</p>
+            <p class="dropzone-subtitle">
+              Allow time for accuracy scores to propagate. Check back shortly to
+              see changes reflected.
+            </p>
+          </div>
+        }
+
+        <!-- File Selected State -->
+        @if (selectedFile && !isUploadSuccess) {
+          <ng-icon
+            name="phosphorFileTextBold"
+            size="32"
+            class="dropzone-icon"
+          />
+          <div class="dropzone-text-block">
+            <p class="dropzone-title">{{ selectedFile.name }}</p>
+            <p class="dropzone-subtitle">
+              {{ formatFileSize(selectedFile.size) }}
+            </p>
+          </div>
+        }
+
+        <!-- Default Upload State -->
+        @if (!selectedFile && !isUploadSuccess) {
+          <ng-icon
+            name="phosphorUploadSimpleBold"
+            size="32"
+            class="dropzone-icon"
+          />
+          <p class="dropzone-title">Drag &amp; drop a file here</p>
+          <p class="dropzone-subtitle">or click to browse</p>
+        }
+      </div>
+
+      <input
+        type="file"
+        #fileInput
+        (change)="onFileSelected($event)"
+        accept=".csv,.xlsx"
+        style="display: none"
+      />
+    </div>
+
+    <!-- Footer -->
+    <div class="upload-modal__footer">
       <button
         type="button"
-        class="btn-base upload-file-btn"
+        class="upload-btn upload-btn--primary"
         [class.file-ready]="selectedFile && !isUploadSuccess && !isUploading"
         [class.upload-complete]="isUploadSuccess"
         [disabled]="isUploading"
@@ -39,84 +97,26 @@
           isUploadSuccess
             ? resetUpload()
             : isUploading
-            ? null
-            : selectedFile
-            ? uploadFile()
-            : triggerFileInput()
+              ? null
+              : selectedFile
+                ? uploadFile()
+                : triggerFileInput()
         "
-        >
-        <span
-          class="btn-label"
-          style="display: inline-flex; align-items: center; gap: 6px"
-          >
-          {{
-          isUploadSuccess
-          ? "Upload Complete"
-          : isUploading
-          ? "Uploading..."
-          : selectedFile
-          ? "Upload File"
-          : "Select File"
-          }}
-          @if (isUploading) {
-            <mat-progress-spinner
-              diameter="16"
-              mode="indeterminate"
-              class="white-spinner"
-              style="vertical-align: middle"
-            ></mat-progress-spinner>
-          }
-        </span>
+      >
+        @if (isUploading) {
+          <span class="btn-spinner"></span>
+          Uploading...
+        } @else if (isUploadSuccess) {
+          <ng-icon name="phosphorCheckCircleBold" size="14" />
+          Upload Complete
+        } @else if (selectedFile) {
+          <ng-icon name="phosphorUploadSimpleBold" size="14" />
+          Upload File
+        } @else {
+          <ng-icon name="phosphorFolderOpenBold" size="14" />
+          Select File
+        }
       </button>
     </div>
-
-    <div
-      class="upload-area"
-      [class.file-selected]="selectedFile && !isUploadSuccess"
-      [class.upload-success]="isUploadSuccess"
-      (click)="triggerFileInput()"
-      (dragover)="onDragOver($event)"
-      (dragleave)="onDragLeave($event)"
-      (drop)="onFileDropped($event)"
-      [class.dragover]="isDragOver"
-      >
-      <!-- Upload Success State -->
-      @if (isUploadSuccess) {
-        <mat-icon class="upload-icon success-icon">check_circle</mat-icon>
-        <div class="upload-text-container">
-          <p class="upload-title">Upload Complete</p>
-          <p class="upload-subtitle">
-            Please allow time for accuracy score updates to propagate through
-            CG1. Check back in a bit to see your changes reflected in the
-            dashboard.
-          </p>
-        </div>
-      }
-
-      <!-- File Selected State -->
-      @if (selectedFile && !isUploadSuccess) {
-        <mat-icon class="upload-icon">description</mat-icon>
-        <div class="upload-text-container">
-          <p class="upload-title">{{ selectedFile.name }}</p>
-          <p class="upload-subtitle">
-            {{ formatFileSize(selectedFile.size) }}
-          </p>
-        </div>
-      }
-
-      <!-- Default Upload State -->
-      @if (!selectedFile && !isUploadSuccess) {
-        <mat-icon class="upload-icon">folder_open</mat-icon>
-        <p class="upload-text">Drag & Drop here limit 200 MB per file</p>
-      }
-    </div>
-
-    <input
-      type="file"
-      #fileInput
-      (change)="onFileSelected($event)"
-      accept=".csv,.xlsx"
-      style="display: none"
-      />
   </div>
 </div>
