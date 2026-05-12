@@ -302,7 +302,7 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
     },
     { label: 'Auto-Routing Active', value: '—', bars: [40, 40, 40, 40] },
     { label: 'Avg Analysis Time', value: '—', bars: [60, 40, 20, 15] },
-    { label: 'Token Usage', value: '—', bars: [50, 70, 45, 60] },
+    { label: 'Avg Token Usage', value: '—', bars: [50, 70, 45, 60] },
   ];
 
   private fetchStatsOverview(): void {
@@ -345,10 +345,13 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
               bars: [60, 40, 20, 15],
             },
             {
-              label: 'Token Usage',
-              value: t.total_tokens_used
-                ? t.total_tokens_used.toLocaleString()
-                : '0',
+              label: 'Avg Token Usage',
+              value:
+                t.total_runs > 0
+                  ? Math.round(
+                      t.total_tokens_used / t.total_runs,
+                    ).toLocaleString()
+                  : '0',
               bars: [50, 70, 45, 60],
             },
           ];
@@ -809,6 +812,32 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
         return 'sh__run-status--failed';
       default:
         return 'sh__run-status--default';
+    }
+  }
+
+  getReviewStatusClass(status: string): string {
+    switch (status) {
+      case 'reviewed':
+        return 'sh__review--reviewed';
+      case 'pending_review':
+        return 'sh__review--pending';
+      case 'rejected':
+        return 'sh__review--rejected';
+      default:
+        return '';
+    }
+  }
+
+  getAnalysisModeClass(mode: string): string {
+    switch (mode?.toUpperCase()) {
+      case 'AGENT_FULL':
+        return 'sh__mode--agent-full';
+      case 'STATIC':
+        return 'sh__mode--static';
+      case 'PATTERN_MATCH':
+        return 'sh__mode--pattern-match';
+      default:
+        return '';
     }
   }
 

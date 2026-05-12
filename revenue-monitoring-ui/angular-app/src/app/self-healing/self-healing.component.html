@@ -128,16 +128,15 @@
             <table class="sh__table">
               <thead>
                 <tr>
-                  <th>Record ID</th>
+                  <th>Transaction ID</th>
                   <th>Category</th>
-                  <th>Run Status</th>
+                  <th>Exception Status</th>
                   <th>Review Status</th>
                   <th>Analysis Mode</th>
-                  <th>Run Created</th>
+                  <th>Exception Created</th>
                   <th>Session Status</th>
                   <th>Upstream Contact</th>
                   <th>Follow-ups</th>
-                  <th>Session Created</th>
                   <th>Last Activity</th>
                 </tr>
               </thead>
@@ -166,14 +165,18 @@
                         >
                       </td>
                       <td>
-                        <span class="sh__exc-tag">{{
-                          formatStatus(exc.review_status)
-                        }}</span>
+                        <span
+                          class="sh__exc-tag"
+                          [ngClass]="getReviewStatusClass(exc.review_status)"
+                          >{{ formatStatus(exc.review_status) }}</span
+                        >
                       </td>
                       <td>
-                        <span class="sh__exc-tag">{{
-                          formatStatus(exc.analysis_mode)
-                        }}</span>
+                        <span
+                          class="sh__exc-tag"
+                          [ngClass]="getAnalysisModeClass(exc.analysis_mode)"
+                          >{{ formatStatus(exc.analysis_mode) }}</span
+                        >
                       </td>
                       <td>
                         <span class="sh__muted-text">{{
@@ -191,11 +194,6 @@
                         }}</span>
                       </td>
                       <td>{{ exc.follow_up_count ?? "—" }}</td>
-                      <td>
-                        <span class="sh__muted-text">{{
-                          formatDateShort(exc.session_created_at)
-                        }}</span>
-                      </td>
                       <td>
                         <span class="sh__muted-text">{{
                           formatDateShort(exc.last_activity_at)

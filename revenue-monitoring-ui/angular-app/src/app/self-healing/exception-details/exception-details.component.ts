@@ -233,34 +233,74 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
     }
 
     this.savingReview = true;
+    const patternUrl = `https://i2c-aria-dev.cisco.com/api/patterns/${this.run.pattern_id}`;
 
-    const body = {
+    const feedbackBody = {
       feedback: this.accuracyAssessment || '',
       notes: this.reviewerNotes,
       reviewer: this.authService.getUserID(),
     };
 
-    this.http
-      .post(
-        `https://i2c-aria-dev.cisco.com/api/patterns/${this.run.pattern_id}/feedback`,
-        body,
-      )
-      .subscribe({
-        next: () => {
-          this.savingReview = false;
+    const engagementBody = {
+      upstream_contact: this.upstreamContact,
+      upstream_team_name: this.upstreamTeamName,
+      contact_method: this.upstreamWebexSpace,
+      contact_message_template: this.messageTemplate,
+      wait_time: this.expectedResolutionHours,
+      max_retries: 0,
+      escalation_contact: this.escalationContact,
+      escalation_wait_time: 0,
+      updated_by: this.reviewerEmail,
+    };
+
+    // Fire both calls in parallel
+    let feedbackDone = false;
+    let engagementDone = false;
+    let hasError = false;
+
+    const checkComplete = () => {
+      if (feedbackDone && engagementDone) {
+        this.savingReview = false;
+        if (!hasError) {
           this.displayToast(
-            'Feedback saved to pattern successfully.',
+            'Review and engagement saved successfully.',
             'success',
           );
-        },
-        error: () => {
-          this.savingReview = false;
-          this.displayToast(
-            'Feedback could not be saved. Please try again.',
-            'error',
-          );
-        },
-      });
+        }
+      }
+    };
+
+    this.http.post(`${patternUrl}/feedback`, feedbackBody).subscribe({
+      next: () => {
+        feedbackDone = true;
+        checkComplete();
+      },
+      error: () => {
+        feedbackDone = true;
+        hasError = true;
+        this.displayToast(
+          'Feedback could not be saved. Please try again.',
+          'error',
+        );
+        checkComplete();
+      },
+    });
+
+    this.http.post(`${patternUrl}/engagement`, engagementBody).subscribe({
+      next: () => {
+        engagementDone = true;
+        checkComplete();
+      },
+      error: () => {
+        engagementDone = true;
+        hasError = true;
+        this.displayToast(
+          'Engagement could not be saved. Please try again.',
+          'error',
+        );
+        checkComplete();
+      },
+    });
   }
 
   private displayToast(message: string, type: 'success' | 'error'): void {

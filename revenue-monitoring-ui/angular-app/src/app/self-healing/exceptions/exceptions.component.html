@@ -4,7 +4,7 @@
     <div class="eq__search-wrap">
       <app-text-input
         [value]="searchQuery"
-        placeholder="Search by record ID, category, status..."
+        placeholder="Search by transaction ID, category, status..."
         type="search"
         iconName="search"
         iconPosition="left"
@@ -28,7 +28,7 @@
         [options]="statusOptions"
         [selected]="selectedStatuses"
         placeholder="All Status"
-        label="Run Status"
+        label="Exception Status"
         [showSearch]="false"
         (selectionChange)="onStatusChange($event)"
       ></app-multi-select-dropdown>
@@ -48,16 +48,15 @@
       <table class="eq__table">
         <thead>
           <tr>
-            <th>Record ID</th>
+            <th>Transaction ID</th>
             <th>Category</th>
-            <th>Run Status</th>
+            <th>Exception Status</th>
             <th>Review Status</th>
             <th>Analysis Mode</th>
-            <th>Run Created</th>
+            <th>Exception Created</th>
             <th>Session Status</th>
             <th>Upstream Contact</th>
             <th>Follow-ups</th>
-            <th>Session Created</th>
             <th>Last Activity</th>
           </tr>
         </thead>
@@ -102,9 +101,6 @@
               </td>
               <td>{{ run.upstream_contact || "—" }}</td>
               <td>{{ run.follow_up_count ?? "—" }}</td>
-              <td class="eq__date-cell">
-                {{ formatDateShort(run.session_created_at) }}
-              </td>
               <td class="eq__date-cell">
                 {{ formatDateShort(run.last_activity_at) }}
               </td>
