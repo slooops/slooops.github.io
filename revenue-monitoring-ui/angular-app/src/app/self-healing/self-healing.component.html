@@ -130,10 +130,10 @@
                 <tr>
                   <th>Transaction ID</th>
                   <th>Category</th>
-                  <th>Exception Status</th>
+                  <th>Analysis Status</th>
                   <th>Review Status</th>
                   <th>Analysis Mode</th>
-                  <th>Exception Created</th>
+                  <th>Exception Date</th>
                   <th>Session Status</th>
                   <th>Assigned To</th>
                   <th>Follow-ups</th>
@@ -166,14 +166,14 @@
                       </td>
                       <td>
                         <span
-                          class="sh__exc-tag"
+                          class="sh__review-pill"
                           [ngClass]="getReviewStatusClass(exc.review_status)"
                           >{{ formatStatus(exc.review_status) }}</span
                         >
                       </td>
                       <td>
                         <span
-                          class="sh__exc-tag"
+                          class="sh__mode-badge"
                           [ngClass]="getAnalysisModeClass(exc.analysis_mode)"
                           >{{ formatStatus(exc.analysis_mode) }}</span
                         >

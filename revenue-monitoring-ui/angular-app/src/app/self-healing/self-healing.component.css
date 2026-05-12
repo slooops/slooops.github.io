@@ -1538,6 +1538,28 @@
   color: #8899a6;
 }
 
+/* Review status pill */
+.sh__review-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Analysis mode badge */
+.sh__mode-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
 /* Review status */
 .sh__review--pending {
   background: #fff3cd;

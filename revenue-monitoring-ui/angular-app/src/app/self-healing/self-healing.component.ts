@@ -394,56 +394,71 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
         day: 'numeric',
       }),
     );
+    const allDatasets = [
+      {
+        label: 'Analysis Completed',
+        data: this.trendData.map((d) => d.analysisCompleted),
+        borderColor: '#0070d2',
+        backgroundColor: 'rgba(0, 112, 210, 0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        pointBackgroundColor: '#0070d2',
+        borderWidth: 2,
+      },
+      {
+        label: 'Analysis Failed',
+        data: this.trendData.map((d) => d.analysisFailed),
+        borderColor: '#e53935',
+        backgroundColor: 'rgba(229, 57, 53, 0.05)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        pointBackgroundColor: '#e53935',
+        borderWidth: 2,
+      },
+      {
+        label: 'Review Accepted',
+        data: this.trendData.map((d) => d.reviewCompleted),
+        borderColor: '#6ebe4a',
+        backgroundColor: 'rgba(110, 190, 74, 0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        pointBackgroundColor: '#6ebe4a',
+        borderWidth: 2,
+      },
+      {
+        label: 'Review Rejected',
+        data: this.trendData.map((d) => d.reviewRejected),
+        borderColor: '#ff6600',
+        backgroundColor: 'rgba(255, 102, 0, 0.05)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        pointBackgroundColor: '#ff6600',
+        borderWidth: 2,
+      },
+    ];
+    // Hide line and points for all-zero datasets but keep them in the legend
+    const datasets = allDatasets.map((ds) => {
+      const hasData = ds.data.some((v) => v > 0);
+      if (!hasData) {
+        return {
+          ...ds,
+          borderWidth: 0,
+          pointRadius: 0,
+          fill: false,
+          backgroundColor: 'transparent',
+        };
+      }
+      return ds;
+    });
     this.trendChart = new Chart(this.trendCanvasRef.nativeElement, {
       type: 'line',
       data: {
         labels,
-        datasets: [
-          {
-            label: 'Analysis Completed',
-            data: this.trendData.map((d) => d.analysisCompleted),
-            borderColor: '#0070d2',
-            backgroundColor: 'rgba(0, 112, 210, 0.08)',
-            fill: true,
-            tension: 0.3,
-            pointRadius: 4,
-            pointBackgroundColor: '#0070d2',
-            borderWidth: 2,
-          },
-          {
-            label: 'Analysis Failed',
-            data: this.trendData.map((d) => d.analysisFailed),
-            borderColor: '#e53935',
-            backgroundColor: 'rgba(229, 57, 53, 0.05)',
-            fill: true,
-            tension: 0.3,
-            pointRadius: 4,
-            pointBackgroundColor: '#e53935',
-            borderWidth: 2,
-          },
-          {
-            label: 'Review Accepted',
-            data: this.trendData.map((d) => d.reviewCompleted),
-            borderColor: '#6ebe4a',
-            backgroundColor: 'rgba(110, 190, 74, 0.08)',
-            fill: true,
-            tension: 0.3,
-            pointRadius: 4,
-            pointBackgroundColor: '#6ebe4a',
-            borderWidth: 2,
-          },
-          {
-            label: 'Review Rejected',
-            data: this.trendData.map((d) => d.reviewRejected),
-            borderColor: '#ff6600',
-            backgroundColor: 'rgba(255, 102, 0, 0.05)',
-            fill: true,
-            tension: 0.3,
-            pointRadius: 4,
-            pointBackgroundColor: '#ff6600',
-            borderWidth: 2,
-          },
-        ],
+        datasets,
       },
       options: {
         responsive: true,
@@ -503,9 +518,9 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
   categoryModes: string[] = [];
 
   private readonly modeColors: Record<string, string> = {
-    AGENT_FULL: '#0070d2',
-    STATIC: '#00bceb',
-    PATTERN_MATCH: '#9933ff',
+    Agentic: '#0070d2',
+    Guided: '#00bceb',
+    'Pattren Match': '#9933ff',
   };
 
   renderCategoryChart(): void {

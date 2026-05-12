@@ -147,7 +147,7 @@
   font-weight: 600;
   background: #eef6ff;
   color: #0060a9;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.03em;
 }
 
