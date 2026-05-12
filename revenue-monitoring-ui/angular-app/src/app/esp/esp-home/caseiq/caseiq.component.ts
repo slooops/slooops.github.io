@@ -15,7 +15,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.component';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { phosphorLinkBold, phosphorArrowsClockwiseBold } from '@ng-icons/phosphor-icons/bold';
+import {
+  phosphorLinkBold,
+  phosphorArrowsClockwiseBold,
+} from '@ng-icons/phosphor-icons/bold';
 import { Chart } from 'chart.js/auto';
 import { Router } from '@angular/router';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
@@ -1332,7 +1335,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   private buildAccuracyOverTimeChart(): void {
-    const canvas = document.getElementById('chart-accuracy-time') as HTMLCanvasElement;
+    const canvas = document.getElementById(
+      'chart-accuracy-time',
+    ) as HTMLCanvasElement;
     if (!canvas) return;
 
     if (this.teamChart) {
@@ -1341,7 +1346,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     }
 
     const sorted = [...this.accuracyOverTimeData].sort((a: any, b: any) =>
-      (a.WEEK_START ?? '').localeCompare(b.WEEK_START ?? ''));
+      (a.WEEK_START ?? '').localeCompare(b.WEEK_START ?? ''),
+    );
     const labels = sorted.map((r: any) => {
       const d = new Date(r.WEEK_START);
       return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -1370,7 +1376,12 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
               const chart = ctx.chart;
               const { ctx: canvasCtx, chartArea } = chart;
               if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
-              const gradient = canvasCtx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              const gradient = canvasCtx.createLinearGradient(
+                0,
+                chartArea.top,
+                0,
+                chartArea.bottom,
+              );
               gradient.addColorStop(0, 'rgba(0, 188, 235, 0.3)');
               gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
               return gradient;
@@ -1392,7 +1403,12 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
               const chart = ctx.chart;
               const { ctx: canvasCtx, chartArea } = chart;
               if (!chartArea) return 'rgba(0, 112, 210, 0.1)';
-              const gradient = canvasCtx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              const gradient = canvasCtx.createLinearGradient(
+                0,
+                chartArea.top,
+                0,
+                chartArea.bottom,
+              );
               gradient.addColorStop(0, 'rgba(0, 112, 210, 0.25)');
               gradient.addColorStop(1, 'rgba(0, 112, 210, 0)');
               return gradient;
@@ -1409,7 +1425,12 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           legend: {
             display: true,
             position: 'bottom',
-            labels: { boxWidth: 10, font: { size: 10 }, padding: 12, usePointStyle: true },
+            labels: {
+              boxWidth: 10,
+              font: { size: 10 },
+              padding: 12,
+              usePointStyle: true,
+            },
           },
           tooltip: {
             backgroundColor: 'rgba(20, 30, 40, 0.85)',
@@ -1428,14 +1449,23 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         scales: {
           x: {
             grid: { display: false },
-            ticks: { font: { size: 9 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 12 },
+            ticks: {
+              font: { size: 9 },
+              maxRotation: 45,
+              autoSkip: true,
+              maxTicksLimit: 12,
+            },
             border: { display: false },
           },
           y: {
             min: 0,
             max: 100,
             grid: { display: false },
-            ticks: { font: { size: 10 }, callback: (v) => v + '%', maxTicksLimit: 5 },
+            ticks: {
+              font: { size: 10 },
+              callback: (v) => v + '%',
+              maxTicksLimit: 5,
+            },
             border: { display: false },
           },
         },

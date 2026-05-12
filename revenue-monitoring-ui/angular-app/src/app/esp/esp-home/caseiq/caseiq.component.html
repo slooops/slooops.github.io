@@ -439,7 +439,11 @@
             <div class="ciq-card-header">
               <span class="ciq-card-title">Weekly Case Volume by Team</span>
               <span class="analytics-date-range">Last 90 days</span>
-              <button class="flip-btn" (click)="flipTeamCard()" title="Show AI Accuracy Over Time">
+              <button
+                class="flip-btn"
+                (click)="flipTeamCard()"
+                title="Show AI Accuracy Over Time"
+              >
                 <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
               </button>
             </div>
@@ -449,8 +453,14 @@
           } @else {
             <div class="ciq-card-header">
               <span class="ciq-card-title">AI Accuracy Over Time</span>
-              <span class="analytics-date-range">Last 120 days · validated cases only</span>
-              <button class="flip-btn" (click)="flipTeamCard()" title="Show Weekly Case Volume by Team">
+              <span class="analytics-date-range"
+                >Last 120 days · validated cases only</span
+              >
+              <button
+                class="flip-btn"
+                (click)="flipTeamCard()"
+                title="Show Weekly Case Volume by Team"
+              >
                 <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
               </button>
             </div>

@@ -464,7 +464,8 @@ public class CaseIQMonitoringService {
             "ROUND(SUM(CASE WHEN category_match = 'Y' THEN 1 ELSE 0 END) * 100.0 " +
             "  / NULLIF(SUM(CASE WHEN category_match IN ('Y','N') THEN 1 ELSE 0 END), 0), 1) AS category_accuracy, " +
             "ROUND(SUM(CASE WHEN core_issue_match = 'Y' THEN 1 ELSE 0 END) * 100.0 " +
-            "  / NULLIF(SUM(CASE WHEN core_issue_match IN ('Y','N') THEN 1 ELSE 0 END), 0), 1) AS core_issue_accuracy, " +
+            "  / NULLIF(SUM(CASE WHEN core_issue_match IN ('Y','N') THEN 1 ELSE 0 END), 0), 1) AS core_issue_accuracy, "
+            +
             "SUM(CASE WHEN category_match IN ('Y','N') THEN 1 ELSE 0 END) AS cat_validated, " +
             "SUM(CASE WHEN core_issue_match IN ('Y','N') THEN 1 ELSE 0 END) AS core_validated " +
             "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
