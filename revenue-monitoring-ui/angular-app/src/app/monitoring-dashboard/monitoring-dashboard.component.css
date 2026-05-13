@@ -91,6 +91,10 @@
   transition: background var(--fit-transition-fast);
 }
 
+.mat-mdc-row:last-child {
+  border-bottom: 0px !important;
+}
+
 .mat-mdc-row:hover {
   background: var(--fit-color-bg-subtle) !important;
 }
