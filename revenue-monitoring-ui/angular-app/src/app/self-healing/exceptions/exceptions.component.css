@@ -97,7 +97,7 @@
   background: #ffffff;
   font-size: 0.6875rem;
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.05em;
   color: #3d494e;
   padding: 0.875rem 1rem;
@@ -147,7 +147,7 @@
   font-weight: 600;
   background: #eef6ff;
   color: #0060a9;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.03em;
 }
 

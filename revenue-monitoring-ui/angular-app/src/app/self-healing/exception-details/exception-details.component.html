@@ -39,7 +39,7 @@
       <div class="ed__header-right">
         <div class="ed__status-tags">
           <div class="ed__status-tag">
-            <span class="ed__status-tag-label">Run Status</span>
+            <span class="ed__status-tag-label">Exception Status</span>
             <span class="ed__pill" [ngClass]="getStatusClass(run.run_status)">
               {{ formatStatus(run.run_status) }}
             </span>
@@ -175,14 +175,21 @@
               </div>
               <div>
                 <h3 class="ed__analysis-title">Bot Analysis</h3>
-                @if (run.response_time_sec) {
-                  <p class="ed__analysis-version">
-                    Response time:
-                    {{ run.response_time_sec | number: "1.1-1" }}s ·
-                    {{ run.llm_call_count }} LLM calls ·
-                    {{ run.total_tokens | number }} tokens
-                  </p>
-                }
+                <p class="ed__analysis-version">
+                  Response time:
+                  <strong
+                    >{{
+                      run.response_time_sec
+                        ? (run.response_time_sec | number: "1.1-1")
+                        : "0"
+                    }}s</strong
+                  >
+                  · <strong>{{ run.llm_call_count ?? 0 }}</strong> LLM calls ·
+                  <strong>{{
+                    run.total_tokens ? (run.total_tokens | number) : "0"
+                  }}</strong>
+                  tokens
+                </p>
               </div>
             </div>
             <div class="ed__analysis-body">
@@ -230,86 +237,87 @@
           </div>
 
           <!-- Review & Enrich -->
-          <section class="ed__review-card">
-            <h3 class="ed__review-title">Review &amp; Enrich</h3>
+          @if (run.analysis_mode !== "Guided") {
+            <section class="ed__review-card">
+              <h3 class="ed__review-title">Review &amp; Enrich</h3>
 
-            <div class="ed__form-group">
-              <label class="ed__form-label">Accuracy Assessment</label>
-              <div class="ed__assessment-btns">
-                <button
-                  class="ed__assess-btn"
-                  [class.ed__assess-btn--active]="
-                    accuracyAssessment === 'correct'
-                  "
-                  (click)="setAssessment('correct')"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+              <div class="ed__form-group">
+                <label class="ed__form-label">Accuracy Assessment</label>
+                <div class="ed__assessment-btns">
+                  <button
+                    class="ed__assess-btn"
+                    [class.ed__assess-btn--active]="
+                      accuracyAssessment === 'correct'
+                    "
+                    (click)="setAssessment('correct')"
                   >
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                    <polyline points="22 4 12 14.01 9 11.01" />
-                  </svg>
-                  Correct
-                </button>
-                <button
-                  class="ed__assess-btn ed__assess-btn--partial"
-                  [class.ed__assess-btn--active-partial]="
-                    accuracyAssessment === 'partially_correct'
-                  "
-                  (click)="setAssessment('partially_correct')"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                      <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    Correct
+                  </button>
+                  <button
+                    class="ed__assess-btn ed__assess-btn--partial"
+                    [class.ed__assess-btn--active-partial]="
+                      accuracyAssessment === 'partially_correct'
+                    "
+                    (click)="setAssessment('partially_correct')"
                   >
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="8" y1="12" x2="16" y2="12" />
-                  </svg>
-                  Partial
-                </button>
-                <button
-                  class="ed__assess-btn ed__assess-btn--incorrect"
-                  [class.ed__assess-btn--active-incorrect]="
-                    accuracyAssessment === 'incorrect'
-                  "
-                  (click)="setAssessment('incorrect')"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="8" y1="12" x2="16" y2="12" />
+                    </svg>
+                    Partial
+                  </button>
+                  <button
+                    class="ed__assess-btn ed__assess-btn--incorrect"
+                    [class.ed__assess-btn--active-incorrect]="
+                      accuracyAssessment === 'incorrect'
+                    "
+                    (click)="setAssessment('incorrect')"
                   >
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="15" y1="9" x2="9" y2="15" />
-                    <line x1="9" y1="9" x2="15" y2="15" />
-                  </svg>
-                  Incorrect
-                </button>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="15" y1="9" x2="9" y2="15" />
+                      <line x1="9" y1="9" x2="15" y2="15" />
+                    </svg>
+                    Incorrect
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <!-- <div class="ed__form-group">
+              <!-- <div class="ed__form-group">
               <label class="ed__form-label">Quality Score</label>
               <div class="ed__stars">
                 @for (filled of starArray; track $index) {
@@ -337,180 +345,181 @@
               </div>
             </div> -->
 
-            <div class="ed__form-group">
-              <label class="ed__form-label">Reviewer Notes</label>
-              <textarea
-                class="ed__textarea"
-                rows="4"
-                placeholder="Add specific details or manual overrides..."
-                [(ngModel)]="reviewerNotes"
-              ></textarea>
-            </div>
-
-            <!-- Mark as training example -->
-            <div class="ed__form-group">
-              <label class="ed__checkbox-label">
-                <input type="checkbox" [(ngModel)]="markAsTraining" />
-                Mark as training example
-              </label>
-            </div>
-
-            <hr class="ed__section-divider" />
-
-            <!-- Cross-Team Routing -->
-            <div class="ed__routing-section">
-              <h4 class="ed__routing-title">Cross-Team Routing</h4>
-              <p class="ed__routing-desc">
-                If this error pattern needs another team to act, capture their
-                details below. The bot will use these automatically on future
-                occurrences.
-              </p>
-
-              <label class="ed__checkbox-label">
-                <input type="checkbox" [(ngModel)]="needsCrossTeam" />
-                This issue needs cross-team action
-              </label>
-
               <div class="ed__form-group">
-                <label class="ed__form-label">Upstream Team Name</label>
-                <input
-                  type="text"
-                  class="ed__input"
-                  placeholder="e.g. SBP Team, DBA Team"
-                  [(ngModel)]="upstreamTeamName"
-                />
-              </div>
-
-              <div class="ed__form-group">
-                <label class="ed__form-label"
-                  >Upstream Contact (email or Webex ID)</label
-                >
-                <input
-                  type="text"
-                  class="ed__input"
-                  placeholder="team@cisco.com"
-                  [(ngModel)]="upstreamContact"
-                />
-              </div>
-
-              <div class="ed__form-group">
-                <label class="ed__form-label">Upstream Webex Space</label>
-                <input
-                  type="text"
-                  class="ed__input"
-                  placeholder="Space name or ID"
-                  [(ngModel)]="upstreamWebexSpace"
-                />
-              </div>
-
-              <div class="ed__form-group">
-                <label class="ed__form-label">Message Template</label>
+                <label class="ed__form-label">Reviewer Notes</label>
                 <textarea
                   class="ed__textarea"
-                  rows="3"
-                  placeholder="Hi team,&#10;&#10;We've identified an issue with {RECORD_ID} on..."
-                  [(ngModel)]="messageTemplate"
+                  rows="4"
+                  placeholder="Add specific details or manual overrides..."
+                  [(ngModel)]="reviewerNotes"
                 ></textarea>
               </div>
 
+              <!-- Mark as training example -->
               <div class="ed__form-group">
-                <label class="ed__form-label"
-                  >Expected resolution time (hours)</label
-                >
-                <div class="ed__number-input">
+                <label class="ed__checkbox-label">
+                  <input type="checkbox" [(ngModel)]="markAsTraining" />
+                  Mark as training example
+                </label>
+              </div>
+
+              <hr class="ed__section-divider" />
+
+              <!-- Cross-Team Routing -->
+              <div class="ed__routing-section">
+                <h4 class="ed__routing-title">Cross-Team Routing</h4>
+                <p class="ed__routing-desc">
+                  If this error pattern needs another team to act, capture their
+                  details below. The bot will use these automatically on future
+                  occurrences.
+                </p>
+
+                <label class="ed__checkbox-label">
+                  <input type="checkbox" [(ngModel)]="needsCrossTeam" />
+                  This issue needs cross-team action
+                </label>
+
+                <div class="ed__form-group">
+                  <label class="ed__form-label">Upstream Team Name</label>
                   <input
-                    type="number"
+                    type="text"
                     class="ed__input"
-                    [(ngModel)]="expectedResolutionHours"
+                    placeholder="e.g. SBP Team, DBA Team"
+                    [(ngModel)]="upstreamTeamName"
                   />
-                  <button
-                    class="ed__number-btn"
-                    (click)="
-                      expectedResolutionHours = expectedResolutionHours - 1
-                    "
+                </div>
+
+                <div class="ed__form-group">
+                  <label class="ed__form-label"
+                    >Upstream Contact (email or Webex ID)</label
                   >
-                    −
-                  </button>
-                  <button
-                    class="ed__number-btn"
-                    (click)="
-                      expectedResolutionHours = expectedResolutionHours + 1
-                    "
+                  <input
+                    type="text"
+                    class="ed__input"
+                    placeholder="team@cisco.com"
+                    [(ngModel)]="upstreamContact"
+                  />
+                </div>
+
+                <div class="ed__form-group">
+                  <label class="ed__form-label">Upstream Webex Space</label>
+                  <input
+                    type="text"
+                    class="ed__input"
+                    placeholder="Space name or ID"
+                    [(ngModel)]="upstreamWebexSpace"
+                  />
+                </div>
+
+                <div class="ed__form-group">
+                  <label class="ed__form-label">Message Template</label>
+                  <textarea
+                    class="ed__textarea"
+                    rows="3"
+                    placeholder="Hi team,&#10;&#10;We've identified an issue with {RECORD_ID} on..."
+                    [(ngModel)]="messageTemplate"
+                  ></textarea>
+                </div>
+
+                <div class="ed__form-group">
+                  <label class="ed__form-label"
+                    >Expected resolution time (hours)</label
                   >
-                    +
-                  </button>
+                  <div class="ed__number-input">
+                    <input
+                      type="number"
+                      class="ed__input"
+                      [(ngModel)]="expectedResolutionHours"
+                    />
+                    <button
+                      class="ed__number-btn"
+                      (click)="
+                        expectedResolutionHours = expectedResolutionHours - 1
+                      "
+                    >
+                      −
+                    </button>
+                    <button
+                      class="ed__number-btn"
+                      (click)="
+                        expectedResolutionHours = expectedResolutionHours + 1
+                      "
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <div class="ed__form-group">
+                  <label class="ed__form-label">Escalation contact</label>
+                  <input
+                    type="text"
+                    class="ed__input"
+                    placeholder="manager@cisco.com"
+                    [(ngModel)]="escalationContact"
+                  />
                 </div>
               </div>
 
+              <hr class="ed__section-divider" />
+
+              <!-- Autonomous toggle -->
+              <div class="ed__form-group ed__autonomous-row">
+                <label class="ed__toggle-label">
+                  <span class="ed__toggle-switch">
+                    <input type="checkbox" [(ngModel)]="letBotHandle" />
+                    <span class="ed__toggle-slider"></span>
+                  </span>
+                  Let bot handle this autonomously next time
+                </label>
+              </div>
+
+              <!-- Your name -->
               <div class="ed__form-group">
-                <label class="ed__form-label">Escalation contact</label>
+                <label class="ed__form-label">Your name / email</label>
                 <input
                   type="text"
                   class="ed__input"
-                  placeholder="manager@cisco.com"
-                  [(ngModel)]="escalationContact"
+                  placeholder="your@cisco.com"
+                  [(ngModel)]="reviewerEmail"
                 />
               </div>
-            </div>
 
-            <hr class="ed__section-divider" />
+              <button class="ed__save-btn" (click)="saveReview()">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+                  />
+                  <polyline points="17 21 17 13 7 13 7 21" />
+                  <polyline points="7 3 7 8 15 8" />
+                </svg>
+                {{ savingReview ? "Saving…" : "Save Feedback" }}
+              </button>
 
-            <!-- Autonomous toggle -->
-            <div class="ed__form-group ed__autonomous-row">
-              <label class="ed__toggle-label">
-                <span class="ed__toggle-switch">
-                  <input type="checkbox" [(ngModel)]="letBotHandle" />
-                  <span class="ed__toggle-slider"></span>
-                </span>
-                Let bot handle this autonomously next time
-              </label>
-            </div>
-
-            <!-- Your name -->
-            <div class="ed__form-group">
-              <label class="ed__form-label">Your name / email</label>
-              <input
-                type="text"
-                class="ed__input"
-                placeholder="your@cisco.com"
-                [(ngModel)]="reviewerEmail"
-              />
-            </div>
-
-            <button class="ed__save-btn" (click)="saveReview()">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
-                />
-                <polyline points="17 21 17 13 7 13 7 21" />
-                <polyline points="7 3 7 8 15 8" />
-              </svg>
-              {{ savingReview ? "Saving…" : "Save Feedback" }}
-            </button>
-
-            @if (showToast) {
-              <div
-                class="ed__toast"
-                [class.ed__toast--success]="toastType === 'success'"
-                [class.ed__toast--error]="toastType === 'error'"
-              >
-                <span class="ed__toast-icon">{{
-                  toastType === "success" ? "✓" : "✕"
-                }}</span>
-                {{ toastMessage }}
-              </div>
-            }
-          </section>
+              @if (showToast) {
+                <div
+                  class="ed__toast"
+                  [class.ed__toast--success]="toastType === 'success'"
+                  [class.ed__toast--error]="toastType === 'error'"
+                >
+                  <span class="ed__toast-icon">{{
+                    toastType === "success" ? "✓" : "✕"
+                  }}</span>
+                  {{ toastMessage }}
+                </div>
+              }
+            </section>
+          }
         </div>
       </div>
     } @else {
@@ -647,5 +656,33 @@
         }
       </div>
     }
+  }
+
+  @if (!isLoading && !run) {
+    <div class="ed__empty-state">
+      <div class="ed__empty-icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="56"
+          height="56"
+          viewBox="0 0 256 256"
+          fill="currentColor"
+        >
+          <path
+            d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z"
+          />
+        </svg>
+      </div>
+      <h2 class="ed__empty-title">No Record Found</h2>
+      <p class="ed__empty-subtitle">
+        No analysis data exists for transaction
+        <strong>{{ exceptionId }}</strong
+        >.<br />
+        This record may not have been processed by the self-healing engine yet.
+      </p>
+      <button class="ed__empty-back-btn" (click)="goBack()">
+        ← {{ backLabel }}
+      </button>
+    </div>
   }
 </div>

@@ -10,6 +10,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 import { AuthenticationService } from '../../providers/authentication.service';
 
 interface RunDetail {
@@ -61,6 +63,7 @@ interface TimelineEvent {
 export class ExceptionDetailsComponent implements OnInit, OnChanges {
   @Input() exceptionId: string = '';
   @Input() backLabel: string = 'Back to Queue';
+  @Input() apiEndpoint: 'direct' | 'by-record' = 'direct';
   @Output() back = new EventEmitter<void>();
 
   private readonly API_URL = 'https://i2c-aria-dev.cisco.com/api/runs';
@@ -68,7 +71,6 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
   activeTab: 'review' | 'trace' = 'review';
   accuracyAssessment: 'correct' | 'partially_correct' | 'incorrect' | null =
     'correct';
-  qualityScore = 4;
   reviewerNotes = '';
   markAsTraining = false;
   needsCrossTeam = false;
@@ -93,12 +95,23 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
   timelineLoading = false;
   expandedEventIds = new Set<number>();
 
+  private isRoutedView = false;
+
   constructor(
     private http: HttpClient,
     private authService: AuthenticationService,
+    private route: ActivatedRoute,
+    private location: Location,
   ) {}
 
   ngOnInit(): void {
+    const routeId = this.route.snapshot.paramMap.get('id');
+    if (routeId) {
+      this.exceptionId = routeId;
+      this.apiEndpoint = 'by-record';
+      this.backLabel = 'Back to Error Details';
+      this.isRoutedView = true;
+    }
     if (this.exceptionId) {
       this.fetchRunDetail();
     }
@@ -116,19 +129,30 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
 
   private fetchRunDetail(): void {
     this.isLoading = true;
-    this.http
-      .get<{ data: RunDetail }>(`${this.API_URL}/${this.exceptionId}`)
-      .subscribe({
-        next: (res) => {
+    const url =
+      this.apiEndpoint === 'by-record'
+        ? `${this.API_URL}/by-record/${this.exceptionId}`
+        : `${this.API_URL}/${this.exceptionId}`;
+    this.http.get<any>(url).subscribe({
+      next: (res) => {
+        if (this.apiEndpoint === 'by-record') {
+          // Response: { record_id, data: RunDetail[] }
+          const runs = res.data as RunDetail[];
+          this.run = runs && runs.length > 0 ? runs[0] : null;
+        } else {
+          // Response: { data: RunDetail }
           this.run = res.data;
-          this.isLoading = false;
-          this.fetchTimeline();
-        },
-        error: (err) => {
-          console.error('Failed to fetch run detail:', err);
-          this.isLoading = false;
-        },
-      });
+        }
+        this.isLoading = false;
+        if (this.run) {
+          this.fetchTimeline(this.run.run_id);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to fetch run detail:', err);
+        this.isLoading = false;
+      },
+    });
   }
 
   private cleanRootCauseText(text: string): string {
@@ -181,20 +205,16 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
     this.showFullSql = !this.showFullSql;
   }
 
-  get starArray(): boolean[] {
-    return Array.from({ length: 5 }, (_, i) => i < this.qualityScore);
-  }
-
-  setQualityScore(score: number): void {
-    this.qualityScore = score;
-  }
-
   setAssessment(value: 'correct' | 'partially_correct' | 'incorrect'): void {
     this.accuracyAssessment = value;
   }
 
   goBack(): void {
-    this.back.emit();
+    if (this.isRoutedView) {
+      this.location.back();
+    } else {
+      this.back.emit();
+    }
   }
 
   saveReview(): void {
@@ -204,34 +224,75 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
     }
 
     this.savingReview = true;
+    const patternUrl = `https://i2c-aria-dev.cisco.com/api/patterns/${this.run.pattern_id}`;
 
-    const body = {
+    const feedbackBody = {
       feedback: this.accuracyAssessment || '',
       notes: this.reviewerNotes,
       reviewer: this.authService.getUserID(),
+      is_training_example: this.markAsTraining,
     };
 
-    this.http
-      .post(
-        `https://i2c-aria-dev.cisco.com/api/patterns/${this.run.pattern_id}/feedback`,
-        body,
-      )
-      .subscribe({
-        next: () => {
-          this.savingReview = false;
+    const engagementBody = {
+      upstream_contact: this.upstreamContact,
+      upstream_team_name: this.upstreamTeamName,
+      contact_method: this.upstreamWebexSpace,
+      contact_message_template: this.messageTemplate,
+      wait_time: this.expectedResolutionHours,
+      max_retries: 0,
+      escalation_contact: this.escalationContact,
+      escalation_wait_time: 0,
+      updated_by: this.reviewerEmail,
+    };
+
+    // Fire both calls in parallel
+    let feedbackDone = false;
+    let engagementDone = false;
+    let hasError = false;
+
+    const checkComplete = () => {
+      if (feedbackDone && engagementDone) {
+        this.savingReview = false;
+        if (!hasError) {
           this.displayToast(
-            'Feedback saved to pattern successfully.',
+            'Review and engagement saved successfully.',
             'success',
           );
-        },
-        error: () => {
-          this.savingReview = false;
-          this.displayToast(
-            'Feedback could not be saved. Please try again.',
-            'error',
-          );
-        },
-      });
+        }
+      }
+    };
+
+    this.http.post(`${patternUrl}/feedback`, feedbackBody).subscribe({
+      next: () => {
+        feedbackDone = true;
+        checkComplete();
+      },
+      error: () => {
+        feedbackDone = true;
+        hasError = true;
+        this.displayToast(
+          'Feedback could not be saved. Please try again.',
+          'error',
+        );
+        checkComplete();
+      },
+    });
+
+    this.http.patch(`${patternUrl}/engagement`, engagementBody).subscribe({
+      next: () => {
+        engagementDone = true;
+        checkComplete();
+      },
+      error: () => {
+        engagementDone = true;
+        hasError = true;
+        this.displayToast(
+          'Engagement could not be saved. Please try again.',
+          'error',
+        );
+        checkComplete();
+      },
+    });
   }
 
   private displayToast(message: string, type: 'success' | 'error'): void {
@@ -244,12 +305,12 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
   }
 
   /* ── Timeline ── */
-  private fetchTimeline(): void {
+  private fetchTimeline(runId: number): void {
     this.timelineLoading = true;
     this.http
       .get<{
         data: TimelineEvent[];
-      }>(`${this.API_URL}/${this.exceptionId}/timeline`)
+      }>(`${this.API_URL}/${runId}/timeline`)
       .subscribe({
         next: (res) => {
           this.timelineEvents = (res.data || []).sort(

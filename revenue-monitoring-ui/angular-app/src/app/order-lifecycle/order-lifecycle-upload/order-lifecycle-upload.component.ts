@@ -11,20 +11,42 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  phosphorArrowLineDownBold,
+  phosphorArrowLineUpBold,
+  phosphorXBold,
+  phosphorFileBold,
+  phosphorCheckCircleBold,
+  phosphorTrashBold,
+  phosphorWarningCircleBold,
+} from '@ng-icons/phosphor-icons/bold';
 
 @Component({
-    selector: 'app-order-lifecycle-upload',
-    templateUrl: './order-lifecycle-upload.component.html',
-    styleUrls: ['./order-lifecycle-upload.component.css'],
-    imports: [
+  selector: 'app-order-lifecycle-upload',
+  templateUrl: './order-lifecycle-upload.component.html',
+  styleUrls: ['./order-lifecycle-upload.component.css'],
+  imports: [
     CommonModule,
     ReactiveFormsModule,
     MatTabsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    NgIcon,
   ],
-  standalone: true
+  providers: [
+    provideIcons({
+      phosphorArrowLineDownBold,
+      phosphorArrowLineUpBold,
+      phosphorXBold,
+      phosphorFileBold,
+      phosphorCheckCircleBold,
+      phosphorTrashBold,
+      phosphorWarningCircleBold,
+    }),
+  ],
+  standalone: true,
 })
 export class OrderLifecycleUploadComponent implements OnInit {
   updateForm: FormGroup;
@@ -35,7 +57,7 @@ export class OrderLifecycleUploadComponent implements OnInit {
     public http: ApiHttpService,
     private formBuilder: FormBuilder,
     public dialog: MatDialog,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
   ) {}
 
   ngOnInit(): void {
@@ -101,7 +123,7 @@ export class OrderLifecycleUploadComponent implements OnInit {
             this.uploadText = 'Deals upload failed!';
             this.closeDialog('error');
             this.dialog.open(dialogTemplate);
-          }
+          },
         );
     }
   }
@@ -131,7 +153,7 @@ export class OrderLifecycleUploadComponent implements OnInit {
             this.uploadText = 'Deals upload failed!';
             this.closeDialog('error');
             this.dialog.open(dialogTemplate);
-          }
+          },
         );
     } else {
       this.validForm = true;

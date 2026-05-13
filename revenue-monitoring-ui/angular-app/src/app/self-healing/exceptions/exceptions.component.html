@@ -4,7 +4,7 @@
     <div class="eq__search-wrap">
       <app-text-input
         [value]="searchQuery"
-        placeholder="Search by record ID, category, status..."
+        placeholder="Search by transaction ID, category, status..."
         type="search"
         iconName="search"
         iconPosition="left"
@@ -28,7 +28,7 @@
         [options]="statusOptions"
         [selected]="selectedStatuses"
         placeholder="All Status"
-        label="Run Status"
+        label="Exception Status"
         [showSearch]="false"
         (selectionChange)="onStatusChange($event)"
       ></app-multi-select-dropdown>
@@ -48,27 +48,26 @@
       <table class="eq__table">
         <thead>
           <tr>
-            <th>Record ID</th>
-            <th>Analysis Mode</th>
+            <th>Transaction ID</th>
             <th>Category</th>
-            <th>Run Status</th>
+            <th>Analysis Status</th>
             <th>Review Status</th>
-            <th>Created At</th>
+            <th>Analysis Mode</th>
+            <th>Exception Date</th>
+            <th>Session Status</th>
+            <th>Assigned To</th>
+            <th>Follow-ups</th>
+            <th>Last Activity</th>
           </tr>
         </thead>
         <tbody>
-          @for (run of filteredExceptions; track run.run_id) {
+          @for (run of paginatedExceptions; track run.run_id) {
             <tr
               class="eq__row"
               (click)="onViewException(run.run_id.toString())"
             >
               <td>
                 <span class="eq__mono-id">{{ run.record_id || "—" }}</span>
-              </td>
-              <td>
-                <span class="eq__mode-badge">{{
-                  run.analysis_mode || "—"
-                }}</span>
               </td>
               <td>{{ run.category || "—" }}</td>
               <td>
@@ -87,12 +86,29 @@
                   {{ formatStatus(run.review_status) }}
                 </span>
               </td>
-              <td class="eq__date-cell">{{ formatDate(run.created_at) }}</td>
+              <td>
+                <span class="eq__mode-badge">{{
+                  run.analysis_mode || "—"
+                }}</span>
+              </td>
+              <td class="eq__date-cell">
+                {{ formatDateShort(run.run_created_at) }}
+              </td>
+              <td>
+                <span class="eq__status-pill">{{
+                  formatStatus(run.session_status || "")
+                }}</span>
+              </td>
+              <td>{{ run.upstream_contact || "—" }}</td>
+              <td>{{ run.follow_up_count ?? "—" }}</td>
+              <td class="eq__date-cell">
+                {{ formatDateShort(run.last_activity_at) }}
+              </td>
             </tr>
           }
-          @if (filteredExceptions.length === 0) {
+          @if (paginatedExceptions.length === 0) {
             <tr>
-              <td colspan="6" class="eq__empty">No exceptions found.</td>
+              <td colspan="11" class="eq__empty">No exceptions found.</td>
             </tr>
           }
         </tbody>
@@ -104,9 +120,9 @@
   @if (totalExceptions > 0) {
     <app-pagination
       [pageIndex]="currentPage - 1"
-      [pageSize]="25"
+      [pageSize]="pageSize"
       [totalItems]="totalExceptions"
-      [showPageSizeSelector]="false"
+      [showPageSizeSelector]="true"
       (pageChange)="onPageChange($event)"
     ></app-pagination>
   }

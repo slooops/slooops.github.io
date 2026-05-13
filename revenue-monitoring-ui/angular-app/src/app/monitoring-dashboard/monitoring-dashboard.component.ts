@@ -9,7 +9,6 @@ import {
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { SelectionModel } from '@angular/cdk/collections';
-import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Observable, takeUntil } from 'rxjs';
 import { FormGroup } from '@angular/forms';
 import { ExportService } from './providers/export.service';
@@ -28,8 +27,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { UserAssignmentComponent } from './user-assignment/user-assignment.component';
-import { ProcessFlowTooltipComponent } from './process-flow-tooltip/process-flow-tooltip.component';
 import { LoadingSymbolComponent } from './shared/loading-symbol/loading-symbol.component';
+import {
+  MonitoringPaginationComponent,
+  MonitoringPageChangeEvent,
+} from './monitoring-pagination/monitoring-pagination.component';
+import { MonitoringFilterBarComponent } from './monitoring-filter-bar/monitoring-filter-bar.component';
+import { ExceptionDetailsComponent } from '../self-healing/exception-details/exception-details.component';
 
 export interface UserContext {
   username: string;
@@ -54,14 +58,26 @@ export interface UserContext {
     MatCheckboxModule,
     MatButtonModule,
     UserAssignmentComponent,
-    ProcessFlowTooltipComponent,
     LoadingSymbolComponent,
+    MonitoringPaginationComponent,
+    MonitoringFilterBarComponent,
+    ExceptionDetailsComponent,
   ],
   standalone: true,
 })
 export class MonitoringDashboardComponent<T> extends BaseComponent {
   @ViewChild('detailsPaginator') detailsPaginator: MatPaginator;
   @ViewChild('summaryPaginator') summaryPaginator: MatPaginator;
+
+  selectedTransactionId: string | null = null;
+
+  openExceptionDetails(transactionId: string): void {
+    this.selectedTransactionId = transactionId;
+  }
+
+  closeExceptionDetails(): void {
+    this.selectedTransactionId = null;
+  }
 
   urls = input.required<{ [key: string]: string }>();
   keysToMap = input.required<string[]>();
@@ -291,10 +307,10 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
   selection = new SelectionModel<any>(true, []);
   selectedSummaryData = signal<any[]>([]);
   selectedRows = signal<any[]>([]);
-  onRowSelectionChange(event: MatCheckboxChange, row: any) {
+  onRowSelectionChange(event: any, row: any) {
     this.selection.toggle(row);
 
-    if (event.checked) {
+    if (event.checked ?? event?.target?.checked) {
       this.selectedRows.update((rows) => [...rows, row]);
     } else {
       this.selectedRows.update((rows) =>
@@ -372,6 +388,40 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
   isLoading = signal<boolean>(false);
   totalRecordsFiltered: number = 0;
   detailsDisplayedColumns: string[] = [];
+
+  // Custom pagination state
+  detailsPageIndex = 0;
+  detailsPageSize = 20;
+  summaryPageIndex = 0;
+  summaryPageSize = 10;
+
+  onDetailsPageChange(event: MonitoringPageChangeEvent): void {
+    this.detailsPageIndex = event.pageIndex;
+    this.detailsPageSize = event.pageSize;
+    if (this.detailsPaginator) {
+      this.detailsPaginator.pageIndex = event.pageIndex;
+      this.detailsPaginator.pageSize = event.pageSize;
+      this.detailsPaginator.page.emit({
+        pageIndex: event.pageIndex,
+        pageSize: event.pageSize,
+        length: this.detailsPaginator.length,
+      });
+    }
+  }
+
+  onSummaryPageChange(event: MonitoringPageChangeEvent): void {
+    this.summaryPageIndex = event.pageIndex;
+    this.summaryPageSize = event.pageSize;
+    if (this.summaryPaginator) {
+      this.summaryPaginator.pageIndex = event.pageIndex;
+      this.summaryPaginator.pageSize = event.pageSize;
+      this.summaryPaginator.page.emit({
+        pageIndex: event.pageIndex,
+        pageSize: event.pageSize,
+        length: this.summaryPaginator.length,
+      });
+    }
+  }
   getErrorDetails() {
     this.isLoading.set(true);
     this.isFiltered.set(false);
@@ -488,6 +538,17 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
       this.dataSource,
       this.filtereddataSource,
     );
+    // Update paginator length to reflect filtered rows
+    if (this.detailsPaginator) {
+      const activeSource = this.isFiltered()
+        ? this.filtereddataSource
+        : this.dataSource;
+      if (activeSource) {
+        this.detailsPaginator.length =
+          activeSource.filteredData?.length ?? activeSource.data?.length ?? 0;
+        this.detailsPaginator.firstPage();
+      }
+    }
   }
 
   filterPredicate = (data: any, filter: string): boolean => {

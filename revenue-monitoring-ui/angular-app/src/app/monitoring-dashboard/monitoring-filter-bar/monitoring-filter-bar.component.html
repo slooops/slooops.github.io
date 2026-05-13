@@ -1,0 +1,194 @@
+<div class="fit-filter-bar">
+  <div class="fit-filter-bar__title">
+    <h4 class="fit-filter-bar__title-text">{{ title }}</h4>
+  </div>
+
+  @if (showProcessFlow && processFlowTotals?.length) {
+    <div class="fit-filter-bar__process-flow">
+      <app-process-flow-tooltip [processFlowTotals]="processFlowTotals">
+      </app-process-flow-tooltip>
+    </div>
+  }
+
+  @if (showFilters && searchForm) {
+    <button class="fit-filter-bar__filter-toggle" (click)="toggleFilters()">
+      <svg
+        class="fit-filter-bar__filter-icon"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <line x1="4" y1="6" x2="20" y2="6"></line>
+        <line x1="7" y1="12" x2="17" y2="12"></line>
+        <line x1="10" y1="18" x2="14" y2="18"></line>
+      </svg>
+      <span style="font-weight: 400"> Filters </span>
+      @if (getActiveFilterCount() > 0) {
+        <span class="fit-filter-bar__badge">{{ getActiveFilterCount() }}</span>
+      }
+    </button>
+    <span class="fit-filter-bar__result-count"
+      >{{ filteredCount }} / {{ totalCount }} results</span
+    >
+    <button
+      class="fit-filter-bar__reset-link"
+      [class.fit-filter-bar__reset-link--active]="getActiveFilterCount() > 0"
+      (click)="clearFiltersClick.emit()"
+    >
+      Reset filters
+    </button>
+    @for (chip of getActiveFilters(); track chip.value + chip.formControlName) {
+      <span class="fit-filter-bar__chip">
+        <span class="fit-filter-bar__chip-label">{{
+          replaceUnderscore(chip.columnName) | titlecase
+        }}</span>
+        <span class="fit-filter-bar__chip-value">{{ chip.value }}</span>
+        <button
+          class="fit-filter-bar__chip-remove"
+          (click)="removeFilter(chip)"
+        >
+          ×
+        </button>
+      </span>
+    }
+  }
+
+  @if (showCount && !showFilters) {
+    <span class="fit-filter-bar__count">{{ totalCount }} {{ countLabel }}</span>
+  }
+
+  <div class="fit-filter-bar__actions">
+    @if (showReset) {
+      <button
+        class="fit-filter-bar__btn fit-filter-bar__btn--secondary"
+        (click)="resetClick.emit()"
+        [disabled]="resetDisabled"
+      >
+        Reset
+      </button>
+    }
+    @if (showAssignUser) {
+      <button
+        class="fit-filter-bar__btn fit-filter-bar__btn--secondary"
+        (click)="assignUserClick.emit()"
+        [disabled]="assignUserDisabled"
+      >
+        Assign User
+      </button>
+    }
+    @if (showDownload) {
+      <button
+        class="fit-filter-bar__btn fit-filter-bar__btn--secondary"
+        (click)="downloadClick.emit()"
+      >
+        <ng-icon name="phosphorArrowLineDownBold" size="16" />
+        Download
+      </button>
+    }
+  </div>
+</div>
+
+@if (showFilters && searchForm && filtersExpanded) {
+  <div class="fit-filter-panel-backdrop" (click)="toggleFilters()"></div>
+  <div class="fit-filter-panel" (click)="$event.stopPropagation()">
+    <div class="filter-sections">
+      @for (column of selectFilters; track column) {
+        <div class="filter-section">
+          <div class="filter-section-title">
+            {{ replaceUnderscore(column.columnName) | titlecase }}
+          </div>
+          <div class="multi-select-wrapper">
+            <button
+              type="button"
+              class="multi-select-trigger"
+              (click)="toggleSelect(column.formControlName, $event)"
+            >
+              {{
+                getSelectedValues(column.formControlName).length > 0
+                  ? getSelectedValues(column.formControlName).length +
+                    " selected"
+                  : "Select"
+              }}
+              <span
+                class="chevron"
+                [class.open]="isSelectOpen(column.formControlName)"
+                >▾</span
+              >
+            </button>
+            @if (isSelectOpen(column.formControlName)) {
+              <div
+                class="multi-select-dropdown"
+                (click)="$event.stopPropagation()"
+              >
+                <div class="multi-select-search-wrap">
+                  <input
+                    class="multi-select-search"
+                    type="text"
+                    placeholder="Search..."
+                    [value]="searchTerms[column.formControlName] || ''"
+                    (input)="onSearchInput(column.formControlName, $event)"
+                    (click)="$event.stopPropagation()"
+                  />
+                </div>
+                @if (getSelectedValues(column.formControlName).length > 0) {
+                  <button
+                    class="multi-select-clear"
+                    (click)="
+                      clearSelect(column.formControlName);
+                      $event.stopPropagation()
+                    "
+                  >
+                    Clear all
+                  </button>
+                }
+                <ul class="multi-select-list">
+                  @for (
+                    option of getFilteredOptions(column.formControlName);
+                    track option
+                  ) {
+                    <li
+                      class="multi-select-item"
+                      [class.multi-select-item--selected]="
+                        isOptionSelected(column.formControlName, option)
+                      "
+                      (click)="toggleOption(column.formControlName, option)"
+                    >
+                      <span class="multi-select-checkbox">
+                        @if (isOptionSelected(column.formControlName, option)) {
+                          <span class="multi-select-check">✓</span>
+                        }
+                      </span>
+                      <span class="multi-select-item-label">{{ option }}</span>
+                    </li>
+                  }
+                  @if (
+                    getFilteredOptions(column.formControlName).length === 0
+                  ) {
+                    <li class="multi-select-no-results">No matches</li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        </div>
+      }
+      @for (column of textFilters; track column) {
+        <div class="filter-section">
+          <div class="filter-section-title">
+            {{ replaceUnderscore(column.columnName) | titlecase }}
+          </div>
+          <input
+            type="text"
+            class="filter-text-input"
+            [formControl]="$any(searchForm.get(column.formControlName))"
+            [placeholder]="'e.g., ' + replaceUnderscore(column.columnName)"
+            (keyup)="filterChange.emit()"
+          />
+        </div>
+      }
+    </div>
+  </div>
+}

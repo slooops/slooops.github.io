@@ -19,6 +19,7 @@ import { AitComponent } from './ait/ait.component';
 import { CaseiqMonitoringDashboardComponent } from './esp/caseiq-monitoring-dashboard/caseiq-monitoring-dashboard.component';
 import { CtmAlertsDashboardComponent } from './ctm-alerts/ctm-alerts-dashboard.component';
 import { SelfHealingComponent } from './self-healing/self-healing.component';
+import { ExceptionDetailsComponent } from './self-healing/exception-details/exception-details.component';
 
 export const routes: Routes = [
   {
@@ -317,6 +318,16 @@ export const routes: Routes = [
     },
   },
 
+  {
+    path: 'exception-details/by-record/:id',
+    component: ExceptionDetailsComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Continuous Monitoring > Exception Details',
+      supportsDarkMode: true,
+    },
+  },
   {
     path: 'self-healing',
     component: SelfHealingComponent,
