@@ -421,21 +421,6 @@ public class CaseIQMonitoringService {
             "GROUP BY TRUNC(caseiq_run_date, 'IW') " +
             "ORDER BY TRUNC(caseiq_run_date, 'IW') ASC";
 
-    private static final String TOP_CORE_ISSUES = "SELECT core_issue, " +
-            "COUNT(*) AS total_cases, " +
-            "SUM(CASE WHEN core_issue_match = 'Y' THEN 1 ELSE 0 END) AS ai_correct, " +
-            "ROUND(SUM(CASE WHEN core_issue_match = 'Y' THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0) * 100, 1) AS accuracy_pct, "
-            +
-            "TO_CHAR(MIN(caseiq_run_date), 'YYYY-MM-DD') AS earliest_date, " +
-            "TO_CHAR(MAX(caseiq_run_date), 'YYYY-MM-DD') AS latest_date " +
-            "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
-            "WHERE is_active = 'TRUE' " +
-            "AND core_issue IS NOT NULL " +
-            "AND caseiq_run_date > SYSDATE - :lookback_days " +
-            "GROUP BY core_issue " +
-            "ORDER BY total_cases DESC " +
-            "FETCH FIRST 15 ROWS ONLY";
-
     private static final String HOURLY_CASE_OPEN_PATTERN = "SELECT " +
             "EXTRACT(HOUR FROM CAST(caseiq_run_date AS TIMESTAMP)) AS hour_of_day, " +
             "COUNT(*) AS case_count " +
@@ -445,19 +430,37 @@ public class CaseIQMonitoringService {
             "GROUP BY EXTRACT(HOUR FROM CAST(caseiq_run_date AS TIMESTAMP)) " +
             "ORDER BY EXTRACT(HOUR FROM CAST(caseiq_run_date AS TIMESTAMP))";
 
-    private static final String CATEGORY_ACCURACY = "SELECT category, " +
+    private static final String TEAM_CATEGORY_ACCURACY = "SELECT category, " +
             "COUNT(*) AS total, " +
             "SUM(CASE WHEN category_match = 'Y' THEN 1 ELSE 0 END) AS correct, " +
-            "SUM(CASE WHEN category_match = 'N' THEN 1 ELSE 0 END) AS incorrect, " +
-            "ROUND(SUM(CASE WHEN category_match = 'Y' THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0) * 100, 1) AS accuracy_pct "
-            +
+            "ROUND(SUM(CASE WHEN category_match = 'Y' THEN 1 ELSE 0 END) " +
+            "  / NULLIF(SUM(CASE WHEN category_match IN ('Y','N') THEN 1 ELSE 0 END), 0) * 100, 1) AS accuracy_pct, " +
+            "SUM(CASE WHEN category_match IN ('Y','N') THEN 1 ELSE 0 END) AS validated " +
             "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
-            "WHERE is_active = 'TRUE' " +
+            "WHERE caseiq_run_date > SYSDATE - :lookback_days " +
+            "AND team_name = :team_name " +
             "AND category IS NOT NULL " +
-            "AND caseiq_run_date > SYSDATE - :lookback_days " +
             "GROUP BY category " +
-            "HAVING COUNT(*) >= 10 " +
-            "ORDER BY total DESC";
+            "HAVING SUM(CASE WHEN category_match IN ('Y','N') THEN 1 ELSE 0 END) >= 3 " +
+            "ORDER BY total DESC " +
+            "FETCH FIRST 20 ROWS ONLY";
+
+    private static final String TEAM_CORE_ISSUE_ACCURACY = "SELECT core_issue, " +
+            "COUNT(*) AS total, " +
+            "SUM(CASE WHEN core_issue_match = 'Y' THEN 1 ELSE 0 END) AS correct, " +
+            "ROUND(SUM(CASE WHEN core_issue_match = 'Y' THEN 1 ELSE 0 END) " +
+            "  / NULLIF(SUM(CASE WHEN core_issue_match IN ('Y','N') THEN 1 ELSE 0 END), 0) * 100, 1) AS accuracy_pct, "
+            +
+            "SUM(CASE WHEN core_issue_match IN ('Y','N') THEN 1 ELSE 0 END) AS validated " +
+            "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+            "WHERE caseiq_run_date > SYSDATE - :lookback_days " +
+            "AND team_name = :team_name " +
+            "AND core_issue IS NOT NULL " +
+            "AND UPPER(core_issue) != 'NA' " +
+            "GROUP BY core_issue " +
+            "HAVING SUM(CASE WHEN core_issue_match IN ('Y','N') THEN 1 ELSE 0 END) >= 3 " +
+            "ORDER BY total DESC " +
+            "FETCH FIRST 20 ROWS ONLY";
 
     private static final String ACCURACY_OVER_TIME = "SELECT " +
             "TRUNC(caseiq_run_date, 'IW') AS week_start, " +
@@ -1050,19 +1053,23 @@ public class CaseIQMonitoringService {
         return runQuery(WEEKLY_CASE_VOLUME_BY_STATE, buildParams("lookback_days", lookbackDays), fiscQtr);
     }
 
-    public List<Map<String, Object>> getTopCoreIssues(int lookbackDays, String fiscQtr) {
-        return runQuery(TOP_CORE_ISSUES, buildParams("lookback_days", lookbackDays), fiscQtr);
-    }
-
     public List<Map<String, Object>> getHourlyCaseOpenPattern(int lookbackDays, String fiscQtr) {
         return runQuery(HOURLY_CASE_OPEN_PATTERN, buildParams("lookback_days", lookbackDays), fiscQtr);
     }
 
-    public List<Map<String, Object>> getCategoryAccuracy(int lookbackDays, String fiscQtr) {
-        return runQuery(CATEGORY_ACCURACY, buildParams("lookback_days", lookbackDays), fiscQtr);
-    }
-
     public List<Map<String, Object>> getAccuracyOverTime(int lookbackDays, String fiscQtr) {
         return runQuery(ACCURACY_OVER_TIME, buildParams("lookback_days", lookbackDays), fiscQtr);
+    }
+
+    public List<Map<String, Object>> getTeamCategoryAccuracy(int lookbackDays, String teamName, String fiscQtr) {
+        Map<String, Object> params = buildParams("lookback_days", lookbackDays);
+        params.put("team_name", teamName);
+        return runQuery(TEAM_CATEGORY_ACCURACY, params, fiscQtr);
+    }
+
+    public List<Map<String, Object>> getTeamCoreIssueAccuracy(int lookbackDays, String teamName, String fiscQtr) {
+        Map<String, Object> params = buildParams("lookback_days", lookbackDays);
+        params.put("team_name", teamName);
+        return runQuery(TEAM_CORE_ISSUE_ACCURACY, params, fiscQtr);
     }
 }

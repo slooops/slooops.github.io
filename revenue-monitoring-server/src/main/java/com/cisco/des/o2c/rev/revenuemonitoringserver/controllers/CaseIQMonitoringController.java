@@ -219,13 +219,6 @@ public class CaseIQMonitoringController {
         return new ResponseEntity<>(service.getWeeklyCaseVolumeByState(lookbackDays, fiscQtr), HttpStatus.OK);
     }
 
-    @GetMapping("/charts/top-core-issues")
-    public ResponseEntity<List<Map<String, Object>>> topCoreIssues(
-            @RequestParam(defaultValue = "180") int lookbackDays,
-            @RequestParam(required = false) String fiscQtr) {
-        return new ResponseEntity<>(service.getTopCoreIssues(lookbackDays, fiscQtr), HttpStatus.OK);
-    }
-
     @GetMapping("/charts/hourly-case-pattern")
     public ResponseEntity<List<Map<String, Object>>> hourlyCasePattern(
             @RequestParam(defaultValue = "180") int lookbackDays,
@@ -233,17 +226,26 @@ public class CaseIQMonitoringController {
         return new ResponseEntity<>(service.getHourlyCaseOpenPattern(lookbackDays, fiscQtr), HttpStatus.OK);
     }
 
-    @GetMapping("/charts/category-accuracy")
-    public ResponseEntity<List<Map<String, Object>>> categoryAccuracy(
-            @RequestParam(defaultValue = "180") int lookbackDays,
-            @RequestParam(required = false) String fiscQtr) {
-        return new ResponseEntity<>(service.getCategoryAccuracy(lookbackDays, fiscQtr), HttpStatus.OK);
-    }
-
     @GetMapping("/charts/accuracy-over-time")
     public ResponseEntity<List<Map<String, Object>>> accuracyOverTime(
             @RequestParam(defaultValue = "120") int lookbackDays,
             @RequestParam(required = false) String fiscQtr) {
         return new ResponseEntity<>(service.getAccuracyOverTime(lookbackDays, fiscQtr), HttpStatus.OK);
+    }
+
+    @GetMapping("/charts/team-category-accuracy")
+    public ResponseEntity<List<Map<String, Object>>> teamCategoryAccuracy(
+            @RequestParam String teamName,
+            @RequestParam(defaultValue = "90") int lookbackDays,
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getTeamCategoryAccuracy(lookbackDays, teamName, fiscQtr), HttpStatus.OK);
+    }
+
+    @GetMapping("/charts/team-core-issue-accuracy")
+    public ResponseEntity<List<Map<String, Object>>> teamCoreIssueAccuracy(
+            @RequestParam String teamName,
+            @RequestParam(defaultValue = "90") int lookbackDays,
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getTeamCoreIssueAccuracy(lookbackDays, teamName, fiscQtr), HttpStatus.OK);
     }
 }

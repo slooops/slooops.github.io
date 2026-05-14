@@ -198,9 +198,9 @@
 }
 
 .badge-grey {
-  background: rgba(107, 114, 128, 0.1);
-  color: #6b7280;
-  border: 1px solid rgba(107, 114, 128, 0.2);
+  background: rgba(75, 85, 99, 0.15);
+  color: #4b5563;
+  border: 1px solid rgba(75, 85, 99);
 }
 
 .badge-amber {
@@ -228,9 +228,9 @@
 }
 
 :host(.dark-theme) .badge-grey {
-  background: rgba(156, 163, 175, 0.12);
-  color: #9ca3af;
-  border-color: rgba(156, 163, 175, 0.25);
+  background: rgba(156, 163, 175, 0.2);
+  color: #d1d5db;
+  border-color: rgba(156, 163, 175, 0.35);
 }
 
 :host(.dark-theme) .badge-amber {
@@ -252,6 +252,15 @@
   min-width: unset;
 }
 
+.accuracy-pill.clickable {
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+
+.accuracy-pill.clickable:hover {
+  filter: brightness(1.1);
+}
+
 .accuracy-pill .caseiq-pill-text {
   font-size: 0.5625rem;
   line-height: normal;
@@ -265,6 +274,20 @@
 
 .summary-empty {
   color: var(--ciq-muted);
+}
+
+.active-agents-link {
+  color: #00bceb;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.active-agents-link:hover {
+  color: #0070d2;
+  text-decoration: underline;
 }
 
 .summary-pct {

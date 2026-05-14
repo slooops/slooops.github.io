@@ -23,6 +23,7 @@ import { Chart } from 'chart.js/auto';
 import { Router } from '@angular/router';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import { AccuracyDetailModalComponent } from 'src/app/components/accuracy-detail-modal/accuracy-detail-modal.component';
 
 interface CaseIqTableMetric {
   total: number | null;
@@ -53,6 +54,7 @@ interface CaseIqTableRow {
     MatTooltipModule,
     LoadingSymbolComponent,
     NgIcon,
+    AccuracyDetailModalComponent,
   ],
   providers: [provideIcons({ phosphorLinkBold, phosphorArrowsClockwiseBold })],
   standalone: true,
@@ -116,9 +118,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   // ── Analytics chart data ──────────────────────────────────
   weeklyVolumeByTeamData: any[] = [];
   weeklyVolumeByStateData: any[] = [];
-  topCoreIssuesData: any[] = [];
   hourlyCasePatternData: any[] = [];
-  categoryAccuracyData: any[] = [];
   accuracyOverTimeData: any[] = [];
   analyticsChartsLoading = true;
   private analyticsDataReady = false;
@@ -1093,7 +1093,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     const base = 'caseiq/charts';
 
     let completed = 0;
-    const total = 6;
+    const total = 4;
     const done = () => {
       completed++;
       if (completed >= total) {
@@ -1127,30 +1127,10 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       });
 
     this.http
-      .get(`${base}/top-core-issues?lookbackDays=90`, this.destroyManager)
-      .subscribe({
-        next: (d: any) => {
-          this.topCoreIssuesData = d;
-          done();
-        },
-        error: () => done(),
-      });
-
-    this.http
       .get(`${base}/hourly-case-pattern?lookbackDays=90`, this.destroyManager)
       .subscribe({
         next: (d: any) => {
           this.hourlyCasePatternData = d;
-          done();
-        },
-        error: () => done(),
-      });
-
-    this.http
-      .get(`${base}/category-accuracy?lookbackDays=90`, this.destroyManager)
-      .subscribe({
-        next: (d: any) => {
-          this.categoryAccuracyData = d;
           done();
         },
         error: () => done(),
@@ -1186,9 +1166,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     this.buildWeeklyVolumeByTeamChart();
     this.buildWeeklyVolumeByStateChart();
-    this.buildTopCoreIssuesChart();
     this.buildHourlyCasePatternChart();
-    this.buildCategoryAccuracyChart();
   }
 
   private readonly teamColors: Record<string, string> = {
@@ -1569,142 +1547,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     this.analyticsCharts.push(chart);
   }
 
-  private buildTopCoreIssuesChart(): void {
-    const canvas = document.getElementById(
-      'chart-core-issues',
-    ) as HTMLCanvasElement;
-    if (!canvas) return;
-
-    // Filter out NA and take top 12
-    const data = this.topCoreIssuesData
-      .filter((d: any) => d.CORE_ISSUE && d.CORE_ISSUE.toUpperCase() !== 'NA')
-      .slice(0, 12);
-    const labels = data.map((d: any) => d.CORE_ISSUE ?? 'Unknown');
-    const values = data.map((d: any) => d.TOTAL_CASES ?? 0);
-    const accuracies = data.map((d: any) => d.ACCURACY_PCT ?? 0);
-
-    const chart = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          // Line dataset first so it renders on top of bars
-          {
-            type: 'line' as const,
-            label: 'AI Accuracy',
-            data: accuracies,
-            borderColor: '#00bceb',
-            borderWidth: 2.5,
-            pointBackgroundColor: '#ffffff',
-            pointBorderColor: '#00bceb',
-            pointBorderWidth: 2,
-            pointRadius: 3,
-            pointHoverRadius: 5.5,
-            tension: 0.4,
-            fill: true,
-            backgroundColor: (ctx: any) => {
-              const chart = ctx.chart;
-              const { ctx: canvasCtx, chartArea } = chart;
-              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
-              const gradient = canvasCtx.createLinearGradient(
-                chartArea.left,
-                0,
-                chartArea.right,
-                0,
-              );
-              gradient.addColorStop(0, 'rgba(0, 188, 235, 0)');
-              gradient.addColorStop(1, 'rgba(0, 188, 235, 0.35)');
-              return gradient;
-            },
-            xAxisID: 'xAccuracy',
-            indexAxis: 'y' as const,
-            order: 0,
-          },
-          // Bar dataset
-          {
-            type: 'bar' as const,
-            label: 'Cases',
-            data: values,
-            backgroundColor: 'rgba(100, 120, 140, 0.45)',
-            hoverBackgroundColor: 'rgba(100, 120, 140, 0.65)',
-            borderWidth: 0,
-            borderRadius: 4,
-            xAxisID: 'x',
-            order: 1,
-          },
-        ],
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { intersect: false, mode: 'index' },
-        plugins: {
-          legend: {
-            display: true,
-            position: 'bottom',
-            labels: {
-              boxWidth: 10,
-              boxHeight: 10,
-              padding: 14,
-              font: { size: 9 },
-              usePointStyle: true,
-            },
-          },
-          tooltip: {
-            backgroundColor: 'rgba(20, 30, 40, 0.9)',
-            titleFont: { size: 10 },
-            bodyFont: { size: 11 },
-            borderColor: 'rgba(0, 188, 235, 0.3)',
-            borderWidth: 1,
-            cornerRadius: 10,
-            padding: 8,
-            callbacks: {
-              label: (ctx) => {
-                if (ctx.datasetIndex === 0)
-                  return `AI Accuracy: ${ctx.parsed.x}%`;
-                return `Cases: ${ctx.parsed.x.toLocaleString()}`;
-              },
-            },
-          },
-        },
-        scales: {
-          x: {
-            position: 'bottom',
-            grid: { color: 'rgba(0,0,0,0.04)' },
-            ticks: { font: { size: 10 }, maxTicksLimit: 5 },
-            border: { display: false },
-            title: { display: false },
-          },
-          xAccuracy: {
-            position: 'top',
-            min: 0,
-            max: 100,
-            grid: { display: false },
-            ticks: {
-              font: { size: 9 },
-              callback: (val) => val + '%',
-              maxTicksLimit: 5,
-            },
-            border: { display: false },
-          },
-          y: {
-            grid: { display: false },
-            ticks: {
-              font: { size: 9 },
-              callback: function (_value, index) {
-                const lbl = labels[index] ?? '';
-                return lbl.length > 22 ? lbl.substring(0, 20) + '…' : lbl;
-              },
-            },
-            border: { display: false },
-          },
-        },
-      },
-    });
-    this.analyticsCharts.push(chart);
-  }
-
   private buildHourlyCasePatternChart(): void {
     const canvas = document.getElementById(
       'chart-hourly-pattern',
@@ -1807,159 +1649,21 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     this.analyticsCharts.push(chart);
   }
 
-  private buildCategoryAccuracyChart(): void {
-    const canvas = document.getElementById(
-      'chart-category-accuracy',
-    ) as HTMLCanvasElement;
-    if (!canvas) return;
+  // ── Accuracy Detail Modal ─────────────────────────────────
+  showAccuracyModal = false;
+  accuracyModalTeam = '';
+  accuracyModalTeamAccuracy: number | null = null;
 
-    // Take top 20 categories by volume, then sort by accuracy descending
-    const data = this.categoryAccuracyData
-      .slice(0, 20)
-      .sort((a: any, b: any) => (b.ACCURACY_PCT ?? 0) - (a.ACCURACY_PCT ?? 0));
-    const labels = data.map((d: any) => d.CATEGORY ?? 'Unknown');
-    const accuracies = data.map((d: any) => d.ACCURACY_PCT ?? 0);
-    const totals = data.map((d: any) => d.TOTAL ?? 0);
-
-    // Color based on accuracy — red to green gradient
-    const bgColors = accuracies.map((pct: number) => {
-      if (pct >= 90) return 'rgba(110, 190, 74, 0.85)';
-      if (pct >= 75) return 'rgba(110, 190, 74, 0.55)';
-      if (pct >= 60) return 'rgba(0, 188, 235, 0.65)';
-      if (pct >= 40) return 'rgba(230, 168, 0, 0.65)';
-      if (pct >= 20) return 'rgba(255, 102, 0, 0.65)';
-      return 'rgba(229, 57, 53, 0.7)';
-    });
-
-    const chart = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          // Line dataset first so it renders on top of bars
-          {
-            type: 'line' as const,
-            label: 'Case Count',
-            data: totals,
-            borderColor: '#00bceb',
-            borderWidth: 2.5,
-            pointBackgroundColor: '#ffffff',
-            pointBorderColor: '#00bceb',
-            pointBorderWidth: 2,
-            pointRadius: 3,
-            pointHoverRadius: 5.5,
-            tension: 0.4,
-            fill: true,
-            backgroundColor: (ctx: any) => {
-              const chart = ctx.chart;
-              const { ctx: canvasCtx, chartArea } = chart;
-              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
-              const gradient = canvasCtx.createLinearGradient(
-                chartArea.left,
-                0,
-                chartArea.right,
-                0,
-              );
-              gradient.addColorStop(0, 'rgba(0, 188, 235, 0)');
-              gradient.addColorStop(1, 'rgba(0, 188, 235, 0.35)');
-              return gradient;
-            },
-            xAxisID: 'xCases',
-            indexAxis: 'y' as const,
-            order: 0,
-          },
-          // Bar dataset
-          {
-            type: 'bar' as const,
-            label: 'Accuracy',
-            data: accuracies,
-            backgroundColor: bgColors,
-            borderWidth: 0,
-            borderRadius: 3,
-            xAxisID: 'x',
-            order: 1,
-          },
-        ],
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { intersect: false, mode: 'index' },
-        plugins: {
-          legend: {
-            display: true,
-            position: 'bottom',
-            labels: {
-              boxWidth: 10,
-              boxHeight: 10,
-              padding: 14,
-              font: { size: 9 },
-              usePointStyle: true,
-            },
-          },
-          tooltip: {
-            backgroundColor: 'rgba(20, 30, 40, 0.9)',
-            titleFont: { size: 10 },
-            bodyFont: { size: 11 },
-            borderColor: 'rgba(0, 188, 235, 0.3)',
-            borderWidth: 1,
-            cornerRadius: 10,
-            padding: 8,
-            callbacks: {
-              label: (ctx) => {
-                if (ctx.datasetIndex === 0)
-                  return `Cases: ${ctx.parsed.x.toLocaleString()}`;
-                return `Accuracy: ${ctx.parsed.x}%`;
-              },
-            },
-          },
-        },
-        scales: {
-          x: {
-            position: 'bottom',
-            min: 0,
-            max: 100,
-            grid: { color: 'rgba(0,0,0,0.04)' },
-            ticks: { font: { size: 10 }, callback: (v) => v + '%' },
-            border: { display: false },
-          },
-          xCases: {
-            position: 'top',
-            grid: { display: false },
-            ticks: { font: { size: 9 }, maxTicksLimit: 5 },
-            border: { display: false },
-          },
-          y: {
-            grid: { display: false },
-            ticks: {
-              font: { size: 8 },
-              callback: function (_value, index) {
-                const lbl = labels[index] ?? '';
-                return lbl.length > 20 ? lbl.substring(0, 18) + '…' : lbl;
-              },
-            },
-            border: { display: false },
-          },
-        },
-      },
-    });
-    this.analyticsCharts.push(chart);
+  openAccuracyModal(sectionName: string): void {
+    if (sectionName === 'Finance IT') return; // Only for individual teams
+    const accuracy = this.getAccuracyForSection(sectionName);
+    if (accuracy == null) return;
+    this.accuracyModalTeam = sectionName;
+    this.accuracyModalTeamAccuracy = accuracy;
+    this.showAccuracyModal = true;
   }
 
-  getCoreIssuesDateRange(): string {
-    if (!this.topCoreIssuesData.length) return '';
-    const earliest = this.topCoreIssuesData.reduce(
-      (min: string, d: any) =>
-        d.EARLIEST_DATE && d.EARLIEST_DATE < min ? d.EARLIEST_DATE : min,
-      this.topCoreIssuesData[0]?.EARLIEST_DATE ?? '',
-    );
-    const latest = this.topCoreIssuesData.reduce(
-      (max: string, d: any) =>
-        d.LATEST_DATE && d.LATEST_DATE > max ? d.LATEST_DATE : max,
-      this.topCoreIssuesData[0]?.LATEST_DATE ?? '',
-    );
-    if (!earliest || !latest) return '';
-    return `${new Date(earliest).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} – ${new Date(latest).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+  closeAccuracyModal(): void {
+    this.showAccuracyModal = false;
   }
 }

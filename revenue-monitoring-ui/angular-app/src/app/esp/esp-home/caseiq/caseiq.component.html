@@ -5,7 +5,6 @@
 }
 
 @if (!isLoading) {
-  @let agents = getFinanceAgents();
   @let opsRate = getOpsAutomationRate();
   @let summaryRows = getSummaryRows();
 
@@ -199,7 +198,8 @@
               <th>Service Requests</th>
               <th>Total (Agent)</th>
               <th>Agent vs Ops %</th>
-              <th>Incidents</th>
+              <th>Active Agents</th>
+              <th>Service Incidents</th>
             </tr>
           </thead>
           <tbody>
@@ -225,7 +225,11 @@
                 </td>
                 <td>
                   @if (getAccuracyForSection(row.sectionName) != null) {
-                    <div class="caseiq-pill accuracy-pill">
+                    <div
+                      class="caseiq-pill accuracy-pill"
+                      [class.clickable]="row.sectionName !== 'Finance IT'"
+                      (click)="openAccuracyModal(row.sectionName)"
+                    >
                       <div
                         class="caseiq-pill-fill {{
                           getAccuracyColor(row.sectionName)
@@ -318,6 +322,15 @@
                   </div>
                 </td>
                 <td>
+                  <a
+                    class="active-agents-link"
+                    (click)="openResolutionAgents($event)"
+                  >
+                    {{ getAgentForRow(row).deployed }} /
+                    {{ getAgentForRow(row).total }}
+                  </a>
+                </td>
+                <td>
                   @if (row.serviceIncidents != null) {
                     {{ row.serviceIncidents | number }}
                   } @else {
@@ -328,60 +341,6 @@
             }
           </tbody>
         </table>
-      </div>
-    </div>
-
-    <!-- Resolution Agents Active — KPI strip -->
-    <div class="ra-strip">
-      <div class="ra-strip-header">
-        @if (router.url.includes("/caseiq")) {
-          <span class="ra-strip-title">Resolution Agents Active</span>
-        } @else {
-          <a
-            class="ra-strip-title ra-strip-link"
-            (click)="openResolutionAgents($event)"
-          >
-            Resolution Agents Active
-            <ng-icon name="phosphorLinkBold" size="14"></ng-icon>
-          </a>
-        }
-      </div>
-      <div class="ra-strip-pills">
-        <!-- Finance IT -->
-        <div class="caseiq-kpi ra-kpi">
-          <span class="caseiq-kpi-title">Finance IT</span>
-          <div class="caseiq-kpi-body">
-            <div class="caseiq-pill">
-              <div
-                class="caseiq-pill-fill cyan"
-                [style.width.%]="
-                  agents.total ? (agents.deployed / agents.total) * 100 : 0
-                "
-              ></div>
-              <span class="caseiq-pill-text">
-                {{ agents.deployed }} / {{ agents.total }}
-              </span>
-            </div>
-          </div>
-        </div>
-        @for (agent of getTrackAgents(); track agent.team) {
-          <div class="caseiq-kpi ra-kpi">
-            <span class="caseiq-kpi-title">{{ agent.team }}</span>
-            <div class="caseiq-kpi-body">
-              <div class="caseiq-pill">
-                <div
-                  class="caseiq-pill-fill cyan"
-                  [style.width.%]="
-                    agent.total ? (agent.deployed / agent.total) * 100 : 0
-                  "
-                ></div>
-                <span class="caseiq-pill-text">
-                  {{ agent.deployed }} / {{ agent.total }}
-                </span>
-              </div>
-            </div>
-          </div>
-        }
       </div>
     </div>
 
@@ -397,33 +356,7 @@
         </div>
       }
 
-      <!-- Row 1: Category Accuracy (1fr) | Top Core Issues (1fr) -->
-      <div class="analytics-row analytics-row-2col">
-        <div class="ciq-card ciq-card--chart">
-          <div class="ciq-card-header">
-            <span class="ciq-card-title">Category Accuracy</span>
-            <span class="analytics-date-range">Last 90 days</span>
-          </div>
-          <div class="analytics-chart-wrapper analytics-chart-tall">
-            <canvas id="chart-category-accuracy"></canvas>
-          </div>
-        </div>
-        <div class="ciq-card ciq-card--chart">
-          <div class="ciq-card-header">
-            <span class="ciq-card-title">Top Core Issues (excl. N/A)</span>
-            @if (getCoreIssuesDateRange()) {
-              <span class="analytics-date-range">{{
-                getCoreIssuesDateRange()
-              }}</span>
-            }
-          </div>
-          <div class="analytics-chart-wrapper analytics-chart-tall">
-            <canvas id="chart-core-issues"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- Row 2: Weekly Cases Analyzed (2fr) | Weekly Case Volume by Team (2fr) | Hourly Processing Load (1fr) -->
+      <!-- Row 1: Weekly Cases Analyzed (2fr) | Weekly Case Volume by Team (2fr) | Hourly Processing Load (1fr) -->
       <div class="analytics-row analytics-row-2-2-1">
         <div class="ciq-card ciq-card--chart">
           <div class="ciq-card-header">
@@ -483,4 +416,12 @@
     <br />
     <br />
   }
+}
+
+@if (showAccuracyModal) {
+  <app-accuracy-detail-modal
+    [teamName]="accuracyModalTeam"
+    [teamAccuracy]="accuracyModalTeamAccuracy"
+    (closeModal)="closeAccuracyModal()"
+  />
 }
