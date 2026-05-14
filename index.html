@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -50,13 +50,45 @@
       </div>
 
       <div class="callout">
-        <h2>Our Hours (WIP)</h2>
+        <h2>The Kenny Test</h2>
         <p>
-          A timekeeping app for my mom’s small business. Because saving her from
-          paper timesheets was more appealing than buying an HR SaaS product—and
-          I wanted to learn AWS Lambda and Next.js. <br />
-          <a href="https://github.com/slooops/ourhours" target="_blank"
-            >Latest abandoned commits →</a
+          An unhinged 103-question quiz app in React, Vite, Supabase, and the
+          Giphy API based on a real list of "red flags" our enemy Kenny made.
+          The friend group all ranked ourselves. Score above 32? Unmarriageable.
+          Below? Super eligible.
+        </p>
+        <p>
+          <a href="https://silly-sandbox.vercel.app/" target="_blank"
+            >Take the Test →</a
+          >
+        </p>
+      </div>
+
+      <div class="callout">
+        <h2>Moonbeam</h2>
+        <p>
+          A REM sleep calculator built in Swift, and a frustration with the fact
+          that most sleep apps have a subscription fee? I'm literally just
+          calculating 1.5 hrs onto my bedtime, and I wanted a nice UI to do it.
+          So here we are.
+        </p>
+        <p>
+          <a href="https://github.com/slooops/Moonbeam" target="_blank"
+            >View Repo →</a
+          >
+        </p>
+      </div>
+
+      <div class="callout">
+        <h2>Daily Dough</h2>
+        <p>
+          A personal finance app that tells you exactly how much you can
+          sustainably spend <em>right now</em>. Uses Plaid to turn your income,
+          bills, and real bank transactions into a reactive daily allowance.
+        </p>
+        <p>
+          <a href="https://github.com/slooops/Daily-Dough" target="_blank"
+            >View Repo →</a
           >
         </p>
       </div>
@@ -74,16 +106,6 @@
       </div>
 
       <div class="callout">
-        <h2>Print Archive</h2>
-        <p>
-          Thousands of pages of editorial design from my time at St
-          Andrews—spreads, covers, and layouts from <em>The Gay Saint</em> and
-          <em>Hearing Aid</em>. All lovingly typeset.
-        </p>
-        <p><a href="archive.html">Into Print! →</a></p>
-      </div>
-
-      <div class="callout">
         <h2>Design Work</h2>
         <p>
           My pre-engineering life: branding, layouts, typography, and magazine
@@ -94,13 +116,71 @@
       </div>
 
       <div class="callout">
+        <h2>Print Archive</h2>
+        <p>
+          Thousands of pages of editorial design from my time at St
+          Andrews—spreads, covers, and layouts from <em>The Gay Saint</em> and
+          <em>Hearing Aid</em>. All lovingly typeset.
+        </p>
+        <p><a href="archive.html">Into Print! →</a></p>
+      </div>
+
+      <div class="callout">
+        <h2><em>Community Magazine</em></h2>
+        <p>
+          A full-stack magazine app for showcasing <em>Community Magazine</em>,
+          a zine about Muni Metro, transit in SF, and beyond.
+        </p>
+        <p>
+          <a href="https://community-zine.vercel.app/" target="_blank"
+            >Read It →</a
+          >
+        </p>
+      </div>
+
+      <div class="callout">
         <h2>Work @ Cisco</h2>
         <p>
-          Building Angular dashboards for internal use. It involves predictive
-          models, secure Oracle DBs, and confidential financial data—so no, you
-          can’t see it. But trust me, it's neat.
+          Angular dashboards, predictive models, and confidential financial
+          data—so no, you can’t see the code. But you can see how I stack up
+          below.
         </p>
       </div>
     </section>
+
+    <section class="stats-section">
+      <h2>Code Stats</h2>
+      <p class="stats-subtitle">
+        Lifetime contributions across all tracked repos
+      </p>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-label">Commits</div>
+          <div class="stat-value" id="stat-commits">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Files Changed</div>
+          <div class="stat-value" id="stat-files">—</div>
+        </div>
+      </div>
+
+      <div class="diffstat" id="diffstat">
+        <span class="diffstat-add" id="diffstat-add">+0</span>
+        <span class="diffstat-del" id="diffstat-del">-0</span>
+        <span class="diffstat-blocks" id="diffstat-blocks"></span>
+      </div>
+
+      <div class="chart-container">
+        <h3>Cumulative Additions Over Time</h3>
+        <div class="chart-legend">
+          <span class="legend-me">Me</span>
+          <span class="legend-colleague">Colleague Average</span>
+        </div>
+        <canvas id="stats-chart" width="780" height="260"></canvas>
+      </div>
+    </section>
+
+    <script src="assets/js/stats.js"></script>
   </body>
 </html>

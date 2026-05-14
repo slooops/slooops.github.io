@@ -141,3 +141,139 @@ a:hover {
   font-weight: 500;
   font-size: 0.95rem;
 }
+
+/* Stats Section */
+.stats-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e5e5e5;
+}
+
+.stats-subtitle {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: -0.5rem;
+}
+
+.stat-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  flex: 1;
+  padding: 1rem;
+  background: #f6f8fa;
+  border: 1px solid #e1e4e8;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-family: "InterDisplay", sans-serif;
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: #1a1a1a;
+}
+
+.diffstat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+}
+
+.diffstat-add {
+  color: #1a7f37;
+}
+
+.diffstat-del {
+  color: #cf222e;
+}
+
+.diffstat-blocks {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.diffstat-block {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+}
+
+.diffstat-block.add {
+  background: #2da44e;
+}
+
+.diffstat-block.del {
+  background: #cf222e;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.3) 2px,
+    rgba(255, 255, 255, 0.3) 4px
+  );
+}
+
+.diffstat-block.neutral {
+  background: #d1d5da;
+}
+
+.chart-container {
+  margin-top: 1.5rem;
+}
+
+.chart-container h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.legend-me::before,
+.legend-colleague::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+}
+
+.legend-me::before {
+  background: #2da44e;
+}
+
+.legend-colleague::before {
+  background: #8b949e;
+}
+
+#stats-chart {
+  width: 100%;
+  max-width: 780px;
+  height: 260px;
+}
+
+@media (max-width: 600px) {
+  .stat-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
