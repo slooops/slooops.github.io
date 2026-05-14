@@ -1,6 +1,9 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { ChartConfiguration, ChartType } from 'chart.js';
+import { Chart, ChartConfiguration, ChartType } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { NgChartsModule } from 'ng2-charts';
+
+Chart.register(ChartDataLabels);
 
 @Component({
   selector: 'app-atmf-bar-line-chart',
@@ -46,16 +49,9 @@ export class AtmfBarLineChartComponent implements OnChanges {
         },
       },
       datalabels: {
-        display: true, // Enable datalabels for bars
+        display: (context: any) => context.dataset.type !== 'line',
         color: 'white',
-        formatter: (value: any, context: any) => {
-          // Only show labels for bar datasets, not lines
-          const datasetType = context.dataset.type;
-          if (datasetType === 'line') {
-            return null;
-          }
-          return value.toLocaleString();
-        },
+        formatter: (value: any) => value.toLocaleString(),
       },
     },
     scales: {
