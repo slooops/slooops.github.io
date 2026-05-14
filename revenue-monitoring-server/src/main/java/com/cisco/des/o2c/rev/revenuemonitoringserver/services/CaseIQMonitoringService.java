@@ -432,33 +432,34 @@ public class CaseIQMonitoringService {
 
     private static final String TEAM_CATEGORY_ACCURACY = "SELECT category, " +
             "COUNT(*) AS total, " +
-            "SUM(CASE WHEN category_match = 'Y' THEN 1 ELSE 0 END) AS correct, " +
-            "ROUND(SUM(CASE WHEN category_match = 'Y' THEN 1 ELSE 0 END) " +
-            "  / NULLIF(SUM(CASE WHEN category_match IN ('Y','N') THEN 1 ELSE 0 END), 0) * 100, 1) AS accuracy_pct, " +
-            "SUM(CASE WHEN category_match IN ('Y','N') THEN 1 ELSE 0 END) AS validated " +
+            "SUM(CASE WHEN case_analyzer_status = 'VALIDATED' AND category_match = 'Y' THEN 1 ELSE 0 END) AS correct, "
+            +
+            "ROUND(SUM(CASE WHEN case_analyzer_status = 'VALIDATED' AND category_match = 'Y' THEN 1 ELSE 0 END) " +
+            "  / NULLIF(COUNT(*), 0) * 100, 1) AS accuracy_pct, " +
+            "SUM(CASE WHEN case_analyzer_status = 'VALIDATED' THEN 1 ELSE 0 END) AS validated " +
             "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
             "WHERE caseiq_run_date > SYSDATE - :lookback_days " +
             "AND team_name = :team_name " +
             "AND category IS NOT NULL " +
             "GROUP BY category " +
-            "HAVING SUM(CASE WHEN category_match IN ('Y','N') THEN 1 ELSE 0 END) >= 3 " +
+            "HAVING COUNT(*) >= 3 " +
             "ORDER BY total DESC " +
             "FETCH FIRST 20 ROWS ONLY";
 
     private static final String TEAM_CORE_ISSUE_ACCURACY = "SELECT core_issue, " +
             "COUNT(*) AS total, " +
-            "SUM(CASE WHEN core_issue_match = 'Y' THEN 1 ELSE 0 END) AS correct, " +
-            "ROUND(SUM(CASE WHEN core_issue_match = 'Y' THEN 1 ELSE 0 END) " +
-            "  / NULLIF(SUM(CASE WHEN core_issue_match IN ('Y','N') THEN 1 ELSE 0 END), 0) * 100, 1) AS accuracy_pct, "
+            "SUM(CASE WHEN case_analyzer_status = 'VALIDATED' AND core_issue_match = 'Y' THEN 1 ELSE 0 END) AS correct, "
             +
-            "SUM(CASE WHEN core_issue_match IN ('Y','N') THEN 1 ELSE 0 END) AS validated " +
+            "ROUND(SUM(CASE WHEN case_analyzer_status = 'VALIDATED' AND core_issue_match = 'Y' THEN 1 ELSE 0 END) " +
+            "  / NULLIF(COUNT(*), 0) * 100, 1) AS accuracy_pct, " +
+            "SUM(CASE WHEN case_analyzer_status = 'VALIDATED' THEN 1 ELSE 0 END) AS validated " +
             "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
             "WHERE caseiq_run_date > SYSDATE - :lookback_days " +
             "AND team_name = :team_name " +
             "AND core_issue IS NOT NULL " +
             "AND UPPER(core_issue) != 'NA' " +
             "GROUP BY core_issue " +
-            "HAVING SUM(CASE WHEN core_issue_match IN ('Y','N') THEN 1 ELSE 0 END) >= 3 " +
+            "HAVING COUNT(*) >= 3 " +
             "ORDER BY total DESC " +
             "FETCH FIRST 20 ROWS ONLY";
 

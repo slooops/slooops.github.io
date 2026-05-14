@@ -84,7 +84,6 @@
   border: 1px solid var(--ciq-card-border);
   border-radius: 1rem;
   box-shadow: var(--ciq-card-shadow);
-  padding: 1rem;
   overflow: hidden;
 }
 
@@ -92,19 +91,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.75rem;
 }
 
 .ciq-card-title {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--ciq-text);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .ciq-table-scroll {
   overflow-x: auto;
   overflow-y: auto;
-  margin: 0 -1rem -1rem;
 }
 
 .ciq-table {
@@ -384,7 +383,20 @@
 }
 
 .analytics-row-2-2-1 {
-  grid-template-columns: 2fr 3fr 2fr;
+  grid-template-columns: 2fr 2fr 1fr;
+  grid-template-rows: 300px;
+}
+
+.analytics-row-2-2-1 > .ciq-swap-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.analytics-row-2-2-1 > .ciq-swap-card .ciq-anomaly-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .ciq-card--chart {
@@ -402,11 +414,6 @@
 
 .ciq-card--chart .ciq-card-title {
   display: inline;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--ciq-text);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .analytics-date-range {
@@ -476,4 +483,579 @@
   .analytics-row-2-2-1 > :nth-child(3) {
     grid-column: span 1;
   }
+}
+
+/* ═══════════════════════════════════════════════════════
+   MONITORING: Issues Breakdown + Error Incidents
+   ═══════════════════════════════════════════════════════ */
+.monitoring-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.ciq-swap-card {
+  animation: ciq-card-swap-in 280ms ease;
+}
+
+@keyframes ciq-card-swap-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Card header ── */
+.ciq-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  color: var(--ciq-text);
+  font-size: 0.85rem;
+}
+
+:host(.dark-theme) .ciq-card-header {
+  background: transparent;
+}
+
+.ciq-card-title-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ciq-header-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* ── Anomaly list ── */
+.ciq-anomaly-list {
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 0 1.125rem 1rem;
+}
+
+.ciq-anomaly-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--ciq-border);
+  font-size: 12px;
+  gap: 8px;
+}
+
+.ciq-anomaly-item:last-child {
+  border-bottom: none;
+}
+
+.ciq-anomaly-name {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.ciq-anomaly-count {
+  font-weight: 700;
+  min-width: 40px;
+  text-align: right;
+}
+
+.ciq-anomaly-disclaimer {
+  margin: 0.5rem 0.75rem 0.25rem;
+  font-size: var(--fit-font-size-xs);
+  color: var(--ciq-muted);
+  font-style: italic;
+}
+
+/* ── Badges ── */
+.ciq-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-critical {
+  background: rgba(229, 57, 53, 0.12);
+  color: var(--ciq-red);
+}
+
+:host(.dark-theme) .badge-critical {
+  background: rgba(255, 23, 68, 0.2);
+}
+
+.badge-warning {
+  background: rgba(230, 168, 0, 0.12);
+  color: var(--ciq-yellow);
+}
+
+:host(.dark-theme) .badge-warning {
+  background: rgba(255, 214, 0, 0.2);
+}
+
+.badge-ok {
+  background: rgba(0, 200, 83, 0.12);
+  color: var(--ciq-green);
+}
+
+:host(.dark-theme) .badge-ok {
+  background: rgba(0, 200, 83, 0.2);
+}
+
+/* ── Team Chips ── */
+.ciq-team-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 120px;
+  justify-content: flex-end;
+}
+
+.ciq-team-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  font-size: 10px;
+  border-radius: 999px;
+  border: 1px solid var(--ciq-border);
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--ciq-text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--fit-transition-fast),
+    border-color var(--fit-transition-fast);
+}
+
+.ciq-team-chip:hover {
+  background: rgba(0, 112, 210, 0.1);
+  border-color: #0070d2;
+  color: #0070d2;
+}
+
+.ciq-team-chip strong {
+  font-weight: 700;
+}
+
+.ciq-team-chip--critical {
+  border-color: rgba(229, 57, 53, 0.35);
+  background: rgba(229, 57, 53, 0.08);
+  color: var(--ciq-red, #e53935);
+}
+
+.ciq-team-chip--critical:hover {
+  background: rgba(229, 57, 53, 0.18);
+  border-color: var(--ciq-red, #e53935);
+}
+
+.ciq-team-chip--warning {
+  border-color: rgba(230, 168, 0, 0.35);
+  background: rgba(230, 168, 0, 0.08);
+  color: var(--ciq-yellow, #e6a800);
+}
+
+.ciq-team-chip--warning:hover {
+  background: rgba(230, 168, 0, 0.18);
+  border-color: var(--ciq-yellow, #e6a800);
+}
+
+:host(.dark-theme) .ciq-team-chip--critical {
+  background: rgba(255, 23, 68, 0.12);
+  border-color: rgba(255, 23, 68, 0.3);
+}
+
+:host(.dark-theme) .ciq-team-chip--warning {
+  background: rgba(255, 214, 0, 0.12);
+  border-color: rgba(255, 214, 0, 0.3);
+}
+
+:host(.dark-theme) .ciq-team-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+:host(.dark-theme) .ciq-team-chip:hover {
+  background: rgba(0, 188, 235, 0.15);
+  border-color: #00bceb;
+  color: #00bceb;
+}
+
+/* ── Filter selects ── */
+.ciq-filter-select {
+  padding: 4px 8px;
+  font-size: 11px;
+  border: 1px solid var(--ciq-border);
+  border-radius: 6px;
+  background: var(--ciq-surface, #fff);
+  color: var(--ciq-text);
+  cursor: pointer;
+  outline: none;
+  max-width: 140px;
+}
+
+.ciq-filter-select:focus {
+  border-color: #0070d2;
+}
+
+:host(.dark-theme) .ciq-filter-select {
+  background: var(--ciq-surface, #1a2733);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Download button ── */
+.ciq-download-btn {
+  position: relative;
+  overflow: hidden;
+  padding: 4px 10px 2px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--ciq-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ciq-text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--fit-transition-fast),
+    border-color var(--fit-transition-fast),
+    transform 0.2s ease;
+  line-height: normal;
+}
+
+.ciq-download-btn__fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  background: rgba(0, 188, 235, 0.2);
+  transition: width 0.25s ease-out;
+  pointer-events: none;
+}
+
+.ciq-download-btn__content {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  z-index: 1;
+  padding-top: 2px;
+}
+
+.ciq-download-btn--downloading {
+  pointer-events: none;
+  border-color: #00bceb;
+  color: #00bceb;
+}
+
+.ciq-download-btn--done {
+  animation: ciq-pop 0.5s ease-out;
+  border-color: #6ebe4a;
+  color: #6ebe4a;
+}
+
+@keyframes ciq-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.ciq-download-btn:hover {
+  background: rgba(0, 112, 210, 0.08);
+  border-color: #0070d2;
+  color: #0070d2;
+}
+
+:host(.dark-theme) .ciq-download-btn {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+:host(.dark-theme) .ciq-download-btn:hover {
+  background: rgba(0, 188, 235, 0.12);
+  border-color: #00bceb;
+  color: #00bceb;
+}
+
+:host(.dark-theme) .ciq-download-btn--downloading {
+  border-color: #00bceb;
+  color: #00bceb;
+}
+
+:host(.dark-theme) .ciq-download-btn__fill {
+  background: rgba(0, 188, 235, 0.15);
+}
+
+:host(.dark-theme) .ciq-download-btn--done {
+  border-color: #6ebe4a;
+  color: #6ebe4a;
+}
+
+/* ── Error Incidents table ── */
+.ciq-table-scroll {
+  overflow-y: auto;
+  padding: 0 !important;
+}
+
+.ciq-table-scroll--no-max {
+  max-height: none;
+  overflow-y: visible;
+}
+
+.ciq-error-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.ciq-error-table th {
+  text-align: left;
+  padding: 10px 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: linear-gradient(
+    to bottom,
+    #ffffff 0%,
+    #ffffff 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  color: var(--ciq-text);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+:host(.dark-theme) .ciq-error-table th {
+  background: transparent;
+}
+
+.ciq-error-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--ciq-border);
+}
+
+.ciq-error-table tr:last-child td {
+  border-bottom: none !important;
+}
+
+.ciq-error-table tr:hover td {
+  background: var(--ciq-hover-bg);
+}
+
+.ciq-mono {
+  font-family: "Cascadia Code", "Fira Code", monospace;
+  font-size: 11px;
+}
+
+.ciq-text-sm {
+  font-size: 11px;
+}
+
+.ciq-no-data {
+  color: var(--ciq-muted);
+  text-align: center;
+  padding: 20px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  height: inherit;
+}
+
+.ciq-no-data-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(100, 120, 140, 0.08);
+  color: rgba(100, 120, 140, 0.45);
+}
+
+:host(.dark-theme) .ciq-no-data-icon {
+  background: rgba(136, 153, 166, 0.1);
+  color: rgba(136, 153, 166, 0.4);
+}
+
+.ciq-table-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 0;
+}
+
+/* ── Pagination ── */
+.ciq-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 18px;
+  font-size: 12px;
+  color: var(--ciq-muted);
+  border-top: 1px solid var(--ciq-card-border);
+}
+
+.ciq-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ciq-pg-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--ciq-card-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ciq-text);
+  cursor: pointer;
+  transition:
+    background 150ms,
+    border-color 150ms;
+}
+
+.ciq-pg-btn:hover:not(:disabled) {
+  background: rgba(0, 112, 210, 0.08);
+  border-color: #0070d2;
+  color: #0070d2;
+}
+
+.ciq-pg-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+:host(.dark-theme) .ciq-pg-btn {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+:host(.dark-theme) .ciq-pg-btn:hover:not(:disabled) {
+  background: rgba(0, 188, 235, 0.12);
+  border-color: #00bceb;
+  color: #00bceb;
+}
+
+/* ── Drilldown modal ── */
+.ciq-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  animation: ciqBackdropIn 0.15s ease;
+}
+
+@keyframes ciqBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ciq-modal {
+  width: 90%;
+  max-width: 720px;
+  background: var(--ciq-surface, #fff);
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  animation: ciqModalIn 0.2s ease;
+}
+
+@keyframes ciqModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ciq-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+}
+
+.ciq-modal__title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ciq-text);
+  margin: 0;
+}
+
+.ciq-modal__subtitle {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--ciq-muted);
+  letter-spacing: 0.5px;
+  margin: -1.5rem 0 0.5rem 0.5rem;
+}
+
+.ciq-modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ciq-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition:
+    background var(--fit-transition-fast),
+    color var(--fit-transition-fast);
+}
+
+.ciq-modal__close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--ciq-text);
+}
+
+.ciq-modal__body {
+  padding: 20px 24px;
+  height: 340px;
+}
+
+:host(.dark-theme) .ciq-modal {
+  background: var(--ciq-surface, #1a2733);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+:host(.dark-theme) .ciq-modal__close:hover {
+  background: rgba(255, 255, 255, 0.08);
 }

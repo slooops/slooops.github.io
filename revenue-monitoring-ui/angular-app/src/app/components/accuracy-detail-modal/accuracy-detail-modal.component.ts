@@ -24,6 +24,7 @@ import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.co
 export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
   @Input() teamName = '';
   @Input() teamAccuracy: number | null = null;
+  @Input() fiscQtr = '';
   @Output() closeModal = new EventEmitter<void>();
 
   activeTab: 'category' | 'coreIssue' = 'category';
@@ -60,9 +61,13 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
     this.categoryLoading = true;
     this.coreIssueLoading = true;
 
+    const qp = this.fiscQtr
+      ? `&fiscQtr=${encodeURIComponent(this.fiscQtr)}`
+      : '';
+
     this.http
       .get(
-        `${base}/team-category-accuracy?teamName=${encodeURIComponent(this.teamName)}&lookbackDays=90`,
+        `${base}/team-category-accuracy?teamName=${encodeURIComponent(this.teamName)}&lookbackDays=90${qp}`,
         this.destroyManager,
       )
       .subscribe({
@@ -80,7 +85,7 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
 
     this.http
       .get(
-        `${base}/team-core-issue-accuracy?teamName=${encodeURIComponent(this.teamName)}&lookbackDays=90`,
+        `${base}/team-core-issue-accuracy?teamName=${encodeURIComponent(this.teamName)}&lookbackDays=90${qp}`,
         this.destroyManager,
       )
       .subscribe({
