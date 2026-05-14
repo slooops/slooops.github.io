@@ -134,11 +134,12 @@
     </div>
   </div>
 </div>
-@if (isAdmin$ && !chatbotHidden) {
+@if ((isAdmin$ || userId === "pragampe") && !chatbotHidden) {
   <app-chatbot
     [currentRoute]="router.url"
     [isOpen]="isChatOpen"
     (togglePanel)="toggleChat()"
+    [apiUrl]="chatApiUrl"
   ></app-chatbot>
 }
 
