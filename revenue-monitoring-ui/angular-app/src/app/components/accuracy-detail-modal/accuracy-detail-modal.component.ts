@@ -33,8 +33,8 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
   categoryLoading = false;
   coreIssueLoading = false;
 
-  private categoryChart: Chart | null = null;
-  private coreIssueChart: Chart | null = null;
+  private categoryChart: any = null;
+  private coreIssueChart: any = null;
 
   constructor(
     private readonly http: ApiHttpService,

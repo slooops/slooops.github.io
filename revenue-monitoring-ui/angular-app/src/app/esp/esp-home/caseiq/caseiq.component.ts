@@ -1739,7 +1739,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     'Resolution Error',
   ];
   errorCurrentPage = 1;
-  errorPageSize = 25;
+  errorPageSize = 10;
   errorTotalPages = 1;
   errorTotalCount = 0;
   errorLoading = false;
