@@ -1,5 +1,5 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
@@ -80,6 +80,7 @@ export class EspHomeComponent implements OnInit {
     private dialog: MatDialog,
     private dataService: DataService,
     public router: Router,
+    private route: ActivatedRoute,
   ) {}
 
   activeTab: string = ''; // Will be set based on user roles
@@ -252,6 +253,26 @@ export class EspHomeComponent implements OnInit {
     } else {
       this.setDefaultActiveTab();
     }
+
+    // Handle tab query param from side-nav
+    this.route.queryParams.subscribe((params) => {
+      const tabSlug = params['tab'];
+      if (tabSlug) {
+        const tabMap: Record<string, string> = {
+          'finance-it': 'Finance IT',
+          om: 'OM',
+          sm: 'SM',
+          i2c: 'I2C',
+          ait: 'AIT',
+          fpp: 'FPP',
+          p2p: 'P2P',
+          capital: 'Capital',
+        };
+        if (tabMap[tabSlug]) {
+          this.activeTab = tabMap[tabSlug];
+        }
+      }
+    });
 
     this.updateTime();
     this.getXxcaseiqValidatedCasesAccuracyV();

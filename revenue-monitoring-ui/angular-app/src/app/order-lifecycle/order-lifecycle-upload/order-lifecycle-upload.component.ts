@@ -8,8 +8,6 @@ import { AuthenticationService } from 'src/app/providers/authentication.service'
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -30,8 +28,6 @@ import {
     CommonModule,
     ReactiveFormsModule,
     MatTabsModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatButtonModule,
     NgIcon,
   ],

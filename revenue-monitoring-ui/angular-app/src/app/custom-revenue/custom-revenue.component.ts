@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
@@ -51,6 +52,7 @@ export class CustomRevenueComponent implements OnInit {
     protected authService: AuthenticationService,
     private menuService: MenuService,
     private http: ApiHttpService,
+    private route: ActivatedRoute,
   ) {
     // Initialize roles and user context in constructor so they're available before template renders
     this.roles = this.authService.getUserAccessRoles();
@@ -66,6 +68,21 @@ export class CustomRevenueComponent implements OnInit {
     this.userName = this.authService.getUserName();
     this.getErrorSummaryPeriodStatus();
     this.getDefaultTabIndex();
+
+    // Handle tab query param from side-nav
+    this.route.queryParams.subscribe((params) => {
+      const tabSlug = params['tab'];
+      if (tabSlug) {
+        const idx = this.filteredTabs.findIndex(
+          (t) => t.label.toLowerCase().replace(/\s+/g, '-') === tabSlug,
+        );
+        if (idx >= 0) {
+          this.selectedIndex = idx;
+          this.onTabChange(idx);
+        }
+      }
+    });
+
     // Log initial tab visit
     if (this.filteredTabs.length > 0) {
       this.logTabVisit(this.filteredTabs[0]?.label);

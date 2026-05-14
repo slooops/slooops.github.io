@@ -99,59 +99,41 @@
     <mat-tab label="Enter Deals">
       <div class="iu-form">
         <form [formGroup]="updateForm">
-          <mat-form-field appearance="outline">
-            <mat-label>Program Name</mat-label>
-            <input
-              matInput
-              formControlName="programName"
-              placeholder="Enter Program Name"
-              required
-            />
-            @if (updateForm.get("programName").hasError("required")) {
-              <mat-error>Program Name is required</mat-error>
-            }
-            @if (updateForm.get("programName").hasError("pattern")) {
-              <mat-error
-                >Invalid input. Please enter only one Program Name using
-                alphabets only.</mat-error
-              >
-            }
-          </mat-form-field>
+          <div class="iu-field-row">
+            <label class="iu-field-label">Program Name</label>
+            <div class="iu-field-input">
+              <input
+                class="iu-input"
+                formControlName="programName"
+                placeholder="Enter Program Name"
+                required
+              />
+            </div>
+          </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Account</mat-label>
-            <input
-              matInput
-              formControlName="account"
-              placeholder="Enter Account"
-              required
-            />
-            @if (updateForm.get("account").hasError("required")) {
-              <mat-error>Account is required</mat-error>
-            }
-            @if (updateForm.get("account").hasError("pattern")) {
-              <mat-error
-                >Invalid input. Please enter only one Account using alphabets
-                only.</mat-error
-              >
-            }
-          </mat-form-field>
+          <div class="iu-field-row">
+            <label class="iu-field-label">Account</label>
+            <div class="iu-field-input">
+              <input
+                class="iu-input"
+                formControlName="account"
+                placeholder="Enter Account"
+                required
+              />
+            </div>
+          </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Deal Ids (comma-separated numbers)</mat-label>
-            <input
-              matInput
-              formControlName="dealIds"
-              placeholder="Enter Deal Ids"
-              required
-            />
-            @if (updateForm.get("dealIds").hasError("required")) {
-              <mat-error>Deal Ids are required</mat-error>
-            }
-            @if (updateForm.get("dealIds").hasError("pattern")) {
-              <mat-error>Invalid input. Please enter only numbers.</mat-error>
-            }
-          </mat-form-field>
+          <div class="iu-field-row">
+            <label class="iu-field-label">Deal IDs</label>
+            <div class="iu-field-input">
+              <input
+                class="iu-input"
+                formControlName="dealIds"
+                placeholder="Enter Deal IDs (comma-separated)"
+                required
+              />
+            </div>
+          </div>
         </form>
 
         @if (validForm) {
@@ -165,14 +147,22 @@
           </div>
         }
 
-        <button
-          type="button"
-          class="iu-upload-btn"
-          (click)="submitDealIds(dialogTemplate)"
-        >
-          <ng-icon name="phosphorArrowLineUpBold" size="18" />
-          Upload
-        </button>
+        <div class="iu-form-footer">
+          <button
+            type="button"
+            class="fit-btn fit-btn--secondary"
+            (click)="closeDialog('closed')"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="fit-btn fit-btn--primary"
+            (click)="submitDealIds(dialogTemplate)"
+          >
+            Save
+          </button>
+        </div>
       </div>
     </mat-tab>
   </mat-tab-group>

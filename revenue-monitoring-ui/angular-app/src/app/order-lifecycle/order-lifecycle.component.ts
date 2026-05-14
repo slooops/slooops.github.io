@@ -160,14 +160,12 @@ export class OrderLifecycleComponent implements OnInit {
         id: 'cloUpdates',
         label: 'CLO Updates',
         variant: 'secondary',
-        icon: 'phosphorCloudArrowUpBold',
         visible: this.updateClo,
       },
       {
         id: 'dealUpload',
         label: 'Deal Upload',
         variant: 'secondary',
-        icon: 'phosphorCloudArrowUpBold',
         visible: this.dealUploadFlag,
       },
       {
@@ -643,7 +641,7 @@ export class OrderLifecycleComponent implements OnInit {
 
   openCloUpdateDialog() {
     const dialogRef = this.dialog.open(CloUpdatesComponent, {
-      width: '600px',
+      width: '400px',
       panelClass: 'rounded-dialog',
     });
 

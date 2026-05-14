@@ -9,17 +9,20 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 import { PaginationComponent } from '../../ui/atoms/pagination/pagination.component';
 import { PageChangeEvent } from '../../ui/types/common.types';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorArrowLineDownBold } from '@ng-icons/phosphor-icons/bold';
 
 @Component({
   selector: 'app-order-lifecycle-rev-summary',
   templateUrl: './order-lifecycle-rev-summary.component.html',
   styleUrls: ['./order-lifecycle-rev-summary.component.scss'],
-  providers: [DestroyManager],
+  providers: [DestroyManager, provideIcons({ phosphorArrowLineDownBold })],
   imports: [
     CommonModule,
     MatDialogModule,
     LoadingSymbolComponent,
     PaginationComponent,
+    NgIcon,
   ],
   standalone: true,
 })

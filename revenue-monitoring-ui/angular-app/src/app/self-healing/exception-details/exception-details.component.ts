@@ -466,11 +466,11 @@ export class ExceptionDetailsComponent implements OnInit, OnChanges {
 
   getModeClass(mode: string): string {
     switch (mode?.toUpperCase()) {
-      case 'AGENT_FULL':
+      case 'Agentic':
         return 'ed__pill--agent';
-      case 'STATIC':
+      case 'Guided':
         return 'ed__pill--static';
-      case 'AGENTIC':
+      case 'Pattren Match':
         return 'ed__pill--agent';
       default:
         return 'ed__pill--default';

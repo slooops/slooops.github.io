@@ -39,7 +39,7 @@
   }
 
   <div class="fbb__actions">
-    @for (action of visibleActions; track action.id) {
+    @for (action of primaryActions; track action.id) {
       <button
         class="fbb__btn"
         [class.fbb__btn--primary]="action.variant === 'primary'"
@@ -59,6 +59,41 @@
           {{ action.label }}
         }
       </button>
+    }
+
+    @if (menuActions.length > 0) {
+      <div class="fbb__menu-wrap">
+        <button
+          class="fbb__menu-trigger"
+          [class.fbb__menu-trigger--active]="optionsMenuOpen"
+          (click)="toggleOptionsMenu($event)"
+          title="More actions"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <circle cx="8" cy="3" r="1.5" />
+            <circle cx="8" cy="8" r="1.5" />
+            <circle cx="8" cy="13" r="1.5" />
+          </svg>
+        </button>
+        @if (optionsMenuOpen) {
+          <div class="fbb__menu">
+            <div class="fbb__menu-header">Actions</div>
+            @for (action of menuActions; track action.id; let last = $last) {
+              <button
+                class="fbb__menu-item"
+                [class.fbb__menu-item--danger]="action.variant === 'danger'"
+                [disabled]="action.disabled"
+                (click)="onMenuActionClick(action.id)"
+              >
+                {{ action.label }}
+              </button>
+              @if (action.variant === "danger" && !last) {
+                <div class="fbb__menu-divider"></div>
+              }
+            }
+          </div>
+        }
+      </div>
     }
   </div>
 </div>

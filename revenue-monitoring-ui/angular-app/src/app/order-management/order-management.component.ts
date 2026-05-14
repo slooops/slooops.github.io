@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import {
   MenuMiniComponent,
   MenuMiniItem,
@@ -55,6 +56,7 @@ export class OrderManagementComponent {
     private datePipe: DatePipe,
     protected authService: AuthenticationService,
     private menuService: MenuService,
+    private route: ActivatedRoute,
   ) {
     this.http = http;
     // Initialize roles and user context in constructor so they're available before template renders
@@ -78,6 +80,21 @@ export class OrderManagementComponent {
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
     this.getDefaultTabIndex();
+
+    // Handle tab query param from side-nav
+    this.route.queryParams.subscribe((params) => {
+      const tabSlug = params['tab'];
+      if (tabSlug) {
+        const idx = this.filteredTabs.findIndex(
+          (t) => t.label.toLowerCase().replace(/\s+/g, '-') === tabSlug,
+        );
+        if (idx >= 0) {
+          this.selectedIndex = idx;
+          this.onTabChange(idx);
+        }
+      }
+    });
+
     // Log initial tab visit
     if (this.filteredTabs.length > 0) {
       this.logTabVisit(this.filteredTabs[0]?.label);

@@ -12,20 +12,23 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialogModule } from '@angular/material/dialog';
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorArrowLineDownBold } from '@ng-icons/phosphor-icons/bold';
 
 @Component({
-    selector: 'app-order-lifecycle-summary',
-    templateUrl: './order-lifecycle-summary.component.html',
-    styleUrls: ['./order-lifecycle-summary.component.css'],
-    providers: [DestroyManager],
-    imports: [
+  selector: 'app-order-lifecycle-summary',
+  templateUrl: './order-lifecycle-summary.component.html',
+  styleUrls: ['./order-lifecycle-summary.component.css'],
+  providers: [DestroyManager, provideIcons({ phosphorArrowLineDownBold })],
+  imports: [
     CommonModule,
     MatTabsModule,
     MatTableModule,
     MatDialogModule,
-    LoadingSymbolComponent
+    LoadingSymbolComponent,
+    NgIcon,
   ],
-  standalone: true
+  standalone: true,
 })
 export class OrderLifecycleSummaryComponent implements OnInit {
   selectedArr: OrderLifecycleSummaryModel[];
@@ -34,7 +37,7 @@ export class OrderLifecycleSummaryComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public injectData: any,
     http: ApiHttpService,
     private destroyManager: DestroyManager,
-    private exportToExcelService: ExportToExcelService
+    private exportToExcelService: ExportToExcelService,
   ) {
     this.http = http;
   }
@@ -71,7 +74,7 @@ export class OrderLifecycleSummaryComponent implements OnInit {
       .subscribe((data: any) => {
         this.summaryModel = data;
         this.dataSource = new MatTableDataSource<OrderLifecycleSummaryModel>(
-          this.summaryModel
+          this.summaryModel,
         );
       });
 
@@ -81,7 +84,7 @@ export class OrderLifecycleSummaryComponent implements OnInit {
         this.summaryModelByAccount = data;
         this.dataSourceByAccount =
           new MatTableDataSource<OrderLifecycleSummaryModelByAccount>(
-            this.summaryModelByAccount
+            this.summaryModelByAccount,
           );
       });
   }
@@ -95,13 +98,13 @@ export class OrderLifecycleSummaryComponent implements OnInit {
       this.exportTableToExcel(
         this.summaryModel,
         'Large Deal Summary By Program',
-        'large_deal_summary_by_program'
+        'large_deal_summary_by_program',
       );
     } else {
       this.exportTableToExcel(
         this.summaryModelByAccount,
         'Large Deal Summary By Account',
-        'large_deal_summary_by_account'
+        'large_deal_summary_by_account',
       );
     }
   }

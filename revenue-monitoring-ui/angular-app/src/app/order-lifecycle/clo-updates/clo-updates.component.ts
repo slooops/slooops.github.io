@@ -9,8 +9,6 @@ import * as XLSX from 'xlsx';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -46,8 +44,6 @@ import {
     CommonModule,
     ReactiveFormsModule,
     MatTabsModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatButtonModule,
     MatDatepickerModule,
     NgIcon,

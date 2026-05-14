@@ -63,6 +63,7 @@
               <button
                 class="ms-drawer-item"
                 [class.active]="isChildActive(child)"
+                [class.has-children]="child.children?.length"
                 (click)="navigateTo(child)"
               >
                 <ng-icon
@@ -71,10 +72,52 @@
                   class="ms-drawer-item-icon"
                 />
                 <span class="ms-drawer-item-label">{{ child.label }}</span>
+                @if (child.children?.length) {
+                  <ng-icon
+                    name="phosphorCaretRightBold"
+                    size="12"
+                    class="ms-flyout-caret"
+                    [class.open]="activeFlyout === child.label"
+                  />
+                }
               </button>
             }
           </nav>
         </div>
+      }
+    }
+  </div>
+
+  <!-- Level 3: Sub-drawer -->
+  <div class="ms-subdrawer" [class.open]="activeFlyout !== null">
+    @for (item of navItems; track item.label) {
+      @if (item.children?.length && activeDrawer === item.label) {
+        @for (child of getVisibleChildren(item); track child.label) {
+          @if (child.children?.length && activeFlyout === child.label) {
+            <div class="ms-drawer-content">
+              <div class="ms-drawer-header">
+                <span class="ms-drawer-title">{{ child.label }}</span>
+                <button class="ms-drawer-close" (click)="activeFlyout = null">
+                  <ng-icon name="phosphorXBold" size="16" />
+                </button>
+              </div>
+              <nav class="ms-drawer-nav">
+                @for (subItem of child.children; track subItem.label) {
+                  @if (!subItem.disabled) {
+                    <button
+                      class="ms-drawer-item"
+                      (click)="navigateFromFlyout(subItem)"
+                    >
+                      <span class="ms-drawer-item-label">{{
+                        subItem.label
+                      }}</span>
+                    </button>
+                  }
+                }
+              </nav>
+            </div>
+          }
+        }
       }
     }
   </div>

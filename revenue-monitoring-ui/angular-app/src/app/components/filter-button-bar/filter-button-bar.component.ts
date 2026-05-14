@@ -108,6 +108,26 @@ export class FilterButtonBarComponent {
     return this.actions.filter((a) => a.visible !== false);
   }
 
+  get primaryActions(): ActionButtonConfig[] {
+    return this.visibleActions.filter((a) => a.id === 'download');
+  }
+
+  get menuActions(): ActionButtonConfig[] {
+    return this.visibleActions.filter((a) => a.id !== 'download');
+  }
+
+  optionsMenuOpen = false;
+
+  toggleOptionsMenu(event: Event): void {
+    event.stopPropagation();
+    this.optionsMenuOpen = !this.optionsMenuOpen;
+  }
+
+  onMenuActionClick(actionId: string): void {
+    this.optionsMenuOpen = false;
+    this.actionClick.emit(actionId);
+  }
+
   toggleFilters(): void {
     this.filtersExpanded = !this.filtersExpanded;
   }
@@ -159,6 +179,7 @@ export class FilterButtonBarComponent {
   onDocumentClick(event: Event): void {
     if (!this.elRef.nativeElement.contains(event.target)) {
       this.filtersExpanded = false;
+      this.optionsMenuOpen = false;
     }
   }
 }
