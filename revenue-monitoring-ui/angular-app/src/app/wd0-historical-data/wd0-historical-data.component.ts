@@ -27,7 +27,9 @@ import { TableModalComponent } from '../components/table-modal/table-modal.compo
 import { MatDialog } from '@angular/material/dialog';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
 
-Chart.register(...registerables);
+Chart.register(...registerables, ChartDataLabels);
+// Default datalabels OFF globally — charts opt-in via their own config
+Chart.defaults.set('plugins.datalabels', { display: false });
 
 @Component({
   selector: 'app-wd0-historical-data',
@@ -76,7 +78,7 @@ export class Wd0HistoricalDataComponent
     private exportToExcelService: ExportToExcelService,
     public themeService: ThemeService,
   ) {
-    Chart.register(...registerables, ChartDataLabels);
+    Chart.register(...registerables);
     this.http = http;
   }
 

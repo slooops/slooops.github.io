@@ -4,6 +4,8 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { NgChartsModule } from 'ng2-charts';
 
 Chart.register(ChartDataLabels);
+// Default datalabels OFF globally — charts opt-in via their own config
+Chart.defaults.set('plugins.datalabels', { display: false });
 
 @Component({
   selector: 'app-atmf-bar-line-chart',

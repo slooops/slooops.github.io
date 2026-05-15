@@ -14,6 +14,8 @@ import { CommonModule } from '@angular/common';
 
 // Register Chart.js components
 Chart.register(...registerables, ChartDataLabels);
+// Default datalabels OFF globally — charts opt-in via their own config
+Chart.defaults.set('plugins.datalabels', { display: false });
 
 export interface StackedBarChartDataPoint {
   label: string;
@@ -25,13 +27,11 @@ export interface StackedBarChartDataPoint {
 }
 
 @Component({
-    selector: 'app-bar-chartjs',
-    templateUrl: './bar-chartjs.component.html',
-    styleUrl: './bar-chartjs.component.css',
-    imports: [
-    CommonModule
-  ],
-  standalone: true
+  selector: 'app-bar-chartjs',
+  templateUrl: './bar-chartjs.component.html',
+  styleUrl: './bar-chartjs.component.css',
+  imports: [CommonModule],
+  standalone: true,
 })
 export class BarChartjsComponent
   implements OnChanges, AfterViewInit, OnDestroy
@@ -155,6 +155,7 @@ export class BarChartjsComponent
             intersect: false,
           },
           datalabels: {
+            display: true,
             color: '#fff',
             font: {
               weight: 'bold',
@@ -190,13 +191,13 @@ export class BarChartjsComponent
                       (sum: number, ds: any) => {
                         return sum + (ds.data[index] || 0);
                       },
-                      0
+                      0,
                     );
 
                     // Check if bar has multiple segments
                     const hasMultipleSegments =
                       chart.data.datasets.filter(
-                        (ds: any) => ds.data[index] > 0
+                        (ds: any) => ds.data[index] > 0,
                       ).length > 1;
 
                     // Only show total label if there are multiple segments
@@ -209,7 +210,7 @@ export class BarChartjsComponent
                     }
                   });
                 }
-              }
+              },
             );
           },
         },
@@ -238,7 +239,7 @@ export class BarChartjsComponent
       .map((word) => {
         // Check if word is in exceptions array (case-insensitive check)
         const matchingException = this.titleCaseExceptions.find(
-          (exception) => exception.toLowerCase() === word.toLowerCase()
+          (exception) => exception.toLowerCase() === word.toLowerCase(),
         );
 
         if (matchingException) {
