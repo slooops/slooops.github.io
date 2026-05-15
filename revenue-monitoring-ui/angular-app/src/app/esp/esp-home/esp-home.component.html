@@ -129,70 +129,78 @@
         <app-caseiq
           [selectedQuarter]="selectedQuarter"
           [caseIqMetrics]="componentLevelMetrics"
+          (teamNavigate)="onTileClick($event)"
         ></app-caseiq>
       </div>
     }
     @case ("Capital") {
       <div class="tile-content">
-        <app-caseiq-cap
+        <app-caseiq-team
+          [teamConfig]="teamConfigs['Capital']"
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['CAPITAL']"
-        ></app-caseiq-cap>
+        ></app-caseiq-team>
       </div>
     }
     @case ("FPP") {
       <div class="tile-content">
-        <app-caseiq-fpp
+        <app-caseiq-team
+          [teamConfig]="teamConfigs['FPP']"
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['FPP']"
-        ></app-caseiq-fpp>
+        ></app-caseiq-team>
       </div>
     }
     @case ("I2C") {
       <div class="tile-content">
-        <app-caseiq-i2c
+        <app-caseiq-team
+          [teamConfig]="teamConfigs['I2C']"
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['I2C']"
-        ></app-caseiq-i2c>
+        ></app-caseiq-team>
       </div>
     }
     @case ("OM") {
       <div class="tile-content">
-        <app-caseiq-om
+        <app-caseiq-team
+          [teamConfig]="teamConfigs['OM']"
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['OM']"
-        ></app-caseiq-om>
+        ></app-caseiq-team>
       </div>
     }
     @case ("P2P") {
       <div class="tile-content">
-        <app-caseiq-p2p
+        <app-caseiq-team
+          [teamConfig]="teamConfigs['P2P']"
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['P2P']"
-        ></app-caseiq-p2p>
+        ></app-caseiq-team>
       </div>
     }
     @case ("SM") {
       <div class="tile-content">
-        <app-caseiq-sm
+        <app-caseiq-team
+          [teamConfig]="teamConfigs['SM']"
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['SM']"
-        ></app-caseiq-sm>
+        ></app-caseiq-team>
       </div>
     }
     @case ("AIT") {
       <div class="tile-content">
-        <app-caseiq-ait
+        <app-caseiq-team
+          [teamConfig]="teamConfigs['AIT']"
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['AIT']"
-        ></app-caseiq-ait>
+        ></app-caseiq-team>
       </div>
     }
     <!-- Default case when no tile is selected -->

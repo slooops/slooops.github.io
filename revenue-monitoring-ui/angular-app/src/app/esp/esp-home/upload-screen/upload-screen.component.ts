@@ -3,19 +3,30 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  phosphorXBold,
+  phosphorUploadSimpleBold,
+  phosphorFileTextBold,
+  phosphorCheckCircleBold,
+  phosphorFolderOpenBold,
+} from '@ng-icons/phosphor-icons/bold';
 
 @Component({
-    selector: 'app-upload-screen',
-    templateUrl: './upload-screen.component.html',
-    styleUrls: ['./upload-screen.component.css'],
-    imports: [
-    CommonModule,
-    MatIconModule,
-    MatProgressSpinnerModule
+  selector: 'app-upload-screen',
+  templateUrl: './upload-screen.component.html',
+  styleUrl: './upload-screen.component.css',
+  imports: [CommonModule, NgIcon],
+  viewProviders: [
+    provideIcons({
+      phosphorXBold,
+      phosphorUploadSimpleBold,
+      phosphorFileTextBold,
+      phosphorCheckCircleBold,
+      phosphorFolderOpenBold,
+    }),
   ],
-  standalone: true
+  standalone: true,
 })
 export class UploadScreenComponent {
   @Input() source: string = '';
@@ -29,7 +40,7 @@ export class UploadScreenComponent {
   constructor(
     public http: ApiHttpService,
     private dialogRef: MatDialogRef<UploadScreenComponent>,
-    public authService: AuthenticationService
+    public authService: AuthenticationService,
   ) {
     this.username = this.authService.getUserID();
   }
@@ -140,7 +151,7 @@ export class UploadScreenComponent {
               error,
               timestamp: new Date().toISOString(),
             });
-          }
+          },
         );
     }
 
@@ -200,7 +211,7 @@ export class UploadScreenComponent {
       'File selected:',
       file.name,
       'Size:',
-      Math.round(file.size / 1024) + ' KB'
+      Math.round(file.size / 1024) + ' KB',
     );
 
     // File is selected but not uploaded yet

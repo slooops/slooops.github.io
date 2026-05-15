@@ -1,0 +1,67 @@
+<app-modal
+  [title]="teamName + ' — AI Accuracy Detail'"
+  headerBgColor="transparent"
+  borderRadius="16px"
+  (close)="closeModal.emit()"
+>
+  <!-- Tabs -->
+  <div class="adm-tabs">
+    <button
+      class="adm-tab"
+      [class.active]="activeTab === 'category'"
+      (click)="switchTab('category')"
+    >
+      Category Accuracy
+    </button>
+    <button
+      class="adm-tab"
+      [class.active]="activeTab === 'coreIssue'"
+      (click)="switchTab('coreIssue')"
+    >
+      Core Issue Accuracy
+    </button>
+    @if (teamAccuracy != null) {
+      <span class="adm-overall"
+        >Overall: {{ teamAccuracy | number: "1.1-1" }}%</span
+      >
+    }
+  </div>
+
+  <!-- Category Tab -->
+  @if (activeTab === "category") {
+    <div class="adm-chart-container">
+      @if (categoryLoading) {
+        <div class="adm-loading">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      }
+      @if (!categoryLoading && categoryData.length === 0) {
+        <div class="adm-empty">
+          No validated category data available for this team.
+        </div>
+      }
+      @if (!categoryLoading && categoryData.length > 0) {
+        <canvas id="modal-category-chart"></canvas>
+      }
+    </div>
+  }
+
+  <!-- Core Issue Tab -->
+  @if (activeTab === "coreIssue") {
+    <div class="adm-chart-container">
+      @if (coreIssueLoading) {
+        <div class="adm-loading">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      }
+      @if (!coreIssueLoading && coreIssueData.length === 0) {
+        <div class="adm-empty">
+          No validated core issue data available for this team.
+        </div>
+      }
+      @if (!coreIssueLoading && coreIssueData.length > 0) {
+        <canvas id="modal-core-issue-chart"></canvas>
+      }
+    </div>
+  }
+</app-modal>

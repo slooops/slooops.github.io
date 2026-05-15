@@ -203,7 +203,8 @@
     </div>
   </div>
 </div>
-<!-- Data refresh overlay - covers only this tab content -->
+
+<!-- Data refresh overlay -->
 @if (refreshingData) {
   <div class="table-loading-overlay">
     <div class="spinner"></div>
@@ -212,6 +213,7 @@
 }
 
 <div class="charts-row">
+  <!-- Category Chart -->
   <div class="chart-section">
     <div class="chart-header-row">
       <div class="chart-title-block">
@@ -220,7 +222,7 @@
         >
       </div>
       <div class="flex-row header-metrics">
-        @if (i2cChartData.length > 10) {
+        @if (categoryChartData.length > 10) {
           <span
             class="chart-label chart-label--warning"
             (click)="onExpandChart('CATEGORY')"
@@ -266,7 +268,7 @@
                 >
                   Filter
                   <span class="chevron" [class.open]="showCategorySelect"
-                    >▾</span
+                    >&#9662;</span
                   >
                 </button>
                 @if (showCategorySelect) {
@@ -352,15 +354,17 @@
 
     <div class="chart-container">
       <app-bar-chart
-        [data]="i2cChartData"
+        [data]="categoryChartData"
         [stacked]="true"
         [isLoading]="false"
         [maxBars]="10"
-        canvasId="capStackedChart"
+        [canvasId]="stackedCanvasId"
       >
       </app-bar-chart>
     </div>
   </div>
+
+  <!-- Core Issue Chart -->
   <div class="chart-section">
     <div class="chart-header-row">
       <div class="chart-title-block">
@@ -370,7 +374,7 @@
       </div>
 
       <div class="flex-row header-metrics">
-        @if (i2cSimpleChartData.length > 10) {
+        @if (coreIssueChartData.length > 10) {
           <span
             class="chart-label chart-label--warning"
             (click)="onExpandChart('CORE_ISSUE')"
@@ -415,7 +419,7 @@
                 >
                   Filter
                   <span class="chevron" [class.open]="showCoreIssueSelect"
-                    >▾</span
+                    >&#9662;</span
                   >
                 </button>
                 @if (showCoreIssueSelect) {
@@ -502,11 +506,11 @@
 
     <div class="chart-container">
       <app-bar-chart
-        [data]="i2cSimpleChartData"
+        [data]="coreIssueChartData"
         [stacked]="true"
         [isLoading]="false"
         [maxBars]="10"
-        canvasId="capSimpleChart"
+        [canvasId]="simpleCanvasId"
       >
       </app-bar-chart>
     </div>
@@ -514,11 +518,11 @@
 </div>
 
 <app-caseiq-table
-  #capTable
-  [dataSource]="i2cTableData"
-  [displayedColumns]="i2cTableColumns"
-  [exportFileName]="'Capital_Validation_Summary'"
-  [tableTitle]="'Capital Classification Summary'"
+  #teamTable
+  [dataSource]="tableData"
+  [displayedColumns]="tableColumns"
+  [exportFileName]="teamConfig.exportFileName"
+  [tableTitle]="tableTitle"
   [tableTitleTooltip]="
     'Use the Upload button to submit and validate the data for accuracy. Default filter applied to display for category match or core issue match is N or NULL.'
   "
@@ -526,7 +530,7 @@
   [enablePagination]="true"
   [pageSize]="10"
   [totalRecords]="totalRecords"
-  [source]="'cap'"
+  [source]="teamConfig.tableSource"
   (uploadResult)="handleUploadResult($event)"
 >
 </app-caseiq-table>
@@ -534,18 +538,19 @@
 @if (expandedChart) {
   <app-caseiq-expand-modal
     [title]="
-      'CAP ' +
+      teamConfig.displayName +
+      ' ' +
       (expandedChart.type === 'CATEGORY' ? 'Category' : 'Core Issue') +
       ' Details'
     "
     [type]="expandedChart.type"
     [categoryAccuracy]="categoryAccuracy"
     [coreIssueAccuracy]="coreIssueAccuracy"
-    [categoryData]="completeI2cChartData"
-    [coreIssueData]="completeI2cSimpleChartData"
-    [categoryTotal]="computeStackedTotal(completeI2cChartData)"
-    [coreIssueTotal]="computeStackedTotal(completeI2cSimpleChartData)"
-    canvasPrefix="expandedCap"
+    [categoryData]="expandedCategoryData"
+    [coreIssueData]="expandedCoreIssueData"
+    [categoryTotal]="expandedCategoryTotal"
+    [coreIssueTotal]="expandedCoreIssueTotal"
+    [canvasPrefix]="expandCanvasPrefix"
     (close)="closeExpandModal()"
   />
 }

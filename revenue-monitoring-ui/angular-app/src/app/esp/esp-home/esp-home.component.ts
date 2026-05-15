@@ -6,13 +6,10 @@ import { AuthenticationService } from 'src/app/providers/authentication.service'
 import { CommonModule } from '@angular/common';
 import { MetricTileComponent } from '../../components/metric-tile/metric-tile.component';
 import { CaseiqComponent } from './caseiq/caseiq.component';
-import { CaseiqCapComponent } from './caseiq-cap/caseiq-cap.component';
-import { CaseiqFppComponent } from './caseiq-fpp/caseiq-fpp.component';
-import { CaseiqI2cComponent } from './caseiq-i2c/caseiq-i2c.component';
-import { CaseiqOmComponent } from './caseiq-om/caseiq-om.component';
-import { CaseiqP2pComponent } from './caseiq-p2p/caseiq-p2p.component';
-import { CaseiqSmComponent } from './caseiq-sm/caseiq-sm.component';
-import { CaseiqAitComponent } from './caseiq-ait/caseiq-ait.component';
+import {
+  CaseiqTeamComponent,
+  TeamConfig,
+} from './caseiq-team/caseiq-team.component';
 import { HomeDataService } from 'src/app/home/home-data.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
@@ -58,13 +55,7 @@ interface AccuracyData {
   imports: [
     CommonModule,
     CaseiqComponent,
-    CaseiqCapComponent,
-    CaseiqFppComponent,
-    CaseiqI2cComponent,
-    CaseiqOmComponent,
-    CaseiqP2pComponent,
-    CaseiqSmComponent,
-    CaseiqAitComponent,
+    CaseiqTeamComponent,
     MatTooltipModule,
     MatIconModule,
     MenuMiniComponent,
@@ -96,6 +87,59 @@ export class EspHomeComponent implements OnInit {
 
   // Store raw API data to extract quarters per team
   private accuracyData: AccuracyData[] = [];
+
+  // Team configurations for the unified CaseiqTeamComponent
+  teamConfigs: Record<string, TeamConfig> = {
+    Capital: {
+      displayName: 'Capital',
+      apiSuffix: 'capital',
+      teamFilterName: 'CAPITAL',
+      tableSource: 'cap',
+      exportFileName: 'Capital_Validation_Summary',
+    },
+    FPP: {
+      displayName: 'FPP',
+      apiSuffix: 'fpp',
+      teamFilterName: 'FPP',
+      tableSource: 'fpp',
+      exportFileName: 'FPP_Validation_Summary',
+    },
+    I2C: {
+      displayName: 'I2C',
+      apiSuffix: 'i2c',
+      teamFilterName: 'I2C',
+      tableSource: 'i2c',
+      exportFileName: 'I2C_Validation_Summary',
+    },
+    OM: {
+      displayName: 'OM',
+      apiSuffix: 'om',
+      teamFilterName: 'OM',
+      tableSource: 'om',
+      exportFileName: 'OM_Validation_Summary',
+    },
+    P2P: {
+      displayName: 'P2P',
+      apiSuffix: 'p2p',
+      teamFilterName: 'P2P',
+      tableSource: 'p2p',
+      exportFileName: 'P2P_Validation_Summary',
+    },
+    SM: {
+      displayName: 'SM',
+      apiSuffix: 'sm',
+      teamFilterName: 'SM',
+      tableSource: 'sm',
+      exportFileName: 'SM_Validation_Summary',
+    },
+    AIT: {
+      displayName: 'AIT',
+      apiSuffix: 'ait',
+      teamFilterName: 'AIT',
+      tableSource: 'ait',
+      exportFileName: 'AIT_Validation_Summary',
+    },
+  };
 
   // All available quarters (master list)
   private allQuarters: { label: string; value: string }[] = [];

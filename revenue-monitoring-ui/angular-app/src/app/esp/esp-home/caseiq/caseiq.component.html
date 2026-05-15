@@ -5,458 +5,675 @@
 }
 
 @if (!isLoading) {
-  @let agents = getFinanceAgents();
   @let opsRate = getOpsAutomationRate();
   @let summaryRows = getSummaryRows();
 
   <!-- Component Performance Table + Chart Row -->
   @if (summaryRows.length) {
-    <!-- Finance IT Summary Tiles -->
     @let fitRow = getFinanceITRow();
-    <div class="tiles-row-wrapper">
-      <!-- ESP Overview Card -->
-      <div class="tiles-row tiles-row-esp">
-        <div class="tiles-row-header">
-          Case Analyzer
-          <span style="font-size: 11px; color: #9e9e9e">
-            - Core Issue Identification</span
-          >
-        </div>
-        <div class="fit-tiles-row">
-          <div class="fit-tile">
-            <div class="fit-tile-label">Total Cases</div>
-            @if (getTotalCasesFromAccuracy("Finance IT") != null) {
-              <div class="fit-tile-value">
-                {{ getTotalCasesFromAccuracy("Finance IT") | number }}
-              </div>
-            } @else {
-              <div class="fit-tile-value fit-tile-empty">--</div>
-            }
+    <div class="caseiq-kpi-strip">
+      <!-- Case Analyzer Accuracy -->
+      <div class="caseiq-kpi accent">
+        <span class="caseiq-kpi-title">Case Analyzer Accuracy</span>
+        <div class="caseiq-kpi-body">
+          <div class="caseiq-pill">
+            <div
+              class="caseiq-pill-fill accent"
+              [style.width.%]="getAccuracyForSection('Finance IT') ?? 0"
+            ></div>
+            <span class="caseiq-pill-text">
+              @if (getTotalCasesFromAccuracy("Finance IT") != null) {
+                {{ getTotalCasesFromAccuracy("Finance IT") | number }} cases
+              } @else {
+                --
+              }
+            </span>
           </div>
-          <div class="fit-tile">
-            <div class="fit-tile-label">
-              Accuracy
-              <mat-icon
-                class="fit-tile-info-icon"
-                matTooltip="Category and core issue identification, calculated weekly based on team validation."
-                matTooltipPosition="above"
-              >
-                info_outline
-              </mat-icon>
-            </div>
+          <span class="caseiq-kpi-pct">
             @if (getAccuracyForSection("Finance IT") != null) {
-              <div class="fit-tile-value">
-                {{ getAccuracyForSection("Finance IT") | number: "1.1-1" }}%
-              </div>
+              {{ getAccuracyForSection("Finance IT") | number: "1.1-1" }}%
             } @else {
-              <div class="fit-tile-value fit-tile-empty">--</div>
+              --
             }
-          </div>
+          </span>
         </div>
       </div>
 
-      <!-- Agent Performance Card -->
-      <div class="tiles-row tiles-row-agent">
-        <div class="tiles-row-header">
-          Resolution
-          <span style="font-size: 11px; color: #9e9e9e">
-            - Cases processed by agent, including In Progress, Route Outs,
-            Cancel Recommendations and Service Requests.</span
-          >
-        </div>
-        <div class="fit-tiles-row">
-          <div class="fit-tile">
-            <div class="fit-tile-label">
-              In Progress
-              <mat-icon
-                class="fit-tile-info-icon"
-                matTooltip="# of cases processed by agent and current status in ESP is “In progress”"
-                matTooltipPosition="above"
-              >
-                info_outline
-              </mat-icon>
-            </div>
-            <div class="fit-tile-value">
-              {{ fitRow ? valueDisplay(fitRow.inProgress.agent) : "--"
-              }}<span
-                style="font-size: 0.5em; color: #b0b0b0; font-weight: 400"
-              >
-                / {{ getSumMetricTotal("inProgress") | number }}</span
-              >
-              @if (fitRow?.inProgress?.agentPct != null) {
-                <span class="fit-tile-pct"
-                  >({{ fitRow!.inProgress.agentPct | number: "1.0-0" }}%)</span
-                >
-              }
-            </div>
+      <!-- In Progress -->
+      <div class="caseiq-kpi cyan">
+        <span class="caseiq-kpi-title">In Progress</span>
+        <div class="caseiq-kpi-body">
+          <div class="caseiq-pill">
+            <div
+              class="caseiq-pill-fill cyan"
+              [style.width.%]="fitRow?.inProgress?.agentPct ?? 0"
+            ></div>
+            <span class="caseiq-pill-text">
+              {{ fitRow ? valueDisplay(fitRow.inProgress.agent) : "--" }}
+              / {{ getSumMetricTotal("inProgress") | number }}
+            </span>
           </div>
-          <div class="fit-tile">
-            <div class="fit-tile-label">
-              Routed Out
-              <mat-icon
-                class="fit-tile-info-icon"
-                matTooltip="# of cases recommended against the total cases routed out."
-                matTooltipPosition="above"
-              >
-                info_outline
-              </mat-icon>
-            </div>
-            <div class="fit-tile-value">
-              {{ fitRow ? valueDisplay(fitRow.routed.agent) : "--"
-              }}<span
-                style="font-size: 0.5em; color: #b0b0b0; font-weight: 400"
-              >
-                / {{ getSumMetricTotal("routed") | number }}</span
-              >
-              @if (fitRow?.routed?.agentPct != null) {
-                <span class="fit-tile-pct"
-                  >({{ fitRow!.routed.agentPct | number: "1.0-0" }}%)</span
-                >
-              }
-            </div>
-          </div>
-          <div class="fit-tile">
-            <div class="fit-tile-label">
-              Cancelled
-              <mat-icon
-                class="fit-tile-info-icon"
-                matTooltip="# of cases recommended against the total cases cancelled."
-                matTooltipPosition="above"
-              >
-                info_outline
-              </mat-icon>
-            </div>
-            <div class="fit-tile-value">
-              {{ fitRow ? valueDisplay(fitRow.cancelled.agent) : "--"
-              }}<span
-                style="font-size: 0.5em; color: #b0b0b0; font-weight: 400"
-              >
-                / {{ getSumMetricTotal("cancelled") | number }}</span
-              >
-              @if (fitRow?.cancelled?.agentPct != null) {
-                <span class="fit-tile-pct"
-                  >({{ fitRow!.cancelled.agentPct | number: "1.0-0" }}%)</span
-                >
-              }
-            </div>
-          </div>
-          <div class="fit-tile">
-            <div class="fit-tile-label">
-              Service Requests
-              <mat-icon
-                class="fit-tile-info-icon"
-                matTooltip="# of service request cases handled by agent against the total service request cases."
-                matTooltipPosition="above"
-              >
-                info_outline
-              </mat-icon>
-            </div>
-            <div class="fit-tile-value">
-              {{ fitRow ? valueDisplay(fitRow.service.agent) : "--"
-              }}<span
-                style="font-size: 0.5em; color: #b0b0b0; font-weight: 400"
-              >
-                / {{ getSumMetricTotal("service") | number }}</span
-              >
-              @if (fitRow?.service?.agentPct != null) {
-                <span class="fit-tile-pct"
-                  >({{ fitRow!.service.agentPct | number: "1.0-0" }}%)</span
-                >
-              }
-            </div>
-          </div>
-          <div class="fit-tile">
-            <div class="fit-tile-label">
-              Total Cases (Agent)
-              <mat-icon
-                class="fit-tile-info-icon"
-                matTooltip="Total cases handled by  CaseIQ agent"
-                matTooltipPosition="above"
-              >
-                info_outline
-              </mat-icon>
-            </div>
-            <div class="fit-tile-value">
-              {{ getFinanceITAgentTotalCases() | number
-              }}<span
-                style="font-size: 0.5em; color: #b0b0b0; font-weight: 400"
-              >
-                /
-                {{
-                  getFinanceITAgentTotalCases() + getOpsTotalCases() | number
-                }}</span
-              >
-            </div>
-          </div>
-          <div class="fit-tile">
-            <div class="fit-tile-label">
-              Automation Rate
-              <mat-icon
-                class="fit-tile-info-icon"
-                matTooltip="%age of total cases handled by agents."
-                matTooltipPosition="above"
-              >
-                info_outline
-              </mat-icon>
-            </div>
-            <div class="fit-tile-value">{{ opsRate }}%</div>
-            <div class="kpi-bar-track">
-              <div class="kpi-bar-fill" [style.width.%]="opsRate"></div>
-            </div>
-          </div>
+          <span class="caseiq-kpi-pct">
+            @if (fitRow?.inProgress?.agentPct != null) {
+              {{ fitRow!.inProgress.agentPct | number: "1.0-0" }}%
+            } @else {
+              --
+            }
+          </span>
         </div>
       </div>
 
-      <!-- Service Incidents Card -->
-      <div class="tiles-row tiles-row-incidents">
-        <div class="tiles-row-header">Service Incidents</div>
-        <div class="fit-tiles-row">
-          <div class="fit-tile">
-            <div class="fit-tile-label">Total Cases</div>
+      <!-- Routed Out -->
+      <div class="caseiq-kpi purple">
+        <span class="caseiq-kpi-title">Routed Out</span>
+        <div class="caseiq-kpi-body">
+          <div class="caseiq-pill">
+            <div
+              class="caseiq-pill-fill purple"
+              [style.width.%]="fitRow?.routed?.agentPct ?? 0"
+            ></div>
+            <span class="caseiq-pill-text">
+              {{ fitRow ? valueDisplay(fitRow.routed.agent) : "--" }}
+              / {{ getSumMetricTotal("routed") | number }}
+            </span>
+          </div>
+          <span class="caseiq-kpi-pct">
+            @if (fitRow?.routed?.agentPct != null) {
+              {{ fitRow!.routed.agentPct | number: "1.0-0" }}%
+            } @else {
+              --
+            }
+          </span>
+        </div>
+      </div>
+
+      <!-- Canceled -->
+      <div class="caseiq-kpi amber">
+        <span class="caseiq-kpi-title">Canceled</span>
+        <div class="caseiq-kpi-body">
+          <div class="caseiq-pill">
+            <div
+              class="caseiq-pill-fill amber"
+              [style.width.%]="fitRow?.cancelled?.agentPct ?? 0"
+            ></div>
+            <span class="caseiq-pill-text">
+              {{ fitRow ? valueDisplay(fitRow.cancelled.agent) : "--" }}
+              / {{ getSumMetricTotal("cancelled") | number }}
+            </span>
+          </div>
+          <span class="caseiq-kpi-pct">
+            @if (fitRow?.cancelled?.agentPct != null) {
+              {{ fitRow!.cancelled.agentPct | number: "1.0-0" }}%
+            } @else {
+              --
+            }
+          </span>
+        </div>
+      </div>
+
+      <!-- Service Requests -->
+      <div class="caseiq-kpi green">
+        <span class="caseiq-kpi-title">Service Requests</span>
+        <div class="caseiq-kpi-body">
+          <div class="caseiq-pill">
+            <div
+              class="caseiq-pill-fill green"
+              [style.width.%]="fitRow?.service?.agentPct ?? 0"
+            ></div>
+            <span class="caseiq-pill-text">
+              {{ fitRow ? valueDisplay(fitRow.service.agent) : "--" }}
+              / {{ getSumMetricTotal("service") | number }}
+            </span>
+          </div>
+          <span class="caseiq-kpi-pct">
+            @if (fitRow?.service?.agentPct != null) {
+              {{ fitRow!.service.agentPct | number: "1.0-0" }}%
+            } @else {
+              --
+            }
+          </span>
+        </div>
+      </div>
+
+      <!-- Case Automation Rate (dual pill: agent vs ops) -->
+      <div class="caseiq-kpi dual">
+        <span class="caseiq-kpi-title">Agent vs Ops %</span>
+        <div class="caseiq-kpi-body">
+          <div class="caseiq-pill caseiq-pill-dual">
+            <div class="caseiq-pill-fill cyan" [style.width.%]="opsRate">
+              @if (opsRate >= 12) {
+                <span class="caseiq-pill-text">{{ opsRate }}%</span>
+              }
+            </div>
+            <div class="caseiq-pill-remainder">
+              @if (100 - opsRate >= 12) {
+                <span class="caseiq-pill-text">{{ 100 - opsRate }}%</span>
+              }
+            </div>
+          </div>
+          <span class="caseiq-kpi-pct">
+            {{ getFinanceITAgentTotalCases() | number }}
+            / {{ getFinanceITAgentTotalCases() + getOpsTotalCases() | number }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Service Incidents -->
+      <div class="caseiq-kpi accent">
+        <span class="caseiq-kpi-title">Service Incidents</span>
+        <div class="caseiq-kpi-body">
+          <span class="caseiq-kpi-value-plain">
             @if (getFinanceITMetrics()?.SERVICE_INCIDENTS != null) {
-              <div class="fit-tile-value">
-                {{ getFinanceITMetrics()?.SERVICE_INCIDENTS | number }}
-              </div>
+              {{ getFinanceITMetrics()?.SERVICE_INCIDENTS | number }}
             } @else {
-              <div class="fit-tile-value fit-tile-empty">--</div>
+              --
             }
-          </div>
+          </span>
         </div>
       </div>
     </div>
 
-    <div class="summary-row">
-      <div class="summary-table-card">
-        <div class="summary-table-header-row">
-          <div class="summary-table-title">Components</div>
-          <div class="summary-table-legend">
-            <span class="legend-text">Legend:</span>
-            <span class="legend-dot agent-dot"></span>
-            <span class="legend-label-text">Agent</span>
-            <span class="legend-dot ops-dot"></span>
-            <span class="legend-label-text">Ops</span>
-          </div>
-        </div>
-
-        <div class="summary-tables-row">
-          <!-- Left: ESP Overview -->
-          <div class="summary-table-section summary-table-section-esp">
-            <table class="summary-table summary-table-esp">
-              <thead>
-                <tr>
-                  <th>Component</th>
-                  <th>Total Cases</th>
-                  <th>Case Analyzer Accuracy</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (row of summaryRows; track row.sectionName) {
-                  <tr>
-                    <td class="summary-component">{{ row.sectionName }}</td>
-                    <td>
-                      @if (getTotalCasesFromAccuracy(row.sectionName) != null) {
-                        <span class="summary-total-cases">
-                          {{
-                            getTotalCasesFromAccuracy(row.sectionName) | number
-                          }}
-                        </span>
-                      } @else {
-                        <span class="summary-empty">--</span>
-                      }
-                    </td>
-                    <td>
-                      @if (getAccuracyForSection(row.sectionName) != null) {
-                        <span
+    <!-- Components Table -->
+    <div class="ciq-card" style="margin: 1rem 0">
+      <div class="ciq-table-scroll">
+        <table class="ciq-table">
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>Total Cases</th>
+              <th>Accuracy</th>
+              <th>In Progress</th>
+              <th>Routed Out</th>
+              <th>Canceled</th>
+              <th>Service Requests</th>
+              <th>Total (Agent)</th>
+              <th>Agent vs Ops %</th>
+              <th>Active Agents</th>
+              <th>Service Incidents</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of summaryRows; track row.sectionName) {
+              <tr>
+                <td class="summary-component">
+                  <span
+                    class="component-badge badge-{{
+                      getAccuracyColor(row.sectionName)
+                    }}"
+                    (click)="navigateToTeam(row.sectionName)"
+                    >{{ row.sectionName }}</span
+                  >
+                </td>
+                <td>
+                  @if (getTotalCasesFromAccuracy(row.sectionName) != null) {
+                    <span class="summary-total-cases">
+                      {{ getTotalCasesFromAccuracy(row.sectionName) | number }}
+                    </span>
+                  } @else {
+                    <span class="summary-empty">--</span>
+                  }
+                </td>
+                <td>
+                  @if (getAccuracyForSection(row.sectionName) != null) {
+                    <div
+                      class="caseiq-pill accuracy-pill"
+                      [class.clickable]="row.sectionName !== 'Finance IT'"
+                      (click)="openAccuracyModal(row.sectionName)"
+                    >
+                      <div
+                        class="caseiq-pill-fill {{
+                          getAccuracyColor(row.sectionName)
+                        }}"
+                        [style.width.%]="getAccuracyForSection(row.sectionName)"
+                      >
+                        <span class="caseiq-pill-text"
                           >{{
                             getAccuracyForSection(row.sectionName)
                               | number: "1.1-1"
                           }}%</span
                         >
-                      } @else {
-                        <span class="summary-empty">--</span>
-                      }
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Separator -->
-          <div class="summary-table-separator"></div>
-
-          <!-- Right: Agent Performance -->
-          <div class="summary-table-section summary-table-section-agent">
-            <table class="summary-table summary-table-agent">
-              <thead>
-                <tr>
-                  <th>In Progress</th>
-                  <th>Routed Out</th>
-                  <th>Cancelled</th>
-                  <th>Service Requests</th>
-                  <th>Total Cases (Agent)</th>
-                  <th>Agent vs Ops %</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (row of summaryRows; track row.sectionName) {
-                  <tr>
-                    <td>
-                      {{ valueDisplay(row.inProgress.agent)
-                      }}<span style="font-size: 0.75em; color: #b0b0b0">
-                        / {{ row.inProgress.total || 0 | number }}</span
-                      >
-                      @if (row.inProgress.agentPct != null) {
-                        <span class="summary-pct"
-                          >({{
-                            row.inProgress.agentPct | number: "1.0-0"
-                          }}%)</span
-                        >
-                      }
-                    </td>
-                    <td>
-                      {{ valueDisplay(row.routed.agent)
-                      }}<span style="font-size: 0.75em; color: #b0b0b0">
-                        / {{ row.routed.total || 0 | number }}</span
-                      >
-                      @if (row.routed.agentPct != null) {
-                        <span class="summary-pct"
-                          >({{ row.routed.agentPct | number: "1.0-0" }}%)</span
-                        >
-                      }
-                    </td>
-                    <td>
-                      <span> {{ valueDisplay(row.cancelled.agent) }} </span
-                      ><span style="font-size: 0.75em; color: #b0b0b0">
-                        / {{ row.cancelled.total || 0 | number }}</span
-                      >
-                      @if (row.cancelled.agentPct != null) {
-                        <span class="summary-pct"
-                          >({{
-                            row.cancelled.agentPct | number: "1.0-0"
-                          }}%)</span
-                        >
-                      }
-                    </td>
-                    <td>
-                      {{ valueDisplay(row.service.agent)
-                      }}<span style="font-size: 0.75em; color: #b0b0b0">
-                        / {{ row.service.total || 0 | number }}</span
-                      >
-                      @if (row.service.agentPct != null) {
-                        <span class="summary-pct"
-                          >({{ row.service.agentPct | number: "1.0-0" }}%)</span
-                        >
-                      }
-                    </td>
-                    <td>
-                      <span class="summary-total-cases">
-                        {{ getAgentTotalCases(row) | number }} </span
-                      ><span style="font-size: 0.75em; color: #b0b0b0">
-                        /
-                        {{
-                          row.totalCases - row.serviceIncidents | number
-                        }}</span
-                      >
-                    </td>
-                    <td>
-                      <div class="ratio-bar-wrapper">
-                        <div
-                          class="ratio-bar-agent"
-                          [style.width.%]="getAgentRatio(row)"
-                        >
-                          @if (getAgentRatio(row) >= 4) {
-                            <span class="ratio-bar-label"
-                              >{{ getAgentRatio(row) }}%</span
-                            >
-                          }
-                        </div>
-                        <div
-                          class="ratio-bar-ops"
-                          [style.width.%]="100 - getAgentRatio(row)"
-                        >
-                          @if (100 - getAgentRatio(row) >= 4) {
-                            <span class="ratio-bar-label" style="color: black"
-                              >{{ 100 - getAgentRatio(row) }}%</span
-                            >
-                          }
-                        </div>
                       </div>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Separator -->
-          <div class="summary-table-separator"></div>
-
-          <!-- Right: Service Incidents -->
-          <div class="summary-table-section summary-table-section-incidents">
-            <table class="summary-table summary-table-incidents">
-              <thead>
-                <tr>
-                  <th>Service Incidents</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (row of summaryRows; track row.sectionName) {
-                  <tr>
-                    <td>
-                      @if (row.serviceIncidents != null) {
-                        {{ row.serviceIncidents | number }}
-                      } @else {
-                        <span class="summary-empty">--</span>
+                    </div>
+                  } @else {
+                    <span class="summary-empty">--</span>
+                  }
+                </td>
+                <td>
+                  {{ valueDisplay(row.inProgress.agent)
+                  }}<span class="td-sub">
+                    / {{ row.inProgress.total || 0 | number }}</span
+                  >
+                  @if (row.inProgress.agentPct != null) {
+                    <span class="summary-pct"
+                      >({{ row.inProgress.agentPct | number: "1.0-0" }}%)</span
+                    >
+                  }
+                </td>
+                <td>
+                  {{ valueDisplay(row.routed.agent)
+                  }}<span class="td-sub">
+                    / {{ row.routed.total || 0 | number }}</span
+                  >
+                  @if (row.routed.agentPct != null) {
+                    <span class="summary-pct"
+                      >({{ row.routed.agentPct | number: "1.0-0" }}%)</span
+                    >
+                  }
+                </td>
+                <td>
+                  {{ valueDisplay(row.cancelled.agent)
+                  }}<span class="td-sub">
+                    / {{ row.cancelled.total || 0 | number }}</span
+                  >
+                  @if (row.cancelled.agentPct != null) {
+                    <span class="summary-pct"
+                      >({{ row.cancelled.agentPct | number: "1.0-0" }}%)</span
+                    >
+                  }
+                </td>
+                <td>
+                  {{ valueDisplay(row.service.agent)
+                  }}<span class="td-sub">
+                    / {{ row.service.total || 0 | number }}</span
+                  >
+                  @if (row.service.agentPct != null) {
+                    <span class="summary-pct"
+                      >({{ row.service.agentPct | number: "1.0-0" }}%)</span
+                    >
+                  }
+                </td>
+                <td>
+                  <span class="summary-total-cases">{{
+                    getAgentTotalCases(row) | number
+                  }}</span
+                  ><span class="td-sub">
+                    / {{ row.totalCases - row.serviceIncidents | number }}</span
+                  >
+                </td>
+                <td>
+                  <div class="caseiq-pill caseiq-pill-dual table-pill">
+                    <div
+                      class="caseiq-pill-fill cyan"
+                      [style.width.%]="getAgentRatio(row)"
+                    >
+                      @if (getAgentRatio(row) >= 10) {
+                        <span class="caseiq-pill-text"
+                          >{{ getAgentRatio(row) }}%</span
+                        >
                       }
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                    <div class="caseiq-pill-remainder">
+                      @if (100 - getAgentRatio(row) >= 10) {
+                        <span class="caseiq-pill-text"
+                          >{{ 100 - getAgentRatio(row) }}%</span
+                        >
+                      }
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <a
+                    class="active-agents-link"
+                    (click)="openResolutionAgents($event)"
+                  >
+                    {{ getAgentForRow(row).deployed }} /
+                    {{ getAgentForRow(row).total }}
+                  </a>
+                </td>
+                <td>
+                  @if (row.serviceIncidents != null) {
+                    {{ row.serviceIncidents | number }}
+                  } @else {
+                    <span class="summary-empty">--</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ Analytics Charts ═══ -->
+    <div class="analytics-section">
+      @if (analyticsChartsLoading) {
+        <div class="analytics-loading">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      }
+
+      <!-- Row 1: Weekly Case Volume by Team (2fr) | Issues Breakdown (2fr) | Hourly/Weekly flip card (1fr) -->
+      <div class="analytics-row analytics-row-2-2-1">
+        <div class="ciq-card ciq-card--chart flip-card-container">
+          @if (!teamCardFlipped) {
+            <div class="ciq-card-header">
+              <span class="ciq-card-title">Weekly Case Volume by Team</span>
+              <span class="analytics-date-range">Last 90 days</span>
+              <button
+                class="flip-btn"
+                (click)="flipTeamCard()"
+                title="Show AI Accuracy Over Time"
+              >
+                <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
+              </button>
+            </div>
+            <div class="analytics-chart-wrapper">
+              <canvas id="chart-weekly-team"></canvas>
+            </div>
+          } @else {
+            <div class="ciq-card-header">
+              <span class="ciq-card-title">AI Accuracy Over Time</span>
+              <span class="analytics-date-range"
+                >Last 120 days · validated cases only</span
+              >
+              <button
+                class="flip-btn"
+                (click)="flipTeamCard()"
+                title="Show Weekly Case Volume by Team"
+              >
+                <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
+              </button>
+            </div>
+            <div class="analytics-chart-wrapper">
+              <canvas id="chart-accuracy-time"></canvas>
+            </div>
+          }
         </div>
 
-        <!-- Resolution Agent Details by Track -->
-        <div class="track-agents-section">
-          <div class="track-agents-label">
-            @if (router.url.includes("/caseiq")) {
-              <span class="track-agents-link" style="cursor: default">
-                Resolution Agents Active
-              </span>
-            } @else {
-              <a
-                class="track-agents-link"
-                (click)="openResolutionAgents($event)"
-                style="cursor: pointer"
-              >
-                Resolution Agents Active
-                <ng-icon
-                  name="phosphorLinkBold"
-                  size="14"
-                  class="track-agents-link-icon"
-                ></ng-icon>
-              </a>
+        <!-- Issues Breakdown -->
+        <div class="ciq-card ciq-swap-card">
+          <div class="ciq-card-header">
+            <span class="ciq-card-title-text">Issues Breakdown</span>
+          </div>
+          <div class="ciq-anomaly-list">
+            @if (monitoringLoading) {
+              <div class="ciq-table-loading">
+                <app-loading-symbol></app-loading-symbol>
+              </div>
+            }
+            @for (a of anomalyBreakdown; track a.name) {
+              <div class="ciq-anomaly-item">
+                <span class="ciq-badge" [ngClass]="severityClass(a.severity)">{{
+                  a.severity | uppercase
+                }}</span>
+                <span class="ciq-anomaly-name">{{ a.name }}</span>
+                <span class="ciq-team-chips">
+                  @for (
+                    chip of getTeamChips(a.issueKey || "");
+                    track chip.team
+                  ) {
+                    <button
+                      class="ciq-team-chip"
+                      [ngClass]="'ciq-team-chip--' + a.severity"
+                      (click)="
+                        openDrilldown(
+                          chip.team,
+                          a.issueKey || '',
+                          a.name,
+                          chip.rawTeam
+                        )
+                      "
+                    >
+                      {{ chip.team }} <strong>{{ chip.count }}</strong>
+                    </button>
+                  }
+                </span>
+                <span
+                  class="ciq-anomaly-count"
+                  [style.color]="countColor(a.severity)"
+                  >{{ a.count }}</span
+                >
+              </div>
+            }
+            @if (anomalyBreakdown.length === 0 && !monitoringLoading) {
+              <div class="ciq-no-data">
+                <span class="ciq-no-data-icon"
+                  ><ng-icon name="phosphorEmptyDuotone" size="24"
+                /></span>
+                No issues in selected period
+              </div>
             }
           </div>
-          <div class="track-agents-row">
-            <div class="track-agent-card">
-              <div class="track-agent-team">Finance IT</div>
-              <div class="track-agent-value">
-                {{ agents.deployed }}/{{ agents.total }}
-              </div>
+          <p class="ciq-anomaly-disclaimer">
+            * Click any team chip to view quarterly occurrence trend
+          </p>
+        </div>
+
+        <div class="ciq-card ciq-card--chart flip-card-container">
+          @if (!hourlyCardFlipped) {
+            <div class="ciq-card-header">
+              <span class="ciq-card-title">Hourly Processing Load</span>
+              <span class="analytics-date-range">Last 24 hours · UTC</span>
+              <button
+                class="flip-btn"
+                (click)="flipHourlyCard()"
+                title="Show Weekly Cases Analyzed"
+              >
+                <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
+              </button>
             </div>
-            @for (agent of getTrackAgents(); track agent.team) {
-              <div class="track-agent-card">
-                <div class="track-agent-team">{{ agent.team }}</div>
-                <div class="track-agent-value">
-                  {{ agent.deployed }}/{{ agent.total }}
-                </div>
-              </div>
-            }
+            <div class="analytics-chart-wrapper">
+              <canvas id="chart-hourly-pattern"></canvas>
+            </div>
+          } @else {
+            <div class="ciq-card-header">
+              <span class="ciq-card-title">Weekly Cases Analyzed</span>
+              <span class="analytics-date-range">Last 90 days</span>
+              <button
+                class="flip-btn"
+                (click)="flipHourlyCard()"
+                title="Show Hourly Processing Load"
+              >
+                <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
+              </button>
+            </div>
+            <div class="analytics-chart-wrapper">
+              <canvas id="chart-weekly-state"></canvas>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Monitoring: Error Incidents ═══ -->
+    <div class="monitoring-section">
+      <div class="ciq-card ciq-swap-card">
+        <div class="ciq-card-header">
+          <span class="ciq-card-title-text">Error Incidents</span>
+          <div class="ciq-header-filters">
+            <select
+              [(ngModel)]="errorFilterTeam"
+              (ngModelChange)="applyErrorFilters()"
+              class="ciq-filter-select"
+            >
+              <option value="">All Teams</option>
+              @for (t of errorTeamOptions; track t) {
+                <option [value]="t">{{ t }}</option>
+              }
+            </select>
+            <select
+              [(ngModel)]="errorFilterIssue"
+              (ngModelChange)="applyErrorFilters()"
+              class="ciq-filter-select"
+            >
+              <option value="">All Issues</option>
+              @for (i of errorIssueOptions; track i) {
+                <option [value]="i">{{ i }}</option>
+              }
+            </select>
+            <button
+              class="ciq-download-btn"
+              [class.ciq-download-btn--downloading]="csvDownloading"
+              [class.ciq-download-btn--done]="csvDownloadDone"
+              (click)="downloadErrorCsv()"
+              title="Download CSV"
+            >
+              <span
+                class="ciq-download-btn__fill"
+                [style.width.%]="csvDownloadProgress"
+              ></span>
+              <span class="ciq-download-btn__content">
+                @if (csvDownloading) {
+                  {{ csvDownloadProgress }}%
+                } @else {
+                  <ng-icon name="phosphorArrowLineDownBold" size="13" /> CSV
+                }
+              </span>
+            </button>
+          </div>
+        </div>
+        <div class="ciq-table-scroll ciq-table-scroll--no-max">
+          <table class="ciq-table ciq-error-table">
+            <thead>
+              <tr>
+                <th>Incident</th>
+                <th>Team</th>
+                <th>Category</th>
+                <th>Core Issue</th>
+                <th>LLM Summary</th>
+                <th>Issue Description</th>
+                <th>Run Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (errorLoading) {
+                <tr>
+                  <td colspan="7">
+                    <div class="ciq-table-loading">
+                      <app-loading-symbol></app-loading-symbol>
+                    </div>
+                  </td>
+                </tr>
+              }
+              @for (row of monitoringErrorData; track $index) {
+                <tr>
+                  <td class="ciq-mono">{{ row.INCIDENT_NUMBER || "N/A" }}</td>
+                  <td>{{ row.TEAM_NAME || "N/A" }}</td>
+                  <td>{{ row.CATEGORY || "—" }}</td>
+                  <td class="ciq-text-sm">{{ row.CORE_ISSUE || "—" }}</td>
+                  <td class="ciq-text-sm">{{ row.LLM_SUMMARY || "—" }}</td>
+                  <td>
+                    <span class="ciq-badge badge-critical">{{
+                      (row.anomalyLabel || row.ANOMALY_TYPE || "") ===
+                      "Not Defined"
+                        ? 'LLM Summary is "Not Defined"'
+                        : row.anomalyLabel || row.ANOMALY_TYPE || ""
+                    }}</span>
+                  </td>
+                  <td class="ciq-text-sm">
+                    {{ formatMonitoringDate(row.CASEIQ_RUN_DATE) }}
+                  </td>
+                </tr>
+              }
+              @if (monitoringErrorData.length === 0 && !errorLoading) {
+                <tr>
+                  <td colspan="7" class="ciq-no-data">
+                    <span class="ciq-no-data-icon"
+                      ><ng-icon name="phosphorEmptyDuotone" size="24"
+                    /></span>
+                    No errors detected in this period
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <!-- Pagination -->
+        <div class="ciq-pagination">
+          <span
+            >{{ errorPageStart }}–{{ errorPageEnd }} of
+            {{ errorTotalCount }} incidents</span
+          >
+          <div class="ciq-pagination-controls">
+            <select
+              [ngModel]="errorPageSize"
+              (ngModelChange)="errorChangePageSize($event)"
+              class="ciq-filter-select"
+            >
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+              <option [ngValue]="100">100</option>
+            </select>
+            <button
+              class="ciq-pg-btn"
+              (click)="errorChangePage(-1)"
+              [disabled]="errorCurrentPage <= 1"
+            >
+              Previous
+            </button>
+            <span>Page {{ errorCurrentPage }} of {{ errorTotalPages }}</span>
+            <button
+              class="ciq-pg-btn"
+              (click)="errorChangePage(1)"
+              [disabled]="errorCurrentPage >= errorTotalPages"
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>
     </div>
+
+    <br />
+    <br />
   }
 }
+
+@if (drilldownOpen) {
+  <div class="ciq-modal-backdrop" (click)="closeDrilldown()">
+    <div
+      class="ciq-modal"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="ciq-modal__header">
+        <h3 class="ciq-modal__title">{{ drilldownTitle }}</h3>
+        <button
+          class="ciq-modal__close"
+          (click)="closeDrilldown()"
+          aria-label="Close modal"
+        >
+          ✕
+        </button>
+      </div>
+      <div class="ciq-modal__body">
+        @if (drilldownSubtitle) {
+          <p class="ciq-modal__subtitle">{{ drilldownSubtitle }}</p>
+        }
+        @if (drilldownPoints.length >= 2) {
+          <app-line-chart
+            [points]="drilldownPoints"
+            lineColor="#00bceb"
+            fillColor="#00bceb"
+            [showDataLabels]="true"
+            [labelInterval]="1"
+          />
+        } @else if (drilldownInsufficient) {
+          <div class="ciq-no-data">
+            <span class="ciq-no-data-icon"
+              ><ng-icon name="phosphorEmptyDuotone" size="24"
+            /></span>
+            Data could not be used to render a chart. This may be due to
+            insufficient occurrences, lack of variance, or malformed data.
+          </div>
+        } @else {
+          <div class="ciq-no-data">Loading trend data…</div>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+@if (showAccuracyModal) {
+  <app-accuracy-detail-modal
+    [teamName]="accuracyModalTeam"
+    [teamAccuracy]="accuracyModalTeamAccuracy"
+    [fiscQtr]="selectedQuarter"
+    (closeModal)="closeAccuracyModal()"
+  />
+}
+<br />
+<br />
+<br />

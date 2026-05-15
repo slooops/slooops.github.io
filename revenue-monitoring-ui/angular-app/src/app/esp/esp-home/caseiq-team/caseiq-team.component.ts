@@ -15,8 +15,6 @@ import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { StackedBarChartDataPoint } from 'src/app/components/bar-chart/bar-chart.component';
 import { CaseiqTableComponent } from 'src/app/components/caseiq-table/caseiq-table.component';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -27,7 +25,20 @@ import { coolExpand } from '@ng-icons/coolicons';
 import { CaseiqExpandModalComponent } from 'src/app/components/caseiq-expand-modal/caseiq-expand-modal.component';
 import { BarChartComponent } from '../../../components/bar-chart/bar-chart.component';
 
-interface FppAccuracyData {
+export interface TeamConfig {
+  /** Display name: 'OM', 'SM', 'Capital', etc. */
+  displayName: string;
+  /** Lowercase API suffix: 'om', 'sm', 'capital', 'fpp', 'p2p', 'i2c', 'ait' */
+  apiSuffix: string;
+  /** TEAM_NAME value used in accuracy API filter (uppercase): 'OM', 'SM', 'CAPITAL', etc. */
+  teamFilterName: string;
+  /** Source string for upload dialog: 'om', 'sm', 'cap', 'fpp', 'p2p', 'i2c', 'ait' */
+  tableSource: string;
+  /** Export filename prefix: 'OM_Validation_Summary', etc. */
+  exportFileName: string;
+}
+
+interface AccuracyData {
   TEAM_NAME: string;
   CATEGORY: number;
   CORE_ISSUE: number;
@@ -36,13 +47,11 @@ interface FppAccuracyData {
 }
 
 @Component({
-  selector: 'app-caseiq-fpp',
-  templateUrl: './caseiq-fpp.component.html',
-  styleUrl: './caseiq-fpp.component.css',
+  selector: 'app-caseiq-team',
+  templateUrl: './caseiq-team.component.html',
+  styleUrl: './caseiq-team.component.css',
   imports: [
     CommonModule,
-    MatIconModule,
-    MatTabsModule,
     MatTooltipModule,
     NgIcon,
     BarChartComponent,
@@ -58,11 +67,13 @@ interface FppAccuracyData {
   ],
   standalone: true,
 })
-export class CaseiqFppComponent implements OnInit, OnChanges {
-  @Input() selectedQuarter!: string; // Quarter filter from parent
-  @ViewChild('fppTable') fppTable!: CaseiqTableComponent;
-  @Output() uploadSuccess = new EventEmitter<void>();
+export class CaseiqTeamComponent implements OnInit, OnChanges {
+  @Input() teamConfig!: TeamConfig;
+  @Input() selectedQuarter!: string;
   @Input() caseIqMetrics: any;
+  @Output() uploadSuccess = new EventEmitter<void>();
+  @ViewChild('teamTable') teamTable!: CaseiqTableComponent;
+
   totalAccuracy: any;
 
   constructor(
@@ -70,17 +81,20 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
     private readonly destroyManager: DestroyManager,
   ) {}
 
-  i2cChartData: StackedBarChartDataPoint[] = [];
-  i2cSimpleChartData: StackedBarChartDataPoint[] = [];
+  // Chart data
+  categoryChartData: StackedBarChartDataPoint[] = [];
+  coreIssueChartData: StackedBarChartDataPoint[] = [];
 
+  // KPI values
   categoryAccuracy: number | string = '-';
   coreIssueAccuracy: number | string = '-';
   totalCases: number | string = '-';
 
-  i2cTableData = new MatTableDataSource<any>([]);
-  i2cTableColumns: string[] = [];
+  // Table state
+  tableData = new MatTableDataSource<any>([]);
+  tableColumns: string[] = [];
   totalRecords: number = 0;
-  fullTableData: any[] = []; // Store unfiltered table data
+  fullTableData: any[] = [];
 
   // Filter and threshold state
   showCategoryFilters = false;
@@ -113,32 +127,43 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
   // Loading state
   refreshingData = false;
 
+  // Expand chart modal state
+  expandedChart: { type: 'CATEGORY' | 'CORE_ISSUE' } | null = null;
+
+  // Dynamic IDs derived from config
+  get stackedCanvasId(): string {
+    return `${this.teamConfig.tableSource}StackedChart`;
+  }
+  get simpleCanvasId(): string {
+    return `${this.teamConfig.tableSource}SimpleChart`;
+  }
+  get expandCanvasPrefix(): string {
+    return `expanded${this.teamConfig.displayName.replace(/\s/g, '')}`;
+  }
+  get tableTitle(): string {
+    return `${this.teamConfig.displayName} Classification Summary`;
+  }
+
   ngOnInit(): void {
     this.loadAllData();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // React to quarter or metrics changes
     if (
       (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) ||
       (changes['caseIqMetrics'] && !changes['caseIqMetrics'].firstChange)
     ) {
-      this.refreshingData = true; // Show loading overlay
+      this.refreshingData = true;
       this.loadAllData();
     }
   }
 
   /**
-   * CaseIQ metrics filtered by selectedQuarter for FPP.
+   * CaseIQ metrics filtered by selectedQuarter for this team.
    */
   get filteredCaseIqMetrics(): any {
-    if (!this.caseIqMetrics) {
-      return null;
-    }
-
-    if (!this.selectedQuarter) {
-      return this.caseIqMetrics;
-    }
+    if (!this.caseIqMetrics) return null;
+    if (!this.selectedQuarter) return this.caseIqMetrics;
 
     if (Array.isArray(this.caseIqMetrics)) {
       const row = this.caseIqMetrics.find(
@@ -146,7 +171,8 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
           m &&
           m.FISCAL_QTR === this.selectedQuarter &&
           m.TEAM_NAME &&
-          m.TEAM_NAME.toString().toUpperCase() === 'FPP',
+          m.TEAM_NAME.toString().toUpperCase() ===
+            this.teamConfig.teamFilterName,
       );
       return row || null;
     }
@@ -160,6 +186,7 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
 
     return this.caseIqMetrics;
   }
+
   getAgentRatio(): number {
     const m = this.filteredCaseIqMetrics;
     if (!m) return 0;
@@ -173,52 +200,46 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
     return Math.round((agentTotal / total) * 100);
   }
 
+  // ── Data loading ──────────────────────────────────────────────
+
   private loadAllData(): void {
-    this.getXxcaseiqValidatedCasesAccuracyV();
-    this.getXxcaseiqCategoryGraphVFpp();
-    this.getXxcaseiqCoreIssueGraphVFpp();
-    this.getXxcaseiqFppCaseDetailsV();
+    this.fetchAccuracy();
+    this.fetchCategoryGraph();
+    this.fetchCoreIssueGraph();
+    this.fetchCaseDetails();
   }
 
-  // Merge objects by CATEGORY or CORE_ISSUE
-  private mergeByCategoryOrIssue(
-    data: any[],
-    groupKey: string,
-    countKey: string,
-  ): any[] {
-    const grouped = new Map<string, any>();
-
-    data.forEach((item) => {
-      const key = item[groupKey] ?? ''; // Convert null/undefined to empty string
-
-      if (!grouped.has(key)) {
-        grouped.set(key, {
-          [groupKey]: key,
-          [countKey]: 0,
-          data: [],
-        });
-      }
-      const group = grouped.get(key)!;
-      group[countKey] += item[countKey];
-      group.data.push({
-        MATCH_STATUS: item.MATCH_STATUS,
-        COUNT: item[countKey],
-      });
-    });
-
-    return Array.from(grouped.values());
-  }
-
-  getXxcaseiqCategoryGraphVFpp() {
+  private fetchAccuracy(): void {
     this.http
-      .get('xxcaseiq-category-graph-v-fpp', this.destroyManager)
+      .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
       .subscribe((data: any) => {
-        // Filter data by selected quarter
+        const filtered = this.selectedQuarter
+          ? data.filter(
+              (item: any) =>
+                item.Quarter === this.selectedQuarter &&
+                item.TEAM_NAME?.toUpperCase() ===
+                  this.teamConfig.teamFilterName,
+            )
+          : data.filter(
+              (item: any) =>
+                item.TEAM_NAME?.toUpperCase() ===
+                this.teamConfig.teamFilterName,
+            );
+        this.updateAccuracyMetrics(filtered);
+      });
+  }
+
+  private fetchCategoryGraph(): void {
+    this.http
+      .get(
+        `xxcaseiq-category-graph-v-${this.teamConfig.apiSuffix}`,
+        this.destroyManager,
+      )
+      .subscribe((data: any) => {
         const filteredByQuarter = this.selectedQuarter
           ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
           : data;
 
-        // Merge by category
         const mergedData = this.mergeByCategoryOrIssue(
           filteredByQuarter,
           'CATEGORY',
@@ -226,21 +247,22 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
         );
         this.cachedCategoryData = mergedData;
         this.updateExpandedCategoryData();
-        this.allCategoryLabels = mergedData.map((item) => item.CATEGORY);
+        this.allCategoryLabels = mergedData.map((item: any) => item.CATEGORY);
         this.reapplyCategoryFilters();
       });
   }
 
-  getXxcaseiqCoreIssueGraphVFpp() {
+  private fetchCoreIssueGraph(): void {
     this.http
-      .get('xxcaseiq-core-issue-graph-v-fpp', this.destroyManager)
+      .get(
+        `xxcaseiq-core-issue-graph-v-${this.teamConfig.apiSuffix}`,
+        this.destroyManager,
+      )
       .subscribe((data: any) => {
-        // Filter data by selected quarter
         const filteredByQuarter = this.selectedQuarter
           ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
           : data;
 
-        // Merge by core issue
         const mergedData = this.mergeByCategoryOrIssue(
           filteredByQuarter,
           'CORE_ISSUE',
@@ -248,53 +270,38 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
         );
         this.cachedCoreIssueData = mergedData;
         this.updateExpandedCoreIssueData();
-        this.allCoreIssueLabels = mergedData.map((item) => item.CORE_ISSUE);
+        this.allCoreIssueLabels = mergedData.map(
+          (item: any) => item.CORE_ISSUE,
+        );
         this.reapplyCoreIssueFilters();
       });
   }
 
-  getXxcaseiqFppCaseDetailsV() {
+  private fetchCaseDetails(): void {
     this.http
-      .get('xxcaseiq-fpp-case-details-v', this.destroyManager)
+      .get(
+        `xxcaseiq-${this.teamConfig.apiSuffix}-case-details-v`,
+        this.destroyManager,
+      )
       .subscribe((data: any) => {
-        // Filter data by selected quarter
         const filteredByQuarter = this.selectedQuarter
           ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
           : data;
 
         this.updateTableData(filteredByQuarter);
-
-        // Hide loading overlay after data is loaded
         this.refreshingData = false;
       });
   }
 
-  getXxcaseiqValidatedCasesAccuracyV() {
-    this.http
-      .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
-      .subscribe((data: any) => {
-        // Filter data by selected quarter and team
-        const filteredByQuarter = this.selectedQuarter
-          ? data.filter(
-              (item: any) =>
-                item.Quarter === this.selectedQuarter &&
-                item.TEAM_NAME === 'FPP',
-            )
-          : data.filter((item: any) => item.TEAM_NAME === 'FPP');
-        this.updateFppMetrics(filteredByQuarter);
-      });
-  }
+  // ── Upload / Refresh ──────────────────────────────────────────
 
-  // Handle upload result with overlay
-  handleUploadResult(event: { success: boolean; message: string }) {
+  handleUploadResult(event: { success: boolean; message: string }): void {
     if (event.success) {
-      // Emit event to parent component to refresh overall accuracy
       this.uploadSuccess.emit();
       this.refreshAllData();
     }
   }
 
-  // Refresh all data with loading overlay
   async refreshAllData(): Promise<void> {
     this.refreshingData = true;
 
@@ -305,7 +312,7 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
             .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
             .subscribe({
               next: (data: any) => {
-                this.updateFppMetrics(data);
+                this.updateAccuracyMetrics(data);
                 resolve();
               },
               error: () => resolve(),
@@ -313,7 +320,10 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
         }),
         new Promise<void>((resolve) => {
           this.http
-            .get('xxcaseiq-category-graph-v-fpp', this.destroyManager)
+            .get(
+              `xxcaseiq-category-graph-v-${this.teamConfig.apiSuffix}`,
+              this.destroyManager,
+            )
             .subscribe({
               next: (data: any) => {
                 const mergedData = this.mergeByCategoryOrIssue(
@@ -324,7 +334,7 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
                 this.cachedCategoryData = mergedData;
                 this.updateExpandedCategoryData();
                 this.allCategoryLabels = mergedData.map(
-                  (item) => item.CATEGORY,
+                  (item: any) => item.CATEGORY,
                 );
                 this.reapplyCategoryFilters();
                 resolve();
@@ -334,7 +344,10 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
         }),
         new Promise<void>((resolve) => {
           this.http
-            .get('xxcaseiq-core-issue-graph-v-fpp', this.destroyManager)
+            .get(
+              `xxcaseiq-core-issue-graph-v-${this.teamConfig.apiSuffix}`,
+              this.destroyManager,
+            )
             .subscribe({
               next: (data: any) => {
                 const mergedData = this.mergeByCategoryOrIssue(
@@ -345,7 +358,7 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
                 this.cachedCoreIssueData = mergedData;
                 this.updateExpandedCoreIssueData();
                 this.allCoreIssueLabels = mergedData.map(
-                  (item) => item.CORE_ISSUE,
+                  (item: any) => item.CORE_ISSUE,
                 );
                 this.reapplyCoreIssueFilters();
                 resolve();
@@ -355,7 +368,10 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
         }),
         new Promise<void>((resolve) => {
           this.http
-            .get('xxcaseiq-fpp-case-details-v', this.destroyManager)
+            .get(
+              `xxcaseiq-${this.teamConfig.apiSuffix}-case-details-v`,
+              this.destroyManager,
+            )
             .subscribe({
               next: (data: any) => {
                 this.updateTableData(data);
@@ -370,48 +386,80 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
     }
   }
 
-  // Filter toggle methods
-  toggleCategoryFilters() {
+  // ── Merge helper ──────────────────────────────────────────────
+
+  private mergeByCategoryOrIssue(
+    data: any[],
+    groupKey: string,
+    countKey: string,
+  ): any[] {
+    if (!Array.isArray(data) || data.length === 0) return [];
+
+    const grouped = new Map<string, any>();
+
+    data.forEach((item) => {
+      const key = item[groupKey] ?? '';
+
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          [groupKey]: key,
+          [countKey]: item[countKey],
+          data: [{ MATCH_STATUS: item.MATCH_STATUS, COUNT: item[countKey] }],
+        });
+      } else {
+        const existing = grouped.get(key)!;
+        existing[countKey] += item[countKey];
+        existing.data.push({
+          MATCH_STATUS: item.MATCH_STATUS,
+          COUNT: item[countKey],
+        });
+      }
+    });
+
+    return Array.from(grouped.values());
+  }
+
+  // ── Filter toggles ───────────────────────────────────────────
+
+  toggleCategoryFilters(): void {
     this.showCategoryFilters = !this.showCategoryFilters;
-    if (!this.showCategoryFilters) {
-      this.showCategorySelect = false;
-    }
+    if (!this.showCategoryFilters) this.showCategorySelect = false;
   }
 
-  toggleCoreIssueFilters() {
+  toggleCoreIssueFilters(): void {
     this.showCoreIssueFilters = !this.showCoreIssueFilters;
-    if (!this.showCoreIssueFilters) {
-      this.showCoreIssueSelect = false;
-    }
+    if (!this.showCoreIssueFilters) this.showCoreIssueSelect = false;
   }
 
-  toggleCategorySelect() {
+  toggleCategorySelect(): void {
     this.showCategorySelect = !this.showCategorySelect;
   }
 
-  toggleCoreIssueSelect() {
+  toggleCoreIssueSelect(): void {
     this.showCoreIssueSelect = !this.showCoreIssueSelect;
   }
 
-  // Threshold adjustment
-  adjustCategoryThreshold(direction: number) {
+  // ── Threshold adjustment ──────────────────────────────────────
+
+  adjustCategoryThreshold(direction: number): void {
     this.categoryMinThreshold = Math.max(
-      10,
+      0,
       this.categoryMinThreshold + direction * 5,
     );
     this.reapplyCategoryFilters();
   }
 
-  adjustCoreIssueThreshold(direction: number) {
+  adjustCoreIssueThreshold(direction: number): void {
     this.coreIssueMinThreshold = Math.max(
-      10,
+      0,
       this.coreIssueMinThreshold + direction * 5,
     );
     this.reapplyCoreIssueFilters();
   }
 
-  // Reapply filters
-  reapplyCategoryFilters() {
+  // ── Reapply filters ───────────────────────────────────────────
+
+  reapplyCategoryFilters(): void {
     let filteredData = this.cachedCategoryData;
 
     if (this.selectedCategoryLabels.size > 0) {
@@ -422,23 +470,23 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
       filteredData = filteredData.filter(
         (item) => item.CATEGORY_COUNT > this.categoryMinThreshold,
       );
-
-      // If no data passes threshold, show all data instead
       if (filteredData.length === 0 && this.cachedCategoryData.length > 0) {
         filteredData = this.cachedCategoryData;
       }
     }
 
-    this.i2cChartData = this.transformMatchStatusData(
+    this.categoryChartData = this.transformMatchStatusData(
       filteredData,
       'CATEGORY',
       'CATEGORY_COUNT',
     );
-    this.visibleCategoryTotal = this.computeStackedTotal(this.i2cChartData);
+    this.visibleCategoryTotal = this.computeStackedTotal(
+      this.categoryChartData,
+    );
     this.syncTableFilters();
   }
 
-  reapplyCoreIssueFilters() {
+  reapplyCoreIssueFilters(): void {
     let filteredData = this.cachedCoreIssueData;
 
     if (this.selectedCoreIssueLabels.size > 0) {
@@ -449,26 +497,25 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
       filteredData = filteredData.filter(
         (item) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold,
       );
-
-      // If no data passes threshold, show all data instead
       if (filteredData.length === 0 && this.cachedCoreIssueData.length > 0) {
         filteredData = this.cachedCoreIssueData;
       }
     }
 
-    this.i2cSimpleChartData = this.transformMatchStatusData(
+    this.coreIssueChartData = this.transformMatchStatusData(
       filteredData,
       'CORE_ISSUE',
       'CORE_ISSUE_COUNT',
     );
     this.visibleCoreIssueTotal = this.computeStackedTotal(
-      this.i2cSimpleChartData,
+      this.coreIssueChartData,
     );
     this.syncTableFilters();
   }
 
-  // Selection handlers
-  toggleCategorySelection(label: string) {
+  // ── Selection handlers ────────────────────────────────────────
+
+  toggleCategorySelection(label: string): void {
     if (this.selectedCategoryLabels.has(label)) {
       this.selectedCategoryLabels.delete(label);
     } else {
@@ -477,7 +524,7 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
     this.reapplyCategoryFilters();
   }
 
-  toggleCoreIssueSelection(label: string) {
+  toggleCoreIssueSelection(label: string): void {
     if (this.selectedCoreIssueLabels.has(label)) {
       this.selectedCoreIssueLabels.delete(label);
     } else {
@@ -486,21 +533,19 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
     this.reapplyCoreIssueFilters();
   }
 
-  clearCategorySelection(event: Event) {
+  clearCategorySelection(event: Event): void {
     event.stopPropagation();
     this.selectedCategoryLabels.clear();
     this.reapplyCategoryFilters();
   }
 
-  clearCoreIssueSelection(event: Event) {
+  clearCoreIssueSelection(event: Event): void {
     event.stopPropagation();
     this.selectedCoreIssueLabels.clear();
     this.reapplyCoreIssueFilters();
   }
 
-  // Handle category bar click
   onCategoryBarClick(categoryLabel: string): void {
-    // Toggle: if already selected, clear it; otherwise set it as the only selection
     if (this.selectedCategoryLabels.has(categoryLabel)) {
       this.selectedCategoryLabels.clear();
     } else {
@@ -512,9 +557,7 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
     this.reapplyCategoryFilters();
   }
 
-  // Handle core issue bar click
   onCoreIssueBarClick(coreIssueLabel: string): void {
-    // Toggle: if already selected, clear it; otherwise set it as the only selection
     if (this.selectedCoreIssueLabels.has(coreIssueLabel)) {
       this.selectedCoreIssueLabels.clear();
     } else {
@@ -526,7 +569,6 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
     this.reapplyCoreIssueFilters();
   }
 
-  // Get filter text for display
   getCategoryFilterText(): string {
     if (this.selectedCategoryLabels.size === 1) {
       const label = Array.from(this.selectedCategoryLabels)[0];
@@ -543,103 +585,92 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
     return 'Filter';
   }
 
-  /**
-   * Sync table filters based on dropdown selections
-   */
+  // ── Table filter sync ─────────────────────────────────────────
+
   syncTableFilters(): void {
-    if (!this.fppTable) return;
+    if (!this.teamTable) return;
 
-    const categoryFilters: string[] = [];
-    const coreIssueFilters: string[] = [];
+    const categoryFilters = Array.from(this.selectedCategoryLabels);
+    const coreIssueFilters = Array.from(this.selectedCoreIssueLabels);
 
-    if (this.selectedCategoryLabels.size > 0) {
-      categoryFilters.push(...Array.from(this.selectedCategoryLabels));
-    }
-    if (this.selectedCoreIssueLabels.size > 0) {
-      coreIssueFilters.push(...Array.from(this.selectedCoreIssueLabels));
-    }
-
-    // If no filters active, show all data and clear any table filters
     if (categoryFilters.length === 0 && coreIssueFilters.length === 0) {
-      this.fppTable.clearAllFilters();
+      this.teamTable.clearAllFilters();
 
-      // Reset both charts to their original filtered state (based on threshold)
-      const categoryEffectiveData = this.cachedCategoryData.filter(
+      const categoryEffective = this.cachedCategoryData.filter(
         (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold,
       );
-      this.i2cChartData = this.transformMatchStatusData(
-        categoryEffectiveData.length > 0
-          ? categoryEffectiveData
+      this.categoryChartData = this.transformMatchStatusData(
+        categoryEffective.length > 0
+          ? categoryEffective
           : this.cachedCategoryData,
         'CATEGORY',
         'CATEGORY_COUNT',
       );
-      this.visibleCategoryTotal = this.computeStackedTotal(this.i2cChartData);
+      this.visibleCategoryTotal = this.computeStackedTotal(
+        this.categoryChartData,
+      );
 
-      const coreIssueEffectiveData = this.cachedCoreIssueData.filter(
+      const coreIssueEffective = this.cachedCoreIssueData.filter(
         (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold,
       );
-      this.i2cSimpleChartData = this.transformMatchStatusData(
-        coreIssueEffectiveData.length > 0
-          ? coreIssueEffectiveData
+      this.coreIssueChartData = this.transformMatchStatusData(
+        coreIssueEffective.length > 0
+          ? coreIssueEffective
           : this.cachedCoreIssueData,
         'CORE_ISSUE',
         'CORE_ISSUE_COUNT',
       );
       this.visibleCoreIssueTotal = this.computeStackedTotal(
-        this.i2cSimpleChartData,
+        this.coreIssueChartData,
       );
       return;
     }
 
-    // Apply filters to table
     let filteredData = [...this.fullTableData];
     if (categoryFilters.length > 0) {
-      const categoryFiltersLower = categoryFilters.map((f) => f.toLowerCase());
+      const lower = categoryFilters.map((f) => f.toLowerCase());
       filteredData = filteredData.filter((row) =>
-        categoryFiltersLower.includes((row.CATEGORY || '').toLowerCase()),
+        lower.includes((row.CATEGORY || '').toLowerCase()),
+      );
+    }
+    if (coreIssueFilters.length > 0) {
+      const lower = coreIssueFilters.map((f) => f.toLowerCase());
+      filteredData = filteredData.filter((row) =>
+        lower.includes((row.CORE_ISSUE || '').toLowerCase()),
       );
     }
 
-    if (coreIssueFilters.length > 0) {
-      const coreIssueFiltersLower = coreIssueFilters.map((f) =>
-        f.toLowerCase(),
-      );
-      filteredData = filteredData.filter((row) =>
-        coreIssueFiltersLower.includes((row.CORE_ISSUE || '').toLowerCase()),
-      );
-    }
-    // Dynamically filter charts based on filtered table data
+    // Cross-filter charts
     if (categoryFilters.length > 0) {
       const uniqueCoreIssues = Array.from(
         new Set(
           filteredData
-            .map((row) => row.CORE_ISSUE.toLowerCase())
+            .map((row) => (row.CORE_ISSUE || '').toLowerCase())
             .filter((v) => v),
         ),
       );
-      const completeCoreIssueChartData = this.transformMatchStatusData(
+      const completeCoreIssueChart = this.transformMatchStatusData(
         this.cachedCoreIssueData,
         'CORE_ISSUE',
         'CORE_ISSUE_COUNT',
       );
-      this.i2cSimpleChartData = completeCoreIssueChartData.filter((item) =>
+      this.coreIssueChartData = completeCoreIssueChart.filter((item) =>
         uniqueCoreIssues.includes(item.label.toLowerCase()),
       );
       this.visibleCoreIssueTotal = this.computeStackedTotal(
-        this.i2cSimpleChartData,
+        this.coreIssueChartData,
       );
     } else if (coreIssueFilters.length === 0) {
-      const effectiveData = this.cachedCoreIssueData.filter(
+      const effective = this.cachedCoreIssueData.filter(
         (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold,
       );
-      this.i2cSimpleChartData = this.transformMatchStatusData(
-        effectiveData.length > 0 ? effectiveData : this.cachedCoreIssueData,
+      this.coreIssueChartData = this.transformMatchStatusData(
+        effective.length > 0 ? effective : this.cachedCoreIssueData,
         'CORE_ISSUE',
         'CORE_ISSUE_COUNT',
       );
       this.visibleCoreIssueTotal = this.computeStackedTotal(
-        this.i2cSimpleChartData,
+        this.coreIssueChartData,
       );
     }
 
@@ -647,40 +678,44 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
       const uniqueCategories = Array.from(
         new Set(
           filteredData
-            .map((row) => row.CATEGORY.toLowerCase())
+            .map((row) => (row.CATEGORY || '').toLowerCase())
             .filter((v) => v),
         ),
       );
-      const completeCategoryChartData = this.transformMatchStatusData(
+      const completeCategoryChart = this.transformMatchStatusData(
         this.cachedCategoryData,
         'CATEGORY',
         'CATEGORY_COUNT',
       );
-      this.i2cChartData = completeCategoryChartData.filter((item) =>
+      this.categoryChartData = completeCategoryChart.filter((item) =>
         uniqueCategories.includes(item.label.toLowerCase()),
       );
-      this.visibleCategoryTotal = this.computeStackedTotal(this.i2cChartData);
+      this.visibleCategoryTotal = this.computeStackedTotal(
+        this.categoryChartData,
+      );
     } else if (categoryFilters.length === 0) {
-      const effectiveData = this.cachedCategoryData.filter(
+      const effective = this.cachedCategoryData.filter(
         (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold,
       );
-      this.i2cChartData = this.transformMatchStatusData(
-        effectiveData.length > 0 ? effectiveData : this.cachedCategoryData,
+      this.categoryChartData = this.transformMatchStatusData(
+        effective.length > 0 ? effective : this.cachedCategoryData,
         'CATEGORY',
         'CATEGORY_COUNT',
       );
-      this.visibleCategoryTotal = this.computeStackedTotal(this.i2cChartData);
+      this.visibleCategoryTotal = this.computeStackedTotal(
+        this.categoryChartData,
+      );
     }
 
-    this.fppTable.dataSource.data = filteredData;
-    this.fppTable.currentPage = 0;
+    this.teamTable.dataSource.data = filteredData;
+    this.teamTable.currentPage = 0;
   }
 
-  // Close dropdowns when clicking outside
+  // ── Close dropdowns on outside click ──────────────────────────
+
   @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
+  onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    // If click inside a filter panel or on filter icon/button, ignore
     if (
       target.closest('.chart-filter-panel') ||
       target.closest('.filter-wrapper')
@@ -695,26 +730,26 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
     }
   }
 
-  // Compute stacked total
-  computeStackedTotal(chartData: StackedBarChartDataPoint[]): number {
-    return chartData.reduce((sum, bar) => {
-      const barTotal = bar.segments.reduce(
-        (segSum, seg) => segSum + seg.value,
-        0,
-      );
-      return sum + barTotal;
-    }, 0);
-  }
+  // ── Expand modal ──────────────────────────────────────────────
 
-  // Expand chart modal state
-  expandedChart: { type: 'CATEGORY' | 'CORE_ISSUE' } | null = null;
-
-  onExpandChart(chartType: 'CATEGORY' | 'CORE_ISSUE') {
+  onExpandChart(chartType: 'CATEGORY' | 'CORE_ISSUE'): void {
     this.expandedChart = { type: chartType };
   }
 
-  closeExpandModal() {
+  closeExpandModal(): void {
     this.expandedChart = null;
+  }
+
+  // ── Private helpers ───────────────────────────────────────────
+
+  computeStackedTotal(chartData: StackedBarChartDataPoint[]): number {
+    if (!Array.isArray(chartData)) return 0;
+    return chartData.reduce((sum, bar) => {
+      if (!bar?.segments) return sum;
+      return (
+        sum + bar.segments.reduce((s, seg) => s + (Number(seg.value) || 0), 0)
+      );
+    }, 0);
   }
 
   private updateExpandedCategoryData(): void {
@@ -741,10 +776,10 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
 
   private updateTableData(apiData: any[]): void {
     if (Array.isArray(apiData) && apiData.length > 0) {
-      this.fullTableData = [...apiData]; // Store full unfiltered data
-      this.i2cTableData.data = apiData;
+      this.fullTableData = [...apiData];
+      this.tableData.data = apiData;
       this.totalRecords = apiData.length;
-      this.i2cTableColumns = Object.keys(apiData[0]).filter(
+      this.tableColumns = Object.keys(apiData[0]).filter(
         (key) =>
           key !== 'DESCRIPTION' &&
           key !== 'SUMMARY' &&
@@ -754,22 +789,23 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
     } else {
       this.fullTableData = [];
       this.totalRecords = 0;
-      this.i2cTableData.data = [];
-      this.i2cTableColumns = [];
+      this.tableData.data = [];
+      this.tableColumns = [];
     }
   }
 
-  private updateFppMetrics(apiData: FppAccuracyData[]): void {
+  private updateAccuracyMetrics(apiData: any[]): void {
     if (Array.isArray(apiData)) {
-      const fppData = apiData.find(
-        (item) => item.TEAM_NAME && item.TEAM_NAME.toLowerCase() === 'fpp',
+      const teamData = apiData.find(
+        (item) =>
+          item.TEAM_NAME?.toUpperCase() === this.teamConfig.teamFilterName,
       );
 
-      if (fppData) {
-        this.categoryAccuracy = fppData['Category Accuracy'] ?? '-';
-        this.coreIssueAccuracy = fppData['Core Issue Accuracy'] ?? '-';
-        this.totalCases = fppData['Total Cases'] ?? '-';
-        this.totalAccuracy = fppData['Total Accuracy'] ?? '-';
+      if (teamData) {
+        this.categoryAccuracy = teamData['Category Accuracy'] ?? '-';
+        this.coreIssueAccuracy = teamData['Core Issue Accuracy'] ?? '-';
+        this.totalCases = teamData['Total Cases'] ?? '-';
+        this.totalAccuracy = teamData['Total Accuracy'] ?? '-';
       }
     }
   }
@@ -779,12 +815,9 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
     groupColumn: string,
     countColumn: string,
   ): StackedBarChartDataPoint[] {
-    if (!Array.isArray(apiData)) {
-      return [];
-    }
+    if (!Array.isArray(apiData)) return [];
 
-    const chartData = apiData.map((item) => {
-      // Handle nested data structure from merge
+    return apiData.map((item) => {
       const segments = item.data
         ? item.data.map((statusItem: any) => ({
             name: statusItem.MATCH_STATUS,
@@ -799,22 +832,20 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
             },
           ];
 
-      return { label: item[groupColumn] ?? '', segments }; // Convert null/undefined to empty string
+      return { label: item[groupColumn] ?? '', segments };
     });
-
-    return chartData;
   }
 
   private getMatchStatusColor(matchStatus: string): string {
     switch (matchStatus.toUpperCase()) {
       case 'MATCHED':
-        return '#36A2EB';
+        return '#00bceb';
       case 'NOT MATCHED':
-        return '#cacacaff';
+        return '#b0b8c1';
       case 'ANALYZED':
-        return '#FFCE56';
+        return '#f0a500';
       default:
-        return '#E5E5E5';
+        return '#d1d5db';
     }
   }
 }

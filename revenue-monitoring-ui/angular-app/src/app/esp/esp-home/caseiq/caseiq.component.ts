@@ -1,9 +1,12 @@
 import {
   AfterViewInit,
   Component,
+  EventEmitter,
+  HostListener,
   Input,
   OnChanges,
   OnDestroy,
+  Output,
   SimpleChanges,
   signal,
 } from '@angular/core';
@@ -13,11 +16,25 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.component';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { phosphorLinkBold } from '@ng-icons/phosphor-icons/bold';
+import {
+  phosphorLinkBold,
+  phosphorArrowsClockwiseBold,
+  phosphorArrowLineDownBold,
+} from '@ng-icons/phosphor-icons/bold';
+import { phosphorEmptyDuotone } from '@ng-icons/phosphor-icons/duotone';
 import { Chart } from 'chart.js/auto';
 import { Router } from '@angular/router';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import { AccuracyDetailModalComponent } from 'src/app/components/accuracy-detail-modal/accuracy-detail-modal.component';
+import { CaseiqMonitoringDataService } from '../../caseiq-monitoring-dashboard/caseiq-monitoring-data.service';
+import {
+  AnomalyBreakdownItem,
+  AnomalyItem,
+  HealthOverview,
+  TeamIssueMatrixEntry,
+} from '../../caseiq-monitoring-dashboard/caseiq-monitoring.models';
+import { LineChartComponent } from '../../caseiq-monitoring-dashboard/line-chart/line-chart.component';
 
 interface CaseIqTableMetric {
   total: number | null;
@@ -48,8 +65,17 @@ interface CaseIqTableRow {
     MatTooltipModule,
     LoadingSymbolComponent,
     NgIcon,
+    AccuracyDetailModalComponent,
+    LineChartComponent,
   ],
-  providers: [provideIcons({ phosphorLinkBold })],
+  providers: [
+    provideIcons({
+      phosphorLinkBold,
+      phosphorArrowsClockwiseBold,
+      phosphorArrowLineDownBold,
+      phosphorEmptyDuotone,
+    }),
+  ],
   standalone: true,
 })
 export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
@@ -64,6 +90,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   constructor(
     private readonly http: ApiHttpService,
     private readonly destroyManager: DestroyManager,
+    private readonly monitoringService: CaseiqMonitoringDataService,
     public router: Router,
   ) {}
 
@@ -106,6 +133,22 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   @Input() caseIqMetrics: any;
   @Input() selectedQuarter: string = '';
+  @Output() teamNavigate = new EventEmitter<string>();
+
+  // ── Analytics chart data ──────────────────────────────────
+  weeklyVolumeByTeamData: any[] = [];
+  weeklyVolumeByStateData: any[] = [];
+  hourlyCasePatternData: any[] = [];
+  accuracyOverTimeData: any[] = [];
+  analyticsChartsLoading = true;
+  private analyticsDataReady = false;
+  private analyticsCharts: any[] = [];
+  teamCardFlipped = false;
+  hourlyCardFlipped = false;
+  private teamChart: any = null;
+  private accuracyTimeChart: any = null;
+  private hourlyChart: any = null;
+  private weeklyStateChart: any = null;
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('caseIqMetrics' in changes) {
@@ -113,16 +156,20 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       this.buildSectionsFromMetrics();
 
       // If view is already initialized, (re)create charts and update data
-      // Use setTimeout to ensure Angular has updated the DOM with new canvases
       if (this.viewInitialized) {
         this.showLoadingForMoment();
       }
     }
 
-    if ('selectedQuarter' in changes) {
-      // Quarter changed; rebuild charts to reflect the filtered metrics
+    if (
+      'selectedQuarter' in changes &&
+      !changes['selectedQuarter'].firstChange
+    ) {
+      // Quarter changed by user — rebuild KPI charts (analytics charts use rolling window, no refetch needed)
       if (this.viewInitialized) {
         this.showLoadingForMoment();
+        // Re-fetch monitoring data with new quarter
+        this.fetchMonitoringData();
       }
     }
   }
@@ -136,8 +183,13 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     // Fetch accuracy data
     this.fetchAccuracyData();
 
+    // Fetch monitoring data (Issues Breakdown + Error Incidents)
+    this.fetchMonitoringData();
+
+    // Always fetch analytics chart data on init
+    this.fetchAnalyticsCharts();
+
     // Initial build of sections/charts once view is ready
-    // Use setTimeout to ensure Angular has updated the DOM
     this.buildSectionsFromMetrics();
     this.showLoadingForMoment();
   }
@@ -145,6 +197,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   ngOnDestroy(): void {
     this.charts.forEach((chart) => chart.destroy());
     this.charts = [];
+    this.analyticsCharts.forEach((chart) => chart.destroy());
+    this.analyticsCharts = [];
     document.removeEventListener('click', this.outsideClickListener);
   }
 
@@ -161,6 +215,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       // !isLoading), create all charts against the live DOM.
       setTimeout(() => {
         this.createAllCharts();
+        // Also try building analytics charts now that canvases are in the DOM
+        this.tryBuildAnalyticsCharts();
       }, 0);
     }, 800);
   }
@@ -1028,5 +1084,1012 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (!match) return null;
     const val = Number(match['Total Cases']);
     return Number.isFinite(val) ? val : null;
+  }
+
+  /** Return a pill color class based on accuracy percentage thresholds */
+  getAccuracyColor(sectionName: string): string {
+    const val = this.getAccuracyForSection(sectionName);
+    if (val == null || val === 0) return 'neutral';
+    if (val >= 75) return 'green';
+    if (val >= 50) return 'grey';
+    if (val >= 25) return 'amber';
+    return 'orange';
+  }
+
+  /** Map section names to tile names used by esp-home tabs */
+  private readonly sectionToTile: Record<string, string> = {
+    OM: 'OM',
+    SM: 'SM',
+    I2C: 'I2C',
+    AIT: 'AIT',
+    FPP: 'FPP',
+    P2P: 'P2P',
+    CAPITAL: 'Capital',
+  };
+
+  /** Navigate to the component's team tab */
+  navigateToTeam(sectionName: string): void {
+    const tileName = this.sectionToTile[sectionName] ?? sectionName;
+    this.teamNavigate.emit(tileName);
+  }
+
+  // ── Analytics Charts ──────────────────────────────────────
+
+  fetchAnalyticsCharts(): void {
+    this.analyticsChartsLoading = true;
+    this.analyticsDataReady = false;
+    const base = 'caseiq/charts';
+
+    let completed = 0;
+    const total = 4;
+    const done = () => {
+      completed++;
+      if (completed >= total) {
+        this.analyticsChartsLoading = false;
+        this.analyticsDataReady = true;
+        this.tryBuildAnalyticsCharts();
+      }
+    };
+
+    this.http
+      .get(`${base}/weekly-volume-by-team?lookbackDays=90`, this.destroyManager)
+      .subscribe({
+        next: (d: any) => {
+          this.weeklyVolumeByTeamData = d;
+          done();
+        },
+        error: () => done(),
+      });
+
+    this.http
+      .get(
+        `${base}/weekly-volume-by-state?lookbackDays=90`,
+        this.destroyManager,
+      )
+      .subscribe({
+        next: (d: any) => {
+          this.weeklyVolumeByStateData = d;
+          done();
+        },
+        error: () => done(),
+      });
+
+    this.http
+      .get(`${base}/hourly-case-pattern?lookbackDays=90`, this.destroyManager)
+      .subscribe({
+        next: (d: any) => {
+          this.hourlyCasePatternData = d;
+          done();
+        },
+        error: () => done(),
+      });
+
+    this.http
+      .get(`${base}/accuracy-over-time?lookbackDays=120`, this.destroyManager)
+      .subscribe({
+        next: (d: any) => {
+          this.accuracyOverTimeData = d;
+          done();
+        },
+        error: () => done(),
+      });
+  }
+
+  private tryBuildAnalyticsCharts(): void {
+    if (!this.analyticsDataReady || this.isLoading) return;
+    setTimeout(() => {
+      const testCanvas = document.getElementById('chart-weekly-team');
+      if (!testCanvas) {
+        // Canvases not in DOM yet — retry once more after a short delay
+        setTimeout(() => this.buildAnalyticsCharts(), 200);
+        return;
+      }
+      this.buildAnalyticsCharts();
+    }, 0);
+  }
+
+  private buildAnalyticsCharts(): void {
+    this.analyticsCharts.forEach((c) => c.destroy());
+    this.analyticsCharts = [];
+
+    this.buildWeeklyVolumeByTeamChart();
+    if (!this.hourlyCardFlipped) {
+      this.buildHourlyCasePatternChart();
+    } else {
+      this.buildWeeklyVolumeByStateChart();
+    }
+  }
+
+  private readonly teamColors: Record<string, string> = {
+    OM: '#0070d2',
+    SM: '#00bceb',
+    I2C: '#6ebe4a',
+    AIT: '#e6a800',
+    FPP: '#9933ff',
+    P2P: '#ff6600',
+    CAPITAL: '#e53935',
+  };
+
+  private readonly stateColors: Record<string, string> = {
+    Closed: '#6ebe4a',
+    Resolved: '#0070d2',
+    Cancelled: '#e53935',
+    'Work In Progress': '#e6a800',
+    Pending: '#ff6600',
+    'Awaiting Assignment': '#9933ff',
+    Unknown: '#8899a6',
+    'Escalated to EOC': '#00bceb',
+  };
+
+  private buildWeeklyVolumeByTeamChart(): void {
+    const canvas = document.getElementById(
+      'chart-weekly-team',
+    ) as HTMLCanvasElement;
+    if (!canvas) return;
+
+    // Pivot data: { weekStart: { team: count } }
+    const weekMap = new Map<string, Map<string, number>>();
+    const teams = new Set<string>();
+    for (const row of this.weeklyVolumeByTeamData) {
+      const week = row.WEEK_START;
+      const team = row.TEAM_NAME;
+      teams.add(team);
+      if (!weekMap.has(week)) weekMap.set(week, new Map());
+      weekMap.get(week)?.set(team, row.CASE_COUNT);
+    }
+
+    const weeks = Array.from(weekMap.keys()).sort((a, b) => a.localeCompare(b));
+    const labels = weeks.map((w) => {
+      const d = new Date(w);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+
+    const teamColorHex = this.teamColors;
+    const datasets = Array.from(teams)
+      .filter((t) => t !== 'UNKNOWN')
+      .sort((a, b) => a.localeCompare(b))
+      .map((team) => {
+        const hex = teamColorHex[team] ?? '#555555';
+        // Parse hex to RGB for gradient
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return {
+          label: team,
+          data: weeks.map((w) => weekMap.get(w)?.get(team) ?? 0),
+          borderColor: hex,
+          backgroundColor: (ctx: any) => {
+            const chart = ctx.chart;
+            const { ctx: canvasCtx, chartArea } = chart;
+            if (!chartArea) return `rgba(${r}, ${g}, ${b}, 0.1)`;
+            const gradient = canvasCtx.createLinearGradient(
+              0,
+              chartArea.top,
+              0,
+              chartArea.bottom,
+            );
+            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.25)`);
+            gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+            return gradient;
+          },
+          borderWidth: 2,
+          pointBackgroundColor: '#ffffff',
+          pointBorderColor: hex,
+          pointBorderWidth: 2,
+          pointRadius: 3,
+          pointHoverRadius: 5.5,
+          tension: 0.4,
+          fill: true,
+        };
+      });
+
+    const chart = new Chart(canvas, {
+      type: 'line',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: { boxWidth: 10, font: { size: 10 }, padding: 12 },
+          },
+          tooltip: {
+            backgroundColor: 'rgba(20, 30, 40, 0.9)',
+            titleFont: { size: 10 },
+            bodyFont: { size: 11 },
+            borderColor: 'rgba(0, 188, 235, 0.3)',
+            borderWidth: 1,
+            cornerRadius: 10,
+            padding: 8,
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 9 },
+              maxRotation: 45,
+              autoSkip: true,
+              maxTicksLimit: 12,
+            },
+            border: { display: false },
+          },
+          y: {
+            grid: { color: 'rgba(0,0,0,0.04)' },
+            ticks: { font: { size: 10 }, maxTicksLimit: 5 },
+            border: { display: false },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+    this.teamChart = chart;
+    this.analyticsCharts.push(chart);
+  }
+
+  flipTeamCard(): void {
+    this.teamCardFlipped = !this.teamCardFlipped;
+    // Destroy current chart on the face being hidden
+    setTimeout(() => {
+      if (this.teamCardFlipped) {
+        this.buildAccuracyOverTimeChart();
+      } else {
+        if (this.accuracyTimeChart) {
+          this.accuracyTimeChart.destroy();
+          this.accuracyTimeChart = null;
+        }
+        this.buildWeeklyVolumeByTeamChart();
+      }
+    }, 50);
+  }
+
+  flipHourlyCard(): void {
+    this.hourlyCardFlipped = !this.hourlyCardFlipped;
+    setTimeout(() => {
+      if (this.hourlyCardFlipped) {
+        if (this.hourlyChart) {
+          this.hourlyChart.destroy();
+          this.hourlyChart = null;
+        }
+        this.buildWeeklyVolumeByStateChart();
+      } else {
+        if (this.weeklyStateChart) {
+          this.weeklyStateChart.destroy();
+          this.weeklyStateChart = null;
+        }
+        this.buildHourlyCasePatternChart();
+      }
+    }, 50);
+  }
+
+  private buildAccuracyOverTimeChart(): void {
+    const canvas = document.getElementById(
+      'chart-accuracy-time',
+    ) as HTMLCanvasElement;
+    if (!canvas) return;
+
+    if (this.teamChart) {
+      this.teamChart.destroy();
+      this.teamChart = null;
+    }
+
+    const sorted = [...this.accuracyOverTimeData].sort((a: any, b: any) =>
+      (a.WEEK_START ?? '').localeCompare(b.WEEK_START ?? ''),
+    );
+    const labels = sorted.map((r: any) => {
+      const d = new Date(r.WEEK_START);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+    const catAccuracy = sorted.map((r: any) => r.CATEGORY_ACCURACY ?? null);
+    const coreAccuracy = sorted.map((r: any) => r.CORE_ISSUE_ACCURACY ?? null);
+
+    this.accuracyTimeChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Category',
+            data: catAccuracy,
+            borderColor: '#00bceb',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#00bceb',
+            pointBorderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5.5,
+            tension: 0.4,
+            fill: true,
+            backgroundColor: (ctx: any) => {
+              const chart = ctx.chart;
+              const { ctx: canvasCtx, chartArea } = chart;
+              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
+              const gradient = canvasCtx.createLinearGradient(
+                0,
+                chartArea.top,
+                0,
+                chartArea.bottom,
+              );
+              gradient.addColorStop(0, 'rgba(0, 188, 235, 0.3)');
+              gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
+              return gradient;
+            },
+          },
+          {
+            label: 'Core Issue',
+            data: coreAccuracy,
+            borderColor: '#0070d2',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#0070d2',
+            pointBorderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5.5,
+            tension: 0.4,
+            fill: true,
+            backgroundColor: (ctx: any) => {
+              const chart = ctx.chart;
+              const { ctx: canvasCtx, chartArea } = chart;
+              if (!chartArea) return 'rgba(0, 112, 210, 0.1)';
+              const gradient = canvasCtx.createLinearGradient(
+                0,
+                chartArea.top,
+                0,
+                chartArea.bottom,
+              );
+              gradient.addColorStop(0, 'rgba(0, 112, 210, 0.25)');
+              gradient.addColorStop(1, 'rgba(0, 112, 210, 0)');
+              return gradient;
+            },
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { top: 8 } },
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+              boxWidth: 10,
+              font: { size: 10 },
+              padding: 12,
+              usePointStyle: true,
+            },
+          },
+          tooltip: {
+            backgroundColor: 'rgba(20, 30, 40, 0.85)',
+            titleFont: { size: 10, weight: 'normal' as const },
+            titleColor: '#8899a6',
+            bodyFont: { size: 12, weight: 'bold' as const },
+            borderColor: 'rgba(0, 188, 235, 0.3)',
+            borderWidth: 1,
+            cornerRadius: 10,
+            padding: { top: 6, bottom: 6, left: 10, right: 10 },
+            callbacks: {
+              label: (item) => `${item.dataset.label}: ${item.parsed.y}%`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 9 },
+              maxRotation: 45,
+              autoSkip: true,
+              maxTicksLimit: 12,
+            },
+            border: { display: false },
+          },
+          y: {
+            min: 0,
+            max: 100,
+            grid: { display: false },
+            ticks: {
+              font: { size: 10 },
+              callback: (v) => v + '%',
+              maxTicksLimit: 5,
+            },
+            border: { display: false },
+          },
+        },
+      },
+    });
+    this.analyticsCharts.push(this.accuracyTimeChart);
+  }
+
+  private buildWeeklyVolumeByStateChart(): void {
+    const canvas = document.getElementById(
+      'chart-weekly-state',
+    ) as HTMLCanvasElement;
+    if (!canvas) return;
+
+    // Simple weekly total volume (incident_state is unpopulated in recent data)
+    const rows = this.weeklyVolumeByStateData;
+    const sorted = [...rows].sort((a: any, b: any) =>
+      (a.WEEK_START ?? '').localeCompare(b.WEEK_START ?? ''),
+    );
+    const labels = sorted.map((r: any) => {
+      const d = new Date(r.WEEK_START);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+    const values = sorted.map((r: any) => r.CASE_COUNT ?? 0);
+
+    const chart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            data: values,
+            borderColor: '#00bceb',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#00bceb',
+            pointBorderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5.5,
+            tension: 0.4,
+            fill: true,
+            backgroundColor: (ctx: any) => {
+              const chart = ctx.chart;
+              const { ctx: canvasCtx, chartArea } = chart;
+              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
+              const gradient = canvasCtx.createLinearGradient(
+                0,
+                chartArea.top,
+                0,
+                chartArea.bottom,
+              );
+              gradient.addColorStop(0, 'rgba(0, 188, 235, 0.35)');
+              gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
+              return gradient;
+            },
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(20, 30, 40, 0.85)',
+            titleFont: { size: 10, weight: 'normal' as const },
+            titleColor: '#8899a6',
+            bodyFont: { size: 14, weight: 'bold' as const },
+            bodyColor: '#00bceb',
+            borderColor: 'rgba(0, 188, 235, 0.3)',
+            borderWidth: 1,
+            cornerRadius: 10,
+            padding: { top: 6, bottom: 6, left: 10, right: 10 },
+            displayColors: false,
+            callbacks: {
+              label: (item) => item.parsed.y.toLocaleString() + ' cases',
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 9 },
+              maxRotation: 0,
+              autoSkip: true,
+              maxTicksLimit: 12,
+            },
+            border: { display: false },
+          },
+          y: {
+            grid: { display: false },
+            ticks: { font: { size: 10 }, maxTicksLimit: 4 },
+            border: { display: false },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+    this.weeklyStateChart = chart;
+    this.analyticsCharts.push(chart);
+  }
+
+  private buildHourlyCasePatternChart(): void {
+    const canvas = document.getElementById(
+      'chart-hourly-pattern',
+    ) as HTMLCanvasElement;
+    if (!canvas) return;
+
+    // Gap-fill 0–23
+    const hourMap = new Map<number, number>();
+    for (const row of this.hourlyCasePatternData) {
+      hourMap.set(row.HOUR_OF_DAY, row.CASE_COUNT);
+    }
+    const hours = Array.from({ length: 24 }, (_, i) => i);
+    const values = hours.map((h) => hourMap.get(h) ?? 0);
+    const labels = hours.map((h) => {
+      const suffix = h >= 12 ? 'pm' : 'am';
+      let display = h % 12;
+      if (display === 0) display = 12;
+      return `${display}${suffix}`;
+    });
+
+    const chart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            data: values,
+            borderColor: '#00bceb',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#00bceb',
+            pointBorderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5.5,
+            tension: 0.4,
+            fill: true,
+            backgroundColor: (ctx: any) => {
+              const chart = ctx.chart;
+              const { ctx: canvasCtx, chartArea } = chart;
+              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
+              const gradient = canvasCtx.createLinearGradient(
+                0,
+                chartArea.top,
+                0,
+                chartArea.bottom,
+              );
+              gradient.addColorStop(0, 'rgba(0, 188, 235, 0.35)');
+              gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
+              return gradient;
+            },
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(20, 30, 40, 0.85)',
+            titleFont: { size: 10, weight: 'normal' as const },
+            titleColor: '#8899a6',
+            bodyFont: { size: 14, weight: 'bold' as const },
+            bodyColor: '#00bceb',
+            borderColor: 'rgba(0, 188, 235, 0.3)',
+            borderWidth: 1,
+            cornerRadius: 10,
+            padding: { top: 6, bottom: 6, left: 10, right: 10 },
+            displayColors: false,
+            callbacks: {
+              title: (items) =>
+                items[0]?.label ? `${items[0].label} UTC` : '',
+              label: (item) => item.parsed.y.toLocaleString() + ' cases',
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 9 },
+              maxRotation: 0,
+              autoSkip: false,
+              callback: function (_value, index) {
+                return index % 3 === 0 ? labels[index] : '';
+              },
+            },
+            border: { display: false },
+          },
+          y: {
+            grid: { display: false },
+            ticks: { font: { size: 10 }, maxTicksLimit: 4 },
+            border: { display: false },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+    this.hourlyChart = chart;
+    this.analyticsCharts.push(chart);
+  }
+
+  // ── Monitoring: Issues Breakdown + Error Incidents ──────────
+  anomalyBreakdown: AnomalyBreakdownItem[] = [];
+  teamIssueMatrix: TeamIssueMatrixEntry[] = [];
+  monitoringLoading = true;
+
+  // Drilldown modal
+  drilldownOpen = false;
+  drilldownInsufficient = false;
+  drilldownTitle = '';
+  drilldownSubtitle = '';
+  drilldownPoints: { label: string; value: number }[] = [];
+
+  // Error Incidents table
+  monitoringErrorData: AnomalyItem[] = [];
+  errorFilterTeam = '';
+  errorFilterIssue = '';
+  errorTeamOptions: string[] = [
+    'OM',
+    'SM',
+    'I2C',
+    'AIT',
+    'FPP',
+    'P2P',
+    'CAPITAL',
+  ];
+  errorIssueOptions: string[] = [
+    'Ghost Success',
+    'Not Defined',
+    'No Resolution',
+    'Exception',
+    'Null Classification',
+    'Unknown Team',
+    'Resolution Error',
+  ];
+  errorCurrentPage = 1;
+  errorPageSize = 10;
+  errorTotalPages = 1;
+  errorTotalCount = 0;
+  errorLoading = false;
+  csvDownloading = false;
+  csvDownloadProgress = 0;
+  csvDownloadDone = false;
+
+  get errorPageStart(): number {
+    return this.errorTotalCount === 0
+      ? 0
+      : (this.errorCurrentPage - 1) * this.errorPageSize + 1;
+  }
+  get errorPageEnd(): number {
+    return Math.min(
+      this.errorCurrentPage * this.errorPageSize,
+      this.errorTotalCount,
+    );
+  }
+
+  /** Fetch monitoring data (Issues Breakdown + Error Incidents) using the current quarter */
+  fetchMonitoringData(): void {
+    this.monitoringLoading = true;
+    const lb = 24; // default lookback when no quarter selected
+    const fq = this.selectedQuarter || undefined;
+
+    this.monitoringService.getHealth(this.destroyManager, lb, fq).subscribe({
+      next: (h) => {
+        this.processHealthForBreakdown(h);
+        this.monitoringLoading = false;
+      },
+      error: () => {
+        this.monitoringLoading = false;
+      },
+    });
+
+    this.monitoringService
+      .getTeamIssueMatrix(this.destroyManager, lb, fq)
+      .subscribe({
+        next: (matrix) => {
+          this.teamIssueMatrix = matrix || [];
+        },
+      });
+
+    this.loadErrorIncidents();
+  }
+
+  private processHealthForBreakdown(h: HealthOverview): void {
+    const totalProcessed = h.TOTAL_PROCESSED || 0;
+    const successCount =
+      (h.SUCCESS_CNT || 0) + (h.PARTIAL_CNT || 0) + (h.NOT_SUPPORTED_CNT || 0);
+    const failCount = totalProcessed - successCount;
+
+    const allIssues: AnomalyBreakdownItem[] = [
+      {
+        name: 'SUCCESS but missing summary/context',
+        count: h.GHOST_SUCCESS_CNT || 0,
+        severity: 'critical',
+        issueKey: 'GHOST_SUCCESS',
+      },
+      {
+        name: 'LLM Summary is "Not Defined"',
+        count: h.NOT_DEFINED_CNT || 0,
+        severity: 'warning',
+        issueKey: 'NOT_DEFINED',
+      },
+      {
+        name: 'category or core_issue is NULL',
+        count: h.NULL_CATEGORY_CNT || 0,
+        severity: 'warning',
+        issueKey: 'NULL_CLASSIFICATION',
+      },
+      {
+        name: 'team_name is "UNKNOWN"',
+        count: h.UNKNOWN_TEAM_CNT || 0,
+        severity: 'warning',
+      },
+      {
+        name: 'CaseIQ errored (category=ERROR or exception in fields)',
+        count: h.EXCEPTION_CNT || 0,
+        severity: 'critical',
+        issueKey: 'EXCEPTIONS',
+      },
+      {
+        name: 'resolution_api_status is ERROR/FAILURE/Unknown/NULL',
+        count: failCount,
+        severity: 'critical',
+        issueKey: 'RESOLUTION_FAILURES',
+      },
+    ];
+    this.anomalyBreakdown = allIssues.filter((a) => a.count > 0);
+  }
+
+  loadErrorIncidents(): void {
+    this.errorLoading = true;
+    const lb = 24;
+    const fq = this.selectedQuarter || undefined;
+    const team = this.errorFilterTeam || undefined;
+    const issue = this.errorFilterIssue || undefined;
+
+    this.monitoringService
+      .getErrorIncidentsPaged(
+        this.destroyManager,
+        lb,
+        this.errorCurrentPage,
+        this.errorPageSize,
+        fq,
+        team,
+        issue,
+      )
+      .subscribe({
+        next: (page) => {
+          this.monitoringErrorData = (page.rows || []).map((r: any) => ({
+            ...r,
+            anomalyLabel: r.ANOMALY_LABEL,
+          }));
+          this.errorTotalCount = page.totalCount || 0;
+          this.errorTotalPages = Math.max(
+            1,
+            Math.ceil(this.errorTotalCount / this.errorPageSize),
+          );
+          this.errorLoading = false;
+        },
+        error: () => {
+          this.errorLoading = false;
+        },
+      });
+  }
+
+  applyErrorFilters(): void {
+    this.errorCurrentPage = 1;
+    this.loadErrorIncidents();
+  }
+
+  errorChangePage(delta: number): void {
+    this.errorCurrentPage += delta;
+    this.loadErrorIncidents();
+  }
+
+  errorChangePageSize(size: number): void {
+    this.errorPageSize = size;
+    this.errorCurrentPage = 1;
+    this.loadErrorIncidents();
+  }
+
+  downloadErrorCsv(): void {
+    if (this.csvDownloading) return;
+    this.csvDownloading = true;
+    this.csvDownloadProgress = 0;
+    this.csvDownloadDone = false;
+
+    const lb = 24;
+    const fq = this.selectedQuarter || undefined;
+    const team = this.errorFilterTeam || undefined;
+    const issue = this.errorFilterIssue || undefined;
+    const total = this.errorTotalCount;
+    if (total === 0) {
+      this.csvDownloading = false;
+      return;
+    }
+
+    const chunkSize = 500;
+    const totalPages = Math.ceil(total / chunkSize);
+    const allRows: any[] = [];
+    let completedPages = 0;
+
+    const fetchPage = (page: number) => {
+      this.monitoringService
+        .getErrorIncidentsPaged(
+          this.destroyManager,
+          lb,
+          page,
+          chunkSize,
+          fq,
+          team,
+          issue,
+        )
+        .subscribe({
+          next: (result) => {
+            allRows.push(...(result.rows || []));
+            completedPages++;
+            this.csvDownloadProgress = Math.round(
+              (completedPages / totalPages) * 100,
+            );
+            if (completedPages >= totalPages) {
+              this.generateCsvDownload(allRows);
+              this.csvDownloadDone = true;
+              setTimeout(() => {
+                this.csvDownloading = false;
+                this.csvDownloadProgress = 0;
+                this.csvDownloadDone = false;
+              }, 800);
+            } else {
+              fetchPage(page + 1);
+            }
+          },
+          error: () => {
+            this.csvDownloading = false;
+            this.csvDownloadProgress = 0;
+          },
+        });
+    };
+    fetchPage(1);
+  }
+
+  private generateCsvDownload(allRows: any[]): void {
+    const headers = [
+      'Incident',
+      'Team',
+      'Category',
+      'Core Issue',
+      'LLM Summary',
+      'Issue Description',
+      'Run Date',
+    ];
+    const csvRows = allRows.map((r: any) =>
+      [
+        r.INCIDENT_NUMBER || '',
+        r.TEAM_NAME || '',
+        r.CATEGORY || '',
+        r.CORE_ISSUE || '',
+        r.LLM_SUMMARY || '',
+        r.ANOMALY_LABEL || '',
+        r.CASEIQ_RUN_DATE || '',
+      ]
+        .map((v: string) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(','),
+    );
+    const csv = [headers.join(','), ...csvRows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `error_incidents_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  severityClass(severity: string): string {
+    switch (severity) {
+      case 'critical':
+        return 'badge-critical';
+      case 'warning':
+        return 'badge-warning';
+      case 'ok':
+        return 'badge-ok';
+      default:
+        return '';
+    }
+  }
+
+  countColor(severity: string): string {
+    switch (severity) {
+      case 'critical':
+        return 'var(--ciq-red)';
+      case 'warning':
+        return 'var(--ciq-yellow)';
+      case 'ok':
+        return 'var(--ciq-green)';
+      default:
+        return '';
+    }
+  }
+
+  formatMonitoringDate(val: string): string {
+    if (!val) return 'N/A';
+    return new Date(val).toLocaleString();
+  }
+
+  getTeamChips(
+    issueKey: string,
+  ): { team: string; count: number; rawTeam: string }[] {
+    if (!issueKey || !this.teamIssueMatrix.length) return [];
+    return this.teamIssueMatrix
+      .map((entry) => ({
+        team: entry.TEAM_NAME === 'UNKNOWN' ? 'N/A' : entry.TEAM_NAME,
+        rawTeam: entry.TEAM_NAME,
+        count: (entry as unknown as Record<string, number>)[issueKey] || 0,
+      }))
+      .filter((c) => c.count > 0)
+      .sort((a, b) => b.count - a.count);
+  }
+
+  openDrilldown(
+    team: string,
+    issueType: string,
+    issueLabel: string,
+    rawTeam?: string,
+  ): void {
+    this.drilldownTitle = `${issueLabel} — ${team}`;
+    this.drilldownSubtitle = '';
+    this.drilldownOpen = true;
+    this.drilldownPoints = [];
+    this.drilldownInsufficient = false;
+    const fq = this.selectedQuarter || undefined;
+    this.monitoringService
+      .getIssueTrend(this.destroyManager, rawTeam || team, issueType, fq)
+      .subscribe({
+        next: (data) => {
+          const pts = (data || []).map((d, i) => {
+            if (fq) {
+              return { label: `W${d.WEEK_START + 1}`, value: d.ISSUE_COUNT };
+            }
+            const dt = new Date(d.WEEK_START);
+            const label = isNaN(dt.getTime())
+              ? `W${i + 1}`
+              : dt.toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                });
+            return { label, value: d.ISSUE_COUNT };
+          });
+          const total = pts.reduce((s, p) => s + p.value, 0);
+          this.drilldownSubtitle = fq
+            ? `WEEKLY TREND — ${fq} — TOTAL: ${total}`
+            : `LAST 12 WEEKS TREND — TOTAL: ${total}`;
+          if (pts.length < 2) {
+            this.drilldownInsufficient = true;
+            this.drilldownPoints = [];
+          } else {
+            this.drilldownPoints = pts;
+          }
+        },
+      });
+  }
+
+  closeDrilldown(): void {
+    this.drilldownOpen = false;
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.drilldownOpen) this.closeDrilldown();
+    if (this.showAccuracyModal) this.closeAccuracyModal();
+  }
+
+  // ── Accuracy Detail Modal ─────────────────────────────────
+  showAccuracyModal = false;
+  accuracyModalTeam = '';
+  accuracyModalTeamAccuracy: number | null = null;
+
+  openAccuracyModal(sectionName: string): void {
+    if (sectionName === 'Finance IT') return; // Only for individual teams
+    const accuracy = this.getAccuracyForSection(sectionName);
+    if (accuracy == null) return;
+    this.accuracyModalTeam = sectionName;
+    this.accuracyModalTeamAccuracy = accuracy;
+    this.showAccuracyModal = true;
+  }
+
+  closeAccuracyModal(): void {
+    this.showAccuracyModal = false;
   }
 }
