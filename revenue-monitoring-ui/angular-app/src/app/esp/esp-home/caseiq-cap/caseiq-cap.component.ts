@@ -978,13 +978,13 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
   private getMatchStatusColor(matchStatus: string): string {
     switch (matchStatus.toUpperCase()) {
       case 'MATCHED':
-        return '#36A2EB';
+        return '#00bceb';
       case 'NOT MATCHED':
-        return '#cacacaff';
+        return '#b0b8c1';
       case 'ANALYZED':
-        return '#FFCE56';
+        return '#f0a500';
       default:
-        return '#E5E5E5';
+        return '#d1d5db';
     }
   }
 }

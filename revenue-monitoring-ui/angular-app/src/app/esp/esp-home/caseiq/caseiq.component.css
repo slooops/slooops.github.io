@@ -187,7 +187,7 @@
 .badge-neutral {
   background: rgba(107, 114, 128, 0.1);
   color: #6b7280;
-  border: 1px solid rgba(107, 114, 128, 0.2);
+  border: 1px solid rgba(107, 114, 128, 0.06);
 }
 
 .badge-green {

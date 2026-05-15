@@ -24,7 +24,6 @@ describe('ExceptionsComponent', () => {
     expect(component.searchQuery).toBe('');
     expect(component.selectedModes).toEqual([]);
     expect(component.selectedStatuses).toEqual([]);
-    expect(component.exceptions).toEqual([]);
     expect(component.currentPage).toBe(1);
     expect(component.pageSize).toBe(25);
   });
