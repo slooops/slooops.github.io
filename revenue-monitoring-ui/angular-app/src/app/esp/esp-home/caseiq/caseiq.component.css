@@ -175,12 +175,22 @@
   border-radius: 999px;
   cursor: pointer;
   transition:
-    filter 0.15s ease,
-    transform 0.15s ease;
+    background var(--fit-transition-fast),
+    border-color var(--fit-transition-fast),
+    color var(--fit-transition-fast);
 }
 
 .component-badge:hover {
-  filter: brightness(1.15);
+  background: rgba(0, 188, 235, 0.1);
+  border-color: #00bceb;
+  color: #00bceb;
+  filter: none;
+}
+
+:host(.dark-theme) .component-badge:hover {
+  background: rgba(0, 188, 235, 0.15);
+  border-color: #00bceb;
+  color: #00bceb;
 }
 
 /* Badge color variants */
@@ -553,6 +563,7 @@
   border-bottom: 1px solid var(--ciq-border);
   font-size: 12px;
   gap: 8px;
+  color: var(--ciq-text);
 }
 
 .ciq-anomaly-item:last-child {
@@ -640,9 +651,9 @@
 }
 
 .ciq-team-chip:hover {
-  background: rgba(0, 112, 210, 0.1);
-  border-color: #0070d2;
-  color: #0070d2;
+  background: rgba(0, 188, 235, 0.1);
+  border-color: #00bceb;
+  color: #00bceb;
 }
 
 .ciq-team-chip strong {
@@ -656,8 +667,9 @@
 }
 
 .ciq-team-chip--critical:hover {
-  background: rgba(229, 57, 53, 0.18);
-  border-color: var(--ciq-red, #e53935);
+  background: rgba(0, 188, 235, 0.1);
+  border-color: #00bceb;
+  color: #00bceb;
 }
 
 .ciq-team-chip--warning {
@@ -667,8 +679,9 @@
 }
 
 .ciq-team-chip--warning:hover {
-  background: rgba(230, 168, 0, 0.18);
-  border-color: var(--ciq-yellow, #e6a800);
+  background: rgba(0, 188, 235, 0.1);
+  border-color: #00bceb;
+  color: #00bceb;
 }
 
 :host(.dark-theme) .ciq-team-chip--critical {

@@ -225,14 +225,13 @@
                           getAccuracyColor(row.sectionName)
                         }}"
                         [style.width.%]="getAccuracyForSection(row.sectionName)"
+                      ></div>
+                      <span class="caseiq-pill-text"
+                        >{{
+                          getAccuracyForSection(row.sectionName)
+                            | number: "1.1-1"
+                        }}%</span
                       >
-                        <span class="caseiq-pill-text"
-                          >{{
-                            getAccuracyForSection(row.sectionName)
-                              | number: "1.1-1"
-                          }}%</span
-                        >
-                      </div>
                     </div>
                   } @else {
                     <span class="summary-empty">--</span>

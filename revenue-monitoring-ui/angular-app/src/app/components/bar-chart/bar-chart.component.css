@@ -110,3 +110,31 @@
   border-radius: 4px;
   background-color: #f9f9f9;
 }
+
+/* ── Dark mode ───────────────────────────────────────────── */
+:host(.dark-theme) .bar-chart-container {
+  background-color: transparent;
+}
+
+:host(.dark-theme) .legend-label {
+  color: #e0e6ed;
+}
+
+:host(.dark-theme) .loading-overlay {
+  background-color: rgba(15, 25, 35, 0.9);
+}
+
+:host(.dark-theme) .loading-overlay p {
+  color: #8899a6;
+}
+
+:host(.dark-theme) .loading-spinner {
+  border-color: #2a3f50;
+  border-top-color: #00bceb;
+}
+
+:host(.dark-theme) .no-data-message {
+  color: #8899a6;
+  border-color: #2a3f50;
+  background-color: rgba(28, 44, 58, 0.5);
+}

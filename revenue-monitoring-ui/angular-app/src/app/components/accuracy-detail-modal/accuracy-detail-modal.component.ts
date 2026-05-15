@@ -12,6 +12,7 @@ import { ModalComponent } from '../modal/modal.component';
 import { Chart } from 'chart.js/auto';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { ThemeService } from 'src/app/providers/theme.service';
 import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.component';
 
 @Component({
@@ -39,6 +40,7 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
   constructor(
     private readonly http: ApiHttpService,
     private readonly destroyManager: DestroyManager,
+    public themeService: ThemeService,
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {

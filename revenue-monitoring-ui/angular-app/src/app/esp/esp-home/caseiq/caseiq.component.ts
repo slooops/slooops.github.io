@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  HostBinding,
   HostListener,
   Input,
   OnChanges,
@@ -28,6 +29,7 @@ import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { AccuracyDetailModalComponent } from 'src/app/components/accuracy-detail-modal/accuracy-detail-modal.component';
 import { CaseiqMonitoringDataService } from '../../caseiq-monitoring-dashboard/caseiq-monitoring-data.service';
+import { ThemeService } from 'src/app/providers/theme.service';
 import {
   AnomalyBreakdownItem,
   AnomalyItem,
@@ -91,8 +93,13 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     private readonly http: ApiHttpService,
     private readonly destroyManager: DestroyManager,
     private readonly monitoringService: CaseiqMonitoringDataService,
+    public themeService: ThemeService,
     public router: Router,
   ) {}
+
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
 
   // Track created Chart.js instances; using `any` here avoids
   // over-constraining generics for different chart types.

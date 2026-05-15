@@ -6,7 +6,7 @@
 
 /* ── Light mode (default) ───────────────────────────────── */
 :host {
-  --ciq-bg: #f0f4f8;
+  --ciq-bg: #ffffff;
   --ciq-surface: #ffffff;
   --ciq-card-bg: rgba(255, 255, 255, 0.72);
   --ciq-card-border: rgba(255, 255, 255, 0.6);
@@ -26,6 +26,8 @@
   --ciq-card-radius: 1rem;
   --ciq-kpi-bg: #f4f5f6;
   display: block;
+  background: var(--ciq-bg);
+  min-height: 100vh;
 }
 
 /* ── Dark mode ──────────────────────────────────────────── */
@@ -139,6 +141,13 @@
   align-items: center;
   gap: 2rem;
   flex: 1;
+}
+
+.header-left h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ciq-text);
+  margin: 0;
 }
 
 .header-center {
@@ -1790,6 +1799,12 @@ p {
 
 :host(.dark-theme) .ratio-bar-label {
   color: #e0e6ed;
+}
+:host(.dark-theme) .table-title {
+  color: #e0e6ed;
+}
+:host(.dark-theme) .table-title-info {
+  color: #8899a6;
 }
 
 /* ── Header responsive ──────────────────────────────────── */

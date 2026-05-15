@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, HostBinding, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
@@ -15,6 +15,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { GlobalSearchDialogComponent } from '../global-search-dialog/global-search-dialog.component';
 import { DataService } from 'src/app/providers/data.service';
+import { ThemeService } from 'src/app/providers/theme.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   MenuMiniComponent,
@@ -63,6 +64,10 @@ interface AccuracyData {
   standalone: true,
 })
 export class EspHomeComponent implements OnInit {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+
   constructor(
     private readonly http: ApiHttpService,
     private readonly destroyManager: DestroyManager,
@@ -70,6 +75,7 @@ export class EspHomeComponent implements OnInit {
     private homeDataService: HomeDataService,
     private dialog: MatDialog,
     private dataService: DataService,
+    public themeService: ThemeService,
     public router: Router,
     private route: ActivatedRoute,
   ) {}

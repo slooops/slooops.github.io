@@ -7,11 +7,15 @@ import {
   EventEmitter,
   OnChanges,
   AfterViewInit,
+  OnDestroy,
   SimpleChanges,
   ChangeDetectorRef,
+  HostBinding,
 } from '@angular/core';
 import * as d3 from 'd3';
 import { CommonModule } from '@angular/common';
+import { ThemeService } from '../../providers/theme.service';
+import { Subscription } from 'rxjs';
 
 export interface BarChartDataPoint {
   label: string;
@@ -41,7 +45,11 @@ interface LegendItem {
   imports: [CommonModule],
   standalone: true,
 })
-export class BarChartComponent implements OnChanges, AfterViewInit {
+export class BarChartComponent implements OnChanges, AfterViewInit, OnDestroy {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+
   @ViewChild('barChartContainer', { static: true })
   containerRef!: ElementRef<HTMLDivElement>;
 
@@ -76,6 +84,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
   private actualHeight = 0;
   private readonly margin = { top: 20, right: 50, bottom: 130, left: 20 };
   legendItems: LegendItem[] = [];
+  private themeSub: Subscription | undefined;
 
   // Color palette
   private readonly defaultColors = [
@@ -88,7 +97,21 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
     '#C9CBCF',
   ];
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+    public themeService: ThemeService,
+  ) {}
+
+  /** Theme-aware colors for D3 elements */
+  private get colors() {
+    const dark = this.themeService.isDarkMode;
+    return {
+      label: dark ? '#e0e6ed' : '#333',
+      muted: dark ? '#8899a6' : '#666',
+      axis: dark ? '#2a3f50' : '#e0e0e0',
+      tooltipBg: dark ? '#1a2733' : '#222',
+    };
+  }
 
   ngAfterViewInit(): void {
     this.container = this.containerRef.nativeElement;
@@ -96,6 +119,16 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
     if (this.data.length > 0 && !this.isLoading) {
       this.createChart();
     }
+    // Re-render when theme changes
+    this.themeSub = this.themeService.isDarkMode$.subscribe(() => {
+      if (this.container && this.data.length > 0 && !this.isLoading) {
+        this.createChart();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.themeSub?.unsubscribe();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -186,7 +219,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       .attr('x', this.actualWidth / 2)
       .attr('y', this.actualHeight / 2)
       .attr('text-anchor', 'middle')
-      .attr('fill', '#666')
+      .attr('fill', this.colors.muted)
       .attr('font-size', '16px')
       .text(this.noDataMessage);
   }
@@ -242,7 +275,10 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       .call(d3.axisBottom(x).tickSize(0));
 
     // Style the axis line to be subtle
-    xAxis.select('.domain').attr('stroke', '#e0e0e0').attr('stroke-width', 1);
+    xAxis
+      .select('.domain')
+      .attr('stroke', this.colors.axis)
+      .attr('stroke-width', 1);
 
     // Rotate labels to descend to the right (anchor at start of text)
     xAxis
@@ -250,6 +286,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       .text((d: string) => this.toTitleCase(d))
       .attr('transform', `rotate(${-this.labelRotation})`)
       .style('text-anchor', 'start')
+      .style('fill', this.colors.muted)
       .attr('dx', '.5em')
       .attr('dy', '.5em');
 
@@ -260,7 +297,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       .attr('class', 'bar-tooltip')
       .style('position', 'absolute')
       .style('pointer-events', 'none')
-      .style('background', '#222')
+      .style('background', this.colors.tooltipBg)
       .style('color', '#fff')
       .style('padding', '4px 8px')
       .style('font-size', '11px')
@@ -311,7 +348,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       .attr('y', (d) => y(d.value) - 5)
       .attr('text-anchor', 'middle')
       .attr('font-size', '11px')
-      .attr('fill', '#333')
+      .attr('fill', this.colors.label)
       .text((d) => d.value);
   }
 
@@ -424,7 +461,10 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       .call(d3.axisBottom(x).tickSize(0));
 
     // Style the axis line to be subtle
-    xAxis.select('.domain').attr('stroke', '#e0e0e0').attr('stroke-width', 0);
+    xAxis
+      .select('.domain')
+      .attr('stroke', this.colors.axis)
+      .attr('stroke-width', 0);
 
     // Rotate labels to descend to the right (anchor at start of text)
     xAxis
@@ -433,6 +473,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       .attr('transform', `rotate(${-this.labelRotation})`)
       .style('text-anchor', 'start')
       .style('font-size', '10px')
+      .style('fill', this.colors.muted)
       .attr('dx', '.5em')
       .attr('dy', '.5em');
 
@@ -444,7 +485,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       .attr('class', 'bar-tooltip')
       .style('position', 'absolute')
       .style('pointer-events', 'none')
-      .style('background', '#222')
+      .style('background', this.colors.tooltipBg)
       .style('color', '#fff')
       .style('padding', '4px 8px')
       .style('font-size', '11px')
@@ -515,7 +556,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
         .attr('y', y(totalValue) - 5)
         .attr('text-anchor', 'middle')
         .attr('font-size', '11px')
-        .attr('fill', '#333')
+        .attr('fill', this.colors.label)
         .attr('font-weight', 'bold')
         .text(totalValue);
 

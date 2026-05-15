@@ -68,7 +68,6 @@
 }
 
 :host(.dark-theme) .modal-header {
-  background: #1e3040 !important;
 }
 
 :host(.dark-theme) .modal-title {

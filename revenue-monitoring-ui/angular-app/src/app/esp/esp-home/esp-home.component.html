@@ -16,6 +16,7 @@
           <app-menu-mini
             [items]="menuItems"
             [activeKey]="activeTab"
+            [darkMode]="themeService.isDarkMode"
             (selected)="onGridMenuItemClick($event.item.key!)"
           />
         }

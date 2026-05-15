@@ -392,11 +392,11 @@
         </div>
       } @else if (activeFilters.length > 0) {
         <div class="empty-state-container">
-          <img
-            src="assets/thumbnails/noDataFound.png"
-            alt="No Data Found"
-            class="no-data-image"
-          />
+          <ng-icon
+            name="phosphorMagnifyingGlassBold"
+            class="empty-state-icon"
+            size="3rem"
+          ></ng-icon>
           <div class="empty-state-text">No data found</div>
           <div class="empty-state-subtext">
             Try adjusting or clearing filters to see more results.

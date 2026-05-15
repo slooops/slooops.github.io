@@ -5,7 +5,7 @@
 
 /* ── Light mode (default) ───────────────────────────────────── */
 :host {
-  --ciq-bg: #f0f4f8;
+  --ciq-bg: #ffffff;
   --ciq-surface: #ffffff;
   --ciq-card-bg: rgba(255, 255, 255, 0.72);
   --ciq-card-border: rgba(255, 255, 255, 0.6);

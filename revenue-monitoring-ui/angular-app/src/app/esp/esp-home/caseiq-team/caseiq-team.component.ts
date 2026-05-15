@@ -6,6 +6,7 @@ import {
   Input,
   ViewChild,
   HostListener,
+  HostBinding,
   Output,
   EventEmitter,
 } from '@angular/core';
@@ -24,6 +25,7 @@ import {
 import { coolExpand } from '@ng-icons/coolicons';
 import { CaseiqExpandModalComponent } from 'src/app/components/caseiq-expand-modal/caseiq-expand-modal.component';
 import { BarChartComponent } from '../../../components/bar-chart/bar-chart.component';
+import { ThemeService } from '../../../providers/theme.service';
 
 export interface TeamConfig {
   /** Display name: 'OM', 'SM', 'Capital', etc. */
@@ -68,6 +70,10 @@ interface AccuracyData {
   standalone: true,
 })
 export class CaseiqTeamComponent implements OnInit, OnChanges {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+
   @Input() teamConfig!: TeamConfig;
   @Input() selectedQuarter!: string;
   @Input() caseIqMetrics: any;
@@ -79,6 +85,7 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
   constructor(
     private readonly http: ApiHttpService,
     private readonly destroyManager: DestroyManager,
+    public themeService: ThemeService,
   ) {}
 
   // Chart data

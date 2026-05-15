@@ -7,6 +7,7 @@ import {
   OnChanges,
   SimpleChanges,
   HostListener,
+  HostBinding,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -18,6 +19,7 @@ import {
   StackedBarChartDataPoint,
   BarChartComponent,
 } from 'src/app/components/bar-chart/bar-chart.component';
+import { ThemeService } from '../../providers/theme.service';
 
 @Component({
   selector: 'app-caseiq-expand-modal',
@@ -28,6 +30,12 @@ import {
   viewProviders: [provideIcons({ phosphorXBold, phosphorFunnelSimpleBold })],
 })
 export class CaseiqExpandModalComponent implements OnInit, OnChanges {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+
+  constructor(public themeService: ThemeService) {}
+
   /** e.g. "OM Category" or "SM Core Issue" */
   @Input() title = '';
 
@@ -80,16 +88,19 @@ export class CaseiqExpandModalComponent implements OnInit, OnChanges {
     }
   }
 
-  private initLabels(): void {    if (Array.isArray(this.categoryData)) {
+  private initLabels(): void {
+    if (Array.isArray(this.categoryData)) {
       this.categoryLabels = this.categoryData
         .map((d) => d.label)
         .sort((a, b) => a.localeCompare(b));
-      this.filteredCategoryData = this.categoryData;    }
+      this.filteredCategoryData = this.categoryData;
+    }
     if (Array.isArray(this.coreIssueData)) {
       this.coreIssueLabels = this.coreIssueData
         .map((d) => d.label)
         .sort((a, b) => a.localeCompare(b));
-      this.filteredCoreIssueData = this.coreIssueData;    }
+      this.filteredCoreIssueData = this.coreIssueData;
+    }
   }
 
   // ── Category filter actions ──
@@ -108,11 +119,13 @@ export class CaseiqExpandModalComponent implements OnInit, OnChanges {
     this.applyCategoryFilter();
   }
 
-  private applyCategoryFilter(): void {    this.filteredCategoryData = this.selectedCategoryLabels.size
+  private applyCategoryFilter(): void {
+    this.filteredCategoryData = this.selectedCategoryLabels.size
       ? this.categoryData.filter((d) =>
           this.selectedCategoryLabels.has(d.label),
         )
-      : this.categoryData;  }
+      : this.categoryData;
+  }
 
   // ── Core Issue filter actions ──
   toggleCoreIssueLabel(label: string): void {
@@ -130,9 +143,11 @@ export class CaseiqExpandModalComponent implements OnInit, OnChanges {
     this.applyCoreIssueFilter();
   }
 
-  private applyCoreIssueFilter(): void {    this.filteredCoreIssueData = this.selectedCoreIssueLabels.size
+  private applyCoreIssueFilter(): void {
+    this.filteredCoreIssueData = this.selectedCoreIssueLabels.size
       ? this.coreIssueData.filter((d) =>
           this.selectedCoreIssueLabels.has(d.label),
         )
-      : this.coreIssueData;  }
+      : this.coreIssueData;
+  }
 }

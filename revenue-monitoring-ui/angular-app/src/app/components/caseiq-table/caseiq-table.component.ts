@@ -9,6 +9,7 @@ import {
   OnInit,
   SimpleChanges,
   HostListener,
+  HostBinding,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { UploadScreenComponent } from 'src/app/esp/esp-home/upload-screen/upload-screen.component';
@@ -26,7 +27,9 @@ import {
   phosphorCloudArrowUpBold,
   phosphorInfoBold,
   phosphorFunnelSimpleBold,
+  phosphorMagnifyingGlassBold,
 } from '@ng-icons/phosphor-icons/bold';
+import { ThemeService } from '../../providers/theme.service';
 
 interface FilterTag {
   id: string;
@@ -53,11 +56,16 @@ interface FilterTag {
       phosphorCloudArrowUpBold,
       phosphorInfoBold,
       phosphorFunnelSimpleBold,
+      phosphorMagnifyingGlassBold,
     }),
   ],
   standalone: true,
 })
 export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+
   @Input() dataSource!: MatTableDataSource<any>; // Data for the table
   @Input() displayedColumns!: string[]; // Columns to display
   @Input() exportFileName!: string; // File name for export
@@ -74,7 +82,10 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
 
   currentPage: number = 0;
 
-  constructor(private dialog: MatDialog) {}
+  constructor(
+    private dialog: MatDialog,
+    public themeService: ThemeService,
+  ) {}
 
   // Filter properties
   searchTerm: string = '';
