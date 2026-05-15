@@ -1,5 +1,5 @@
 <!-- Page Title Container -->
-<div class="section-title" style="margin: 1rem">
+<div class="section-title" style="padding: 1rem">
   Period Close (Internal)
 
   <div class="period-info" *ngIf="periodStatus as period">
@@ -408,28 +408,60 @@
 <!-- Invoices Generated & Cash Posted - Side by Side with Tabs -->
 <div style="display: flex; margin: -1rem 0; overflow-x: auto">
   <div style="flex: 1; min-width: 0; margin: 0.2rem 0.5rem 1rem 1rem">
-    <mat-tab-group>
-      <mat-tab label="Invoices Generated">
+    <div class="pct-tabs">
+      <button
+        class="pct-tab"
+        [class.active]="precloseActiveTab === 'invoices'"
+        (click)="precloseActiveTab = 'invoices'"
+      >
+        Invoices Generated
+      </button>
+      <button
+        class="pct-tab"
+        [class.active]="precloseActiveTab === 'cash'"
+        (click)="precloseActiveTab = 'cash'"
+      >
+        Cash Posted
+      </button>
+    </div>
+    <div class="pct-tab-content">
+      @if (precloseActiveTab === "invoices") {
         @if (precloseInvGenDatasource?.data?.length) {
           <app-atmf-table
             [dataSource]="precloseInvGenDatasource"
             [displayedColumns]="pcloseInvGenTableColumns"
           ></app-atmf-table>
         }
-      </mat-tab>
-      <mat-tab label="Cash Posted">
+      }
+      @if (precloseActiveTab === "cash") {
         @if (qeCashCollectedDatasource?.data?.length) {
           <app-atmf-table
             [dataSource]="qeCashCollectedDatasource"
             [displayedColumns]="qeCashCollectedTableColumns"
           ></app-atmf-table>
         }
-      </mat-tab>
-    </mat-tab-group>
+      }
+    </div>
   </div>
   <div style="flex: 1; min-width: 0; margin: 0.2rem 1rem 1rem 0.5rem">
-    <mat-tab-group>
-      <mat-tab label="Invoices Generated">
+    <div class="pct-tabs">
+      <button
+        class="pct-tab"
+        [class.active]="midcloseActiveTab === 'invoices'"
+        (click)="midcloseActiveTab = 'invoices'"
+      >
+        Invoices Generated
+      </button>
+      <button
+        class="pct-tab"
+        [class.active]="midcloseActiveTab === 'cash'"
+        (click)="midcloseActiveTab = 'cash'"
+      >
+        Cash Posted
+      </button>
+    </div>
+    <div class="pct-tab-content">
+      @if (midcloseActiveTab === "invoices") {
         @if (midcloseInvGenDatasource?.data?.length) {
           <app-atmf-table
             [dataSource]="midcloseInvGenDatasource"
@@ -441,8 +473,8 @@
             <app-loading-symbol></app-loading-symbol>
           </div>
         }
-      </mat-tab>
-      <mat-tab label="Cash Posted">
+      }
+      @if (midcloseActiveTab === "cash") {
         @if (qeCashCollectedDatasource?.data?.length) {
           <app-atmf-table
             [dataSource]="qeCashCollectedDatasource"
@@ -454,8 +486,8 @@
             <app-loading-symbol></app-loading-symbol>
           </div>
         }
-      </mat-tab>
-    </mat-tab-group>
+      }
+    </div>
   </div>
 </div>
 

@@ -62,6 +62,7 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'Continuous Monitoring > Period Close Tracking',
+      supportsDarkMode: true,
     },
   },
   // {
@@ -346,6 +347,7 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'ESP Case Manager > Case IQ',
+      supportsDarkMode: true,
     },
   },
   {

@@ -1,22 +1,21 @@
 import { Component, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
-import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
+import { CommonModule, DatePipe } from '@angular/common';
 import { LoadingSymbolComponent } from '../../../loading-symbol/loading-symbol.component';
 import { TitleCaseWithExceptionsPipe } from '../../../title-case-with-exceptions.pipe';
 
 @Component({
-    selector: 'app-atmf-table',
-    templateUrl: './atmf-table.component.html',
-    styleUrls: ['./atmf-table.component.css'],
-    imports: [
+  selector: 'app-atmf-table',
+  templateUrl: './atmf-table.component.html',
+  styleUrls: ['./atmf-table.component.css'],
+  imports: [
     CommonModule,
-    MatTableModule,
     LoadingSymbolComponent,
-    TitleCaseWithExceptionsPipe
+    TitleCaseWithExceptionsPipe,
+    DatePipe,
   ],
-  standalone: true
+  standalone: true,
 })
 export class AtmfTableComponent {
   @Input() title!: string; // Table Title
@@ -26,6 +25,14 @@ export class AtmfTableComponent {
 
   removeUnderscores(key: string): string {
     return key.replace(/_/g, ' ');
+  }
+
+  isDateColumn(column: string): boolean {
+    return column.includes('TIME') || column.includes('DATE');
+  }
+
+  isPercentColumn(column: string): boolean {
+    return column.includes('%');
   }
 
   exportTableToExcel(): void {

@@ -10,6 +10,22 @@
 
 :host {
   font-family: "Inter", sans-serif;
+  display: block;
+  background: var(--pct-bg, #ffffff);
+  color: var(--pct-text, #373c42);
+  min-height: 100vh;
+}
+
+:host(.dark-theme) {
+  --pct-bg: #0f1923;
+  --pct-surface: #1a2733;
+  --pct-card-bg: rgba(28, 44, 58, 0.85);
+  --pct-card-border: rgba(42, 63, 80, 0.6);
+  --pct-text: #e0e6ed;
+  --pct-muted: #8899a6;
+  --pct-border: rgba(255, 255, 255, 0.1);
+  --pct-table-header-bg: rgba(255, 255, 255, 0);
+  --pct-table-row-bg: rgba(255, 255, 255, 0.02);
 }
 
 .section-title {
@@ -219,4 +235,113 @@ table.table.equal-width.table-striped
 
 .ask-ivan-label {
   letter-spacing: 0.5px;
+}
+
+/* ── Custom Tabs ──────────────────────────────────────── */
+.pct-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.pct-tab {
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+  background: none;
+  color: #6b7280;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition:
+    color 150ms,
+    border-color 150ms;
+}
+
+.pct-tab:hover {
+  color: #0070d2;
+}
+
+.pct-tab.active {
+  color: #0070d2;
+  border-bottom-color: #0070d2;
+}
+
+.pct-tab-content {
+  min-height: 100px;
+}
+
+/* ── Dark Mode Overrides ──────────────────────────────── */
+:host(.dark-theme) .section-title {
+  color: var(--pct-text);
+}
+
+:host(.dark-theme) .period-info {
+  color: var(--pct-muted);
+}
+
+:host(.dark-theme) .period-info .divider {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+:host(.dark-theme) .entity-view {
+  background: var(--pct-surface);
+}
+
+:host(.dark-theme) .legend-item,
+:host(.dark-theme) .legend-item-header {
+  color: var(--pct-muted);
+}
+
+:host(.dark-theme) table.table.equal-width.table-striped th {
+  background-color: transparent;
+  color: var(--pct-text);
+}
+
+:host(.dark-theme) table.table.equal-width.table-striped td {
+  background-color: transparent;
+  color: var(--pct-text);
+}
+
+:host(.dark-theme)
+  table.table.equal-width.table-striped
+  tbody
+  tr:nth-of-type(odd)
+  td {
+  background-color: rgb(26 41 55 / 97%);
+}
+
+:host(.dark-theme) table.table.equal-width.table-striped tbody tr td {
+  --bs-table-accent-bg: transparent;
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.04);
+}
+
+:host(.dark-theme) table.table.equal-width.table-striped td.table-timings {
+  color: var(--pct-muted);
+}
+
+:host(.dark-theme) .pct-tabs {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+:host(.dark-theme) .pct-tab {
+  color: var(--pct-muted);
+}
+
+:host(.dark-theme) .pct-tab:hover {
+  color: #00bceb;
+}
+
+:host(.dark-theme) .pct-tab.active {
+  color: #00bceb;
+  border-bottom-color: #00bceb;
+}
+
+:host(.dark-theme) .ask-ivan-btn {
+  color: #00bceb;
+}
+
+:host(.dark-theme) .ask-ivan-btn:hover {
+  background: rgba(0, 188, 235, 0.08);
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostBinding, OnInit } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
@@ -8,7 +8,6 @@ import { AuthenticationService } from '../providers/authentication.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MenuService } from '../providers/menu.service';
 import { CommonModule } from '@angular/common';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AtmfCardComponent } from '../components/atmf/atmf-card/atmf-card.component';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
@@ -16,6 +15,7 @@ import { AtmfBarLineChartComponent } from '../components/atmf/atmf-bar-line-char
 import { AtmfTableComponent } from '../components/atmf/atmf-table/atmf-table.component';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { provideIcons } from '@ng-icons/core';
+import { ThemeService } from '../providers/theme.service';
 
 @Component({
   selector: 'app-period-close-tracking',
@@ -29,7 +29,6 @@ import { provideIcons } from '@ng-icons/core';
   ],
   imports: [
     CommonModule,
-    MatTabsModule,
     MatTooltipModule,
     AtmfCardComponent,
     LoadingSymbolComponent,
@@ -39,10 +38,18 @@ import { provideIcons } from '@ng-icons/core';
   standalone: true,
 })
 export class PeriodCloseTrackingComponent implements OnInit {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+
   refreshInterval = 300000; //ms
   timeNow: any;
   roles: string[] = [];
   periodStatus: any;
+
+  // Tab state
+  precloseActiveTab: 'invoices' | 'cash' = 'invoices';
+  midcloseActiveTab: 'invoices' | 'cash' = 'invoices';
 
   templateObject = Object;
 
@@ -139,6 +146,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     private authService: AuthenticationService,
     private menuService: MenuService,
     private dataService: DataService,
+    public themeService: ThemeService,
   ) {
     this.http = http;
     this.destroyManager = destroyManager;
