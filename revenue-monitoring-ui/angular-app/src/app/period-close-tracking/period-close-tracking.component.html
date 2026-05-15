@@ -1,7 +1,6 @@
 <!-- Page Title Container -->
-<div class="section-title" style="padding: 1rem">
-  Period Close (Internal)
-
+<div class="pct-header">
+  <h2 class="pct-title">Period Close (Internal)</h2>
   <div class="period-info" *ngIf="periodStatus as period">
     <span><b>Period name:</b> {{ period.periodName }} &nbsp;</span>
     <span class="divider"> | </span>
@@ -12,23 +11,16 @@
 </div>
 
 <!-- Entity View - Side by Side -->
-<div style="display: flex; margin: -1.2rem 0; overflow-x: auto">
+<div class="pct-row">
   <!-- Preclose Entity Table -->
-  <div style="flex: 1; min-width: 0; margin-right: -0.6rem">
+  <div class="pct-col">
     <app-atmf-card [container]="true">
-      <div
-        class="legend-item"
-        style="
-          display: flex;
-          justify-content: space-between;
-          margin: -0.3rem 1rem 0.5rem 1rem;
-        "
-      >
+      <div class="pct-time-info">
         <div>
           <div>Expected Start: {{ preCloseStartTime }}</div>
           <div>Expected End: {{ preCloseEndTime }}</div>
         </div>
-        <div style="text-align: right">
+        <div class="pct-time-info-right">
           <div>Actual End: {{ preCloseActualEndTime }}</div>
           <div>Estimated Completion: {{ pcloseEstimatedCompletionTime }}</div>
         </div>
@@ -36,7 +28,7 @@
 
       <div class="section-title entity-view">
         Pre-Close Progress
-        <span style="flex: 1">
+        <span class="pct-flex-1">
           <div class="entity-legend">
             <span class="legend-item">
               <i class="icon-small completed-icon"></i>
@@ -80,11 +72,6 @@
                 }
               </tr>
             }
-            <!-- <tr *ngIf="pcloseMonthEndStatusTableData.length > 0">
-            <td class="table-timings" *ngFor="let row of pcloseActualsTime">
-              {{ row }}
-            </td>
-          </tr> -->
 
             @for (row of pcloseMonthEndStatusTableData; track row) {
               <tr>
@@ -136,42 +123,31 @@
             }
           </tbody>
         </table>
-        <span style="display: flex; justify-content: center">
-          @if (pcloseMonthEndStatusTableData.length == 0) {
-            <tr>
-              <td colspan="100%" class="centered">
-                <app-loading-symbol></app-loading-symbol>
-              </td>
-            </tr>
-          }
-        </span>
+        @if (pcloseMonthEndStatusTableData.length == 0) {
+          <div class="centered">
+            <app-loading-symbol></app-loading-symbol>
+          </div>
+        }
       </div>
     </app-atmf-card>
   </div>
 
   <!-- Midclose Entity Table -->
-  <div style="flex: 1; min-width: 0; margin-left: -0.6rem">
+  <div class="pct-col">
     <app-atmf-card [container]="true">
-      <div
-        class="legend-item"
-        style="
-          display: flex;
-          justify-content: space-between;
-          margin: -0.3rem 1rem 0.5rem 1rem;
-        "
-      >
+      <div class="pct-time-info">
         <div>
           <div>Expected Start: {{ midCloseStartTime }}</div>
           <div>Expected End: {{ midCloseEndTime }}</div>
         </div>
-        <div style="text-align: right">
+        <div class="pct-time-info-right">
           <div>Actual End: {{ midCloseActualEndTime }}</div>
           <div>Estimated Completion: {{ mcloseEstimatedCompletionTime }}</div>
         </div>
       </div>
       <div class="section-title entity-view">
         Mid-Close Progress
-        <span style="flex: 1">
+        <span class="pct-flex-1">
           <div class="entity-legend">
             <span class="legend-item">
               <i class="icon-small completed-icon"></i>
@@ -215,11 +191,6 @@
                 }
               </tr>
             }
-            <!-- <tr *ngIf="pcloseMonthEndStatusTableData.length > 0">
-          <td class="table-timings" *ngFor="let row of pcloseActualsTime">
-            {{ row }}
-          </td>
-        </tr> -->
 
             @for (row of mcloseMonthEndStatusTableData; track row) {
               <tr>
@@ -271,49 +242,35 @@
             }
           </tbody>
         </table>
-        <span style="display: flex; justify-content: center">
-          @if (mcloseMonthEndStatusTableData.length == 0) {
-            <tr>
-              <td colspan="100%" class="centered">
-                <app-loading-symbol></app-loading-symbol>
-              </td>
-            </tr>
-          }
-        </span>
+        @if (mcloseMonthEndStatusTableData.length == 0) {
+          <div class="centered">
+            <app-loading-symbol></app-loading-symbol>
+          </div>
+        }
       </div>
     </app-atmf-card>
   </div>
 </div>
 
 <!-- Interface Load Containers - Side by Side -->
-<div style="display: flex; margin: -1.2rem 0; overflow-x: auto">
-  <div style="flex: 1; min-width: 0; margin-right: -0.6rem">
+<div class="pct-row">
+  <div class="pct-col">
     <app-atmf-card>
       <p class="section-title">Preclose Interface Load</p>
-
-      <div style="display: flex; gap: 1rem; align-items: flex-start">
-        <div style="flex: 1; min-width: 0">
+      <div class="pct-chart-row">
+        <div class="pct-chart-area">
           <app-atmf-bar-line-chart
             [chartData]="precloseChartData"
             [title]="'Preclose Interface Load'"
           >
           </app-atmf-bar-line-chart>
         </div>
-        <div
-          style="
-            flex: 0 0 auto;
-            min-width: 250px;
-            display: flex;
-            flex-direction: column;
-            height: 200px;
-          "
-        >
+        <div class="pct-chart-side">
           @if (precloseInterfaceLoadDatasource?.data?.length) {
             <app-atmf-table
               [dataSource]="precloseInterfaceLoadDatasource"
               [displayedColumns]="pcloseInterfaceLoadColumns"
             ></app-atmf-table>
-            <!-- Legend -->
             <div class="chart-legend-wrapper">
               <div class="chart-legend-container">
                 <div class="chart-legend-column">
@@ -343,32 +300,23 @@
       </div>
     </app-atmf-card>
   </div>
-  <div style="flex: 1; min-width: 0; margin-left: -0.6rem">
+  <div class="pct-col">
     <app-atmf-card>
       <p class="section-title">Midclose Interface Load</p>
-      <div style="display: flex; gap: 1rem; align-items: flex-start">
-        <div style="flex: 1; min-width: 0">
+      <div class="pct-chart-row">
+        <div class="pct-chart-area">
           <app-atmf-bar-line-chart
             [chartData]="midcloseChartData"
             [title]="'Midclose Interface Load'"
           >
           </app-atmf-bar-line-chart>
         </div>
-        <div
-          style="
-            flex: 0 0 auto;
-            min-width: 250px;
-            display: flex;
-            flex-direction: column;
-            height: 200px;
-          "
-        >
+        <div class="pct-chart-side">
           @if (midcloseInterfaceLoadDatasource?.data?.length) {
             <app-atmf-table
               [dataSource]="midcloseInterfaceLoadDatasource"
               [displayedColumns]="mcloseInterfaceLoadColumns"
             ></app-atmf-table>
-            <!-- Legend -->
             <div class="chart-legend-wrapper">
               <div class="chart-legend-container">
                 <div class="chart-legend-column">
@@ -395,7 +343,7 @@
             </div>
           }
           @if (!midcloseInterfaceLoadDatasource?.data?.length) {
-            <div>
+            <div class="centered">
               <app-loading-symbol></app-loading-symbol>
             </div>
           }
@@ -406,8 +354,8 @@
 </div>
 
 <!-- Invoices Generated & Cash Posted - Side by Side with Tabs -->
-<div style="display: flex; margin: -1rem 0; overflow-x: auto">
-  <div style="flex: 1; min-width: 0; margin: 0.2rem 0.5rem 1rem 1rem">
+<div class="pct-row">
+  <div class="pct-col">
     <div class="pct-tabs">
       <button
         class="pct-tab"
@@ -443,7 +391,7 @@
       }
     </div>
   </div>
-  <div style="flex: 1; min-width: 0; margin: 0.2rem 1rem 1rem 0.5rem">
+  <div class="pct-col">
     <div class="pct-tabs">
       <button
         class="pct-tab"
@@ -469,7 +417,7 @@
           ></app-atmf-table>
         }
         @if (!midcloseInvGenDatasource?.data?.length) {
-          <div>
+          <div class="centered">
             <app-loading-symbol></app-loading-symbol>
           </div>
         }
@@ -482,7 +430,7 @@
           ></app-atmf-table>
         }
         @if (!qeCashCollectedDatasource?.data?.length) {
-          <div>
+          <div class="centered">
             <app-loading-symbol></app-loading-symbol>
           </div>
         }
@@ -490,5 +438,3 @@
     </div>
   </div>
 </div>
-
-<br /><br /><br />

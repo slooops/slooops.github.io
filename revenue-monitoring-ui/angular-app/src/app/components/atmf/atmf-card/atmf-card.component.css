@@ -1,41 +1,36 @@
 .card,
 .container {
-  margin: 1rem;
-  position: relative;
-  display: block;
   padding: 1rem;
-  background-color: #fff;
-  border: 1px solid #e1e4e8;
-  border-radius: 0px;
-  /* transition: all linear 0.5s; */
-  width: auto;
+  background: var(--pct-card-bg, rgba(255, 255, 255, 0.72));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--pct-card-border, rgba(255, 255, 255, 0.6));
+  border-radius: 1rem;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  transition: box-shadow 0.25s ease;
 }
 
 .container {
-  border: 0px;
-  border-radius: 0px;
-  background-color: #f0f7fc;
+  background: var(--pct-card-bg, rgba(240, 247, 252, 0.85));
   box-shadow: none;
 }
 
-.cui .container {
-  max-width: none !important;
-}
-
 .card:hover {
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 8px 32px rgba(0, 112, 210, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
 }
 
 /* ── Dark Mode ── */
-:host-context(.dark-theme) .card {
-  background-color: #1a2733;
+:host-context(.dark-theme) .card,
+:host-context(.dark-theme) .container {
+  background: rgba(28, 44, 58, 0.85);
   border-color: rgba(42, 63, 80, 0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 :host-context(.dark-theme) .card:hover {
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
-}
-
-:host-context(.dark-theme) .container {
-  background-color: rgba(28, 44, 58, 0.85);
+  box-shadow: 0 8px 32px rgba(0, 188, 235, 0.08);
 }
