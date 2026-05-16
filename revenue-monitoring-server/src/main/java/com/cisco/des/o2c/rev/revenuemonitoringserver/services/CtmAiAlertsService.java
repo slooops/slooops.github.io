@@ -102,10 +102,10 @@ public class CtmAiAlertsService {
         // ─── Service methods ────────────────────────────────────────────────────────
 
         public List<Map<String, Object>> getAllAlerts() {
-                log.info("[CTM] getAllAlerts");
+                log.debug("[CTM] getAllAlerts");
                 List<Map<String, Object>> results = jdbcManager.queryWithNamedParams(ALL_ALERTS,
                                 Collections.emptyMap());
-                log.info("[CTM] getAllAlerts returned {} rows", results.size());
+                log.debug("[CTM] getAllAlerts returned {} rows", results.size());
                 // Convert CLOB columns to Strings so Jackson can serialize them
                 for (Map<String, Object> row : results) {
                         convertClobToString(row, "JOB_COMMAND");
@@ -117,50 +117,50 @@ public class CtmAiAlertsService {
         }
 
         public List<Map<String, Object>> getSummary() {
-                log.info("[CTM] getSummary");
+                log.debug("[CTM] getSummary");
                 List<Map<String, Object>> results = jdbcManager.queryWithNamedParams(SUMMARY_COUNTS,
                                 Collections.emptyMap());
-                log.info("[CTM] getSummary returned {} rows", results.size());
+                log.debug("[CTM] getSummary returned {} rows", results.size());
                 return results;
         }
 
         public List<Map<String, Object>> getAlertTypeDistribution() {
-                log.info("[CTM] getAlertTypeDistribution");
+                log.debug("[CTM] getAlertTypeDistribution");
                 List<Map<String, Object>> results = jdbcManager.queryWithNamedParams(ALERT_TYPE_DISTRIBUTION,
                                 Collections.emptyMap());
-                log.info("[CTM] getAlertTypeDistribution returned {} rows", results.size());
+                log.debug("[CTM] getAlertTypeDistribution returned {} rows", results.size());
                 return results;
         }
 
         public List<Map<String, Object>> getPriorityDistribution() {
-                log.info("[CTM] getPriorityDistribution");
+                log.debug("[CTM] getPriorityDistribution");
                 List<Map<String, Object>> results = jdbcManager.queryWithNamedParams(PRIORITY_DISTRIBUTION,
                                 Collections.emptyMap());
-                log.info("[CTM] getPriorityDistribution returned {} rows", results.size());
+                log.debug("[CTM] getPriorityDistribution returned {} rows", results.size());
                 return results;
         }
 
         public List<Map<String, Object>> getTopDownstreamBlocked() {
-                log.info("[CTM] getTopDownstreamBlocked");
+                log.debug("[CTM] getTopDownstreamBlocked");
                 List<Map<String, Object>> results = jdbcManager.queryWithNamedParams(TOP_DOWNSTREAM_BLOCKED,
                                 Collections.emptyMap());
-                log.info("[CTM] getTopDownstreamBlocked returned {} rows", results.size());
+                log.debug("[CTM] getTopDownstreamBlocked returned {} rows", results.size());
                 return results;
         }
 
         public List<Map<String, Object>> getApplicationBreakdown() {
-                log.info("[CTM] getApplicationBreakdown");
+                log.debug("[CTM] getApplicationBreakdown");
                 List<Map<String, Object>> results = jdbcManager.queryWithNamedParams(APPLICATION_BREAKDOWN,
                                 Collections.emptyMap());
-                log.info("[CTM] getApplicationBreakdown returned {} rows", results.size());
+                log.debug("[CTM] getApplicationBreakdown returned {} rows", results.size());
                 return results;
         }
 
         public List<Map<String, Object>> getHourlyTrend() {
-                log.info("[CTM] getHourlyTrend");
+                log.debug("[CTM] getHourlyTrend");
                 List<Map<String, Object>> results = jdbcManager.queryWithNamedParams(HOURLY_TREND,
                                 Collections.emptyMap());
-                log.info("[CTM] getHourlyTrend returned {} rows", results.size());
+                log.debug("[CTM] getHourlyTrend returned {} rows", results.size());
                 return results;
         }
 
