@@ -52,12 +52,14 @@ public class ControlMSyncScheduler {
         try {
             List<ControlMAlertRow> rows = apiClient.fetchAllScopes();
             if (rows.isEmpty()) {
-                log.info("[CTM] No new rows this cycle.");
+                log.debug("[CTM] No new rows this cycle.");
                 return;
             }
             int written = upserter.upsert(rows);
-            log.info("[CTM] Cycle complete: fetched={}, upserted={}, elapsed={}ms",
-                    rows.size(), written, System.currentTimeMillis() - started);
+            if (written > 0) {
+                log.debug("[CTM] Upserted {} new row(s) (fetched={}, elapsed={}ms)",
+                        written, rows.size(), System.currentTimeMillis() - started);
+            }
         } catch (Exception ex) {
             // Never propagate — the scheduler must keep running.
             log.error("[CTM] Cycle failed: {}", ex.toString(), ex);

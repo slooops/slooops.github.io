@@ -106,7 +106,7 @@ public class ControlMApiClient {
 
         for (ControlMSyncProperties.Scope scope : props.getScopes()) {
             if (scope.getApiKey() == null || scope.getApiKey().isBlank()) {
-                log.warn("[CTM] No API key configured for scope {}/{} — skipping.",
+                log.debug("[CTM] No API key configured for scope {}/{} — skipping.",
                         scope.getServer(), scope.getApplication());
                 continue;
             }
@@ -158,14 +158,14 @@ public class ControlMApiClient {
                     firstNonBlank(item, "subApplication", "subapplication"),
                     parseIntSafe(firstNonBlank(item, "returnCode", "returncode")),
                     alertType,
-                    strOr(item.get("server"), scope.getServer()),
+                    firstNonBlankOr(item, scope.getServer(), "server", "ctm"),
                     parseOrderDate(firstNonBlank(item, "orderDate", "orderdate")),
                     parseDateTime(firstNonBlank(item, "startTime", "starttime")),
                     parseDateTime(firstNonBlank(item, "endTime", "endtime")),
                     null));
         }
 
-        log.info("[CTM] [{}/{} status={}]: {} row(s) fetched.",
+        log.debug("[CTM] [{}/{} status={}]: {} row(s) fetched.",
                 scope.getServer(), scope.getApplication(), ctmStatus, out.size());
         return out;
     }
@@ -182,6 +182,11 @@ public class ControlMApiClient {
             }
         }
         return null;
+    }
+
+    private static String firstNonBlankOr(Map<String, Object> m, String fallback, String... keys) {
+        String found = firstNonBlank(m, keys);
+        return found != null ? found : fallback;
     }
 
     private static String strOr(Object v, String fallback) {
