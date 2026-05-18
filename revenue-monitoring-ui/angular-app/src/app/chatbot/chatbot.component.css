@@ -379,6 +379,26 @@
   transform: scale(1.06);
 }
 
+.chat-stop-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: #e53935;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.chat-stop-btn:hover {
+  transform: scale(1.06);
+  background: #c62828;
+}
+
 .chat-footer-note {
   text-align: center;
   font-size: 10px;

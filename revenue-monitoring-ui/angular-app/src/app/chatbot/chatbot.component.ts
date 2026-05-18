@@ -16,6 +16,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { Subscription } from 'rxjs';
 import { AuthenticationService } from '../providers/authentication.service';
 import {
   ChatbotPageConfig,
@@ -46,6 +47,7 @@ export class ChatbotComponent
   private hasInitialized = false;
 
   isLoading: boolean = false;
+  private activeRequest: Subscription | null = null;
 
   /* ── Resize state ── */
   panelWidth = 380;
@@ -77,10 +79,17 @@ export class ChatbotComponent
     this.userName = this.authService.getUserName();
     this.userEmail = this.authService.getUserID();
     if (!this.apiUrl) {
-      this.apiUrl = this.authService.getControlTowerSupportAgentApiUrl() || 'http://localhost:8000';
+      this.apiUrl =
+        this.authService.getControlTowerSupportAgentApiUrl() ||
+        'http://localhost:8000';
     }
     console.log('[Chatbot] apiUrl:', this.apiUrl);
-    console.log('[Chatbot] userName:', this.userName, 'userEmail:', this.userEmail);
+    console.log(
+      '[Chatbot] userName:',
+      this.userName,
+      'userEmail:',
+      this.userEmail,
+    );
   }
 
   ngOnDestroy(): void {
@@ -162,12 +171,13 @@ export class ChatbotComponent
     };
     console.log('[Chatbot] POST', url, body);
 
-    this.httpClient
+    this.activeRequest = this.httpClient
       .post<{ response: string }>(url, body)
       .subscribe({
         next: (res) => {
           console.log('[Chatbot] Response:', res);
           this.isLoading = false;
+          this.activeRequest = null;
           this.messages.push({
             text: res.response || 'No response received.',
             isUser: false,
@@ -175,6 +185,7 @@ export class ChatbotComponent
         },
         error: (err) => {
           this.isLoading = false;
+          this.activeRequest = null;
           console.error('Agent API error:', err);
           this.messages.push({
             text: 'Something went wrong reaching the assistant. Please try again.',
@@ -182,6 +193,18 @@ export class ChatbotComponent
           });
         },
       });
+  }
+
+  cancelRequest(): void {
+    if (this.activeRequest) {
+      this.activeRequest.unsubscribe();
+      this.activeRequest = null;
+      this.isLoading = false;
+      this.messages.push({
+        text: 'Request cancelled.',
+        isUser: false,
+      });
+    }
   }
 
   /* ── Resize logic ── */
