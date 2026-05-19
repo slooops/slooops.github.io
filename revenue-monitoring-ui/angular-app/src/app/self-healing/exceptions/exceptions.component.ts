@@ -204,6 +204,8 @@ export class ExceptionsComponent implements OnInit {
     switch (status) {
       case 'completed':
         return 'eq__status--completed';
+      case 'RESOLVED':
+        return 'eq__status--completed';
       case 'running':
         return 'eq__status--running';
       case 'failed':

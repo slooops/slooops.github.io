@@ -15,6 +15,7 @@ import { Chart, registerables } from 'chart.js';
 import { ExceptionsComponent } from './exceptions/exceptions.component';
 import { ExceptionDetailsComponent } from './exception-details/exception-details.component';
 import { ThemeService } from '../providers/theme.service';
+import { DataService } from '../providers/data.service';
 
 Chart.register(...registerables);
 
@@ -87,12 +88,14 @@ export class SelfHealingComponent
   constructor(
     private http: HttpClient,
     public themeService: ThemeService,
+    private dataService: DataService,
   ) {}
 
   trendData: TrendPoint[] = [];
   trendLoading = false;
 
   ngOnInit(): void {
+    this.getErrorSummaryPeriodStatus();
     this.fetchRecentExceptions();
     this.fetchStatsOverview();
     this.fetchTrends();
@@ -178,11 +181,18 @@ export class SelfHealingComponent
   }
 
   /* ── Period Status ── */
-  periodStatus = {
-    periodName: 'APR-26',
-    periodEndDate: '04/25/2026',
-    lastUpdated: new Date().toLocaleString(),
-  };
+  periodStatus: any;
+
+  getErrorSummaryPeriodStatus() {
+    this.dataService.periodStatus$.subscribe((data: any) => {
+      if (data) {
+        this.periodStatus = {
+          ...data,
+          lastUpdated: new Date().toLocaleString(),
+        };
+      }
+    });
+  }
 
   /* ── KPI Cards ── */
   kpiCards: KpiCard[] = [
@@ -596,6 +606,8 @@ export class SelfHealingComponent
     switch (status) {
       case 'completed':
         return 'sh__run-status--completed';
+      case 'RESOLVED':
+        return 'sh__run-status--completed';
       case 'running':
         return 'sh__run-status--running';
       case 'failed':
@@ -619,12 +631,13 @@ export class SelfHealingComponent
   }
 
   getAnalysisModeClass(mode: string): string {
-    switch (mode?.toUpperCase()) {
-      case 'Agentic':
+    switch (mode?.toLowerCase()) {
+      case 'agentic':
         return 'sh__mode--agent-full';
-      case 'Guided':
+      case 'guided':
         return 'sh__mode--static';
-      case 'Pattren Match':
+      case 'pattren match':
+      case 'pattern match':
         return 'sh__mode--pattern-match';
       default:
         return '';

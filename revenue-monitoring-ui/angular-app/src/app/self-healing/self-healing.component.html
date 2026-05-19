@@ -5,20 +5,23 @@
       <h2>I2C Self-Healing Bot</h2>
     </div>
 
-    <div class="period-info">
-      <span><b>Period name:</b> {{ periodStatus.periodName }} &nbsp;</span>
-      <span class="divider"> | </span>
-      <span
-        >&nbsp;<b>Period end date:</b>
-        {{ periodStatus.periodEndDate }} &nbsp;</span
-      >
-      <span class="divider"> | </span>
-      <span
-        >&nbsp;<b>Last Updated:</b> {{ periodStatus.lastUpdated }} &nbsp;</span
-      >
-    </div>
+    @if (periodStatus) {
+      <div class="period-info">
+        <span><b>Period name:</b> {{ periodStatus.periodName }} &nbsp;</span>
+        <span class="divider"> | </span>
+        <span
+          >&nbsp;<b>Period end date:</b>
+          {{ periodStatus.periodEndDate }} &nbsp;</span
+        >
+        <span class="divider"> | </span>
+        <span
+          >&nbsp;<b>Last Updated:</b>
+          {{ periodStatus.lastUpdated }} &nbsp;</span
+        >
+      </div>
+    }
 
-    <div class="sh__header-actions">
+    <!-- <div class="sh__header-actions">
       <select class="sh__select" [(ngModel)]="selectedQuarter">
         <option value="Q1-FY26">Q1-FY26</option>
         <option value="Q2-FY26">Q2-FY26</option>
@@ -35,7 +38,7 @@
         <ng-icon name="phosphorArrowClockwiseBold" size="14" />
         Refresh
       </button>
-    </div>
+    </div> -->
   </div>
 </div>
 
