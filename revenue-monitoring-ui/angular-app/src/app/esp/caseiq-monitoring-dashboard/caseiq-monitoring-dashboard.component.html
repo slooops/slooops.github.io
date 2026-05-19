@@ -391,13 +391,15 @@
                 <th>Core Issue</th>
                 <th>LLM Summary</th>
                 <th>Issue Description</th>
+                <th>Detail</th>
+                <th>Resolution</th>
                 <th>Run Date</th>
               </tr>
             </thead>
             <tbody>
               @if (errorLoading) {
                 <tr>
-                  <td colspan="7">
+                  <td colspan="9">
                     <div class="ciq-table-loading">
                       <app-loading-symbol />
                     </div>
@@ -419,6 +421,30 @@
                         : row.anomalyLabel || row.ANOMALY_TYPE || ""
                     }}</span>
                   </td>
+                  <td>
+                    @if (row.INCIDENT_DESCRIPTION) {
+                      <button
+                        class="ciq-detail-badge ciq-detail-badge--desc"
+                        (click)="openErrorDetailModal(row, 'description')"
+                      >
+                        View
+                      </button>
+                    } @else {
+                      <span class="ciq-muted-text">—</span>
+                    }
+                  </td>
+                  <td>
+                    @if (row.RESOLUTION_API_SUMMARY) {
+                      <button
+                        class="ciq-detail-badge ciq-detail-badge--res"
+                        (click)="openErrorDetailModal(row, 'resolution')"
+                      >
+                        View
+                      </button>
+                    } @else {
+                      <span class="ciq-muted-text">—</span>
+                    }
+                  </td>
                   <td class="ciq-text-sm">
                     {{ formatDate(row.CASEIQ_RUN_DATE) }}
                   </td>
@@ -426,11 +452,13 @@
               }
               @if (anomalyTableData.length === 0 && !errorLoading) {
                 <tr>
-                  <td colspan="7" class="ciq-no-data">
-                    <span class="ciq-no-data-icon"
-                      ><ng-icon name="phosphorEmptyDuotone" size="24"
-                    /></span>
-                    No errors detected in this period
+                  <td colspan="9">
+                    <div class="ciq-no-data">
+                      <span class="ciq-no-data-icon"
+                        ><ng-icon name="phosphorEmptyDuotone" size="24"
+                      /></span>
+                      No errors detected in this period
+                    </div>
                   </td>
                 </tr>
               }
@@ -524,4 +552,35 @@
     </div>
   }
   <br /><br /><br />
+
+  <!-- Error Detail Modal -->
+  @if (errorModalOpen) {
+    <div class="ciq-modal-backdrop" (click)="closeErrorModal()">
+      <div
+        class="ciq-modal ciq-modal--detail"
+        role="dialog"
+        aria-modal="true"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="ciq-modal__header">
+          <div>
+            <h3 class="ciq-modal__title">{{ errorModalTitle }}</h3>
+            <div class="ciq-modal__subtitle">
+              {{ errorModalTab === "description" ? "" : "" }}
+            </div>
+          </div>
+          <button
+            class="ciq-modal__close"
+            (click)="closeErrorModal()"
+            aria-label="Close modal"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="ciq-modal__body ciq-modal__body--text">
+          <pre class="ciq-modal__pre">{{ errorModalContent }}</pre>
+        </div>
+      </div>
+    </div>
+  }
 </div>

@@ -248,4 +248,11 @@ public class CaseIQMonitoringController {
             @RequestParam(required = false) String fiscQtr) {
         return new ResponseEntity<>(service.getTeamCoreIssueAccuracy(lookbackDays, teamName, fiscQtr), HttpStatus.OK);
     }
+
+    @GetMapping("/charts/validation-accuracy-summary")
+    public ResponseEntity<List<Map<String, Object>>> validationAccuracySummary(
+            @RequestParam(defaultValue = "365") int lookbackDays,
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getTeamValidationAccuracySummary(lookbackDays, fiscQtr), HttpStatus.OK);
+    }
 }

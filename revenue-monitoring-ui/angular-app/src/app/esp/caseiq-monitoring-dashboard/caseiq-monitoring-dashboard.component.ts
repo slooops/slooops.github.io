@@ -206,6 +206,12 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   errorLoading = false;
   errorFilteredRows: AnomalyItem[] = [];
 
+  // Error detail modal
+  errorModalOpen = false;
+  errorModalTitle = '';
+  errorModalTab = '';
+  errorModalContent = '';
+
   // CSV download progress
   csvDownloading = false;
   csvDownloadProgress = 0;
@@ -756,6 +762,37 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       this.errorCurrentPage * this.errorPageSize,
       this.errorTotalCount,
     );
+  }
+
+  openErrorDetailModal(row: any, tab: 'description' | 'resolution'): void {
+    this.errorModalTitle = row.INCIDENT_NUMBER || 'Incident Detail';
+    this.errorModalTab = tab;
+    const raw =
+      tab === 'description'
+        ? row.INCIDENT_DESCRIPTION || 'No description available'
+        : row.RESOLUTION_API_SUMMARY || 'No resolution summary available';
+    this.errorModalContent = this.formatModalContent(raw);
+    this.errorModalOpen = true;
+  }
+
+  private formatModalContent(text: string): string {
+    const trimmed = text.trim();
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      try {
+        return JSON.stringify(JSON.parse(trimmed), null, 2);
+      } catch {
+        // Truncated JSON — best-effort formatting
+        return trimmed
+          .replace(/,\s*"/g, ',\n"')
+          .replace(/\{/g, '{\n')
+          .replace(/\}/g, '\n}');
+      }
+    }
+    return text;
+  }
+
+  closeErrorModal(): void {
+    this.errorModalOpen = false;
   }
 
   downloadErrorCsv(): void {

@@ -1589,42 +1589,30 @@ p {
 
 /* ── Dual pill modifier (Agent vs Ops) ─────────────────── */
 .caseiq-pill.caseiq-pill-dual {
-  display: flex;
-}
-
-.caseiq-pill-dual .caseiq-pill-fill {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
+}
+
+.caseiq-pill-dual .caseiq-pill-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
   border-radius: 999px;
 }
 
 .caseiq-pill-dual .caseiq-pill-text {
-  width: auto;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  text-align: center;
   text-shadow: none;
   line-height: normal;
 }
 
-.caseiq-pill-remainder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  flex: 1;
-}
-
-.caseiq-pill-remainder .caseiq-pill-text {
-  width: auto;
-  text-shadow: none;
-}
-
-:host(.dark-theme) .caseiq-pill-dual .caseiq-pill-text {
-  text-shadow: none;
-}
-
 /* ── KPI strip responsive ─────────────────────────────── */
-@media (max-width: 1400px) {
+@media (max-width: 1300px) {
   .caseiq-kpi-strip {
     grid-template-columns: repeat(4, 1fr);
   }

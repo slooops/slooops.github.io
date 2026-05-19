@@ -1,5 +1,5 @@
 <app-modal
-  [title]="teamName + ' — AI Accuracy Detail'"
+  [title]="teamName + ' — AI Accuracy & Validation Details'"
   headerBgColor="transparent"
   borderRadius="16px"
   [darkMode]="themeService.isDarkMode"
@@ -12,14 +12,14 @@
       [class.active]="activeTab === 'category'"
       (click)="switchTab('category')"
     >
-      Category Accuracy
+      Category Rates
     </button>
     <button
       class="adm-tab"
       [class.active]="activeTab === 'coreIssue'"
       (click)="switchTab('coreIssue')"
     >
-      Core Issue Accuracy
+      Core Issue Rates (Top 10)
     </button>
     @if (teamAccuracy != null) {
       <span class="adm-overall"

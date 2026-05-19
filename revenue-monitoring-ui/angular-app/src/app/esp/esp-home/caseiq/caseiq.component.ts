@@ -142,6 +142,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() selectedQuarter: string = '';
   @Output() teamNavigate = new EventEmitter<string>();
 
+  /** Hide analytics/monitoring sections on the operations portal */
+  isOpsView = window.location.hostname === 'operations-control-tower.cisco.com';
+
   // ── Analytics chart data ──────────────────────────────────
   weeklyVolumeByTeamData: any[] = [];
   weeklyVolumeByStateData: any[] = [];
@@ -175,8 +178,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       // Quarter changed by user — rebuild KPI charts (analytics charts use rolling window, no refetch needed)
       if (this.viewInitialized) {
         this.showLoadingForMoment();
-        // Re-fetch monitoring data with new quarter
+        // Re-fetch monitoring data and accuracy data with new quarter
         this.fetchMonitoringData();
+        this.fetchAccuracyData();
       }
     }
   }
@@ -1006,10 +1010,16 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     return row ? this.getAgentRatio(row) : 0;
   }
 
-  /** Fetch accuracy data from API and store for template use */
+  /** Fetch accuracy/validation data from the CaseIQ monitoring service */
   private fetchAccuracyData(): void {
+    const qp = this.selectedQuarter
+      ? `?fiscQtr=${encodeURIComponent(this.selectedQuarter)}`
+      : '';
     this.http
-      .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
+      .get(
+        `caseiq/charts/validation-accuracy-summary${qp}`,
+        this.destroyManager,
+      )
       .subscribe((data: any) => {
         if (Array.isArray(data)) {
           this.accuracyData = data;
@@ -1017,33 +1027,33 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       });
   }
 
-  /** Look up Total Accuracy for a section, filtered by selectedQuarter */
+  /** Look up Accuracy Rate for a section (correct / validated * 100), filtered by selectedQuarter */
   getAccuracyForSection(sectionName: string): number | null {
     if (!this.accuracyData.length) return null;
 
     // Filter by quarter first
     const filtered = this.selectedQuarter
       ? this.accuracyData.filter(
-          (item: any) => item.Quarter === this.selectedQuarter,
+          (item: any) => item.FISC_QTR === this.selectedQuarter,
         )
       : this.accuracyData;
 
     if (!filtered.length) return null;
 
-    // For Finance IT / ALL: compute weighted average across all teams
+    // For Finance IT / ALL: compute weighted average across all teams (weighted by validated cases)
     if (sectionName === 'Finance IT' || sectionName === 'ALL') {
-      let totalCases = 0;
+      let totalValidated = 0;
       let weightedAccuracy = 0;
       for (const item of filtered) {
-        const cases = Number(item['Total Cases']) || 0;
-        const acc = Number(item['Total Accuracy']);
-        if (Number.isFinite(acc) && cases > 0) {
-          totalCases += cases;
-          weightedAccuracy += acc * cases;
+        const validated = Number(item.VALIDATED_CASES) || 0;
+        const acc = Number(item.ACCURACY_RATE);
+        if (Number.isFinite(acc) && validated > 0) {
+          totalValidated += validated;
+          weightedAccuracy += acc * validated;
         }
       }
-      return totalCases > 0
-        ? Math.round((weightedAccuracy / totalCases) * 10) / 10
+      return totalValidated > 0
+        ? Math.round((weightedAccuracy / totalValidated) * 10) / 10
         : null;
     }
 
@@ -1055,7 +1065,44 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     );
 
     if (!match) return null;
-    const val = Number(match['Total Accuracy']);
+    const val = Number(match.ACCURACY_RATE);
+    return Number.isFinite(val) ? val : null;
+  }
+
+  /** Look up Validation Rate for a section (validated / total * 100), filtered by selectedQuarter */
+  getValidationForSection(sectionName: string): number | null {
+    if (!this.accuracyData.length) return null;
+
+    const filtered = this.selectedQuarter
+      ? this.accuracyData.filter(
+          (item: any) => item.FISC_QTR === this.selectedQuarter,
+        )
+      : this.accuracyData;
+
+    if (!filtered.length) return null;
+
+    // For Finance IT / ALL: compute overall validation rate
+    if (sectionName === 'Finance IT' || sectionName === 'ALL') {
+      let totalCases = 0;
+      let totalValidated = 0;
+      for (const item of filtered) {
+        totalCases += Number(item.TOTAL_CASES) || 0;
+        totalValidated += Number(item.VALIDATED_CASES) || 0;
+      }
+      return totalCases > 0
+        ? Math.round((totalValidated / totalCases) * 1000) / 10
+        : null;
+    }
+
+    // Individual team lookup
+    const match = filtered.find(
+      (item: any) =>
+        item.TEAM_NAME &&
+        item.TEAM_NAME.toUpperCase() === sectionName.toUpperCase(),
+    );
+
+    if (!match) return null;
+    const val = Number(match.VALIDATION_RATE);
     return Number.isFinite(val) ? val : null;
   }
 
@@ -1065,7 +1112,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     const filtered = this.selectedQuarter
       ? this.accuracyData.filter(
-          (item: any) => item.Quarter === this.selectedQuarter,
+          (item: any) => item.FISC_QTR === this.selectedQuarter,
         )
       : this.accuracyData;
 
@@ -1075,7 +1122,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (sectionName === 'Finance IT' || sectionName === 'ALL') {
       let totalCases = 0;
       for (const item of filtered) {
-        const cases = Number(item['Total Cases']) || 0;
+        const cases = Number(item.TOTAL_CASES) || 0;
         totalCases += cases;
       }
       return totalCases > 0 ? totalCases : null;
@@ -1089,13 +1136,22 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     );
 
     if (!match) return null;
-    const val = Number(match['Total Cases']);
+    const val = Number(match.TOTAL_CASES);
     return Number.isFinite(val) ? val : null;
   }
 
   /** Return a pill color class based on accuracy percentage thresholds */
   getAccuracyColor(sectionName: string): string {
     const val = this.getAccuracyForSection(sectionName);
+    if (val == null || val === 0) return 'neutral';
+    if (val >= 75) return 'green';
+    if (val >= 50) return 'grey';
+    if (val >= 25) return 'amber';
+    return 'orange';
+  }
+
+  getValidationColor(sectionName: string): string {
+    const val = this.getValidationForSection(sectionName);
     if (val == null || val === 0) return 'neutral';
     if (val >= 75) return 'green';
     if (val >= 50) return 'grey';
@@ -1162,7 +1218,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       });
 
     this.http
-      .get(`${base}/hourly-case-pattern?lookbackDays=90`, this.destroyManager)
+      .get(`${base}/hourly-case-pattern?lookbackDays=1`, this.destroyManager)
       .subscribe({
         next: (d: any) => {
           this.hourlyCasePatternData = d;
@@ -1614,12 +1670,16 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     ) as HTMLCanvasElement;
     if (!canvas) return;
 
-    // Gap-fill 0–23
+    // Gap-fill and show only the last 12 hours
     const hourMap = new Map<number, number>();
     for (const row of this.hourlyCasePatternData) {
       hourMap.set(row.HOUR_OF_DAY, row.CASE_COUNT);
     }
-    const hours = Array.from({ length: 24 }, (_, i) => i);
+    const currentHour = new Date().getHours();
+    const hours = Array.from(
+      { length: 12 },
+      (_, i) => (currentHour - 11 + i + 24) % 24,
+    );
     const values = hours.map((h) => hourMap.get(h) ?? 0);
     const labels = hours.map((h) => {
       const suffix = h >= 12 ? 'pm' : 'am';
@@ -1753,6 +1813,12 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   csvDownloading = false;
   csvDownloadProgress = 0;
   csvDownloadDone = false;
+
+  // Error detail modal
+  errorModalOpen = false;
+  errorModalTitle = '';
+  errorModalTab = '';
+  errorModalContent = '';
 
   get errorPageStart(): number {
     return this.errorTotalCount === 0
@@ -1889,6 +1955,36 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     this.errorPageSize = size;
     this.errorCurrentPage = 1;
     this.loadErrorIncidents();
+  }
+
+  openErrorDetailModal(row: any, tab: 'description' | 'resolution'): void {
+    this.errorModalTitle = row.INCIDENT_NUMBER || 'Incident Detail';
+    this.errorModalTab = tab;
+    const raw =
+      tab === 'description'
+        ? row.INCIDENT_DESCRIPTION || 'No description available'
+        : row.RESOLUTION_API_SUMMARY || 'No resolution summary available';
+    this.errorModalContent = this.formatModalContent(raw);
+    this.errorModalOpen = true;
+  }
+
+  private formatModalContent(text: string): string {
+    const trimmed = text.trim();
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      try {
+        return JSON.stringify(JSON.parse(trimmed), null, 2);
+      } catch {
+        return trimmed
+          .replace(/,\s*"/g, ',\n"')
+          .replace(/\{/g, '{\n')
+          .replace(/\}/g, '\n}');
+      }
+    }
+    return text;
+  }
+
+  closeErrorModal(): void {
+    this.errorModalOpen = false;
   }
 
   downloadErrorCsv(): void {

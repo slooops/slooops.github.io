@@ -1401,3 +1401,95 @@ h6 {
   border-color: #00bceb;
   color: #00bceb;
 }
+
+/* ── Detail Badges (View buttons with outline) ─────────────── */
+.ciq-detail-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  border-radius: 999px;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--ciq-muted, #888);
+  color: var(--ciq-muted, #888);
+  white-space: nowrap;
+  transition:
+    border-color var(--fit-transition-fast),
+    color var(--fit-transition-fast),
+    background var(--fit-transition-fast);
+}
+
+.ciq-detail-badge:hover {
+  background: rgba(0, 112, 210, 0.1);
+  border-color: #0070d2;
+  color: #0070d2;
+}
+
+.ciq-detail-badge--desc {
+  border-color: rgba(0, 188, 235, 0.4);
+  color: #00bceb;
+}
+
+.ciq-detail-badge--res {
+  border-color: rgba(153, 51, 255, 0.4);
+  color: #9933ff;
+}
+
+:host(.dark-theme) .ciq-detail-badge {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+:host(.dark-theme) .ciq-detail-badge--desc {
+  border-color: rgba(0, 188, 235, 0.4);
+  color: #00bceb;
+}
+
+:host(.dark-theme) .ciq-detail-badge--res {
+  border-color: rgba(153, 51, 255, 0.4);
+  color: #9933ff;
+}
+
+:host(.dark-theme) .ciq-detail-badge:hover {
+  background: rgba(0, 188, 235, 0.15);
+  border-color: #00bceb;
+  color: #00bceb;
+}
+
+.ciq-muted-text {
+  color: var(--ciq-muted, #888);
+  font-size: 0.75rem;
+}
+
+/* ── Modal Pre (incident description / resolution) ─────────── */
+.ciq-modal--detail {
+  max-width: 800px;
+}
+
+.ciq-modal__body--text {
+  height: auto;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.ciq-modal__pre {
+  margin: 0;
+  padding: 16px;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--ciq-text);
+  background: var(--ciq-card-bg, rgba(0, 0, 0, 0.02));
+  border: 1px solid var(--ciq-card-border, rgba(0, 0, 0, 0.06));
+  border-radius: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+:host(.dark-theme) .ciq-modal__pre {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.08);
+}

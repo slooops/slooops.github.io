@@ -31,6 +31,8 @@ export interface AnomalyItem {
   ANOMALY_TYPE?: string;
   EXCEPTION_FIELD?: string;
   LLM_SUMMARY?: string;
+  INCIDENT_DESCRIPTION?: string;
+  RESOLUTION_API_SUMMARY?: string;
   anomalyLabel?: string;
 }
 

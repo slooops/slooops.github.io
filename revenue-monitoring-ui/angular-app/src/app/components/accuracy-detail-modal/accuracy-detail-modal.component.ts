@@ -129,13 +129,23 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
     const data = this.categoryData;
     const labels = data.map((d: any) => d.CATEGORY ?? 'Unknown');
     const totals = data.map((d: any) => d.TOTAL ?? 0);
-    const accuracies = data.map((d: any) => d.ACCURACY_PCT ?? 0);
+    const accuracies = data.map((d: any) => {
+      const validated = d.VALIDATED ?? 0;
+      const correct = d.CORRECT ?? 0;
+      return validated > 0 ? Math.round((correct / validated) * 1000) / 10 : 0;
+    });
+    const validationRates = data.map((d: any) => {
+      const total = d.TOTAL ?? 0;
+      const validated = d.VALIDATED ?? 0;
+      return total > 0 ? Math.round((validated / total) * 1000) / 10 : 0;
+    });
 
     this.categoryChart = this.buildComboChart(
       canvas,
       labels,
       totals,
       accuracies,
+      validationRates,
     );
   }
 
@@ -146,16 +156,27 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
     ) as HTMLCanvasElement;
     if (!canvas || !this.coreIssueData.length) return;
 
-    const data = this.coreIssueData;
+    // Take only the top 10 by case count (data is already sorted by total DESC)
+    const data = this.coreIssueData.slice(0, 10);
     const labels = data.map((d: any) => d.CORE_ISSUE ?? 'Unknown');
     const totals = data.map((d: any) => d.TOTAL ?? 0);
-    const accuracies = data.map((d: any) => d.ACCURACY_PCT ?? 0);
+    const accuracies = data.map((d: any) => {
+      const validated = d.VALIDATED ?? 0;
+      const correct = d.CORRECT ?? 0;
+      return validated > 0 ? Math.round((correct / validated) * 1000) / 10 : 0;
+    });
+    const validationRates = data.map((d: any) => {
+      const total = d.TOTAL ?? 0;
+      const validated = d.VALIDATED ?? 0;
+      return total > 0 ? Math.round((validated / total) * 1000) / 10 : 0;
+    });
 
     this.coreIssueChart = this.buildComboChart(
       canvas,
       labels,
       totals,
       accuracies,
+      validationRates,
     );
   }
 
@@ -164,6 +185,7 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
     labels: string[],
     totals: number[],
     accuracies: number[],
+    validationRates: number[] = [],
   ): Chart {
     return new Chart(canvas, {
       type: 'bar',
@@ -172,7 +194,7 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
         datasets: [
           {
             type: 'line' as const,
-            label: 'AI Accuracy',
+            label: 'Accuracy Rate',
             data: accuracies,
             borderColor: '#00bceb',
             borderWidth: 2.5,
@@ -197,6 +219,24 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
               gradient.addColorStop(1, 'rgba(0, 188, 235, 0.35)');
               return gradient;
             },
+            xAxisID: 'xAccuracy',
+            indexAxis: 'y' as const,
+            order: 0,
+          },
+          {
+            type: 'line' as const,
+            label: 'Validation Rate',
+            data: validationRates,
+            borderColor: '#6ebe4a',
+            borderWidth: 2.5,
+            borderDash: [5, 3],
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#6ebe4a',
+            pointBorderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5.5,
+            tension: 0.4,
+            fill: false,
             xAxisID: 'xAccuracy',
             indexAxis: 'y' as const,
             order: 0,
@@ -242,8 +282,9 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
             padding: 10,
             callbacks: {
               label: (ctx) => {
-                if (ctx.datasetIndex === 0)
-                  return `AI Accuracy: ${ctx.parsed.x}%`;
+                if (ctx.datasetIndex === 0) return `Accuracy: ${ctx.parsed.x}%`;
+                if (ctx.datasetIndex === 1)
+                  return `Validation: ${ctx.parsed.x}%`;
                 return `Cases: ${ctx.parsed.x.toLocaleString()}`;
               },
             },

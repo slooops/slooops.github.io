@@ -254,7 +254,6 @@ export class EspHomeComponent implements OnInit {
 
     // Refresh the visible dropdown list
     this.updateQuartersForActiveTab();
-    console.log('Merged quarters from metrics:', this.allQuarters);
   }
 
   // Dynamically filtered quarters based on active team
@@ -377,7 +376,6 @@ export class EspHomeComponent implements OnInit {
   loadCaseAnalyzerMetrics(): void {
     this.dataService.getCaseIqMetrics(this.destroyManager).subscribe({
       next: (data) => {
-        console.log('Case Analyzer Metrics:', data);
         this.componentLevelMetrics = data;
         this.buildMetricsPerComponent();
         this.mergeQuartersFromMetrics(data);
@@ -569,7 +567,6 @@ export class EspHomeComponent implements OnInit {
     this.http
       .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
       .subscribe((data: any) => {
-        console.log(data);
         if (Array.isArray(data)) {
           // Store raw data for quarter filtering
           this.accuracyData = data;
@@ -765,8 +762,6 @@ export class EspHomeComponent implements OnInit {
       });
     }
 
-    console.log(availableQuarters);
-
     // Finance IT tab: only show quarters from accuracyData
     // All other tabs: show all quarters from both sources
     if (this.activeTab === 'Finance IT') {
@@ -784,8 +779,6 @@ export class EspHomeComponent implements OnInit {
     if (this.quarters.length === 0) {
       this.quarters = [...this.allQuarters];
     }
-
-    console.log(`Updated quarters (all teams):`, this.quarters);
   }
 
   /**

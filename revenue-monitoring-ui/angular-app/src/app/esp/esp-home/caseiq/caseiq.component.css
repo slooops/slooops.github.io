@@ -62,7 +62,7 @@
   padding: 0.5rem 0.625rem;
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1300px) {
   .ra-strip-pills {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -166,6 +166,20 @@
   color: var(--ciq-text);
 }
 
+/* ── Center-aligned columns: Total Cases (2), Active Agents (10), Service Incidents (11) ── */
+.ciq-table th:nth-child(2),
+.ciq-table td:nth-child(2),
+.ciq-table th:nth-child(3),
+.ciq-table td:nth-child(3),
+.ciq-table th:nth-child(9),
+.ciq-table td:nth-child(9),
+.ciq-table th:nth-child(10),
+.ciq-table td:nth-child(10),
+.ciq-table th:nth-child(11),
+.ciq-table td:nth-child(11) {
+  text-align: center;
+}
+
 .component-badge {
   display: inline-block;
   padding: 0.125rem 0.5rem;
@@ -257,7 +271,7 @@
 /* ── Accuracy pill (compact, single-value) ── */
 .accuracy-pill {
   height: 1.125rem;
-  width: 5rem;
+  width: 100%;
   min-width: unset;
 }
 
@@ -1071,4 +1085,96 @@
 
 :host(.dark-theme) .ciq-modal__close:hover {
   background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Detail View Badges (colored outline, like CTM) ────────── */
+.ciq-detail-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid var(--ciq-muted, #888);
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--ciq-muted, #888);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 150ms,
+    border-color 150ms,
+    color 150ms;
+}
+
+.ciq-detail-badge:hover {
+  background: rgba(0, 112, 210, 0.1);
+  border-color: #0070d2;
+  color: #0070d2;
+}
+
+.ciq-detail-badge--desc {
+  border-color: rgba(0, 188, 235, 0.4);
+  color: #00bceb;
+}
+
+.ciq-detail-badge--res {
+  border-color: rgba(153, 51, 255, 0.4);
+  color: #9933ff;
+}
+
+:host(.dark-theme) .ciq-detail-badge {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+:host(.dark-theme) .ciq-detail-badge--desc {
+  border-color: rgba(0, 188, 235, 0.4);
+  color: #00bceb;
+}
+
+:host(.dark-theme) .ciq-detail-badge--res {
+  border-color: rgba(153, 51, 255, 0.4);
+  color: #9933ff;
+}
+
+:host(.dark-theme) .ciq-detail-badge:hover {
+  background: rgba(0, 188, 235, 0.15);
+  border-color: #00bceb;
+  color: #00bceb;
+}
+
+.ciq-muted-text {
+  color: var(--ciq-muted, #888);
+  font-size: 0.75rem;
+}
+
+/* ── Error Detail Modal (text content) ─────────────────────── */
+.ciq-modal--detail {
+  max-width: 800px;
+}
+
+.ciq-modal__body--text {
+  height: auto;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.ciq-modal__pre {
+  margin: 0;
+  padding: 16px;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--ciq-text);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+:host(.dark-theme) .ciq-modal__pre {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.08);
 }

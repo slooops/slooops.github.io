@@ -479,6 +479,24 @@ public class CaseIQMonitoringService {
             "   OR SUM(CASE WHEN core_issue_match IN ('Y','N') THEN 1 ELSE 0 END) >= 5 " +
             "ORDER BY week_start";
 
+    private static final String TEAM_VALIDATION_ACCURACY_SUMMARY = "SELECT " +
+            "team_name, " +
+            "fisc_qtr, " +
+            "COUNT(*) AS total_cases, " +
+            "SUM(CASE WHEN case_analyzer_status = 'VALIDATED' THEN 1 ELSE 0 END) AS validated_cases, " +
+            "ROUND(SUM(CASE WHEN case_analyzer_status = 'VALIDATED' THEN 1 ELSE 0 END) * 100.0 " +
+            "  / NULLIF(COUNT(*), 0), 1) AS validation_rate, " +
+            "ROUND(SUM(CASE WHEN case_analyzer_status = 'VALIDATED' AND category_match = 'Y' THEN 1 ELSE 0 END) * 100.0 "
+            +
+            "  / NULLIF(SUM(CASE WHEN case_analyzer_status = 'VALIDATED' THEN 1 ELSE 0 END), 0), 1) AS accuracy_rate " +
+            "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
+            "WHERE team_name IS NOT NULL " +
+            "AND team_name != 'UNKNOWN' " +
+            "AND fisc_qtr IS NOT NULL " +
+            "AND caseiq_run_date > SYSDATE - :lookback_days " +
+            "GROUP BY team_name, fisc_qtr " +
+            "ORDER BY team_name, fisc_qtr";
+
     // ─── Fiscal quarter injection ───────────────────────────────────────────────
 
     private static final Pattern FISC_QTR_INJECT_PATTERN = Pattern.compile("\\s+(GROUP BY|ORDER BY|FETCH)",
@@ -922,6 +940,8 @@ public class CaseIQMonitoringService {
         String union =
                 // Ghost Success
                 "SELECT incident_number, team_name, category, core_issue, llm_summary, caseiq_run_date, " +
+                        "DBMS_LOB.SUBSTR(incident_description, 4000, 1) AS incident_description, " +
+                        "DBMS_LOB.SUBSTR(resolution_api_summary, 4000, 1) AS resolution_api_summary, " +
                         "'Ghost Success' AS anomaly_label " +
                         "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
                         "WHERE resolution_api_status = 'SUCCESS' AND is_active = 'TRUE' " +
@@ -933,6 +953,8 @@ public class CaseIQMonitoringService {
 
                         // Not Defined
                         "SELECT incident_number, team_name, category, core_issue, llm_summary, caseiq_run_date, " +
+                        "DBMS_LOB.SUBSTR(incident_description, 4000, 1) AS incident_description, " +
+                        "DBMS_LOB.SUBSTR(resolution_api_summary, 4000, 1) AS resolution_api_summary, " +
                         "'Not Defined' AS anomaly_label " +
                         "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
                         "WHERE llm_summary = 'Not Defined' AND is_active = 'TRUE' " +
@@ -942,6 +964,8 @@ public class CaseIQMonitoringService {
 
                         // No Resolution
                         "SELECT incident_number, team_name, category, core_issue, llm_summary, caseiq_run_date, " +
+                        "DBMS_LOB.SUBSTR(incident_description, 4000, 1) AS incident_description, " +
+                        "DBMS_LOB.SUBSTR(resolution_api_summary, 4000, 1) AS resolution_api_summary, " +
                         "'No Resolution' AS anomaly_label " +
                         "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
                         "WHERE resolution_api_status IS NULL AND is_active = 'TRUE' " +
@@ -951,6 +975,8 @@ public class CaseIQMonitoringService {
 
                         // Exception
                         "SELECT incident_number, team_name, category, core_issue, llm_summary, caseiq_run_date, " +
+                        "DBMS_LOB.SUBSTR(incident_description, 4000, 1) AS incident_description, " +
+                        "DBMS_LOB.SUBSTR(resolution_api_summary, 4000, 1) AS resolution_api_summary, " +
                         "'Exception' AS anomaly_label " +
                         "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
                         "WHERE is_active = 'TRUE' " +
@@ -963,6 +989,8 @@ public class CaseIQMonitoringService {
 
                         // Null Classification
                         "SELECT incident_number, team_name, category, core_issue, llm_summary, caseiq_run_date, " +
+                        "DBMS_LOB.SUBSTR(incident_description, 4000, 1) AS incident_description, " +
+                        "DBMS_LOB.SUBSTR(resolution_api_summary, 4000, 1) AS resolution_api_summary, " +
                         "'Null Classification' AS anomaly_label " +
                         "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
                         "WHERE (category IS NULL OR core_issue IS NULL) AND case_analyzer_status != 'NEW' " +
@@ -974,6 +1002,8 @@ public class CaseIQMonitoringService {
                         // Unknown Team
                         "SELECT incident_number, 'UNKNOWN' AS team_name, category, core_issue, llm_summary, caseiq_run_date, "
                         +
+                        "DBMS_LOB.SUBSTR(incident_description, 4000, 1) AS incident_description, " +
+                        "DBMS_LOB.SUBSTR(resolution_api_summary, 4000, 1) AS resolution_api_summary, " +
                         "'Unknown Team' AS anomaly_label " +
                         "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
                         "WHERE team_name = 'UNKNOWN' AND is_active = 'TRUE' " +
@@ -984,6 +1014,8 @@ public class CaseIQMonitoringService {
                         // Resolution Error
                         "SELECT incident_number, team_name, category, core_issue, NULL AS llm_summary, caseiq_run_date, "
                         +
+                        "DBMS_LOB.SUBSTR(incident_description, 4000, 1) AS incident_description, " +
+                        "DBMS_LOB.SUBSTR(resolution_api_summary, 4000, 1) AS resolution_api_summary, " +
                         "'Resolution Error' AS anomaly_label " +
                         "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
                         "WHERE (resolution_api_status NOT IN ('SUCCESS', 'NOT_SUPPORTED', 'PARTIAL SUCCESS') " +
@@ -997,6 +1029,7 @@ public class CaseIQMonitoringService {
 
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT incident_number, team_name, category, core_issue, llm_summary, ");
+        sql.append("incident_description, resolution_api_summary, ");
         sql.append("caseiq_run_date, anomaly_label, COUNT(*) OVER() AS total_count ");
         sql.append("FROM (").append(union).append(") all_incidents WHERE 1=1 ");
 
@@ -1072,5 +1105,9 @@ public class CaseIQMonitoringService {
         Map<String, Object> params = buildParams("lookback_days", lookbackDays);
         params.put("team_name", teamName);
         return runQuery(TEAM_CORE_ISSUE_ACCURACY, params, fiscQtr);
+    }
+
+    public List<Map<String, Object>> getTeamValidationAccuracySummary(int lookbackDays, String fiscQtr) {
+        return runQuery(TEAM_VALIDATION_ACCURACY_SUMMARY, buildParams("lookback_days", lookbackDays), fiscQtr);
     }
 }
