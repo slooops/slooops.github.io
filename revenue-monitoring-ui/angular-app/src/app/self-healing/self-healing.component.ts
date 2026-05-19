@@ -5,6 +5,7 @@ import {
   ViewChild,
   ElementRef,
   OnDestroy,
+  AfterViewChecked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -70,8 +71,11 @@ interface TrendPoint {
   templateUrl: './self-healing.component.html',
   styleUrls: ['./self-healing.component.css'],
 })
-export class SelfHealingComponent implements OnInit, OnDestroy {
+export class SelfHealingComponent
+  implements OnInit, OnDestroy, AfterViewChecked
+{
   private readonly API_URL = 'https://i2c-aria-dev.cisco.com/api/runs';
+  private chartsPendingRender = false;
 
   @ViewChild('trendCanvas') trendCanvasRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('categoryCanvas')
@@ -153,10 +157,24 @@ export class SelfHealingComponent implements OnInit, OnDestroy {
   }
 
   private rerenderAllCharts(): void {
-    setTimeout(() => {
-      this.renderTrendChart();
-      this.renderCategoryChart();
-    }, 0);
+    this.chartsPendingRender = true;
+  }
+
+  ngAfterViewChecked(): void {
+    if (
+      this.chartsPendingRender &&
+      this.trendCanvasRef &&
+      this.categoryCanvasRef
+    ) {
+      this.chartsPendingRender = false;
+      // Double rAF ensures layout is complete across Safari, Firefox, and Chrome
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          this.renderTrendChart();
+          this.renderCategoryChart();
+        });
+      });
+    }
   }
 
   /* ── Period Status ── */
