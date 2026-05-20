@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { SidebarService } from '../../sidebar.service';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { Router } from '@angular/router';
 import { DatePipe, Location } from '@angular/common';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
@@ -15,17 +15,17 @@ import { O2cProcessFlowComponent } from '../../components/o2c-process-flow/o2c-p
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
-    selector: 'app-o2c-bill-schedule',
-    templateUrl: './o2c-bill-schedule.component.html',
-    styleUrls: ['./o2c-bill-schedule.component.css'],
-    imports: [
+  selector: 'app-o2c-bill-schedule',
+  templateUrl: './o2c-bill-schedule.component.html',
+  styleUrls: ['./o2c-bill-schedule.component.css'],
+  imports: [
     CommonModule,
     MatTableModule,
     O2cSidebarNavComponent,
     O2cProcessFlowComponent,
-    LoadingSymbolComponent
+    LoadingSymbolComponent,
   ],
-  standalone: true
+  standalone: true,
 })
 export class O2cBillScheduleComponent {
   orderId: string = ''; // Placeholder for order ID
@@ -75,7 +75,7 @@ export class O2cBillScheduleComponent {
     private location: Location,
     private destroyManager: DestroyManager,
     private http: ApiHttpService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
   ) {}
 
   sidebarExpanded = true;
@@ -184,7 +184,7 @@ export class O2cBillScheduleComponent {
     const offsetId = element['OFFSET_ID'];
     const billDate = this.datePipe.transform(
       element['BILL_DATE'],
-      'MM/dd/yyyy'
+      'MM/dd/yyyy',
     );
 
     this.http
@@ -242,18 +242,30 @@ export class O2cBillScheduleComponent {
     window.history.back();
   }
 
-  handleDownload(
+  async handleDownload(
     data: any[],
     fileName: string = 'ExportedData',
-    sheetName: string = 'Data'
-  ): void {
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = {
-      Sheets: { [sheetName]: worksheet },
-      SheetNames: [sheetName],
-    };
+    sheetName: string = 'Data',
+  ): Promise<void> {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(sheetName.substring(0, 31));
 
-    XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    if (data?.length > 0) {
+      const headers = Object.keys(data[0]);
+      worksheet.addRow(headers);
+      data.forEach((row) => worksheet.addRow(headers.map((h) => row[h])));
+    }
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   handlePrint(): void {

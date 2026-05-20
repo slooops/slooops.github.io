@@ -2,7 +2,7 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { FiltersService } from '../../providers/filters.service';
 import { ro } from 'date-fns/locale';
 import { ApiHttpService } from 'src/app/providers/http.service';
@@ -153,7 +153,7 @@ export class O2cViewAllComponent implements OnInit {
     private router: Router,
     private filtersService: FiltersService,
     private destroyManager: DestroyManager,
-    private http: ApiHttpService
+    private http: ApiHttpService,
   ) {}
 
   ngOnInit(): void {
@@ -248,7 +248,7 @@ export class O2cViewAllComponent implements OnInit {
 
     const allInvoices = this.invoiceSummaryDataSource.data;
     const filtered = allInvoices.filter(
-      (row) => row.TRANSACTION_NUMBER === transactionNumber
+      (row) => row.TRANSACTION_NUMBER === transactionNumber,
     );
 
     this.invoiceSummaryModalDataSource = new MatTableDataSource(filtered);
@@ -311,7 +311,7 @@ export class O2cViewAllComponent implements OnInit {
     this.selectedTransactionNumber = TransactionNumber;
 
     const filteredLines = this.invoiceLinesDataSource.data.filter(
-      (line) => line.TRANSACTION_NUMBER === TransactionNumber
+      (line) => line.TRANSACTION_NUMBER === TransactionNumber,
     );
 
     this.filteredOriginalInvoiceLinesData = [...filteredLines];
@@ -327,7 +327,7 @@ export class O2cViewAllComponent implements OnInit {
     const filteredLines = this.subscriptionLinesDataSource.data.filter(
       (line) =>
         line.SUBSCRIPTION_REF_ID === subscriptionId ||
-        line.SUBSCRIPTION_ID === subscriptionId
+        line.SUBSCRIPTION_ID === subscriptionId,
     );
 
     this.filteredOriginalSubscriptionLinesData = [...filteredLines];
@@ -336,25 +336,32 @@ export class O2cViewAllComponent implements OnInit {
     this.showInvoiceLines = false;
   }
 
-  handleDownload(
+  async handleDownload(
     data: any[],
     fileName: string = 'ExportedData',
-    sheetName: string = 'Data'
-  ): void {
+    sheetName: string = 'Data',
+  ): Promise<void> {
     if (!data?.length) {
-      // console.warn('No data to export');
       return;
     }
 
-    // console.log('Exporting data:', data);
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(sheetName.substring(0, 31));
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = {
-      Sheets: { [sheetName]: worksheet },
-      SheetNames: [sheetName],
-    };
+    const headers = Object.keys(data[0]);
+    worksheet.addRow(headers);
+    data.forEach((row) => worksheet.addRow(headers.map((h) => row[h])));
 
-    XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   handlePrint(): void {
@@ -383,7 +390,7 @@ export class O2cViewAllComponent implements OnInit {
   viewInCCW(): void {
     window.open(
       'https://ccw-cstg.cisco.com/icw/pdrqo/portal.order' + this.orderId,
-      '_blank'
+      '_blank',
     );
   }
 
@@ -440,7 +447,7 @@ export class O2cViewAllComponent implements OnInit {
     columnLabel: string,
     options: any[],
     data: any[],
-    dataSource: string
+    dataSource: string,
   ): void {
     event.stopPropagation();
 
@@ -496,7 +503,7 @@ export class O2cViewAllComponent implements OnInit {
     value: string,
     column: string,
     data: any[],
-    dataSourceProp: string
+    dataSourceProp: string,
   ) {
     // Create unique key for this filter's value
     const filterValueKey = `${dataSourceProp}_${column}`;
@@ -543,7 +550,7 @@ export class O2cViewAllComponent implements OnInit {
   // Helper method to get the active filter for rendering
   getActiveFilter(): any {
     const activeKey = Object.keys(this.activeFilters).find(
-      (key) => this.activeFilters[key].show
+      (key) => this.activeFilters[key].show,
     );
     return activeKey ? this.activeFilters[activeKey] : null;
   }

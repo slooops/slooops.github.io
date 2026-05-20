@@ -130,22 +130,18 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
     });
 
     // Effect to handle urls changes and initialize data fetching
-    // allowSignalWrites: true allows the data fetching methods to update signals
-    effect(
-      () => {
-        const urls = this.urls();
-        this.updateUrl.set(urls['summaryUpdateUrl']);
-        this.webexUrl.set(urls['webexMessageUrl']);
+    effect(() => {
+      const urls = this.urls();
+      this.updateUrl.set(urls['summaryUpdateUrl']);
+      this.webexUrl.set(urls['webexMessageUrl']);
 
-        // Fetch data when URLs are available
-        this.getPeriodStatus();
-        this.getErrorSummary();
-        this.getErrorDetails();
-        this.getProcessFlowTotals();
-        this.getSummaryAssignableUsers();
-      },
-      { allowSignalWrites: true },
-    );
+      // Fetch data when URLs are available
+      this.getPeriodStatus();
+      this.getErrorSummary();
+      this.getErrorDetails();
+      this.getProcessFlowTotals();
+      this.getSummaryAssignableUsers();
+    });
 
     // Effect to handle columnsToFilter changes (replaces ngOnChanges)
     effect(() => {

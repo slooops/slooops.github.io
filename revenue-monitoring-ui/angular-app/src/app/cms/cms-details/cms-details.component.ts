@@ -3,7 +3,6 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { Observable } from 'rxjs';
-import * as XLSX from 'xlsx';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ExportToExcelService } from 'src/app/providers/export-to-excel.service';
 import { CommonModule } from '@angular/common';
@@ -12,17 +11,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
-    selector: 'app-cms-details',
-    templateUrl: './cms-details.component.html',
-    styleUrls: ['./cms-details.component.css'],
-    providers: [DestroyManager],
-    imports: [
+  selector: 'app-cms-details',
+  templateUrl: './cms-details.component.html',
+  styleUrls: ['./cms-details.component.css'],
+  providers: [DestroyManager],
+  imports: [
     CommonModule,
     MatTableModule,
     MatButtonModule,
-    LoadingSymbolComponent
+    LoadingSymbolComponent,
   ],
-  standalone: true
+  standalone: true,
 })
 export class CmsDetailsComponent implements OnInit {
   protected http: ApiHttpService;
@@ -35,7 +34,7 @@ export class CmsDetailsComponent implements OnInit {
     http: ApiHttpService,
     private route: ActivatedRoute,
     private destroyManager: DestroyManager,
-    private exportToExcelService: ExportToExcelService
+    private exportToExcelService: ExportToExcelService,
   ) {
     this.http = http;
   }
@@ -97,7 +96,7 @@ export class CmsDetailsComponent implements OnInit {
     this.getEndpointData('salesInvoiceHeaderExtractErr').subscribe(
       (data: any) => {
         this.setCurrentData(data);
-      }
+      },
     );
   }
 
@@ -111,7 +110,7 @@ export class CmsDetailsComponent implements OnInit {
     this.getEndpointData('salesInvoiceItemExtractErr').subscribe(
       (data: any) => {
         this.setCurrentData(data);
-      }
+      },
     );
   }
 

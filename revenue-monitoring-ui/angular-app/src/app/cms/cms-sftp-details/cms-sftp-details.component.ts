@@ -1,23 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ExportToExcelService } from 'src/app/providers/export-to-excel.service';
-import * as XLSX from 'xlsx';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
-    selector: 'app-cms-sftp-details',
-    templateUrl: './cms-sftp-details.component.html',
-    styleUrls: ['./cms-sftp-details.component.css'],
-    imports: [
+  selector: 'app-cms-sftp-details',
+  templateUrl: './cms-sftp-details.component.html',
+  styleUrls: ['./cms-sftp-details.component.css'],
+  imports: [
     CommonModule,
     MatTableModule,
     MatButtonModule,
-    LoadingSymbolComponent
+    LoadingSymbolComponent,
   ],
-  standalone: true
+  standalone: true,
 })
 export class CmsSftpDetailsComponent implements OnInit {
   displayedColumns: string[] = [
@@ -30,7 +29,7 @@ export class CmsSftpDetailsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private exportToExcelService: ExportToExcelService
+    private exportToExcelService: ExportToExcelService,
   ) {}
 
   isDataLoaded: boolean = false;

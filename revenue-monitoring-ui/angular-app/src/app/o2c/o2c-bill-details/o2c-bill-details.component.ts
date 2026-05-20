@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Location } from '@angular/common';
 import { MatTableDataSource } from '@angular/material/table';
 import { SidebarService } from '../../sidebar.service';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { Router } from '@angular/router';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from '../../providers/http.service';
@@ -13,17 +13,17 @@ import { O2cProcessFlowComponent } from '../../components/o2c-process-flow/o2c-p
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
-    selector: 'app-o2c-bill-details',
-    templateUrl: './o2c-bill-details.component.html',
-    styleUrls: ['./o2c-bill-details.component.css'],
-    imports: [
+  selector: 'app-o2c-bill-details',
+  templateUrl: './o2c-bill-details.component.html',
+  styleUrls: ['./o2c-bill-details.component.css'],
+  imports: [
     CommonModule,
     MatTableModule,
     O2cSidebarNavComponent,
     O2cProcessFlowComponent,
-    LoadingSymbolComponent
+    LoadingSymbolComponent,
   ],
-  standalone: true
+  standalone: true,
 })
 export class O2cBillDetailsComponent {
   orderId: string = ''; // Placeholder for order ID
@@ -62,7 +62,7 @@ export class O2cBillDetailsComponent {
     private router: Router,
     private location: Location,
     private destroyManager: DestroyManager,
-    private http: ApiHttpService
+    private http: ApiHttpService,
   ) {}
 
   sidebarExpanded = true;
@@ -109,7 +109,7 @@ export class O2cBillDetailsComponent {
       this.circleStatus = navState.circleStatus;
       if (navState.summaryTableData.length > 0) {
         this.billScheduleSummaryDisplayedColumns = Object.keys(
-          navState.summaryTableData[0]
+          navState.summaryTableData[0],
         );
         const index =
           this.billScheduleSummaryDisplayedColumns.indexOf('OFFSET_ID');
@@ -118,7 +118,7 @@ export class O2cBillDetailsComponent {
         }
       }
       this.billScheduleSummaryDataSource = new MatTableDataSource(
-        navState.summaryTableData
+        navState.summaryTableData,
       );
 
       if (navState.billData.length > 0) {
@@ -179,11 +179,11 @@ export class O2cBillDetailsComponent {
     window.print();
   }
 
-  handleDownload(
+  async handleDownload(
     data: any[],
     fileName: string = 'ExportedData',
-    sheetName: string = 'Data'
-  ): void {
+    sheetName: string = 'Data',
+  ): Promise<void> {
     if (!data?.length) {
       console.warn('No data to export');
       return;
@@ -191,12 +191,22 @@ export class O2cBillDetailsComponent {
 
     console.log('Exporting data:', data);
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = {
-      Sheets: { [sheetName]: worksheet },
-      SheetNames: [sheetName],
-    };
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(sheetName.substring(0, 31));
 
-    XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    const headers = Object.keys(data[0]);
+    worksheet.addRow(headers);
+    data.forEach((row) => worksheet.addRow(headers.map((h) => row[h])));
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }

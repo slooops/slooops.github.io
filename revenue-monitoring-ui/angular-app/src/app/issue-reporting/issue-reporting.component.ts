@@ -22,7 +22,6 @@ import { IssueUploadComponent } from './issue-upload/issue-upload.component';
 import { MatPaginator } from '@angular/material/paginator';
 import { BulkApproveRejectComponent } from './bulk-approve-reject/bulk-approve-reject.component';
 import { FormGroup, FormControl } from '@angular/forms';
-import * as XLSX from 'xlsx';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
 import {
   FilterConfig,

@@ -1,12 +1,27 @@
 import { Injectable } from '@angular/core';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 @Injectable({ providedIn: 'root' })
 export class ExportToExcelService {
-  exportTableToExcel(data: any[], sheetName: string, filename: string) {
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
-    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    XLSX.writeFile(workbook, `${filename}.xlsx`);
+  async exportTableToExcel(data: any[], sheetName: string, filename: string) {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(sheetName.substring(0, 31));
+
+    if (data.length > 0) {
+      const headers = Object.keys(data[0]);
+      worksheet.addRow(headers);
+      data.forEach((row) => worksheet.addRow(headers.map((h) => row[h])));
+    }
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${filename}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }

@@ -1,5 +1,5 @@
 import { Component, HostBinding, Input } from '@angular/core';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { CommonModule } from '@angular/common';
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -30,13 +30,28 @@ export class TableComponent {
     return key.replace(/_/g, ' ');
   }
 
-  exportTableToExcel(): void {
+  async exportTableToExcel(): Promise<void> {
     const data = this.dataSource.data;
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = {
-      Sheets: { [this.exportFileName]: worksheet },
-      SheetNames: [this.exportFileName],
-    };
-    XLSX.writeFile(workbook, `${this.exportFileName}.xlsx`);
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(
+      this.exportFileName.substring(0, 31),
+    );
+
+    if (data.length > 0) {
+      const headers = Object.keys(data[0]);
+      worksheet.addRow(headers);
+      data.forEach((row) => worksheet.addRow(headers.map((h) => row[h])));
+    }
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${this.exportFileName}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }

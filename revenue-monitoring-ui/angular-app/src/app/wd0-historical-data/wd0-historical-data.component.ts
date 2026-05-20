@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
-import * as XLSX from 'xlsx';
 import { RegressionService } from '../regression.service';
 import { Chart, registerables } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';

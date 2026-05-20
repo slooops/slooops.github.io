@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Location } from '@angular/common';
 import { MatTableDataSource } from '@angular/material/table';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
@@ -168,7 +168,10 @@ export class O2cGlComponent {
   sourceComponent: string | null = null;
   isPostedToGL: boolean = false;
 
-  constructor(private location: Location, private router: Router) {}
+  constructor(
+    private location: Location,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     const navState = this.location.getState() as {
@@ -259,11 +262,11 @@ export class O2cGlComponent {
     window.history.back();
   }
 
-  handleDownload(
+  async handleDownload(
     data: any[],
     fileName: string = 'ExportedData',
-    sheetName: string = 'Data'
-  ): void {
+    sheetName: string = 'Data',
+  ): Promise<void> {
     if (!data?.length) {
       console.warn('No data to export');
       return;
@@ -271,13 +274,23 @@ export class O2cGlComponent {
 
     console.log('Exporting data:', data);
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = {
-      Sheets: { [sheetName]: worksheet },
-      SheetNames: [sheetName],
-    };
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(sheetName.substring(0, 31));
 
-    XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    const headers = Object.keys(data[0]);
+    worksheet.addRow(headers);
+    data.forEach((row) => worksheet.addRow(headers.map((h) => row[h])));
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   handlePrint(): void {
@@ -319,7 +332,7 @@ export class O2cGlComponent {
   viewInCCW(): void {
     window.open(
       'https://ccw-cstg.cisco.com/icw/pdrqo/portal.order' + this.orderId,
-      '_blank'
+      '_blank',
     );
   }
 }

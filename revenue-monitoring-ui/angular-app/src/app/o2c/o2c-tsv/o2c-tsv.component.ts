@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Location } from '@angular/common';
 import { MatTableDataSource } from '@angular/material/table';
 import { SidebarService } from '../../sidebar.service';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { Router } from '@angular/router';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
@@ -89,7 +89,7 @@ export class O2cTsvComponent {
     private location: Location,
     private router: Router,
     private destroyManager: DestroyManager,
-    private http: ApiHttpService
+    private http: ApiHttpService,
   ) {}
 
   ngOnInit(): void {
@@ -132,7 +132,7 @@ export class O2cTsvComponent {
       navState.financialData.length > 0
     ) {
       this.financialSummaryDisplayedColumns = Object.keys(
-        navState.financialData[0] || {}
+        navState.financialData[0] || {},
       );
       console.log('Financial Summary Data:', navState.financialData);
       this.financialSummaryDataSource.data = navState.financialData;
@@ -288,11 +288,11 @@ export class O2cTsvComponent {
     window.history.back();
   }
 
-  handleDownload(
+  async handleDownload(
     data: any[],
     fileName: string = 'ExportedData',
-    sheetName: string = 'Data'
-  ): void {
+    sheetName: string = 'Data',
+  ): Promise<void> {
     if (!data?.length) {
       console.warn('No data to export');
       return;
@@ -300,13 +300,23 @@ export class O2cTsvComponent {
 
     console.log('Exporting data:', data);
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = {
-      Sheets: { [sheetName]: worksheet },
-      SheetNames: [sheetName],
-    };
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(sheetName.substring(0, 31));
 
-    XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    const headers = Object.keys(data[0]);
+    worksheet.addRow(headers);
+    data.forEach((row) => worksheet.addRow(headers.map((h) => row[h])));
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   handlePrint(): void {
@@ -348,7 +358,7 @@ export class O2cTsvComponent {
   viewInCCW(): void {
     window.open(
       'https://ccw-cstg.cisco.com/icw/pdrqo/portal.order' + this.orderId,
-      '_blank'
+      '_blank',
     );
   }
 }

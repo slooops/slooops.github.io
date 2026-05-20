@@ -14,7 +14,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { UploadScreenComponent } from 'src/app/esp/esp-home/upload-screen/upload-screen.component';
 import { MatTableDataSource } from '@angular/material/table';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -317,7 +317,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       .join(' ');
   }
 
-  exportTableToExcel(): void {
+  async exportTableToExcel(): Promise<void> {
     const MAX_CELL_LENGTH = 32767; // Excel cell character limit
 
     // Use the current dataSource.data which contains the filtered/displayed data
@@ -347,12 +347,27 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       return truncatedRow;
     });
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = {
-      Sheets: { [this.exportFileName]: worksheet },
-      SheetNames: [this.exportFileName],
-    };
-    XLSX.writeFile(workbook, `${this.exportFileName}.xlsx`);
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(
+      this.exportFileName.substring(0, 31),
+    );
+
+    if (data.length > 0) {
+      const headers = Object.keys(data[0]);
+      worksheet.addRow(headers);
+      data.forEach((row) => worksheet.addRow(headers.map((h) => row[h])));
+    }
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${this.exportFileName}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   openUploadDialog(): void {

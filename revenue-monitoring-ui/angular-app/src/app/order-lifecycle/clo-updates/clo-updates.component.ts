@@ -5,7 +5,6 @@ import { DataService } from 'src/app/providers/data.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ExportToExcelService } from 'src/app/providers/export-to-excel.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
-import * as XLSX from 'xlsx';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';

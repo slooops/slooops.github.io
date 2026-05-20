@@ -507,9 +507,6 @@ export class EspHomeComponent implements OnInit {
 
     this.selectedQuarter = quarter;
     this.showQuarterDropdown = false;
-    console.log(
-      `Quarter changed to: ${this.selectedQuarter} for team: ${this.activeTab}`,
-    );
 
     // Use setTimeout to allow UI to update with loading overlay
     setTimeout(() => {
@@ -533,7 +530,6 @@ export class EspHomeComponent implements OnInit {
    * Refreshes data based on selected quarter
    */
   onQuarterChange(): void {
-    console.log(`Quarter changed to: ${this.selectedQuarter}`);
     // TODO: Add API call with quarter parameter when backend is ready
     // this.getXxcaseiqValidatedCasesAccuracyV();
   }

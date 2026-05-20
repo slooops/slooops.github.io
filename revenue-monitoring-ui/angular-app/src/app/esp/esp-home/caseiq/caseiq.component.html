@@ -334,7 +334,9 @@
             @if (!teamCardFlipped) {
               <div class="ciq-card-header">
                 <span class="ciq-card-title">Weekly Case Volume by Team</span>
-                <span class="analytics-date-range">Last 90 days</span>
+                <span class="analytics-date-range">{{
+                  weeklyTeamChartLabel
+                }}</span>
                 <button
                   class="flip-btn"
                   (click)="flipTeamCard()"
@@ -347,7 +349,13 @@
                 </button>
               </div>
               <div class="analytics-chart-wrapper">
-                <canvas id="chart-weekly-team"></canvas>
+                @if (weeklyTeamNoData) {
+                  <div class="ciq-no-data">
+                    No data available for this time period
+                  </div>
+                } @else {
+                  <canvas id="chart-weekly-team"></canvas>
+                }
               </div>
             } @else {
               <div class="ciq-card-header">
@@ -437,7 +445,7 @@
             @if (!hourlyCardFlipped) {
               <div class="ciq-card-header">
                 <span class="ciq-card-title">Hourly Processing Load</span>
-                <span class="analytics-date-range">Last 24 hours · UTC</span>
+                <span class="analytics-date-range">Last 12 hours · UTC</span>
                 <button
                   class="flip-btn"
                   (click)="flipHourlyCard()"

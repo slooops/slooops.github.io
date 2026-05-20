@@ -216,51 +216,47 @@ export class UserAssignmentComponent {
   ) {
     this.updateForm = this.formBuilder.group({});
 
-    effect(
-      () => {
-        const config = this.fieldConfig();
-        const currentData = this.data();
+    effect(() => {
+      const config = this.fieldConfig();
+      const currentData = this.data();
 
-        if (config.length && currentData?.[0]) {
-          const formGroupObj: { [key: string]: any } = {};
+      if (config.length && currentData?.[0]) {
+        const formGroupObj: { [key: string]: any } = {};
 
-          config.forEach((field) => {
-            const rawValue =
-              'value' in field
-                ? field.value
-                : currentData[0]?.[field.sourceKey] || '';
-            let isDisabled = false;
+        config.forEach((field) => {
+          const rawValue =
+            'value' in field
+              ? field.value
+              : currentData[0]?.[field.sourceKey] || '';
+          let isDisabled = false;
 
-            if (field.disabled === true) {
-              isDisabled = true;
-            } else if (
-              field.disabled === 'dynamic' &&
-              field.controlName === 'assignedTo'
-            ) {
-              const assignedToValue =
-                currentData[0]?.ASSIGNED_TO ?? currentData[0]?.assigned_to;
-              isDisabled =
-                !this.userContext().roles.includes('ADMIN') &&
-                !!assignedToValue;
-            }
+          if (field.disabled === true) {
+            isDisabled = true;
+          } else if (
+            field.disabled === 'dynamic' &&
+            field.controlName === 'assignedTo'
+          ) {
+            const assignedToValue =
+              currentData[0]?.ASSIGNED_TO ?? currentData[0]?.assigned_to;
+            isDisabled =
+              !this.userContext().roles.includes('ADMIN') && !!assignedToValue;
+          }
 
-            const controlConfig = [{ value: rawValue, disabled: isDisabled }];
+          const controlConfig = [{ value: rawValue, disabled: isDisabled }];
 
-            if (field.validators && field.validators.length) {
-              controlConfig.push(field.validators);
-            }
+          if (field.validators && field.validators.length) {
+            controlConfig.push(field.validators);
+          }
 
-            formGroupObj[field.controlName] = controlConfig;
-          });
+          formGroupObj[field.controlName] = controlConfig;
+        });
 
-          this.updateForm = this.formBuilder.group(formGroupObj);
-          this.formReady.set(true);
-        } else {
-          this.formReady.set(false);
-        }
-      },
-      { allowSignalWrites: true },
-    );
+        this.updateForm = this.formBuilder.group(formGroupObj);
+        this.formReady.set(true);
+      } else {
+        this.formReady.set(false);
+      }
+    });
   }
 
   submitData() {

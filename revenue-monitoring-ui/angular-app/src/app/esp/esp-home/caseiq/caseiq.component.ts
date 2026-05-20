@@ -147,6 +147,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   // ── Analytics chart data ──────────────────────────────────
   weeklyVolumeByTeamData: any[] = [];
+  weeklyTeamChartLabel = 'Last 30 days';
+  weeklyTeamNoData = false;
   weeklyVolumeByStateData: any[] = [];
   hourlyCasePatternData: any[] = [];
   accuracyOverTimeData: any[] = [];
@@ -181,6 +183,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         // Re-fetch monitoring data and accuracy data with new quarter
         this.fetchMonitoringData();
         this.fetchAccuracyData();
+        this.refetchWeeklyTeamVolume();
       }
     }
   }
@@ -1195,7 +1198,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     };
 
     this.http
-      .get(`${base}/weekly-volume-by-team?lookbackDays=90`, this.destroyManager)
+      .get(`${base}/weekly-volume-by-team?lookbackDays=30`, this.destroyManager)
       .subscribe({
         next: (d: any) => {
           this.weeklyVolumeByTeamData = d;
@@ -1236,6 +1239,49 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         },
         error: () => done(),
       });
+  }
+
+  private refetchWeeklyTeamVolume(): void {
+    const base = 'caseiq/charts';
+    let url = `${base}/weekly-volume-by-team?lookbackDays=30`;
+    if (this.selectedQuarter) {
+      url += `&fiscQtr=${this.selectedQuarter}`;
+      this.weeklyTeamChartLabel = this.selectedQuarter;
+    } else {
+      this.weeklyTeamChartLabel = 'Last 30 days';
+    }
+    this.http.get(url, this.destroyManager).subscribe({
+      next: (d: any) => {
+        if (this.teamChart) {
+          this.teamChart.destroy();
+          this.teamChart = null;
+        }
+
+        // Count distinct weeks in the response
+        const distinctWeeks = new Set((d || []).map((r: any) => r.WEEK_START))
+          .size;
+
+        if (!d || d.length === 0) {
+          this.weeklyTeamNoData = true;
+          this.weeklyVolumeByTeamData = [];
+        } else if (this.selectedQuarter && distinctWeeks < 4) {
+          // Quarter has < 4 weeks of data — fall back to 30-day lookback
+          this.weeklyTeamChartLabel = 'Last 30 days';
+          this.weeklyTeamNoData = false;
+          const fallbackUrl = `${base}/weekly-volume-by-team?lookbackDays=30`;
+          this.http.get(fallbackUrl, this.destroyManager).subscribe({
+            next: (fb: any) => {
+              this.weeklyVolumeByTeamData = fb;
+              this.buildWeeklyVolumeByTeamChart();
+            },
+          });
+        } else {
+          this.weeklyTeamNoData = false;
+          this.weeklyVolumeByTeamData = d;
+          this.buildWeeklyVolumeByTeamChart();
+        }
+      },
+    });
   }
 
   private tryBuildAnalyticsCharts(): void {
@@ -1296,6 +1342,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     for (const row of this.weeklyVolumeByTeamData) {
       const week = row.WEEK_START;
       const team = row.TEAM_NAME;
+      if (!week || !team) continue;
       teams.add(team);
       if (!weekMap.has(week)) weekMap.set(week, new Map());
       weekMap.get(week)?.set(team, row.CASE_COUNT);
