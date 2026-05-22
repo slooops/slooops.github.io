@@ -24,8 +24,10 @@ import {
 } from '@ng-icons/phosphor-icons/bold';
 import { coolExpand } from '@ng-icons/coolicons';
 import { CaseiqExpandModalComponent } from 'src/app/components/caseiq-expand-modal/caseiq-expand-modal.component';
+import { CaseiqIncidentDetailComponent } from '../caseiq-incident-detail/caseiq-incident-detail.component';
 import { BarChartComponent } from '../../../components/bar-chart/bar-chart.component';
 import { ThemeService } from '../../../providers/theme.service';
+import { HttpClient } from '@angular/common/http';
 
 export interface TeamConfig {
   /** Display name: 'OM', 'SM', 'Capital', etc. */
@@ -59,6 +61,7 @@ interface AccuracyData {
     BarChartComponent,
     CaseiqTableComponent,
     CaseiqExpandModalComponent,
+    CaseiqIncidentDetailComponent,
   ],
   providers: [
     provideIcons({
@@ -78,6 +81,64 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string;
   @Input() caseIqMetrics: any;
   @Output() uploadSuccess = new EventEmitter<void>();
+
+  /* ── View switching (0 = Classification Summary, 1 = Incidents) ── */
+  activeViewIndex = 0;
+  viewLabels = ['Classification Summary', 'CaseIQ Incidents'];
+  selectedIncidentNumber: string | null = null;
+
+  onIncidentCellClick(event: { column: string; value: any; row: any }): void {
+    if (
+      event.column === 'incident_number' ||
+      event.column === 'INCIDENT_NUMBER'
+    ) {
+      this.selectedIncidentNumber = event.value;
+    }
+  }
+
+  closeIncidentDetail(): void {
+    this.selectedIncidentNumber = null;
+  }
+
+  nextView(): void {
+    this.activeViewIndex = (this.activeViewIndex + 1) % this.viewLabels.length;
+    if (this.activeViewIndex === 1 && !this.incidentsLoaded) {
+      this.loadIncidents();
+    }
+  }
+
+  prevView(): void {
+    this.activeViewIndex =
+      (this.activeViewIndex - 1 + this.viewLabels.length) %
+      this.viewLabels.length;
+  }
+
+  /* ── Incidents data ── */
+  incidentsTableData = new MatTableDataSource<any>([]);
+  incidentsTableColumns: string[] = [];
+  incidentsLoaded = false;
+
+  private loadIncidents(): void {
+    this.httpClient.get<any[]>('/api/caseiq-supervisor/incidents').subscribe({
+      next: (data) => {
+        const allRows = Array.isArray(data) ? data : [];
+        const filtered = allRows.filter(
+          (row) =>
+            String(row['team_name'] ?? '').toLowerCase() ===
+            this.teamConfig.teamFilterName.toLowerCase(),
+        );
+        if (filtered.length > 0) {
+          this.incidentsTableColumns = Object.keys(filtered[0]);
+        }
+        this.incidentsTableData = new MatTableDataSource(filtered);
+        this.incidentsLoaded = true;
+      },
+      error: () => {
+        this.incidentsTableData = new MatTableDataSource([]);
+        this.incidentsLoaded = true;
+      },
+    });
+  }
   @ViewChild('teamTable') teamTable!: CaseiqTableComponent;
 
   totalAccuracy: any;
@@ -86,6 +147,7 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
     private readonly http: ApiHttpService,
     private readonly destroyManager: DestroyManager,
     public themeService: ThemeService,
+    private httpClient: HttpClient,
   ) {}
 
   // Chart data
@@ -132,7 +194,7 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
   visibleCoreIssueTotal = 0;
 
   // Loading state
-  refreshingData = false;
+  refreshingData = true;
 
   // Expand chart modal state
   expandedChart: { type: 'CATEGORY' | 'CORE_ISSUE' } | null = null;

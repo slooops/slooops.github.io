@@ -517,23 +517,60 @@
   </div>
 </div>
 
-<app-caseiq-table
-  #teamTable
-  [dataSource]="tableData"
-  [displayedColumns]="tableColumns"
-  [exportFileName]="teamConfig.exportFileName"
-  [tableTitle]="tableTitle"
-  [tableTitleTooltip]="
-    'Use the Upload button to submit and validate the data for accuracy. Default filter applied to display for category match or core issue match is N or NULL.'
-  "
-  [extraWideColumns]="['Case Summary - Description']"
-  [enablePagination]="true"
-  [pageSize]="10"
-  [totalRecords]="totalRecords"
-  [source]="teamConfig.tableSource"
-  (uploadResult)="handleUploadResult($event)"
->
-</app-caseiq-table>
+@if (activeViewIndex === 0) {
+  <app-caseiq-table
+    #teamTable
+    [dataSource]="tableData"
+    [displayedColumns]="tableColumns"
+    [exportFileName]="teamConfig.exportFileName"
+    [tableTitle]="tableTitle"
+    [tableTitleTooltip]="
+      'Use the Upload button to submit and validate the data for accuracy. Default filter applied to display for category match or core issue match is N or NULL.'
+    "
+    [extraWideColumns]="['Case Summary - Description']"
+    [enablePagination]="true"
+    [pageSize]="10"
+    [totalRecords]="totalRecords"
+    [source]="teamConfig.tableSource"
+    [backendLoading]="refreshingData"
+    [showNavArrows]="true"
+    [navPrevDisabled]="true"
+    [navNextDisabled]="false"
+    (navNext)="nextView()"
+    (navPrev)="prevView()"
+    (uploadResult)="handleUploadResult($event)"
+  >
+  </app-caseiq-table>
+}
+
+@if (activeViewIndex === 1) {
+  @if (selectedIncidentNumber) {
+    <app-caseiq-incident-detail
+      [incidentNumber]="selectedIncidentNumber"
+      (back)="closeIncidentDetail()"
+    />
+  } @else {
+    <app-caseiq-table
+      [dataSource]="incidentsTableData"
+      [displayedColumns]="incidentsTableColumns"
+      [exportFileName]="teamConfig.displayName + '_CaseIQ_Incidents'"
+      [tableTitle]="teamConfig.displayName + ' CaseIQ Incidents'"
+      [enablePagination]="true"
+      [pageSize]="10"
+      [totalRecords]="incidentsTableData?.filteredData?.length || 0"
+      [backendLoading]="!incidentsLoaded"
+      [showToolbar]="false"
+      [showNavArrows]="true"
+      [navPrevDisabled]="false"
+      [navNextDisabled]="true"
+      [clickableColumns]="['incident_number', 'INCIDENT_NUMBER']"
+      (cellClick)="onIncidentCellClick($event)"
+      (navNext)="nextView()"
+      (navPrev)="prevView()"
+    >
+    </app-caseiq-table>
+  }
+}
 
 @if (expandedChart) {
   <app-caseiq-expand-modal
@@ -554,5 +591,3 @@
     (close)="closeExpandModal()"
   />
 }
-
-<br />

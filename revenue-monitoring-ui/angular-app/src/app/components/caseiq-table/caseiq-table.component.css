@@ -87,6 +87,20 @@
   line-height: 1.4;
 }
 
+.ciq-table td.clickable-cell {
+  color: #0070d2;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.ciq-table td.clickable-cell:hover {
+  text-decoration: underline;
+}
+
+:host(.dark-theme) .ciq-table td.clickable-cell {
+  color: #00bceb;
+}
+
 :host(.dark-theme) .ciq-table th {
   background: transparent;
   color: #e0e6ed;
@@ -123,6 +137,49 @@
   gap: 1rem;
   margin: 0 0 0.5rem 0;
   flex-wrap: wrap;
+}
+
+.table-body {
+  width: 100%;
+}
+
+.ciq-nav-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--fit-color-border, #e2e8f0);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fit-color-text, #1b1c1d);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.ciq-nav-arrow:hover:not(:disabled) {
+  background: rgba(0, 112, 210, 0.06);
+  border-color: #0070d2;
+  color: #0070d2;
+}
+
+.ciq-nav-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+:host(.dark-theme) .ciq-nav-arrow {
+  border-color: rgba(42, 63, 80, 0.6);
+  color: #e0e6ed;
+}
+
+:host(.dark-theme) .ciq-nav-arrow:hover:not(:disabled) {
+  background: rgba(0, 188, 235, 0.1);
+  border-color: #00bceb;
+  color: #00bceb;
 }
 
 .table-links {
@@ -684,6 +741,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
   min-height: 180px;
   padding: 32px 16px;
   border: 1px dashed #d4d4d4;

@@ -1,0 +1,98 @@
+<div class="ci-container">
+  <!-- Header -->
+  <div class="ci-header">
+    <h2 class="ci-title">CaseIQ Incidents</h2>
+    <div class="ci-header-actions">
+      <input
+        class="ci-search"
+        type="text"
+        placeholder="Search incidents..."
+        [(ngModel)]="searchTerm"
+        (input)="applyFilter()"
+      />
+      <button
+        class="ci-refresh-btn"
+        (click)="loadIncidents()"
+        [disabled]="isLoading"
+      >
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  @if (isLoading) {
+    <div class="ci-loading">
+      <div class="ci-spinner"></div>
+      <span>Loading incidents...</span>
+    </div>
+  }
+
+  <!-- Error state -->
+  @if (errorMessage && !isLoading) {
+    <div class="ci-error">
+      <span>{{ errorMessage }}</span>
+      <button class="ci-retry-btn" (click)="loadIncidents()">Retry</button>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (!isLoading && !errorMessage && filteredIncidents.length > 0) {
+    <div class="ci-table-container">
+      <table class="ci-table">
+        <thead>
+          <tr>
+            @for (col of displayedColumns; track col) {
+              <th class="ci-th">{{ formatHeader(col) }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of paginatedIncidents; track $index) {
+            <tr class="ci-row">
+              @for (col of displayedColumns; track col) {
+                <td class="ci-td">{{ row[col] ?? "—" }}</td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="ci-pagination">
+      <span class="ci-page-info">
+        Showing {{ (currentPage - 1) * pageSize + 1 }}–{{
+          currentPage * pageSize > filteredIncidents.length
+            ? filteredIncidents.length
+            : currentPage * pageSize
+        }}
+        of {{ filteredIncidents.length }}
+      </span>
+      <div class="ci-page-controls">
+        <button
+          class="ci-page-btn"
+          (click)="prevPage()"
+          [disabled]="currentPage === 1"
+        >
+          ‹ Prev
+        </button>
+        <span class="ci-page-num">{{ currentPage }} / {{ totalPages }}</span>
+        <button
+          class="ci-page-btn"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+        >
+          Next ›
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (!isLoading && !errorMessage && filteredIncidents.length === 0) {
+    <div class="ci-empty">
+      <span>No incidents found.</span>
+    </div>
+  }
+</div>

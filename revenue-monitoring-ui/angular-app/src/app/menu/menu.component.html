@@ -54,7 +54,10 @@
         <div class="ms-drawer-content">
           <div class="ms-drawer-header">
             <span class="ms-drawer-title">{{ item.label }}</span>
-            <button class="ms-drawer-close" (click)="activeDrawer = null">
+            <button
+              class="ms-drawer-close"
+              (click)="activeDrawer = null; activeFlyout = null"
+            >
               <ng-icon name="phosphorXBold" size="16" />
             </button>
           </div>
@@ -89,7 +92,10 @@
   </div>
 
   <!-- Level 3: Sub-drawer -->
-  <div class="ms-subdrawer" [class.open]="activeFlyout !== null">
+  <div
+    class="ms-subdrawer"
+    [class.open]="activeFlyout !== null && activeDrawer !== null"
+  >
     @for (item of navItems; track item.label) {
       @if (item.children?.length && activeDrawer === item.label) {
         @for (child of getVisibleChildren(item); track child.label) {

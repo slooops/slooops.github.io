@@ -76,8 +76,20 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() source: string;
   @Input() tableTitle: string = '';
   @Input() tableTitleTooltip: string = '';
+  @Input() showToolbar: boolean = true;
+  @Input() showNavArrows: boolean = false;
+  @Input() navPrevDisabled: boolean = false;
+  @Input() navNextDisabled: boolean = false;
+  @Output() navPrev = new EventEmitter<void>();
+  @Output() navNext = new EventEmitter<void>();
   @Output() uploadResult = new EventEmitter<any>();
   @Output() bothYRequested = new EventEmitter<void>();
+  @Output() cellClick = new EventEmitter<{
+    column: string;
+    value: any;
+    row: any;
+  }>();
+  @Input() clickableColumns: string[] = [];
   @Input() backendLoading: boolean = false; // Show loading overlay during backend fetch
 
   currentPage: number = 0;
