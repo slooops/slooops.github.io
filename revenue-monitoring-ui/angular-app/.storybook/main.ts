@@ -7,7 +7,13 @@ const config: StorybookConfig = {
     '@storybook/addon-docs',
     '@storybook/addon-onboarding',
   ],
-  framework: '@storybook/angular',
+  framework: {
+    name: '@storybook/angular',
+    options: {
+      project: 'accruals-monitoring-ui',
+      browserTarget: 'accruals-monitoring-ui:build',
+    },
+  },
   staticDirs: ['../src/assets'],
   core: {
     disableTelemetry: true,

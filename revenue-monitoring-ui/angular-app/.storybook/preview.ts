@@ -8,6 +8,7 @@ const preview: Preview = {
       providers: [provideAnimations()],
     }),
   ],
+
   parameters: {
     controls: {
       matchers: {
@@ -16,14 +17,19 @@ const preview: Preview = {
       },
     },
     backgrounds: {
-      default: 'light',
-      values: [
-        { name: 'light', value: '#ffffff' },
-        { name: 'dark', value: '#1a1a1a' },
-        { name: 'cisco-gray', value: '#f5f5f5' },
-      ],
+      options: {
+        light: { name: 'light', value: '#ffffff' },
+        dark: { name: 'dark', value: '#1a1a1a' },
+        "cisco-gray": { name: 'cisco-gray', value: '#f5f5f5' }
+      }
     },
   },
+
+  initialGlobals: {
+    backgrounds: {
+      value: 'light'
+    }
+  }
 };
 
 export default preview;
