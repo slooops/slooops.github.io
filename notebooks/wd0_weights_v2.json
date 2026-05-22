@@ -1,0 +1,61 @@
+{
+  "model_version": "v2-calibrated",
+  "architecture": "1-model (pooled, WD only)",
+  "group_cols": [
+    "wd"
+  ],
+  "quantiles": {
+    "low": 0.1,
+    "high": 0.9
+  },
+  "training_rows": 126,
+  "training_periods": [
+    "APR-25",
+    "APR-26",
+    "AUG-25",
+    "AUG-26",
+    "DEC-25",
+    "DEC-26",
+    "FEB-25",
+    "FEB-26",
+    "JAN-25",
+    "JAN-26",
+    "JUL-25",
+    "JUN-25",
+    "MAR-25",
+    "MAR-26",
+    "MAY-25",
+    "NOV-25",
+    "NOV-26",
+    "OCT-25",
+    "OCT-26",
+    "SEP-25",
+    "SEP-26"
+  ],
+  "loo_cv": {
+    "coverage": 0.746,
+    "mean_width": 23757.693,
+    "baseline_coverage": 0.5793650793650794,
+    "baseline_mean_width": 10381.952380952382
+  },
+  "weights": [
+    {
+      "wd": "WD-1",
+      "low_mult": 0.5383840990960834,
+      "high_mult": 2.8691019003632463,
+      "n": 42
+    },
+    {
+      "wd": "WD-2",
+      "low_mult": 0.4737359887695175,
+      "high_mult": 3.1292338458040985,
+      "n": 42
+    },
+    {
+      "wd": "WD-3",
+      "low_mult": 0.472047970365041,
+      "high_mult": 3.1985736631150274,
+      "n": 42
+    }
+  ]
+}

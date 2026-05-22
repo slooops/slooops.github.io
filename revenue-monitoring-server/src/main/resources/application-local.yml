@@ -1,2 +1,18 @@
 app:
   use-redis: false
+
+# WD0 predictions (v2) - local dev safety overrides
+# - scheduled.enabled: OFF locally so the 3pm Pacific cron doesn't fire from
+#   anyone's laptop and pollute ARFINRO.XXCASEIQ_WD0_PREDICTIONS. Deployed
+#   envs run it (default ON in application.properties).
+# - startup.dry-run-on-boot: OFF now that the 3 source queries are validated.
+#   Flip back to true if you ever need to re-verify the @FINFBLBLO_LINK.CISCO.COM
+#   DB link from a Spring boot context.
+wd0:
+  predictions:
+    scheduled:
+      enabled: false
+    startup:
+      dry-run-on-boot: false
+      # wd: WD-3            # optional, defaults to auto-detect from run-date
+      # run-date: 2026-05-20 # optional, defaults to today (Pacific)

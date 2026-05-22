@@ -73,7 +73,7 @@ public class CacheRefresh {
 		*/
 
 			if( ((currentTime - startTime)/10000) % cacheCollection.get(key) == 0 ) {
-				log.info("Time to refresh Cache");
+//				log.info("Time to refresh Cache");
 
 				switch(key) {
 					case "glRefresh":
