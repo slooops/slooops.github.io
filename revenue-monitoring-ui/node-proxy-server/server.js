@@ -64,6 +64,29 @@ if (o2cRedirectTarget) {
   });
 }
 
+// Proxy for CaseIQ Supervisor Agent API (avoids CORS)
+const CASEIQ_SUPERVISOR_API_URL =
+  process.env.CASEIQ_SUPERVISOR_API_URL ||
+  "https://caseiq-supervisor-agent-dev.cloudapps.cisco.com";
+const CASEIQ_SUPERVISOR_API_KEY =
+  process.env.CASEIQ_SUPERVISOR_API_KEY ||
+  "X0dWEsVGsPGDFqHhuncUjFhb95PX9TkP_bwf1cKhg4Q";
+
+app.use(
+  "/api/caseiq-supervisor",
+  createProxyMiddleware({
+    target: CASEIQ_SUPERVISOR_API_URL,
+    changeOrigin: true,
+    pathRewrite: { "^/api/caseiq-supervisor": "/api/v1" },
+    onProxyReq: (proxyReq) => {
+      proxyReq.setHeader(
+        "Authorization",
+        `Bearer ${CASEIQ_SUPERVISOR_API_KEY}`,
+      );
+    },
+  }),
+);
+
 app.use(express.static(path.join(__dirname, "../ui/dist/browser")));
 
 app.get("*", (req, res) => {
