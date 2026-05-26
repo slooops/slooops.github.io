@@ -186,7 +186,7 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
     totals: number[],
     accuracies: number[],
     validationRates: number[] = [],
-  ): Chart {
+  ): any {
     return new Chart(canvas, {
       type: 'bar',
       data: {

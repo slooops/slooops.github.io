@@ -82,8 +82,8 @@ export class SelfHealingComponent
   @ViewChild('categoryCanvas')
   categoryCanvasRef!: ElementRef<HTMLCanvasElement>;
 
-  private trendChart: Chart | null = null;
-  private categoryChart: Chart | null = null;
+  private trendChart: any = null;
+  private categoryChart: any = null;
 
   constructor(
     private http: HttpClient,

@@ -1037,21 +1037,18 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     if (!filtered.length) return null;
 
-    // For Finance IT / ALL: compute weighted average across all teams (weighted by total cases)
+    // For Finance IT / ALL: simple average of Total Accuracy across all teams
     if (sectionName === 'Finance IT' || sectionName === 'ALL') {
-      let totalCases = 0;
-      let weightedAccuracy = 0;
+      let count = 0;
+      let sum = 0;
       for (const item of filtered) {
-        const cases = Number(item['Total Cases']) || 0;
         const acc = Number(item['Total Accuracy']);
-        if (Number.isFinite(acc) && cases > 0) {
-          totalCases += cases;
-          weightedAccuracy += acc * cases;
+        if (Number.isFinite(acc)) {
+          sum += acc;
+          count++;
         }
       }
-      return totalCases > 0
-        ? Math.round((weightedAccuracy / totalCases) * 10) / 10
-        : null;
+      return count > 0 ? Math.round((sum / count) * 100) / 100 : null;
     }
 
     // Individual team lookup
