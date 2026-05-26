@@ -1015,14 +1015,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   /** Fetch accuracy/validation data from the CaseIQ monitoring service */
   private fetchAccuracyData(): void {
-    const qp = this.selectedQuarter
-      ? `?fiscQtr=${encodeURIComponent(this.selectedQuarter)}`
-      : '';
     this.http
-      .get(
-        `caseiq/charts/validation-accuracy-summary${qp}`,
-        this.destroyManager,
-      )
+      .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
       .subscribe((data: any) => {
         if (Array.isArray(data)) {
           this.accuracyData = data;
@@ -1030,33 +1024,33 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       });
   }
 
-  /** Look up Accuracy Rate for a section (correct / validated * 100), filtered by selectedQuarter */
+  /** Look up Accuracy Rate for a section (Category Accuracy), filtered by selectedQuarter */
   getAccuracyForSection(sectionName: string): number | null {
     if (!this.accuracyData.length) return null;
 
     // Filter by quarter first
     const filtered = this.selectedQuarter
       ? this.accuracyData.filter(
-          (item: any) => item.FISC_QTR === this.selectedQuarter,
+          (item: any) => item.Quarter === this.selectedQuarter,
         )
       : this.accuracyData;
 
     if (!filtered.length) return null;
 
-    // For Finance IT / ALL: compute weighted average across all teams (weighted by validated cases)
+    // For Finance IT / ALL: compute weighted average across all teams (weighted by total cases)
     if (sectionName === 'Finance IT' || sectionName === 'ALL') {
-      let totalValidated = 0;
+      let totalCases = 0;
       let weightedAccuracy = 0;
       for (const item of filtered) {
-        const validated = Number(item.VALIDATED_CASES) || 0;
-        const acc = Number(item.ACCURACY_RATE);
-        if (Number.isFinite(acc) && validated > 0) {
-          totalValidated += validated;
-          weightedAccuracy += acc * validated;
+        const cases = Number(item['Total Cases']) || 0;
+        const acc = Number(item['Category Accuracy']);
+        if (Number.isFinite(acc) && cases > 0) {
+          totalCases += cases;
+          weightedAccuracy += acc * cases;
         }
       }
-      return totalValidated > 0
-        ? Math.round((weightedAccuracy / totalValidated) * 10) / 10
+      return totalCases > 0
+        ? Math.round((weightedAccuracy / totalCases) * 10) / 10
         : null;
     }
 
@@ -1068,32 +1062,36 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     );
 
     if (!match) return null;
-    const val = Number(match.ACCURACY_RATE);
+    const val = Number(match['Category Accuracy']);
     return Number.isFinite(val) ? val : null;
   }
 
-  /** Look up Validation Rate for a section (validated / total * 100), filtered by selectedQuarter */
+  /** Look up Validation (Total Accuracy) for a section, filtered by selectedQuarter */
   getValidationForSection(sectionName: string): number | null {
     if (!this.accuracyData.length) return null;
 
     const filtered = this.selectedQuarter
       ? this.accuracyData.filter(
-          (item: any) => item.FISC_QTR === this.selectedQuarter,
+          (item: any) => item.Quarter === this.selectedQuarter,
         )
       : this.accuracyData;
 
     if (!filtered.length) return null;
 
-    // For Finance IT / ALL: compute overall validation rate
+    // For Finance IT / ALL: compute weighted average of Total Accuracy across all teams
     if (sectionName === 'Finance IT' || sectionName === 'ALL') {
       let totalCases = 0;
-      let totalValidated = 0;
+      let weightedAccuracy = 0;
       for (const item of filtered) {
-        totalCases += Number(item.TOTAL_CASES) || 0;
-        totalValidated += Number(item.VALIDATED_CASES) || 0;
+        const cases = Number(item['Total Cases']) || 0;
+        const acc = Number(item['Total Accuracy']);
+        if (Number.isFinite(acc) && cases > 0) {
+          totalCases += cases;
+          weightedAccuracy += acc * cases;
+        }
       }
       return totalCases > 0
-        ? Math.round((totalValidated / totalCases) * 1000) / 10
+        ? Math.round((weightedAccuracy / totalCases) * 10) / 10
         : null;
     }
 
@@ -1105,7 +1103,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     );
 
     if (!match) return null;
-    const val = Number(match.VALIDATION_RATE);
+    const val = Number(match['Total Accuracy']);
     return Number.isFinite(val) ? val : null;
   }
 
@@ -1115,7 +1113,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     const filtered = this.selectedQuarter
       ? this.accuracyData.filter(
-          (item: any) => item.FISC_QTR === this.selectedQuarter,
+          (item: any) => item.Quarter === this.selectedQuarter,
         )
       : this.accuracyData;
 
@@ -1125,7 +1123,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (sectionName === 'Finance IT' || sectionName === 'ALL') {
       let totalCases = 0;
       for (const item of filtered) {
-        const cases = Number(item.TOTAL_CASES) || 0;
+        const cases = Number(item['Total Cases']) || 0;
         totalCases += cases;
       }
       return totalCases > 0 ? totalCases : null;
@@ -1139,7 +1137,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     );
 
     if (!match) return null;
-    const val = Number(match.TOTAL_CASES);
+    const val = Number(match['Total Cases']);
     return Number.isFinite(val) ? val : null;
   }
 
