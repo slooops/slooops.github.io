@@ -12,6 +12,10 @@ metadata:
     # softwareId is a non-sensitive unique identifier for the software
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
     softwareName: "rev-ops-monitoring"
+  annotations:
+    cae.cisco.com/proxy-read-timeout: "300"
+    cae.cisco.com/proxy-send-timeout: "300"
+    cae.cisco.com/proxy-connect-timeout: "60"
 spec:
   ports:
     - name: "ui"

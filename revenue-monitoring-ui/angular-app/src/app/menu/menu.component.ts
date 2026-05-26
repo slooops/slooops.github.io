@@ -234,7 +234,12 @@ export class MenuComponent {
           label: 'Order Management',
           icon: 'phosphorPackageBold',
           route: '/order-management',
-          roles: ['MONITORING_OM', 'MONITORING_OM_ADMIN'],
+          roles: [
+            'MONITORING_OM',
+            'MONITORING_OM_ADMIN',
+            'MONITORING_WIPS',
+            'MONITORING_WIPS_ADMIN',
+          ],
           children: [
             {
               label: 'Imports',
