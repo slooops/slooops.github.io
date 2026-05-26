@@ -409,6 +409,10 @@ public class CaseIQMonitoringService {
             "AND is_active = 'TRUE' " +
             "AND team_name IS NOT NULL " +
             "AND team_name != 'UNKNOWN' " +
+            "AND (team_name != 'P2P' OR core_issue IN (" +
+            "'Proxy/Delegate','VMS - Cisco Manager','Add Workers'," +
+            "'Change Supervisor','Close Purchase order','Job title change'," +
+            "'Physical Work Location change','Invoicing - Report')) " +
             "GROUP BY TRUNC(caseiq_run_date, 'IW'), team_name " +
             "ORDER BY TRUNC(caseiq_run_date, 'IW') ASC";
 
