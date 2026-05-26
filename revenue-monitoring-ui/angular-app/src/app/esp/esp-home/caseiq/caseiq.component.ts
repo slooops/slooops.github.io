@@ -1024,7 +1024,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       });
   }
 
-  /** Look up Accuracy Rate for a section (Category Accuracy), filtered by selectedQuarter */
+  /** Look up Accuracy Rate for a section (Total Accuracy), filtered by selectedQuarter */
   getAccuracyForSection(sectionName: string): number | null {
     if (!this.accuracyData.length) return null;
 
@@ -1043,7 +1043,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       let weightedAccuracy = 0;
       for (const item of filtered) {
         const cases = Number(item['Total Cases']) || 0;
-        const acc = Number(item['Category Accuracy']);
+        const acc = Number(item['Total Accuracy']);
         if (Number.isFinite(acc) && cases > 0) {
           totalCases += cases;
           weightedAccuracy += acc * cases;
@@ -1062,7 +1062,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     );
 
     if (!match) return null;
-    const val = Number(match['Category Accuracy']);
+    const val = Number(match['Total Accuracy']);
     return Number.isFinite(val) ? val : null;
   }
 
