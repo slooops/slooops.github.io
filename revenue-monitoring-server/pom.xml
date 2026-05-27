@@ -35,6 +35,7 @@
 			**/CaseIQMonitoringService.java,
 			**/CaseIQMonitoringController.java
 		</sonar.coverage.exclusions>
+		<sonar.newCode.referenceBranch>UI2.0</sonar.newCode.referenceBranch>
 	</properties>
 
 	<dependencyManagement>
