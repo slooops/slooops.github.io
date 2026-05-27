@@ -8,10 +8,13 @@
           class="caseiq-pill-fill accent"
           [style.width.%]="totalAccuracy !== '-' ? +totalAccuracy : 0"
         ></div>
-        <span class="caseiq-pill-text">{{
-          totalAccuracy !== "-" ? totalAccuracy + "%" : "--"
-        }}</span>
+        <span class="caseiq-pill-text">
+          {{ totalCases !== "-" ? totalCases : "--" }} cases
+        </span>
       </div>
+      <span class="caseiq-kpi-pct">{{
+        totalAccuracy !== "-" ? totalAccuracy + "%" : "--"
+      }}</span>
     </div>
   </div>
 
@@ -153,37 +156,6 @@
     </div>
   </div>
 
-  <!-- Total Cases -->
-  <div class="caseiq-kpi accent">
-    <span class="caseiq-kpi-title">Total Cases (Agent)</span>
-    <div class="caseiq-kpi-body">
-      <div class="caseiq-pill">
-        <div
-          class="caseiq-pill-fill accent"
-          [style.width.%]="getAgentRatio()"
-        ></div>
-        <span class="caseiq-pill-text">
-          {{
-            filteredCaseIqMetrics
-              ? (filteredCaseIqMetrics.IN_PROGRESS_AGENT ?? 0) +
-                (filteredCaseIqMetrics.RESOLVED_AGENT ?? 0) +
-                (filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT ?? 0) +
-                (filteredCaseIqMetrics.RECOMMENDED_CANCELLED ?? 0)
-              : "--"
-          }}
-          /
-          {{
-            filteredCaseIqMetrics
-              ? (filteredCaseIqMetrics.TOTAL_CASES ?? 0) -
-                (filteredCaseIqMetrics.SERVICE_INCIDENTS ?? 0)
-              : "--"
-          }}
-        </span>
-      </div>
-      <span class="caseiq-kpi-pct">{{ getAgentRatio() }}%</span>
-    </div>
-  </div>
-
   <!-- Agent vs Ops ratio -->
   <div class="caseiq-kpi cyan">
     <span class="caseiq-kpi-title">Agent vs Ops %</span>
@@ -212,6 +184,20 @@
         </span>
       </div>
       <span class="caseiq-kpi-pct">{{ getAgentRatio() }}%</span>
+    </div>
+  </div>
+
+  <!-- Service Incidents -->
+  <div class="caseiq-kpi accent">
+    <span class="caseiq-kpi-title">Service Incidents</span>
+    <div class="caseiq-kpi-body">
+      <span class="caseiq-kpi-value-plain">
+        @if (filteredCaseIqMetrics?.SERVICE_INCIDENTS != null) {
+          {{ filteredCaseIqMetrics!.SERVICE_INCIDENTS | number }}
+        } @else {
+          --
+        }
+      </span>
     </div>
   </div>
 </div>

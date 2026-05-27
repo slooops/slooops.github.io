@@ -373,13 +373,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit, OnDestroy {
           return totalB - totalA;
         });
         const dropped = sorted.slice(this.maxBars);
-        console.log(
-          `[BarChart] Keeping top ${this.maxBars}, dropping ${dropped.length}:`,
-          dropped.map(
-            (d) =>
-              `${d.label}(${d.segments.reduce((s, seg) => s + seg.value, 0)})`,
-          ),
-        );
+
         data = sorted.slice(0, this.maxBars);
       }
     }

@@ -31,7 +31,9 @@
 			**/SdlcExecService.java,
 			**/SdlcController.java,
 			**/ExecSummaryService.java,
-			**/ExecSummaryController.java
+			**/ExecSummaryController.java,
+			**/CaseIQMonitoringService.java,
+			**/CaseIQMonitoringController.java
 		</sonar.coverage.exclusions>
 	</properties>
 

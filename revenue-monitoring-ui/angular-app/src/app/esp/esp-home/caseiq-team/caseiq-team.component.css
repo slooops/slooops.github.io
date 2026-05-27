@@ -1,3 +1,10 @@
 @import "../esp-home.component.css";
 
 /* All shared caseiq header styles live in esp-home.component.css */
+
+.caseiq-kpi-value-plain {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ciq-text);
+  line-height: 1.2;
+}

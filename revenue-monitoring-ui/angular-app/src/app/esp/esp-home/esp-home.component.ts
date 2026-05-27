@@ -797,8 +797,6 @@ export class EspHomeComponent implements OnInit {
         pageRoute: pseudoRoute,
       })
       .subscribe({
-        next: () =>
-          console.log('[ANALYTICS-ESP] Successfully logged:', pseudoRoute),
         error: (err) =>
           console.error('[ANALYTICS-ESP] Tab analytics log failed:', err),
       });
