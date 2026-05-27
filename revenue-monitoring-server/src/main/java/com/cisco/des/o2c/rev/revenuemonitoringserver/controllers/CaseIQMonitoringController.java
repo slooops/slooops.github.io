@@ -206,9 +206,8 @@ public class CaseIQMonitoringController {
 
     @GetMapping("/charts/weekly-volume-by-team")
     public ResponseEntity<List<Map<String, Object>>> weeklyVolumeByTeam(
-            @RequestParam(defaultValue = "180") int lookbackDays,
-            @RequestParam(required = false) String fiscQtr) {
-        List<Map<String, Object>> data = service.getWeeklyCaseVolumeByTeam(lookbackDays, fiscQtr);
+            @RequestParam String fiscQtr) {
+        List<Map<String, Object>> data = service.getWeeklyCaseVolumeByTeam(fiscQtr);
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 

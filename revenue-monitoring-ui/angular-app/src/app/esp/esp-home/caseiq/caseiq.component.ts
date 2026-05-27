@@ -147,7 +147,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   // ── Analytics chart data ──────────────────────────────────
   weeklyVolumeByTeamData: any[] = [];
-  weeklyTeamChartLabel = 'Last 30 days';
+  weeklyTeamChartLabel = '';
   weeklyTeamNoData = false;
   weeklyVolumeByStateData: any[] = [];
   hourlyCasePatternData: any[] = [];
@@ -1192,15 +1192,19 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       }
     };
 
-    this.http
-      .get(`${base}/weekly-volume-by-team?lookbackDays=30`, this.destroyManager)
-      .subscribe({
-        next: (d: any) => {
-          this.weeklyVolumeByTeamData = d;
-          done();
-        },
-        error: () => done(),
-      });
+    // Weekly volume by team uses the quarter-based view
+    const weeklyTeamUrl = this.selectedQuarter
+      ? `${base}/weekly-volume-by-team?fiscQtr=${this.selectedQuarter}`
+      : `${base}/weekly-volume-by-team?fiscQtr=Q4FY26`;
+    this.weeklyTeamChartLabel = this.selectedQuarter || 'Q4FY26';
+
+    this.http.get(weeklyTeamUrl, this.destroyManager).subscribe({
+      next: (d: any) => {
+        this.weeklyVolumeByTeamData = d;
+        done();
+      },
+      error: () => done(),
+    });
 
     this.http
       .get(
@@ -1237,14 +1241,11 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   private refetchWeeklyTeamVolume(): void {
-    const base = 'caseiq/charts';
-    let url = `${base}/weekly-volume-by-team?lookbackDays=30`;
-    if (this.selectedQuarter) {
-      url += `&fiscQtr=${this.selectedQuarter}`;
-      this.weeklyTeamChartLabel = this.selectedQuarter;
-    } else {
-      this.weeklyTeamChartLabel = 'Last 30 days';
-    }
+    if (!this.selectedQuarter) return;
+
+    const url = `caseiq/charts/weekly-volume-by-team?fiscQtr=${this.selectedQuarter}`;
+    this.weeklyTeamChartLabel = this.selectedQuarter;
+
     this.http.get(url, this.destroyManager).subscribe({
       next: (d: any) => {
         if (this.teamChart) {
@@ -1252,24 +1253,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           this.teamChart = null;
         }
 
-        // Count distinct weeks in the response
-        const distinctWeeks = new Set((d || []).map((r: any) => r.WEEK_START))
-          .size;
-
         if (!d || d.length === 0) {
           this.weeklyTeamNoData = true;
           this.weeklyVolumeByTeamData = [];
-        } else if (this.selectedQuarter && distinctWeeks < 4) {
-          // Quarter has < 4 weeks of data — fall back to 30-day lookback
-          this.weeklyTeamChartLabel = 'Last 30 days';
-          this.weeklyTeamNoData = false;
-          const fallbackUrl = `${base}/weekly-volume-by-team?lookbackDays=30`;
-          this.http.get(fallbackUrl, this.destroyManager).subscribe({
-            next: (fb: any) => {
-              this.weeklyVolumeByTeamData = fb;
-              this.buildWeeklyVolumeByTeamChart();
-            },
-          });
         } else {
           this.weeklyTeamNoData = false;
           this.weeklyVolumeByTeamData = d;
@@ -1331,23 +1317,21 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     ) as HTMLCanvasElement;
     if (!canvas) return;
 
-    // Pivot data: { weekStart: { team: count } }
-    const weekMap = new Map<string, Map<string, number>>();
+    // Pivot data: { weekNumber: { team: count } }
+    const weekMap = new Map<number, Map<string, number>>();
     const teams = new Set<string>();
     for (const row of this.weeklyVolumeByTeamData) {
-      const week = row.WEEK_START;
+      const week = row.WEEK_NUMBER;
       const team = row.TEAM_NAME;
-      if (!week || !team) continue;
+      if (week == null || !team) continue;
       teams.add(team);
       if (!weekMap.has(week)) weekMap.set(week, new Map());
-      weekMap.get(week)?.set(team, row.CASE_COUNT);
+      weekMap.get(week)?.set(team, row.INCIDENT_COUNT ?? 0);
     }
 
-    const weeks = Array.from(weekMap.keys()).sort((a, b) => a.localeCompare(b));
-    const labels = weeks.map((w) => {
-      const d = new Date(w);
-      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    });
+    // Always show all 13 weeks, padding missing ones with 0
+    const weeks = Array.from({ length: 13 }, (_, i) => i + 1);
+    const labels = weeks.map((w) => `Week ${w}`);
 
     const teamColorHex = this.teamColors;
     const datasets = Array.from(teams)

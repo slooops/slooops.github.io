@@ -401,20 +401,10 @@ public class CaseIQMonitoringService {
     // ─── CaseIQ Analytics Chart Queries ─────────────────────────────────────────
 
     private static final String WEEKLY_CASE_VOLUME_BY_TEAM = "SELECT " +
-            "TO_CHAR(TRUNC(caseiq_run_date, 'IW'), 'YYYY-MM-DD') AS week_start, " +
-            "team_name, " +
-            "COUNT(*) AS case_count " +
-            "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
-            "WHERE caseiq_run_date > SYSDATE - :lookback_days " +
-            "AND is_active = 'TRUE' " +
-            "AND team_name IS NOT NULL " +
-            "AND team_name != 'UNKNOWN' " +
-            "AND (team_name != 'P2P' OR core_issue IN (" +
-            "'Proxy/Delegate','VMS - Cisco Manager','Add Workers'," +
-            "'Change Supervisor','Close Purchase order','Job title change'," +
-            "'Physical Work Location change','Invoicing - Report')) " +
-            "GROUP BY TRUNC(caseiq_run_date, 'IW'), team_name " +
-            "ORDER BY TRUNC(caseiq_run_date, 'IW') ASC";
+            "quarter, team_name, week_number, incident_count " +
+            "FROM ARFINRO.ASK_CASEIQ_METRICS_WEEKLY_V " +
+            "WHERE quarter = :fisc_qtr " +
+            "ORDER BY team_name, week_number";
 
     private static final String WEEKLY_CASE_VOLUME_BY_STATE = "SELECT " +
             "TO_CHAR(TRUNC(caseiq_run_date, 'IW'), 'YYYY-MM-DD') AS week_start, " +
@@ -1083,8 +1073,9 @@ public class CaseIQMonitoringService {
 
     // ─── CaseIQ Analytics Chart Service Methods ─────────────────────────────────
 
-    public List<Map<String, Object>> getWeeklyCaseVolumeByTeam(int lookbackDays, String fiscQtr) {
-        return runQuery(WEEKLY_CASE_VOLUME_BY_TEAM, buildParams("lookback_days", lookbackDays), fiscQtr);
+    public List<Map<String, Object>> getWeeklyCaseVolumeByTeam(String fiscQtr) {
+        Map<String, Object> params = buildParams("fisc_qtr", fiscQtr);
+        return jdbcManager.queryWithNamedParams(WEEKLY_CASE_VOLUME_BY_TEAM, params);
     }
 
     public List<Map<String, Object>> getWeeklyCaseVolumeByState(int lookbackDays, String fiscQtr) {
