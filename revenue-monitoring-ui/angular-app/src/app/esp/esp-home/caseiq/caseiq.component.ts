@@ -142,9 +142,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() selectedQuarter: string = '';
   @Output() teamNavigate = new EventEmitter<string>();
 
-  /** Hide analytics/monitoring sections on the operations portal */
-  isOpsView = window.location.hostname === 'operations-control-tower.cisco.com';
-
   // ── Analytics chart data ──────────────────────────────────
   weeklyVolumeByTeamData: any[] = [];
   weeklyTeamChartLabel = '';

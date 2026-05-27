@@ -327,332 +327,314 @@
         </div>
       }
 
-      @if (!isOpsView) {
-        <!-- Row 1: Weekly Case Volume by Team (2fr) | Issues Breakdown (2fr) | Hourly/Weekly flip card (1fr) -->
-        <div class="analytics-row analytics-row-2-2-1">
-          <div class="ciq-card ciq-card--chart flip-card-container">
-            @if (!teamCardFlipped) {
-              <div class="ciq-card-header">
-                <span class="ciq-card-title">Weekly Case Volume by Team</span>
-                <span class="analytics-date-range">{{
-                  weeklyTeamChartLabel
-                }}</span>
-                <button
-                  class="flip-btn"
-                  (click)="flipTeamCard()"
-                  title="Show AI Accuracy Over Time"
-                >
-                  <ng-icon
-                    name="phosphorArrowsClockwiseBold"
-                    size="14"
-                  ></ng-icon>
-                </button>
-              </div>
-              <div class="analytics-chart-wrapper">
-                @if (weeklyTeamNoData) {
-                  <div class="ciq-no-data">
-                    No data available for this time period
-                  </div>
-                } @else {
-                  <canvas id="chart-weekly-team"></canvas>
-                }
-              </div>
-            } @else {
-              <div class="ciq-card-header">
-                <span class="ciq-card-title">AI Accuracy Over Time</span>
-                <span class="analytics-date-range"
-                  >Last 120 days · validated cases only</span
-                >
-                <button
-                  class="flip-btn"
-                  (click)="flipTeamCard()"
-                  title="Show Weekly Case Volume by Team"
-                >
-                  <ng-icon
-                    name="phosphorArrowsClockwiseBold"
-                    size="14"
-                  ></ng-icon>
-                </button>
-              </div>
-              <div class="analytics-chart-wrapper">
-                <canvas id="chart-accuracy-time"></canvas>
-              </div>
-            }
-          </div>
-
-          <!-- Issues Breakdown -->
-          <div class="ciq-card ciq-swap-card">
+      <!-- Row 1: Weekly Case Volume by Team (2fr) | Issues Breakdown (2fr) | Hourly/Weekly flip card (1fr) -->
+      <div class="analytics-row analytics-row-2-2-1">
+        <div class="ciq-card ciq-card--chart flip-card-container">
+          @if (!teamCardFlipped) {
             <div class="ciq-card-header">
-              <span class="ciq-card-title-text">Issues Breakdown</span>
+              <span class="ciq-card-title">Weekly Case Volume by Team</span>
+              <span class="analytics-date-range">{{
+                weeklyTeamChartLabel
+              }}</span>
+              <button
+                class="flip-btn"
+                (click)="flipTeamCard()"
+                title="Show AI Accuracy Over Time"
+              >
+                <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
+              </button>
             </div>
-            <div class="ciq-anomaly-list">
-              @if (monitoringLoading) {
-                <div class="ciq-table-loading">
-                  <app-loading-symbol></app-loading-symbol>
-                </div>
-              }
-              @for (a of anomalyBreakdown; track a.name) {
-                <div class="ciq-anomaly-item">
-                  <span
-                    class="ciq-badge"
-                    [ngClass]="severityClass(a.severity)"
-                    >{{ a.severity | uppercase }}</span
-                  >
-                  <span class="ciq-anomaly-name">{{ a.name }}</span>
-                  <span class="ciq-team-chips">
-                    @for (
-                      chip of getTeamChips(a.issueKey || "");
-                      track chip.team
-                    ) {
-                      <button
-                        class="ciq-team-chip"
-                        [ngClass]="'ciq-team-chip--' + a.severity"
-                        (click)="
-                          openDrilldown(
-                            chip.team,
-                            a.issueKey || '',
-                            a.name,
-                            chip.rawTeam
-                          )
-                        "
-                      >
-                        {{ chip.team }} <strong>{{ chip.count }}</strong>
-                      </button>
-                    }
-                  </span>
-                  <span
-                    class="ciq-anomaly-count"
-                    [style.color]="countColor(a.severity)"
-                    >{{ a.count }}</span
-                  >
-                </div>
-              }
-              @if (anomalyBreakdown.length === 0 && !monitoringLoading) {
+            <div class="analytics-chart-wrapper">
+              @if (weeklyTeamNoData) {
                 <div class="ciq-no-data">
-                  <span class="ciq-no-data-icon"
-                    ><ng-icon name="phosphorEmptyDuotone" size="24"
-                  /></span>
-                  No issues in selected period
+                  No data available for this time period
                 </div>
+              } @else {
+                <canvas id="chart-weekly-team"></canvas>
               }
             </div>
-            <p class="ciq-anomaly-disclaimer">
-              * Click any team chip to view quarterly occurrence trend
-            </p>
-          </div>
-
-          <div class="ciq-card ciq-card--chart flip-card-container">
-            @if (!hourlyCardFlipped) {
-              <div class="ciq-card-header">
-                <span class="ciq-card-title">Hourly Processing Load</span>
-                <span class="analytics-date-range">Last 12 hours · UTC</span>
-                <button
-                  class="flip-btn"
-                  (click)="flipHourlyCard()"
-                  title="Show Weekly Cases Analyzed"
-                >
-                  <ng-icon
-                    name="phosphorArrowsClockwiseBold"
-                    size="14"
-                  ></ng-icon>
-                </button>
-              </div>
-              <div class="analytics-chart-wrapper">
-                <canvas id="chart-hourly-pattern"></canvas>
-              </div>
-            } @else {
-              <div class="ciq-card-header">
-                <span class="ciq-card-title">Weekly Cases Analyzed</span>
-                <span class="analytics-date-range">Last 90 days</span>
-                <button
-                  class="flip-btn"
-                  (click)="flipHourlyCard()"
-                  title="Show Hourly Processing Load"
-                >
-                  <ng-icon
-                    name="phosphorArrowsClockwiseBold"
-                    size="14"
-                  ></ng-icon>
-                </button>
-              </div>
-              <div class="analytics-chart-wrapper">
-                <canvas id="chart-weekly-state"></canvas>
-              </div>
-            }
-          </div>
+          } @else {
+            <div class="ciq-card-header">
+              <span class="ciq-card-title">AI Accuracy Over Time</span>
+              <span class="analytics-date-range"
+                >Last 120 days · validated cases only</span
+              >
+              <button
+                class="flip-btn"
+                (click)="flipTeamCard()"
+                title="Show Weekly Case Volume by Team"
+              >
+                <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
+              </button>
+            </div>
+            <div class="analytics-chart-wrapper">
+              <canvas id="chart-accuracy-time"></canvas>
+            </div>
+          }
         </div>
-      }
-    </div>
 
-    @if (!isOpsView) {
-      <!-- ═══ Monitoring: Error Incidents ═══ -->
-      <div class="monitoring-section">
+        <!-- Issues Breakdown -->
         <div class="ciq-card ciq-swap-card">
           <div class="ciq-card-header">
-            <span class="ciq-card-title-text">Error Incidents</span>
-            <div class="ciq-header-filters">
-              <select
-                [(ngModel)]="errorFilterTeam"
-                (ngModelChange)="applyErrorFilters()"
-                class="ciq-filter-select"
-              >
-                <option value="">All Teams</option>
-                @for (t of errorTeamOptions; track t) {
-                  <option [value]="t">{{ t }}</option>
-                }
-              </select>
-              <select
-                [(ngModel)]="errorFilterIssue"
-                (ngModelChange)="applyErrorFilters()"
-                class="ciq-filter-select"
-              >
-                <option value="">All Issues</option>
-                @for (i of errorIssueOptions; track i) {
-                  <option [value]="i">{{ i }}</option>
-                }
-              </select>
-              <button
-                class="ciq-download-btn"
-                [class.ciq-download-btn--downloading]="csvDownloading"
-                [class.ciq-download-btn--done]="csvDownloadDone"
-                (click)="downloadErrorCsv()"
-                title="Download CSV"
-              >
-                <span
-                  class="ciq-download-btn__fill"
-                  [style.width.%]="csvDownloadProgress"
-                ></span>
-                <span class="ciq-download-btn__content">
-                  @if (csvDownloading) {
-                    {{ csvDownloadProgress }}%
-                  } @else {
-                    <ng-icon name="phosphorArrowLineDownBold" size="13" /> CSV
+            <span class="ciq-card-title-text">Issues Breakdown</span>
+          </div>
+          <div class="ciq-anomaly-list">
+            @if (monitoringLoading) {
+              <div class="ciq-table-loading">
+                <app-loading-symbol></app-loading-symbol>
+              </div>
+            }
+            @for (a of anomalyBreakdown; track a.name) {
+              <div class="ciq-anomaly-item">
+                <span class="ciq-badge" [ngClass]="severityClass(a.severity)">{{
+                  a.severity | uppercase
+                }}</span>
+                <span class="ciq-anomaly-name">{{ a.name }}</span>
+                <span class="ciq-team-chips">
+                  @for (
+                    chip of getTeamChips(a.issueKey || "");
+                    track chip.team
+                  ) {
+                    <button
+                      class="ciq-team-chip"
+                      [ngClass]="'ciq-team-chip--' + a.severity"
+                      (click)="
+                        openDrilldown(
+                          chip.team,
+                          a.issueKey || '',
+                          a.name,
+                          chip.rawTeam
+                        )
+                      "
+                    >
+                      {{ chip.team }} <strong>{{ chip.count }}</strong>
+                    </button>
                   }
                 </span>
+                <span
+                  class="ciq-anomaly-count"
+                  [style.color]="countColor(a.severity)"
+                  >{{ a.count }}</span
+                >
+              </div>
+            }
+            @if (anomalyBreakdown.length === 0 && !monitoringLoading) {
+              <div class="ciq-no-data">
+                <span class="ciq-no-data-icon"
+                  ><ng-icon name="phosphorEmptyDuotone" size="24"
+                /></span>
+                No issues in selected period
+              </div>
+            }
+          </div>
+          <p class="ciq-anomaly-disclaimer">
+            * Click any team chip to view quarterly occurrence trend
+          </p>
+        </div>
+
+        <div class="ciq-card ciq-card--chart flip-card-container">
+          @if (!hourlyCardFlipped) {
+            <div class="ciq-card-header">
+              <span class="ciq-card-title">Hourly Processing Load</span>
+              <span class="analytics-date-range">Last 12 hours · UTC</span>
+              <button
+                class="flip-btn"
+                (click)="flipHourlyCard()"
+                title="Show Weekly Cases Analyzed"
+              >
+                <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
               </button>
             </div>
-          </div>
-          <div class="ciq-table-scroll ciq-table-scroll--no-max">
-            <table class="ciq-table ciq-error-table">
-              <thead>
-                <tr>
-                  <th>Incident</th>
-                  <th>Team</th>
-                  <th>Category</th>
-                  <th>Core Issue</th>
-                  <th>LLM Summary</th>
-                  <th>Issue Description</th>
-                  <th>Detail</th>
-                  <th>Resolution</th>
-                  <th>Run Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                @if (errorLoading) {
-                  <tr>
-                    <td colspan="9">
-                      <div class="ciq-table-loading">
-                        <app-loading-symbol></app-loading-symbol>
-                      </div>
-                    </td>
-                  </tr>
-                }
-                @for (row of monitoringErrorData; track $index) {
-                  <tr>
-                    <td class="ciq-mono">{{ row.INCIDENT_NUMBER || "N/A" }}</td>
-                    <td>{{ row.TEAM_NAME || "N/A" }}</td>
-                    <td>{{ row.CATEGORY || "—" }}</td>
-                    <td class="ciq-text-sm">{{ row.CORE_ISSUE || "—" }}</td>
-                    <td class="ciq-text-sm">{{ row.LLM_SUMMARY || "—" }}</td>
-                    <td>
-                      <span class="ciq-badge badge-critical">{{
-                        (row.anomalyLabel || row.ANOMALY_TYPE || "") ===
-                        "Not Defined"
-                          ? 'LLM Summary is "Not Defined"'
-                          : row.anomalyLabel || row.ANOMALY_TYPE || ""
-                      }}</span>
-                    </td>
-                    <td>
-                      @if (row.INCIDENT_DESCRIPTION) {
-                        <button
-                          class="ciq-detail-badge ciq-detail-badge--desc"
-                          (click)="openErrorDetailModal(row, 'description')"
-                        >
-                          View
-                        </button>
-                      } @else {
-                        <span class="ciq-muted-text">—</span>
-                      }
-                    </td>
-                    <td>
-                      @if (row.RESOLUTION_API_SUMMARY) {
-                        <button
-                          class="ciq-detail-badge ciq-detail-badge--res"
-                          (click)="openErrorDetailModal(row, 'resolution')"
-                        >
-                          View
-                        </button>
-                      } @else {
-                        <span class="ciq-muted-text">—</span>
-                      }
-                    </td>
-                    <td class="ciq-text-sm">
-                      {{ formatMonitoringDate(row.CASEIQ_RUN_DATE) }}
-                    </td>
-                  </tr>
-                }
-                @if (monitoringErrorData.length === 0 && !errorLoading) {
-                  <tr>
-                    <td colspan="9">
-                      <div class="ciq-no-data">
-                        <span class="ciq-no-data-icon"
-                          ><ng-icon name="phosphorEmptyDuotone" size="24"
-                        /></span>
-                        No errors detected in this period
-                      </div>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          <!-- Pagination -->
-          <div class="ciq-pagination">
-            <span
-              >{{ errorPageStart }}–{{ errorPageEnd }} of
-              {{ errorTotalCount }} incidents</span
+            <div class="analytics-chart-wrapper">
+              <canvas id="chart-hourly-pattern"></canvas>
+            </div>
+          } @else {
+            <div class="ciq-card-header">
+              <span class="ciq-card-title">Weekly Cases Analyzed</span>
+              <span class="analytics-date-range">Last 90 days</span>
+              <button
+                class="flip-btn"
+                (click)="flipHourlyCard()"
+                title="Show Hourly Processing Load"
+              >
+                <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
+              </button>
+            </div>
+            <div class="analytics-chart-wrapper">
+              <canvas id="chart-weekly-state"></canvas>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Monitoring: Error Incidents ═══ -->
+    <div class="monitoring-section">
+      <div class="ciq-card ciq-swap-card">
+        <div class="ciq-card-header">
+          <span class="ciq-card-title-text">Error Incidents</span>
+          <div class="ciq-header-filters">
+            <select
+              [(ngModel)]="errorFilterTeam"
+              (ngModelChange)="applyErrorFilters()"
+              class="ciq-filter-select"
             >
-            <div class="ciq-pagination-controls">
-              <select
-                [ngModel]="errorPageSize"
-                (ngModelChange)="errorChangePageSize($event)"
-                class="ciq-filter-select"
-              >
-                <option [ngValue]="10">10</option>
-                <option [ngValue]="25">25</option>
-                <option [ngValue]="50">50</option>
-                <option [ngValue]="100">100</option>
-              </select>
-              <button
-                class="ciq-pg-btn"
-                (click)="errorChangePage(-1)"
-                [disabled]="errorCurrentPage <= 1"
-              >
-                Previous
-              </button>
-              <span>Page {{ errorCurrentPage }} of {{ errorTotalPages }}</span>
-              <button
-                class="ciq-pg-btn"
-                (click)="errorChangePage(1)"
-                [disabled]="errorCurrentPage >= errorTotalPages"
-              >
-                Next
-              </button>
-            </div>
+              <option value="">All Teams</option>
+              @for (t of errorTeamOptions; track t) {
+                <option [value]="t">{{ t }}</option>
+              }
+            </select>
+            <select
+              [(ngModel)]="errorFilterIssue"
+              (ngModelChange)="applyErrorFilters()"
+              class="ciq-filter-select"
+            >
+              <option value="">All Issues</option>
+              @for (i of errorIssueOptions; track i) {
+                <option [value]="i">{{ i }}</option>
+              }
+            </select>
+            <button
+              class="ciq-download-btn"
+              [class.ciq-download-btn--downloading]="csvDownloading"
+              [class.ciq-download-btn--done]="csvDownloadDone"
+              (click)="downloadErrorCsv()"
+              title="Download CSV"
+            >
+              <span
+                class="ciq-download-btn__fill"
+                [style.width.%]="csvDownloadProgress"
+              ></span>
+              <span class="ciq-download-btn__content">
+                @if (csvDownloading) {
+                  {{ csvDownloadProgress }}%
+                } @else {
+                  <ng-icon name="phosphorArrowLineDownBold" size="13" /> CSV
+                }
+              </span>
+            </button>
+          </div>
+        </div>
+        <div class="ciq-table-scroll ciq-table-scroll--no-max">
+          <table class="ciq-table ciq-error-table">
+            <thead>
+              <tr>
+                <th>Incident</th>
+                <th>Team</th>
+                <th>Category</th>
+                <th>Core Issue</th>
+                <th>LLM Summary</th>
+                <th>Issue Description</th>
+                <th>Detail</th>
+                <th>Resolution</th>
+                <th>Run Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (errorLoading) {
+                <tr>
+                  <td colspan="9">
+                    <div class="ciq-table-loading">
+                      <app-loading-symbol></app-loading-symbol>
+                    </div>
+                  </td>
+                </tr>
+              }
+              @for (row of monitoringErrorData; track $index) {
+                <tr>
+                  <td class="ciq-mono">{{ row.INCIDENT_NUMBER || "N/A" }}</td>
+                  <td>{{ row.TEAM_NAME || "N/A" }}</td>
+                  <td>{{ row.CATEGORY || "—" }}</td>
+                  <td class="ciq-text-sm">{{ row.CORE_ISSUE || "—" }}</td>
+                  <td class="ciq-text-sm">{{ row.LLM_SUMMARY || "—" }}</td>
+                  <td>
+                    <span class="ciq-badge badge-critical">{{
+                      (row.anomalyLabel || row.ANOMALY_TYPE || "") ===
+                      "Not Defined"
+                        ? 'LLM Summary is "Not Defined"'
+                        : row.anomalyLabel || row.ANOMALY_TYPE || ""
+                    }}</span>
+                  </td>
+                  <td>
+                    @if (row.INCIDENT_DESCRIPTION) {
+                      <button
+                        class="ciq-detail-badge ciq-detail-badge--desc"
+                        (click)="openErrorDetailModal(row, 'description')"
+                      >
+                        View
+                      </button>
+                    } @else {
+                      <span class="ciq-muted-text">—</span>
+                    }
+                  </td>
+                  <td>
+                    @if (row.RESOLUTION_API_SUMMARY) {
+                      <button
+                        class="ciq-detail-badge ciq-detail-badge--res"
+                        (click)="openErrorDetailModal(row, 'resolution')"
+                      >
+                        View
+                      </button>
+                    } @else {
+                      <span class="ciq-muted-text">—</span>
+                    }
+                  </td>
+                  <td class="ciq-text-sm">
+                    {{ formatMonitoringDate(row.CASEIQ_RUN_DATE) }}
+                  </td>
+                </tr>
+              }
+              @if (monitoringErrorData.length === 0 && !errorLoading) {
+                <tr>
+                  <td colspan="9">
+                    <div class="ciq-no-data">
+                      <span class="ciq-no-data-icon"
+                        ><ng-icon name="phosphorEmptyDuotone" size="24"
+                      /></span>
+                      No errors detected in this period
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <!-- Pagination -->
+        <div class="ciq-pagination">
+          <span
+            >{{ errorPageStart }}–{{ errorPageEnd }} of
+            {{ errorTotalCount }} incidents</span
+          >
+          <div class="ciq-pagination-controls">
+            <select
+              [ngModel]="errorPageSize"
+              (ngModelChange)="errorChangePageSize($event)"
+              class="ciq-filter-select"
+            >
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+              <option [ngValue]="100">100</option>
+            </select>
+            <button
+              class="ciq-pg-btn"
+              (click)="errorChangePage(-1)"
+              [disabled]="errorCurrentPage <= 1"
+            >
+              Previous
+            </button>
+            <span>Page {{ errorCurrentPage }} of {{ errorTotalPages }}</span>
+            <button
+              class="ciq-pg-btn"
+              (click)="errorChangePage(1)"
+              [disabled]="errorCurrentPage >= errorTotalPages"
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>
-    }
+    </div>
 
     <br />
     <br />
