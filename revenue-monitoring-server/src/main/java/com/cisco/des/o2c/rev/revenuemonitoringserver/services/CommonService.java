@@ -49,9 +49,9 @@ public class CommonService {
     @Autowired
     private CacheCommon cacheCommon;
 
-    // Email validation pattern (RFC 5322 simplified)
+    // Email validation pattern (RFC 5322 simplified, backtrack-safe)
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
+            "^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,7}$");
 
     // Username validation pattern (alphanumeric, underscore, hyphen only)
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_-]+$");
@@ -173,7 +173,8 @@ public class CommonService {
                     .filter(u -> upperUsername.equals(u.get("USER_NAME")))
                     .map(u -> new RoleEntry(
                             u.get("ROLE_ID") != null ? ((Number) u.get("ROLE_ID")).intValue() : 0,
-                            (String) u.get("USER_ROLE"), (String) u.get("ADMIN") != null ? (String) u.get("ADMIN") : "Y"))
+                            (String) u.get("USER_ROLE"),
+                            (String) u.get("ADMIN") != null ? (String) u.get("ADMIN") : "Y"))
                     .collect(Collectors.toList());
 
             return new UserRoleInfo(userName, userEmail, roles);
@@ -189,7 +190,6 @@ public class CommonService {
     public List<Map<String, Object>> getAdminTable() {
         return jdbcManager.queryForList(adminTable);
     }
-
 
     /**
      * Gets admin table filtered by multiple roles.
@@ -303,7 +303,7 @@ public class CommonService {
      */
     private String sanitizeInput(String input, int maxLength) {
         if (input == null) {
-            return null;
+            return "";
         }
 
         String sanitized = input.trim();
@@ -314,7 +314,6 @@ public class CommonService {
 
         return sanitized;
     }
-
 
     /**
      * Logs a page visit using MERGE (upsert) pattern.
@@ -391,7 +390,7 @@ public class CommonService {
      * @return Number of rows inserted (1 = success)
      */
     public int insertRole(String roleName, String roleValue, String description,
-                          String dashboardName, String username) {
+            String dashboardName, String username) {
         validateRole(roleName);
         validateRole(roleValue);
 
@@ -413,7 +412,7 @@ public class CommonService {
      * @return Number of rows updated (1 = success, 0 = not found)
      */
     public int updateRole(int roleId, String roleName, String roleValue, String description,
-                          String enabledFlag, String dashboardName, String username) {
+            String enabledFlag, String dashboardName, String username) {
         validateRole(roleName);
         validateRole(roleValue);
         validateEnabledFlag(enabledFlag);
@@ -431,7 +430,8 @@ public class CommonService {
     }
 
     /**
-     * Soft-deletes a role from XXCFI_CTL_TOWER_ROLE_DEF by setting enabled_flag = NULL.
+     * Soft-deletes a role from XXCFI_CTL_TOWER_ROLE_DEF by setting enabled_flag =
+     * NULL.
      * Uses ctlTwrRoleDelete bean.
      * Called from DELETE /api/delete-role (update-role-dialog component).
      *
@@ -450,7 +450,7 @@ public class CommonService {
     }
 
     public int createUserRole(String userName, String userEmail, Integer roleId,
-                              String userRole, String enabledFlag, String createdBy) {
+            String userRole, String enabledFlag, String createdBy) {
 
         // Validate all inputs (NEVER TRUST CLIENT INPUT)
         validateUsername(userName);
@@ -476,7 +476,7 @@ public class CommonService {
     }
 
     public int updateUserRole(String userName, String userRole, String userEmail,
-                              Integer roleId, String enabledFlag) {
+            Integer roleId, String enabledFlag) {
 
         // Validate all inputs (NEVER TRUST CLIENT INPUT)
         validateUsername(userName);
@@ -517,7 +517,7 @@ public class CommonService {
      * @throws IllegalArgumentException if validation fails
      */
     public int deleteUserRole(String userName, String userRole, String creationDate,
-                              String deleterUsername) {
+            String deleterUsername) {
 
         System.out.println("\n[SOFT DELETE] userName='" + userName + "', role='" + userRole +
                 "', createdAt='" + creationDate + "', deletedBy='" + deleterUsername + "'");
@@ -560,17 +560,17 @@ public class CommonService {
      * Uses INSERT ... SELECT FROM DUAL WHERE NOT EXISTS to prevent duplicates.
      * Called from POST /api/create-user-access-role.
      *
-     * @param userName      The username to add the role for
-     * @param userEmail     The user's email address
-     * @param fullName      The user's full name
-     * @param roleId        The role_id to assign
-     * @param admin         Admin flag ('Y' or 'N')
-     * @param readOnly      Read-only flag ('Y' or 'N')
-     * @param createdBy     The user creating this record
+     * @param userName  The username to add the role for
+     * @param userEmail The user's email address
+     * @param fullName  The user's full name
+     * @param roleId    The role_id to assign
+     * @param admin     Admin flag ('Y' or 'N')
+     * @param readOnly  Read-only flag ('Y' or 'N')
+     * @param createdBy The user creating this record
      * @return Number of rows inserted (1 = success, 0 = duplicate exists)
      */
     public int createAccessRole(String userName, String userEmail, String fullName,
-                                int roleId, String admin, String readOnly, String createdBy) {
+            int roleId, String admin, String readOnly, String createdBy) {
         validateUsername(userName);
 
         if (userEmail == null || userEmail.trim().isEmpty()) {
@@ -611,10 +611,11 @@ public class CommonService {
      * @param admin         New admin flag value ('Y' or 'N')
      * @param readOnly      New read-only flag value ('Y' or 'N')
      * @param lastUpdatedBy The user performing the update
-     * @return Map with "rowsAffected" (int) and optionally "isDeleted" (String 'TRUE'/'FALSE')
+     * @return Map with "rowsAffected" (int) and optionally "isDeleted" (String
+     *         'TRUE'/'FALSE')
      */
     public Map<String, Object> updateAccessRole(String userName, int roleId, String enabledFlag,
-                                String admin, String readOnly, String lastUpdatedBy) {
+            String admin, String readOnly, String lastUpdatedBy) {
         validateUsername(userName);
 
         if (lastUpdatedBy == null || lastUpdatedBy.trim().isEmpty()) {
@@ -683,7 +684,8 @@ public class CommonService {
 
     public UserRoleInfo getUsersAccessListByUser(String userName) {
         String upperUserName = userName.toUpperCase();
-        List<Map<String, Object>> accessList = jdbcManager.queryForListWithSingleParam(ctlTwrUserAccessByUser, upperUserName);
+        List<Map<String, Object>> accessList = jdbcManager.queryForListWithSingleParam(ctlTwrUserAccessByUser,
+                upperUserName);
 
         Optional<Map<String, Object>> userOptional = accessList.stream()
                 .filter(row -> "Y".equals(row.get("ENABLED_FLAG")))

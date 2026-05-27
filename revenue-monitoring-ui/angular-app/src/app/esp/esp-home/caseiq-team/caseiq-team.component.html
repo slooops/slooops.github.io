@@ -185,21 +185,33 @@
   </div>
 
   <!-- Agent vs Ops ratio -->
-  <div class="caseiq-kpi dual">
+  <div class="caseiq-kpi cyan">
     <span class="caseiq-kpi-title">Agent vs Ops %</span>
     <div class="caseiq-kpi-body">
-      <div class="caseiq-pill caseiq-pill-dual">
-        <div class="caseiq-pill-fill cyan" [style.width.%]="getAgentRatio()">
-          @if (getAgentRatio() >= 12) {
-            <span class="caseiq-pill-text">{{ getAgentRatio() }}%</span>
-          }
-        </div>
-        <div class="caseiq-pill-remainder">
-          @if (100 - getAgentRatio() >= 12) {
-            <span class="caseiq-pill-text">{{ 100 - getAgentRatio() }}%</span>
-          }
-        </div>
+      <div class="caseiq-pill">
+        <div
+          class="caseiq-pill-fill cyan"
+          [style.width.%]="getAgentRatio()"
+        ></div>
+        <span class="caseiq-pill-text">
+          {{
+            filteredCaseIqMetrics
+              ? (filteredCaseIqMetrics.IN_PROGRESS_AGENT ?? 0) +
+                (filteredCaseIqMetrics.RESOLVED_AGENT ?? 0) +
+                (filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT ?? 0) +
+                (filteredCaseIqMetrics.RECOMMENDED_CANCELLED ?? 0)
+              : "--"
+          }}
+          /
+          {{
+            filteredCaseIqMetrics
+              ? (filteredCaseIqMetrics.TOTAL_CASES ?? 0) -
+                (filteredCaseIqMetrics.SERVICE_INCIDENTS ?? 0)
+              : "--"
+          }}
+        </span>
       </div>
+      <span class="caseiq-kpi-pct">{{ getAgentRatio() }}%</span>
     </div>
   </div>
 </div>

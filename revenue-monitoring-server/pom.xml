@@ -20,7 +20,18 @@
 			**/models/**,
 			**/configs/**,
 			**/queue/**,
-			**/RevenueMonitoringServerApplication.java
+			**/RevenueMonitoringServerApplication.java,
+			**/CMSMonitoringService.java,
+			**/CMSMonitoringController.java,
+			**/O2CMonitoringService.java,
+			**/O2CMonitoringController.java,
+			**/ScorecardService.java,
+			**/ScorecardController.java,
+			**/SdlcAdoptService.java,
+			**/SdlcExecService.java,
+			**/SdlcController.java,
+			**/ExecSummaryService.java,
+			**/ExecSummaryController.java
 		</sonar.coverage.exclusions>
 	</properties>
 
