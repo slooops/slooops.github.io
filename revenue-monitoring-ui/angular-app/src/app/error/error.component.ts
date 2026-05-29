@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostBinding, OnInit } from '@angular/core';
+import { ThemeService } from '../providers/theme.service';
 
 @Component({
   selector: 'app-error',
@@ -20,6 +21,9 @@ import { Component, OnInit } from '@angular/core';
   imports: [],
 })
 export class ErrorComponent implements OnInit {
-  constructor() {}
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+  constructor(public themeService: ThemeService) {}
   ngOnInit(): void {}
 }
