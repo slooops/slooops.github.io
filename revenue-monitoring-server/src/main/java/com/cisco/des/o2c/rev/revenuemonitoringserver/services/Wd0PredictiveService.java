@@ -323,8 +323,8 @@ public class Wd0PredictiveService {
         double serviceWeightedSum = serviceFuture.weightedSum() + serviceFlexible.weightedSum();
 
         // 3. WD-level multipliers (ME vs QE swap happens here). Null for WDs
-        //    outside the predecessor's calibrated range (WD-3/-2/-1) - in that
-        //    case we still persist weighted_sum + snapshots, but bounds are NULL.
+        // outside the predecessor's calibrated range (WD-3/-2/-1) - in that
+        // case we still persist weighted_sum + snapshots, but bounds are NULL.
         WdMult prodMult = lookupWdMult(wd, ctx.periodType());
         WdMult serviceMult = prodMult; // same multiplier table for both segments
 
@@ -474,8 +474,10 @@ public class Wd0PredictiveService {
 
     /**
      * Returns the WD multiplier for the given (wd, period_type), or {@code null}
-     * when wd is outside the predecessor's calibrated range (WD-3/-2/-1). Non-formal
-     * days still persist their weighted_sum + per-day snapshots, but bounds are NULL.
+     * when wd is outside the predecessor's calibrated range (WD-3/-2/-1).
+     * Non-formal
+     * days still persist their weighted_sum + per-day snapshots, but bounds are
+     * NULL.
      */
     private WdMult lookupWdMult(String wd, String periodType) {
         return WD_MULTIPLIERS.get(new WdKey(wd, periodType));
@@ -585,11 +587,13 @@ public class Wd0PredictiveService {
      * the label of the next upcoming business day (e.g. a Sunday three days
      * before PE shares its label with the following Monday).
      *
-     * <p>Returns {@code null} only when today is on or after PE (those days
+     * <p>
+     * Returns {@code null} only when today is on or after PE (those days
      * belong to the next close cycle, picked up by {@link #computePeriodContext}
      * on the next run), or when no business-day path of length <= 60 exists.
      *
-     * <p>Originally limited to WD-3/-2/-1 (predecessor's formal prediction days);
+     * <p>
+     * Originally limited to WD-3/-2/-1 (predecessor's formal prediction days);
      * generalised so we can persist daily snapshots throughout the close window
      * — including weekends — as training data. Bounds are only meaningful at
      * WD-3/-2/-1 (see {@link #lookupWdMult}); other days persist with NULL bounds.
