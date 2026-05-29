@@ -3,6 +3,7 @@ import {
   OnInit,
   AfterViewInit,
   OnDestroy,
+  HostBinding,
   HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -10,6 +11,8 @@ import { FormsModule } from '@angular/forms';
 import { ApiHttpService } from '../providers/http.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
+import { ThemeService } from '../providers/theme.service';
+import { Subscription } from 'rxjs';
 import { Chart, registerables } from 'chart.js';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -155,10 +158,39 @@ export class AnalyticsDashboardComponent
     private http: ApiHttpService,
     private destroyManager: DestroyManager,
     private authService: AuthenticationService,
+    public themeService: ThemeService,
   ) {}
+
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+
+  private themeSub?: Subscription;
+
+  private get chartTextColor(): string {
+    return this.themeService.isDarkMode ? '#e0e6ed' : '#1b1c1d';
+  }
+
+  private get chartMutedColor(): string {
+    return this.themeService.isDarkMode ? '#8899a6' : '#555';
+  }
+
+  private get chartGridColor(): string {
+    return this.themeService.isDarkMode ? '#2a3f50' : '#e0e0e0';
+  }
+
+  private get donutBorderColor(): string {
+    return this.themeService.isDarkMode ? '#111b25' : '#ffffff';
+  }
 
   ngOnInit(): void {
     this.loadAnalyticsData();
+    this.themeSub = this.themeService.isDarkMode$.subscribe(() => {
+      if (!this.isLoading && this.summaryData.length > 0) {
+        // Recreate charts so colors update
+        setTimeout(() => this.initializeCharts(), 0);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -168,6 +200,7 @@ export class AnalyticsDashboardComponent
   ngOnDestroy(): void {
     // Destroy all charts to prevent memory leaks
     this.destroyAllCharts();
+    this.themeSub?.unsubscribe();
   }
 
   private destroyAllCharts(): void {
@@ -343,6 +376,7 @@ export class AnalyticsDashboardComponent
     // console.log(`[CHARTS] '${canvasId}' labels:`, labels);
     // console.log(`[CHARTS] '${canvasId}' values:`, values);
 
+    const textColor = this.chartTextColor;
     return new Chart(canvas, {
       type: 'doughnut',
       data: {
@@ -352,7 +386,7 @@ export class AnalyticsDashboardComponent
             data: values,
             backgroundColor: colors.slice(0, data.length),
             borderWidth: 2,
-            borderColor: '#ffffff',
+            borderColor: this.donutBorderColor,
           },
         ],
       },
@@ -366,12 +400,14 @@ export class AnalyticsDashboardComponent
               padding: 15,
               usePointStyle: true,
               font: { size: 11 },
+              color: textColor,
             },
           },
           title: {
             display: true,
             text: title,
             font: { size: 14, weight: 'bold' },
+            color: textColor,
             padding: { bottom: 10 },
           },
           tooltip: {
@@ -436,6 +472,7 @@ export class AnalyticsDashboardComponent
     }
 
     // console.log('[CHARTS] Creating continuousMonitoringChart...');
+    const cmTextColor = this.chartTextColor;
     this.continuousMonitoringChart = new Chart(canvas, {
       type: 'doughnut',
       data: {
@@ -445,7 +482,7 @@ export class AnalyticsDashboardComponent
             data: aggregated.map((i) => i.visits),
             backgroundColor: this.COLORS.cisco.slice(0, aggregated.length),
             borderWidth: 2,
-            borderColor: '#ffffff',
+            borderColor: this.donutBorderColor,
           },
         ],
       },
@@ -455,12 +492,18 @@ export class AnalyticsDashboardComponent
         plugins: {
           legend: {
             position: 'bottom',
-            labels: { padding: 15, usePointStyle: true, font: { size: 11 } },
+            labels: {
+              padding: 15,
+              usePointStyle: true,
+              font: { size: 11 },
+              color: cmTextColor,
+            },
           },
           title: {
             display: true,
             text: 'Continuous Monitoring Usage',
             font: { size: 14, weight: 'bold' },
+            color: cmTextColor,
           },
           tooltip: {
             callbacks: {
@@ -528,6 +571,8 @@ export class AnalyticsDashboardComponent
     }
 
     // console.log('[CHARTS] Creating topPagesChart...');
+    const tpTextColor = this.chartTextColor;
+    const tpMutedColor = this.chartMutedColor;
     this.topPagesChart = new Chart(canvas, {
       type: 'bar',
       data: {
@@ -551,15 +596,18 @@ export class AnalyticsDashboardComponent
             display: true,
             text: 'Top 10 Most Visited Pages',
             font: { size: 14, weight: 'bold' },
+            color: tpTextColor,
           },
         },
         scales: {
           x: {
             beginAtZero: true,
             grid: { display: false },
+            ticks: { color: tpMutedColor },
           },
           y: {
             grid: { display: false },
+            ticks: { color: tpMutedColor },
           },
         },
       },
@@ -596,6 +644,9 @@ export class AnalyticsDashboardComponent
     }
 
     // console.log('[CHARTS] Creating uniqueUsersChart...');
+    const uuTextColor = this.chartTextColor;
+    const uuMutedColor = this.chartMutedColor;
+    const uuGridColor = this.chartGridColor;
     this.uniqueUsersChart = new Chart(canvas, {
       type: 'bar',
       data: {
@@ -618,15 +669,18 @@ export class AnalyticsDashboardComponent
             display: true,
             text: 'Pages by Unique Users',
             font: { size: 14, weight: 'bold' },
+            color: uuTextColor,
           },
         },
         scales: {
           x: {
             grid: { display: false },
+            ticks: { color: uuMutedColor },
           },
           y: {
             beginAtZero: true,
-            grid: { color: '#e0e0e0' },
+            grid: { color: uuGridColor },
+            ticks: { color: uuMutedColor },
           },
         },
       },

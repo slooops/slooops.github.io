@@ -249,6 +249,12 @@
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+  background-color: #ffffff;
+  transition: background-color 0.2s ease;
+}
+
+:host-context(body.dark-theme) .main-content {
+  background-color: #0f1923;
 }
 
 /* ── App body layout (toolbar above, sidebar + content below) ── */

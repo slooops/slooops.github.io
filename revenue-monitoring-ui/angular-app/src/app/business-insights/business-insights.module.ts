@@ -21,7 +21,14 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { OrderLifecycleComponent } from '../order-lifecycle/order-lifecycle.component';
 import { Wd0DashComponent } from '../wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from '../wd0-historical-data/wd0-historical-data.component';
-import { IssueReportingComponent } from '../issue-reporting/issue-reporting.component';
+import {
+  IssueReportingComponent,
+  DialogBox,
+  StatusDialog,
+  SummaryDialog,
+} from '../issue-reporting/issue-reporting.component';
+import { IssueUploadComponent } from '../issue-reporting/issue-upload/issue-upload.component';
+import { BulkApproveRejectComponent } from '../issue-reporting/bulk-approve-reject/bulk-approve-reject.component';
 
 // Standalone components used by the declared components
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
@@ -59,6 +66,12 @@ import { PaginationComponent } from '../ui/atoms/pagination/pagination.component
     NgIcon,
     FilterButtonBarComponent,
     PaginationComponent,
+    // Issue-reporting modal sub-components
+    IssueUploadComponent,
+    BulkApproveRejectComponent,
+    DialogBox,
+    StatusDialog,
+    SummaryDialog,
   ],
   exports: [
     OrderLifecycleComponent,

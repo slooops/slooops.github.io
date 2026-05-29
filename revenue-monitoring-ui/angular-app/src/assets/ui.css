@@ -252,9 +252,15 @@
   padding-inline: var(--fit-space-sm);
   border-radius: var(--fit-radius-pill);
   border: 1px solid var(--fit-color-border);
+  background: var(--fit-color-bg);
+  color: var(--fit-color-text);
   transition:
     border-color var(--fit-transition-fast),
     border-width var(--fit-transition-fast);
+}
+
+.fit-input::placeholder {
+  color: var(--fit-color-text-muted);
 }
 
 .fit-input:hover {
@@ -332,6 +338,44 @@
 
 .fit-select option[disabled] {
   color: var(--fit-color-text-muted);
+}
+
+body.dark-theme .fit-select,
+body.dark-theme .fit-input {
+  background: var(--fit-dark-surface);
+  color: var(--fit-dark-text);
+  border-color: var(--fit-dark-border);
+}
+
+body.dark-theme .fit-input::placeholder {
+  color: var(--fit-dark-muted);
+}
+
+body.dark-theme .fit-select option {
+  background: var(--fit-dark-surface);
+  color: var(--fit-dark-text);
+}
+
+body.dark-theme .fit-select__chevron {
+  color: var(--fit-dark-muted);
+}
+
+body.dark-theme .fit-btn--secondary {
+  background-color: var(--fit-dark-surface);
+  border-color: var(--fit-dark-border);
+  color: var(--fit-dark-text);
+}
+
+body.dark-theme .fit-btn--secondary:hover {
+  background-color: var(--fit-dark-hover-bg, rgba(255, 255, 255, 0.06));
+}
+
+body.dark-theme .fit-btn--ghost {
+  color: var(--fit-dark-text);
+}
+
+body.dark-theme .fit-btn--ghost:hover {
+  background-color: var(--fit-dark-hover-bg, rgba(255, 255, 255, 0.06));
 }
 
 .fit-select-wrapper {

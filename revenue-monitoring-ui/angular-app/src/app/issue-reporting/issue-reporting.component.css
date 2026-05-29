@@ -1,9 +1,37 @@
 :host {
+  --ir-bg: #ffffff;
+  --ir-surface: #ffffff;
+  --ir-text: #1b1c1d;
+  --ir-muted: #64748b;
+  --ir-border: #e5e7eb;
+  --ir-border-soft: #f1f5f9;
+  --ir-header-bg: #f8fafc;
+  --ir-row-hover: #f8fafc;
+  --ir-link: dodgerblue;
+  --ir-input-bg: #ffffff;
+  --ir-input-border: #d0d7de;
+  --ir-edit-icon: rgb(79, 78, 78);
+
   display: block;
-  background: white;
+  background: var(--ir-bg);
   min-height: 100vh;
   padding: 0 1rem;
   font-family: "Inter", sans-serif;
+}
+
+:host-context(.dark-theme) {
+  --ir-bg: #0f1923;
+  --ir-surface: #1a2733;
+  --ir-text: #e0e6ed;
+  --ir-muted: #8899a6;
+  --ir-border: rgba(42, 63, 80, 0.6);
+  --ir-border-soft: rgba(42, 63, 80, 0.4);
+  --ir-header-bg: #1e2d3a;
+  --ir-row-hover: #233544;
+  --ir-link: #4ea1ff;
+  --ir-input-bg: #1a2733;
+  --ir-input-border: rgba(42, 63, 80, 0.8);
+  --ir-edit-icon: #8899a6;
 }
 
 /* ═══ Container ═══ */
@@ -13,7 +41,7 @@
 
 .ir-clear-selection {
   font-size: 0.75rem;
-  color: dodgerblue;
+  color: var(--ir-link);
   cursor: pointer;
   padding-left: 1rem;
 }
@@ -24,10 +52,11 @@
 
 /* ═══ Table ═══ */
 .ir-table-container {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--ir-border);
   border-radius: 12px;
   overflow: hidden;
   margin-top: 0.5rem;
+  background: var(--ir-surface);
 }
 
 .table-container {
@@ -36,34 +65,32 @@
 }
 
 .mat-mdc-header-row {
-  background-color: #f8fafc !important;
-  border-bottom: 1px solid #e5e7eb !important;
+  background-color: var(--ir-header-bg) !important;
+  border-bottom: 1px solid var(--ir-border) !important;
 }
 
 .mat-mdc-header-cell {
-  color: #64748b !important;
+  color: var(--ir-muted) !important;
   text-align: left !important;
   border-bottom: 0px !important;
   font-size: 0.75rem !important;
   font-weight: 600 !important;
   padding: 0.75rem 1rem !important;
   white-space: nowrap;
+  background-color: var(--ir-header-bg) !important;
 }
 
 .mat-mdc-row {
-  border-bottom: 1px solid #f1f5f9 !important;
+  border-bottom: 1px solid var(--ir-border-soft) !important;
 }
 
-.mat-mdc-row:hover {
-  background-color: #f8fafc !important;
+.mat-mdc-row:hover .mat-mdc-cell {
+  background-color: var(--ir-row-hover) !important;
 }
 
-.mat-mdc-row:nth-child(odd) {
-  background-color: #ffffff !important;
-}
-
-.mat-mdc-row:nth-child(even) {
-  background-color: #ffffff !important;
+.mat-mdc-row:nth-child(odd) .mat-mdc-cell,
+.mat-mdc-row:nth-child(even) .mat-mdc-cell {
+  background-color: var(--ir-surface) !important;
 }
 
 .mat-mdc-cell {
@@ -72,8 +99,18 @@
   font-weight: 400 !important;
   padding: 0.625rem 1rem !important;
   border: 0px !important;
-  color: #1b1c1d;
+  color: var(--ir-text);
   vertical-align: top;
+  background-color: var(--ir-surface);
+}
+
+:host ::ng-deep .mat-mdc-table {
+  background-color: var(--ir-surface) !important;
+  --mat-table-background-color: var(--ir-surface);
+  --mat-table-row-item-container-color: var(--ir-surface);
+  --mat-table-header-container-color: var(--ir-header-bg);
+  --mat-table-row-item-label-text-color: var(--ir-text);
+  --mat-table-header-headline-color: var(--ir-muted);
 }
 
 tr.mat-mdc-row {
@@ -111,10 +148,10 @@ td {
 .ir-status-select {
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
-  border: 1px solid #d0d7de;
+  border: 1px solid var(--ir-input-border);
   border-radius: 999px;
-  background: #fff;
-  color: #333;
+  background: var(--ir-input-bg);
+  color: var(--ir-text);
   cursor: pointer;
   outline: none;
 }
@@ -125,7 +162,7 @@ td {
 
 /* Link style */
 .ir-link {
-  color: dodgerblue;
+  color: var(--ir-link);
   cursor: pointer;
   text-decoration: none;
 }
@@ -137,7 +174,7 @@ td {
 /* Edit pencil icon */
 .edit-pencil {
   font-weight: bold;
-  color: rgb(79, 78, 78);
+  color: var(--ir-edit-icon);
   cursor: pointer;
   opacity: 0.6;
 }
@@ -163,7 +200,7 @@ td {
 
 .ir-empty-text {
   font-weight: 600;
-  color: gray;
+  color: var(--ir-muted);
   font-size: 0.875rem;
   margin-top: 1rem;
 }
@@ -224,6 +261,95 @@ td {
   display: none !important;
 }
 
+/* ═══ Native paginator ═══ */
+.ir-paginator {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 10px 4px;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ir-paginator__info {
+  font-size: 0.75rem;
+  color: var(--ir-muted);
+}
+
+.ir-paginator__controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ir-paginator__select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ir-paginator__select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--ir-input-bg);
+  color: var(--ir-text);
+  border: 1px solid var(--ir-border);
+  border-radius: 999px;
+  padding: 5px 28px 5px 12px;
+  font-size: 0.75rem;
+  font-family: inherit;
+  cursor: pointer;
+  height: 28px;
+  line-height: 1;
+}
+
+.ir-paginator__select:focus {
+  outline: none;
+  border-color: var(--ir-link);
+}
+
+.ir-paginator__chevron {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 0.7rem;
+  color: var(--ir-muted);
+}
+
+.ir-paginator__btn {
+  background: var(--ir-input-bg);
+  color: var(--ir-text);
+  border: 1px solid var(--ir-border);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 0.75rem;
+  font-family: inherit;
+  cursor: pointer;
+  height: 28px;
+  line-height: 1;
+  transition:
+    background 150ms,
+    border-color 150ms;
+}
+
+.ir-paginator__btn:hover:not(:disabled) {
+  background: var(--ir-row-hover);
+}
+
+.ir-paginator__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ir-paginator__page {
+  font-size: 0.75rem;
+  color: var(--ir-text);
+  padding: 0 6px;
+}
+
 /* ═══ Highlight ═══ */
 .highlight {
   color: #e53935;
@@ -248,6 +374,9 @@ td {
   align-content: center;
   font-family: "Roboto", Helvetica, Arial, sans-serif;
   font-weight: 500;
+  background: var(--ir-input-bg);
+  color: var(--ir-text);
+  border: 1px solid var(--ir-input-border);
 }
 
 .edit-actions {
@@ -272,18 +401,18 @@ td {
 
 /* Material 3 filled form field styling - white background */
 :host ::ng-deep .mat-mdc-form-field .mdc-text-field--filled {
-  background-color: #ffffff !important;
+  background-color: var(--ir-input-bg) !important;
 }
 
 :host
   ::ng-deep
   .mat-mdc-form-field
   .mdc-text-field--filled:not(.mdc-text-field--disabled) {
-  background-color: #ffffff !important;
+  background-color: var(--ir-input-bg) !important;
 }
 
 :host ::ng-deep .mat-mdc-form-field .mdc-text-field--filled::before {
-  border-bottom-color: rgba(0, 0, 0, 0.12) !important;
+  border-bottom-color: var(--ir-input-border) !important;
 }
 
 :host ::ng-deep .mat-mdc-form-field .mat-mdc-select .mat-mdc-select-trigger {

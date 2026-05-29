@@ -236,6 +236,7 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
       label: 'Midclose Status',
       component: 'app-wd0-status',
       role: ['ADMIN', 'WD0'],
+      supportsDarkMode: true,
     },
     {
       label: 'Midclose Volumes',
@@ -247,6 +248,7 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
       label: 'Active Incidents',
       component: 'app-issue-reporting',
       role: ['ADMIN', 'ISSUE_RESOLUTION', 'ISSUE_APPROVAL'],
+      supportsDarkMode: true,
     },
     {
       label: 'O2C Insights',

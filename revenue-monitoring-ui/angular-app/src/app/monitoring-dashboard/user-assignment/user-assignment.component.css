@@ -483,3 +483,76 @@ select.fit-assign-control {
 :host ::ng-deep .fit-btn {
   font-size: 11px;
 }
+
+/* ── Dark mode (inherits from wrapper) ── */
+:host-context(.dark-theme) .fit-assign-control {
+  background-color: var(--fit-dark-surface, #1a2733);
+  border-color: var(--fit-dark-border, #2a3f50);
+  color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) .fit-assign-control::placeholder {
+  color: var(--fit-dark-muted, #8899a6);
+}
+:host-context(.dark-theme) .fit-assign-control:disabled {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+:host-context(.dark-theme) .fit-assign-label {
+  color: var(--fit-dark-muted, #8899a6);
+}
+
+/* Users modal */
+:host-context(.dark-theme) .users-modal-backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+:host-context(.dark-theme) .users-modal {
+  background: var(--fit-dark-surface, #1a2733);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+:host-context(.dark-theme) .users-modal__header {
+  background-color: #00738c;
+  border-bottom-color: var(--fit-dark-border, #2a3f50);
+}
+:host-context(.dark-theme) .users-modal__toolbar {
+  border-bottom-color: var(--fit-dark-border, #2a3f50);
+}
+:host-context(.dark-theme) .users-modal__search {
+  background: var(--fit-dark-bg, #0f1923);
+  border-color: var(--fit-dark-border, #2a3f50);
+  color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) .users-modal__search::placeholder,
+:host-context(.dark-theme) .users-modal__count {
+  color: var(--fit-dark-muted, #8899a6);
+}
+:host-context(.dark-theme) .users-modal__th {
+  background: var(--fit-dark-bg, #0f1923);
+  color: var(--fit-dark-muted, #8899a6);
+  border-bottom-color: var(--fit-dark-border, #2a3f50);
+}
+:host-context(.dark-theme) .users-modal__row {
+  border-bottom-color: var(--fit-dark-border, #2a3f50);
+}
+:host-context(.dark-theme) .users-modal__row:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+:host-context(.dark-theme) .users-modal__td {
+  color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) .users-modal__td--num,
+:host-context(.dark-theme) .users-modal__td--email,
+:host-context(.dark-theme) .users-modal__empty {
+  color: var(--fit-dark-muted, #8899a6);
+}
+:host-context(.dark-theme) .users-modal__row--inline-add {
+  background: rgba(0, 188, 235, 0.08);
+  border-bottom-color: #00bceb;
+}
+:host-context(.dark-theme) .users-modal__inline-input {
+  background: var(--fit-dark-bg, #0f1923);
+  border-color: var(--fit-dark-border, #2a3f50);
+  color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) .users-modal__inline-input:focus {
+  border-color: #00bceb;
+  box-shadow: 0 0 0 2px rgba(0, 188, 235, 0.25);
+}

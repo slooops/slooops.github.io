@@ -10,7 +10,8 @@
   --mm-item-active-text: #0070d2;
 }
 
-:host(.dark-theme) {
+:host(.dark-theme),
+:host-context(.dark-theme) {
   --mm-icon-filter: invert(1);
   --mm-dropdown-bg: var(--fit-dark-surface, #111b25);
   --mm-dropdown-border: var(--fit-dark-card-border, rgba(42, 63, 80, 0.6));

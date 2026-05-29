@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostBinding } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
   MenuMiniComponent,
@@ -7,6 +7,7 @@ import {
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
 import { DataService } from '../providers/data.service';
+import { ThemeService } from '../providers/theme.service';
 import { DatePipe } from '@angular/common';
 import { SelectionModel } from '@angular/cdk/collections';
 import { AuthenticationService } from '../providers/authentication.service';
@@ -47,6 +48,10 @@ export interface UserContext {
   standalone: true,
 })
 export class OrderManagementComponent {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+
   private userName: string = '';
 
   constructor(
@@ -57,6 +62,7 @@ export class OrderManagementComponent {
     protected authService: AuthenticationService,
     private menuService: MenuService,
     private route: ActivatedRoute,
+    public themeService: ThemeService,
   ) {
     this.http = http;
     // Initialize roles and user context in constructor so they're available before template renders

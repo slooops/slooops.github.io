@@ -171,3 +171,42 @@ hr {
 .ask-ivan-label {
   letter-spacing: 0.5px;
 }
+
+/* ── Dark mode (inherits from ancestor wrapper .dark-theme) ── */
+:host-context(.dark-theme) .header-main h2 {
+  color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) .period-info {
+  color: var(--fit-dark-muted, #8899a6);
+}
+:host-context(.dark-theme) .period-info .divider {
+  color: var(--fit-dark-border, #2a3f50);
+}
+:host-context(.dark-theme) .global-search {
+  background: var(--fit-dark-surface, #111b25);
+  border-color: var(--fit-dark-border, #2a3f50);
+}
+:host-context(.dark-theme) .global-search-icon {
+  color: var(--fit-dark-muted, #8899a6);
+}
+:host-context(.dark-theme) .global-search-input {
+  background: transparent;
+  color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) .global-search-input::placeholder {
+  color: var(--fit-dark-muted, #8899a6);
+}
+:host-context(.dark-theme) .grid-menu-dropdown {
+  background: var(--fit-dark-surface, #1a2733);
+  border-color: var(--fit-dark-border, #2a3f50);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+:host-context(.dark-theme) .grid-menu-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+:host-context(.dark-theme) .grid-menu-item.active {
+  background: rgba(0, 188, 235, 0.12);
+}
+:host-context(.dark-theme) .grid-menu-item-name {
+  color: var(--fit-dark-text, #e0e6ed);
+}

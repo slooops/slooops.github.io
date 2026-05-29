@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import ExcelJS from 'exceljs';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { LoadingSymbolComponent } from '../../../loading-symbol/loading-symbol.component';
 import { TitleCaseWithExceptionsPipe } from '../../../title-case-with-exceptions.pipe';
 
@@ -14,6 +14,7 @@ import { TitleCaseWithExceptionsPipe } from '../../../title-case-with-exceptions
     LoadingSymbolComponent,
     TitleCaseWithExceptionsPipe,
     DatePipe,
+    DecimalPipe,
   ],
   standalone: true,
 })
@@ -33,6 +34,10 @@ export class AtmfTableComponent {
 
   isPercentColumn(column: string): boolean {
     return column.includes('%');
+  }
+
+  isNumericValue(value: any): boolean {
+    return typeof value === 'number' && !isNaN(value);
   }
 
   async exportTableToExcel(): Promise<void> {

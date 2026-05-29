@@ -1,8 +1,7 @@
-<h5 mat-dialog-title><b>Approve/ Reject</b></h5>
-<br />
-<mat-dialog-content>
+<h5 class="bulk-title"><b>Approve / Reject</b></h5>
+
+<div class="bulk-content">
   <table class="incident-table">
-    <!-- Table Header -->
     <thead>
       <tr>
         <th>Incident</th>
@@ -11,46 +10,43 @@
       </tr>
     </thead>
 
-    <!-- Table Body -->
     <tbody>
       @for (row of data; track row) {
         <tr>
           <td>{{ row.incidentNumber }}</td>
-          <!-- Approve Checkbox -->
           <td>
             <input
               type="checkbox"
               [(ngModel)]="row.approved"
               (change)="onCheckboxChange(row, 'approve')"
-              />
+            />
           </td>
-          <!-- Reject Checkbox -->
           <td>
             <input
               type="checkbox"
               [(ngModel)]="row.rejected"
               (change)="onCheckboxChange(row, 'reject')"
-              />
+            />
           </td>
         </tr>
       }
     </tbody>
   </table>
-</mat-dialog-content>
+</div>
 
-<mat-dialog-actions style="justify-content: center !important">
+<div class="bulk-actions">
   <button
     class="btn"
     style="background-color: #185996 !important; color: white !important"
     (click)="onSubmit()"
-    >
+  >
     Submit
   </button>
   <button
     class="btn btn-default"
     style="background-color: white !important"
     (click)="onCancel()"
-    >
+  >
     Cancel
   </button>
-</mat-dialog-actions>
+</div>

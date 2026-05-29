@@ -46,6 +46,12 @@ export class ThemeService implements OnDestroy {
     } else {
       this.darkMode$.next(this.mediaQuery.matches);
     }
+
+    // Mirror dark state onto <body> so global styles (page background, etc.)
+    // can respond even outside any component host.
+    this.darkMode$.subscribe((dark) => {
+      document.body.classList.toggle('dark-theme', dark);
+    });
   }
 
   toggle(): void {

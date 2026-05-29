@@ -789,3 +789,124 @@
 .stat-card:nth-child(3) {
   animation-delay: 0.15s;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Dark Mode
+   ══════════════════════════════════════════════════════════════ */
+:host(.dark-theme) {
+  --analytics-card-bg: var(--fit-dark-card-bg, rgba(28, 44, 58, 0.85));
+  --analytics-card-border: var(--fit-dark-card-border, rgba(42, 63, 80, 0.6));
+  --analytics-text: var(--fit-dark-text, #e0e6ed);
+  --analytics-text-muted: var(--fit-dark-muted, #8899a6);
+  --analytics-accent: #00bceb;
+  background: var(--fit-dark-bg, #0f1923);
+  color: var(--analytics-text);
+}
+
+:host(.dark-theme) .ciq-select,
+:host(.dark-theme) .ciq-btn {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--analytics-text);
+  border-color: var(--fit-dark-border, #2a3f50);
+}
+
+:host(.dark-theme) .ciq-select:hover,
+:host(.dark-theme) .ciq-btn:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+:host(.dark-theme) .ciq-select option {
+  background: var(--fit-dark-surface, #111b25);
+  color: var(--analytics-text);
+}
+
+:host(.dark-theme) .header-icon-slot {
+  background: rgba(0, 188, 235, 0.1);
+  color: #00bceb;
+  box-shadow:
+    0 0 0 1px rgba(0, 188, 235, 0.2),
+    0 4px 16px rgba(0, 188, 235, 0.15);
+}
+
+:host(.dark-theme) .chart-card,
+:host(.dark-theme) .data-table-card,
+:host(.dark-theme) .empty-state {
+  background: var(--analytics-card-bg);
+  border-color: var(--analytics-card-border);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.25),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+:host(.dark-theme) .chart-card:hover {
+  box-shadow:
+    0 8px 32px rgba(0, 188, 235, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+:host(.dark-theme) .stat-card {
+  background: var(--analytics-card-bg);
+  border-color: var(--analytics-card-border);
+}
+
+:host(.dark-theme) .stat-value {
+  color: var(--analytics-text);
+}
+
+:host(.dark-theme) .stat-label,
+:host(.dark-theme) .header-subtitle,
+:host(.dark-theme) .loading-container,
+:host(.dark-theme) .modal-loading,
+:host(.dark-theme) .timestamp {
+  color: var(--analytics-text-muted);
+}
+
+:host(.dark-theme) .header-title,
+:host(.dark-theme) .card-header,
+:host(.dark-theme) .empty-state h3,
+:host(.dark-theme) .user-cell,
+:host(.dark-theme) .visits,
+:host(.dark-theme) .users {
+  color: var(--analytics-text);
+}
+
+:host(.dark-theme) .empty-state p {
+  color: var(--analytics-text-muted);
+}
+
+:host(.dark-theme) .data-table th {
+  background: var(--fit-dark-surface, #111b25);
+  color: var(--analytics-text-muted);
+}
+
+:host(.dark-theme) .data-table td {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+  color: var(--analytics-text);
+}
+
+:host(.dark-theme) .data-table tbody tr:hover {
+  background: rgba(0, 188, 235, 0.06);
+}
+
+:host(.dark-theme) .rank-badge {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--analytics-text-muted);
+}
+
+:host(.dark-theme) .ciq-modal {
+  background: var(--fit-dark-surface, #111b25);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+:host(.dark-theme) .ciq-modal__close:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--analytics-text);
+}
+
+:host(.dark-theme) .empty-icon-slot {
+  background: rgba(0, 188, 235, 0.08);
+  color: #00bceb;
+  box-shadow: 0 0 0 1px rgba(0, 188, 235, 0.18);
+}

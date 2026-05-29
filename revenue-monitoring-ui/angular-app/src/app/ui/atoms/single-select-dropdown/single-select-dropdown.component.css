@@ -78,13 +78,12 @@
 
 /* Search inside dropdown */
 .fit-singleselect__search-wrap {
-  padding: var(--fit-space-sm);
-  border-bottom: 1px solid var(--fit-color-border);
+  padding: var(--fit-space-xs);
 }
 
 .fit-singleselect__search {
   width: 100%;
-  padding: 6px var(--fit-space-sm);
+  padding: 2px var(--fit-space-sm);
   font-size: var(--fit-font-size-sm);
   border: 1px solid var(--fit-color-border);
   border-radius: 15px;
@@ -92,10 +91,6 @@
   color: var(--fit-color-text);
   background: var(--fit-color-bg);
   box-sizing: border-box;
-}
-
-.fit-singleselect__search:focus {
-  border-color: var(--fit-color-primary);
 }
 
 /* Option list */
@@ -164,4 +159,63 @@
   font-size: var(--fit-font-size-sm);
   text-align: center;
   font-style: italic;
+}
+
+/* ── Dark mode ── */
+:host-context(.dark-theme) .fit-singleselect__label {
+  color: var(--fit-dark-text, #e0e6ed);
+}
+
+:host-context(.dark-theme) .fit-singleselect__control {
+  background: var(--fit-dark-surface, #1a2733);
+  border-color: var(--fit-dark-border, #2a3f50);
+}
+
+:host-context(.dark-theme) .fit-singleselect__control:hover {
+  border-color: #00bceb;
+}
+
+:host-context(.dark-theme) .fit-singleselect__display {
+  color: var(--fit-dark-text, #e0e6ed);
+}
+
+:host-context(.dark-theme) .fit-singleselect__display--placeholder,
+:host-context(.dark-theme) .fit-singleselect__chevron {
+  color: var(--fit-dark-muted, #8899a6);
+}
+
+:host-context(.dark-theme) .fit-singleselect__dropdown {
+  background: var(--fit-dark-surface, #1a2733);
+  border-color: var(--fit-dark-border, #2a3f50);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+:host-context(.dark-theme) .fit-singleselect__search-wrap {
+  border-bottom-color: var(--fit-dark-border, #2a3f50);
+}
+
+:host-context(.dark-theme) .fit-singleselect__search {
+  background: var(--fit-dark-bg, #0f1923);
+  color: var(--fit-dark-text, #e0e6ed);
+}
+
+:host-context(.dark-theme) .fit-singleselect__search::placeholder {
+  color: var(--fit-dark-muted, #8899a6);
+}
+
+:host-context(.dark-theme) .fit-singleselect__item {
+  color: var(--fit-dark-text, #e0e6ed);
+}
+
+:host-context(.dark-theme) .fit-singleselect__item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+:host-context(.dark-theme) .fit-singleselect__radio {
+  background: var(--fit-dark-bg, #0f1923);
+  border-color: var(--fit-dark-border, #2a3f50);
+}
+
+:host-context(.dark-theme) .fit-singleselect__no-results {
+  color: var(--fit-dark-muted, #8899a6);
 }

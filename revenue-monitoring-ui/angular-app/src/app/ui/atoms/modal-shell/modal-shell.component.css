@@ -81,3 +81,28 @@
 .fit-modal__footer {
   padding: 0 var(--fit-space-lg) var(--fit-space-sm);
 }
+
+/* ── Dark mode ── */
+:host-context(.dark-theme) ::ng-deep .fit-modal,
+:host-context(body.dark-theme) ::ng-deep .fit-modal {
+  background: var(--fit-dark-surface, #1a2733);
+  color: var(--fit-dark-text, #e0e6ed);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+:host-context(.dark-theme) ::ng-deep .fit-modal-backdrop,
+:host-context(body.dark-theme) ::ng-deep .fit-modal-backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+:host-context(.dark-theme) .fit-modal__header,
+:host-context(body.dark-theme) .fit-modal__header {
+  background-color: var(--fit-dark-bg, #0f1923);
+  border-bottom-color: var(--fit-dark-border, #2a3f50);
+}
+
+:host-context(.dark-theme) .fit-modal__close:hover,
+:host-context(body.dark-theme) .fit-modal__close:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--fit-dark-text, #e0e6ed);
+}

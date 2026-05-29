@@ -172,9 +172,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     if (
       'selectedQuarter' in changes &&
-      !changes['selectedQuarter'].firstChange
+      changes['selectedQuarter'].currentValue
     ) {
-      // Quarter changed by user — rebuild KPI charts (analytics charts use rolling window, no refetch needed)
+      // Quarter changed — re-fetch monitoring data filtered by new quarter
       if (this.viewInitialized) {
         this.showLoadingForMoment();
         // Re-fetch monitoring data and accuracy data with new quarter
@@ -195,7 +195,10 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     this.fetchAccuracyData();
 
     // Fetch monitoring data (Issues Breakdown + Error Incidents)
-    this.fetchMonitoringData();
+    // Only call if quarter is already set; otherwise ngOnChanges will trigger it
+    if (this.selectedQuarter) {
+      this.fetchMonitoringData();
+    }
 
     // Always fetch analytics chart data on init
     this.fetchAnalyticsCharts();
@@ -1358,7 +1361,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
             return gradient;
           },
-          borderWidth: 2,
+          borderWidth: 2.5,
           pointBackgroundColor: '#ffffff',
           pointBorderColor: hex,
           pointBorderWidth: 2,

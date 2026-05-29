@@ -69,3 +69,26 @@
   height: 1.5px;
   background: #9ca3af;
 }
+
+/* ── Dark mode (inherits from wrapper) ── */
+:host-context(.dark-theme) .flow-chip {
+  background: var(--fit-dark-surface, #1a2733);
+  border-color: var(--fit-dark-border, #2a3f50);
+}
+:host-context(.dark-theme) .flow-chip:hover {
+  border-color: #00bceb;
+  box-shadow: 0 1px 4px rgba(0, 188, 235, 0.18);
+}
+:host-context(.dark-theme) .flow-chip__name {
+  color: var(--fit-dark-muted, #8899a6);
+}
+:host-context(.dark-theme) .flow-chip__divider {
+  background: var(--fit-dark-border, #2a3f50);
+}
+:host-context(.dark-theme) .flow-chip__amount {
+  color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) .flow-connector__dot,
+:host-context(.dark-theme) .flow-connector__line {
+  background: var(--fit-dark-muted, #8899a6);
+}

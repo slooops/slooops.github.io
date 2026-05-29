@@ -5,13 +5,18 @@
 html,
 body {
   height: 100%;
-  background-color: #ffffff !important;
+  background-color: #ffffff;
 }
 body {
   margin: 0;
   font-family: "Inter", sans-serif !important;
-  background-color: #ffffff !important;
+  background-color: #ffffff;
   overflow-x: hidden;
+}
+
+body.dark-theme,
+html:has(body.dark-theme) {
+  background-color: #0f1923;
 }
 
 /* Reset heading sizes to sensible defaults */
@@ -999,4 +1004,8 @@ h6 {
 .rounded-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
   border-radius: 16px !important;
   overflow: hidden;
+}
+
+body.dark-theme .rounded-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+  background-color: #1a2733 !important;
 }

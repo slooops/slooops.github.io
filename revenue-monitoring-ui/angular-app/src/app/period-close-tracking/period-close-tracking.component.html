@@ -353,6 +353,77 @@
   </div>
 </div>
 
+<!-- Invoices Generated & Cash Posted Charts - 4 across -->
+<div class="pct-row pct-row-4">
+  <div class="pct-col">
+    <app-atmf-card>
+      <p class="section-title">Preclose Invoices Generated</p>
+      @if (precloseInvChartLabels.length) {
+        <app-atmf-stacked-chart
+          [labels]="precloseInvChartLabels"
+          [datasets]="precloseInvChartDatasets"
+          [currencyFormat]="true"
+          [showY1Axis]="true"
+        ></app-atmf-stacked-chart>
+      } @else {
+        <div class="centered">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      }
+    </app-atmf-card>
+  </div>
+  <div class="pct-col">
+    <app-atmf-card>
+      <p class="section-title">Preclose Cash Posted</p>
+      @if (precloseCashChartLabels.length) {
+        <app-atmf-stacked-chart
+          [labels]="precloseCashChartLabels"
+          [datasets]="precloseCashChartDatasets"
+          [currencyFormat]="true"
+        ></app-atmf-stacked-chart>
+      } @else {
+        <div class="centered">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      }
+    </app-atmf-card>
+  </div>
+  <div class="pct-col">
+    <app-atmf-card>
+      <p class="section-title">Midclose Invoices Generated</p>
+      @if (midcloseInvChartLabels.length) {
+        <app-atmf-stacked-chart
+          [labels]="midcloseInvChartLabels"
+          [datasets]="midcloseInvChartDatasets"
+          [currencyFormat]="true"
+          [showY1Axis]="true"
+        ></app-atmf-stacked-chart>
+      } @else {
+        <div class="centered">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      }
+    </app-atmf-card>
+  </div>
+
+  <div class="pct-col">
+    <app-atmf-card>
+      <p class="section-title">Midclose Cash Posted</p>
+      @if (midcloseCashChartLabels.length) {
+        <app-atmf-stacked-chart
+          [labels]="midcloseCashChartLabels"
+          [datasets]="midcloseCashChartDatasets"
+          [currencyFormat]="true"
+        ></app-atmf-stacked-chart>
+      } @else {
+        <div class="centered">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      }
+    </app-atmf-card>
+  </div>
+</div>
+
 <!-- Invoices Generated & Cash Posted - Side by Side with Tabs -->
 <div class="pct-row">
   <div class="pct-col">

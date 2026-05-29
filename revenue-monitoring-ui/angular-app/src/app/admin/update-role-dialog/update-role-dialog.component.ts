@@ -1,4 +1,10 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  HostBinding,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToggleSwitchComponent } from '../../ui/atoms/toggle-switch/toggle-switch.component';
@@ -55,6 +61,11 @@ export class UpdateRoleDialogComponent {
   @Input() roles: RoleRow[] = [];
   @Output() back = new EventEmitter<void>();
   @Output() rolesChanged = new EventEmitter<void>();
+
+  @HostBinding('class.dark-theme') _darkMode = false;
+  @Input() set darkMode(val: boolean) {
+    this._darkMode = !!val;
+  }
 
   constructor(
     private http: ApiHttpService,

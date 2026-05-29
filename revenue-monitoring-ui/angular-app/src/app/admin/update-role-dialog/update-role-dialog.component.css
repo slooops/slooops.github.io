@@ -531,3 +531,82 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Dark Mode — remap fit-color tokens + targeted hardcoded overrides
+   ══════════════════════════════════════════════════════════════ */
+:host-context(.dark-theme) {
+  --fit-color-bg: var(--fit-dark-bg, #0f1923);
+  --fit-color-bg-subtle: rgba(255, 255, 255, 0.04);
+  --fit-color-bg-muted: rgba(255, 255, 255, 0.08);
+  --fit-color-surface: var(--fit-dark-surface, #111b25);
+  --fit-color-border: var(--fit-dark-border, #2a3f50);
+  --fit-color-text: var(--fit-dark-text, #e0e6ed);
+  --fit-color-text-muted: var(--fit-dark-muted, #8899a6);
+  --fit-color-primary: #00bceb;
+  --fit-color-primary-soft: rgba(0, 188, 235, 0.14);
+  --fit-color-primary-hover: #33ccef;
+  --fit-color-focus-ring: #00bceb;
+  --fit-color-error-subtle: rgba(229, 57, 53, 0.16);
+  color: var(--fit-color-text);
+}
+
+:host-context(.dark-theme) .rv__search {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--fit-color-text);
+  border-color: var(--fit-color-border);
+}
+
+:host-context(.dark-theme) .rv__search:focus {
+  border-color: var(--fit-color-primary);
+  box-shadow: 0 0 0 2px rgba(0, 188, 235, 0.25);
+}
+
+:host-context(.dark-theme) .rv__back-btn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--fit-color-primary);
+}
+
+/* Dialog surfaces */
+:host-context(.dark-theme) .rd,
+:host-context(.dark-theme) .dd {
+  background: var(--fit-dark-surface, #111b25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+:host-context(.dark-theme) .rd__footer,
+:host-context(.dark-theme) .dd__footer {
+  background: rgba(255, 255, 255, 0.03);
+  border-top-color: var(--fit-color-border);
+}
+
+:host-context(.dark-theme) .rd__btn--cancel,
+:host-context(.dark-theme) .dd__btn--cancel {
+  background: transparent;
+  color: var(--fit-color-text);
+  border-color: var(--fit-color-border);
+}
+
+:host-context(.dark-theme) .rd__btn--cancel:hover,
+:host-context(.dark-theme) .dd__btn--cancel:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+:host-context(.dark-theme) .rd__input {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--fit-color-text);
+  border-color: var(--fit-color-border);
+}
+
+:host-context(.dark-theme) .rd__input:focus {
+  border-color: var(--fit-color-primary);
+  box-shadow: 0 0 0 2px rgba(0, 188, 235, 0.2);
+}
+
+:host-context(.dark-theme) .rd__label {
+  color: var(--fit-color-text-muted);
+}
+
+:host-context(.dark-theme) .dd__message {
+  color: var(--fit-color-text);
+}

@@ -24,6 +24,7 @@
   @if (showRoleView) {
     <app-update-role-dialog
       [roles]="allRoles"
+      [darkMode]="themeService.isDarkMode"
       (back)="closeRoleView()"
       (rolesChanged)="refreshRoles()"
     ></app-update-role-dialog>

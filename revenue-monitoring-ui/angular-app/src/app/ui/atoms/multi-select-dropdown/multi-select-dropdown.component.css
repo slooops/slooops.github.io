@@ -19,7 +19,7 @@
   display: flex;
   align-items: center;
   gap: var(--fit-space-sm);
-  height: var(--fit-control-height);
+  height: 1.4rem;
   padding: 0 var(--fit-space-md);
   background: var(--fit-color-bg);
   border: 1px solid var(--fit-color-border);
@@ -80,19 +80,20 @@
 
 /* Search inside dropdown */
 .fit-multiselect__search-wrap {
-  padding: var(--fit-space-sm);
-  border-bottom: 1px solid var(--fit-color-border);
+  padding: var(--fit-space-xs);
 }
 
 .fit-multiselect__search {
   width: 100%;
-  padding: 6px var(--fit-space-sm);
+  height: 1.4rem;
+  padding: 2px var(--fit-space-sm);
   font-size: var(--fit-font-size-sm);
   border: 1px solid var(--fit-color-border);
   border-radius: 15px;
   outline: none;
   color: var(--fit-color-text);
   background: var(--fit-color-bg);
+  box-sizing: border-box;
 }
 
 .fit-multiselect__search:focus {

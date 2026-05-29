@@ -31,3 +31,9 @@
   color: var(--fit-color-text);
   padding-inline: var(--fit-space-sm);
 }
+
+/* Dark mode */
+:host-context(.dark-theme) .fit-pagination__text,
+:host-context(.dark-theme) .fit-pagination__page-indicator {
+  color: var(--fit-dark-text);
+}

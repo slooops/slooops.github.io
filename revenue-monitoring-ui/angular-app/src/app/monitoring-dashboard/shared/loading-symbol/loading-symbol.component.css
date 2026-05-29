@@ -3,6 +3,11 @@
   --blue: #333;
 }
 
+:host-context(.dark-theme) {
+  --grey: #2a3f50;
+  --blue: #8899a6;
+}
+
 @keyframes loading {
   25% {
     fill: var(--grey);

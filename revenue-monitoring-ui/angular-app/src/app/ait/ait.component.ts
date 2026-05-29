@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostBinding, OnInit } from '@angular/core';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { ThemeService } from '../providers/theme.service';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { CommonModule } from '@angular/common';
 import { AuthenticationService } from '../providers/authentication.service';
@@ -35,11 +36,16 @@ export interface UserContext {
   standalone: true,
 })
 export class AitComponent implements OnInit {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
     protected authService: AuthenticationService,
     private menuService: MenuService,
+    public themeService: ThemeService,
   ) {
     // Initialize roles and user context in constructor so they're available before template renders
     this.roles = this.authService.getUserAccessRoles();

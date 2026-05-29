@@ -1,4 +1,11 @@
-import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  HostBinding,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -22,6 +29,7 @@ import {
 import { AuthenticationService } from '../providers/authentication.service';
 import { ApiHttpService } from '../providers/http.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { ThemeService } from '../providers/theme.service';
 
 interface RoleRouteMap {
   roles: string[];
@@ -475,10 +483,15 @@ export class LandingComponent implements OnInit, OnDestroy {
     return columns;
   });
 
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+
   constructor(
     private authService: AuthenticationService,
     private router: Router,
     private http: ApiHttpService,
+    public themeService: ThemeService,
   ) {
     this.userName.set(this.authService.getUserName());
 

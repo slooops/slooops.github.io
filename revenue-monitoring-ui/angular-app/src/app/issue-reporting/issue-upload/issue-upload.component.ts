@@ -1,6 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { CommonModule } from '@angular/common';
@@ -36,10 +35,10 @@ export class IssueUploadComponent {
   updateForm: FormGroup;
   username: any;
 
+  @Output() closed = new EventEmitter<string | null>();
+
   constructor(
     public http: ApiHttpService,
-    public dialog: MatDialog,
-    private dialogRef: MatDialogRef<IssueUploadComponent>,
     private authService: AuthenticationService,
   ) {}
 
@@ -47,8 +46,8 @@ export class IssueUploadComponent {
     this.username = this.authService.getUserName();
   }
 
-  closeDialog(result) {
-    this.dialogRef.close();
+  closeDialog(result: string | null = null) {
+    this.closed.emit(result);
   }
 
   selectedFile: File | null = null;
@@ -96,7 +95,7 @@ export class IssueUploadComponent {
   }
 
   closeOkDialog(): void {
-    this.dialog.closeAll();
+    this.closed.emit(null);
   }
 
   removeFile() {

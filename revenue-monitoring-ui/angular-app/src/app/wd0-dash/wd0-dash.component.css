@@ -13,7 +13,8 @@
   font-family: "Inter", sans-serif;
 }
 
-:host(.dark-theme) {
+:host(.dark-theme),
+:host-context(.dark-theme) {
   --wd-bg: #0f1923;
   --wd-surface: #1a2733;
   --wd-text: #e0e6ed;

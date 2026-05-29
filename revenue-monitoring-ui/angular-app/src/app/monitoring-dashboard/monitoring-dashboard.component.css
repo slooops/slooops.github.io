@@ -161,6 +161,11 @@ tr.mat-mdc-header-row {
   height: auto;
 }
 
+:host-context(.dark-theme) .no-data-image {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9);
+  opacity: 0.7;
+}
+
 .no-wrap {
   white-space: nowrap;
 }
@@ -589,4 +594,190 @@ tr.mat-mdc-header-row {
 
 .md-link:hover {
   text-decoration: underline;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Dark mode (activated via ancestor wrapper .dark-theme)
+   ══════════════════════════════════════════════════════════ */
+
+:host-context(.dark-theme) {
+  --md-bg: var(--fit-dark-bg, #0f1923);
+  --md-surface: var(--fit-dark-surface, #1a2733);
+  --md-card-bg: var(--fit-dark-surface, #1a2733);
+  --md-card-border: var(--fit-dark-border, #2a3f50);
+  --md-text: var(--fit-dark-text, #e0e6ed);
+  --md-muted: var(--fit-dark-muted, #8899a6);
+
+  /* Material MDC table design tokens — must be redefined for dark
+     because the cell background reads from --mat-table-background-color */
+  --mat-table-background-color: var(--fit-dark-surface, #1a2733);
+  --mat-table-row-item-container-color: var(--fit-dark-surface, #1a2733);
+  --mat-table-header-container-color: var(--fit-dark-surface, #111b25);
+  --mat-table-footer-container-color: var(--fit-dark-surface, #1a2733);
+  --mat-table-row-item-outline-color: var(--fit-dark-border, #2a3f50);
+}
+
+:host-context(.dark-theme) .md-table-container {
+  border-color: var(--md-card-border);
+  background: var(--md-surface);
+}
+
+/* Material table — need to paint both <tr> and <td>/<th> because MDC
+   applies background to the cells, not the row. */
+:host-context(.dark-theme) .mat-mdc-table,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-table {
+  background: var(--md-surface) !important;
+}
+:host-context(.dark-theme) .mat-mdc-header-row,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-header-row {
+  background: var(--fit-dark-surface, #111b25) !important;
+  border-bottom-color: var(--md-card-border) !important;
+}
+:host-context(.dark-theme) .mat-mdc-header-cell,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-header-cell {
+  background: var(--fit-dark-surface, #111b25) !important;
+  color: var(--md-muted) !important;
+  border-bottom-color: var(--md-card-border) !important;
+}
+:host-context(.dark-theme) .mat-mdc-row,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-row {
+  background: var(--md-surface) !important;
+  border-bottom-color: var(--md-card-border) !important;
+}
+:host-context(.dark-theme) .mat-mdc-cell,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-cell {
+  background: var(--md-surface) !important;
+  color: var(--md-text) !important;
+  border-bottom-color: var(--md-card-border) !important;
+}
+/* Hover — paint cells too, otherwise Material's default white shows through */
+:host-context(.dark-theme) .mat-mdc-row:hover,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-row:hover {
+  background: #233544 !important;
+}
+:host-context(.dark-theme) .mat-mdc-row:hover .mat-mdc-cell,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-row:hover .mat-mdc-cell {
+  background: #233544 !important;
+}
+
+/* Material form fields (filled) */
+:host-context(.dark-theme)
+  ::ng-deep
+  .mat-mdc-form-field
+  .mdc-text-field--filled,
+:host-context(.dark-theme)
+  ::ng-deep
+  .mat-mdc-form-field
+  .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: var(--fit-dark-surface, #1a2733) !important;
+}
+:host-context(.dark-theme)
+  ::ng-deep
+  .mat-mdc-form-field
+  .mdc-text-field--filled::before {
+  border-bottom-color: rgba(255, 255, 255, 0.18) !important;
+}
+:host-context(.dark-theme) ::ng-deep .mat-mdc-form-field input,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-form-field textarea {
+  color: var(--fit-dark-text, #e0e6ed) !important;
+  caret-color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) ::ng-deep .mat-mdc-form-field input::placeholder,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-form-field textarea::placeholder {
+  color: var(--fit-dark-muted, #8899a6) !important;
+}
+:host-context(.dark-theme) ::ng-deep .mat-mdc-select-value,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-select-arrow,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-form-field-label,
+:host-context(.dark-theme) ::ng-deep .mdc-floating-label {
+  color: var(--fit-dark-muted, #8899a6) !important;
+}
+:host-context(.dark-theme)
+  ::ng-deep
+  .mat-mdc-form-field
+  .mat-mdc-form-field-icon-suffix {
+  color: var(--fit-dark-muted, #8899a6) !important;
+}
+
+/* Paginator */
+:host-context(.dark-theme) ::ng-deep .mat-mdc-paginator {
+  background: transparent !important;
+  color: var(--fit-dark-muted, #8899a6) !important;
+  border-top-color: var(--md-card-border) !important;
+}
+:host-context(.dark-theme)
+  ::ng-deep
+  .mat-mdc-paginator
+  .mat-mdc-paginator-range-label,
+:host-context(.dark-theme)
+  ::ng-deep
+  .mat-mdc-paginator
+  .mat-mdc-paginator-page-size-label,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-icon-button {
+  color: var(--fit-dark-muted, #8899a6) !important;
+}
+
+/* Sort header arrow */
+:host-context(.dark-theme) ::ng-deep .mat-sort-header-arrow {
+  color: var(--fit-dark-muted, #8899a6);
+}
+
+/* Mat options panel (dropdown) — rendered in overlay, scope by ancestor */
+:host-context(.dark-theme) ::ng-deep .mat-mdc-option:hover,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-option.mat-mdc-option-active {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Card / callout / modal */
+:host-context(.dark-theme) .card {
+  background-color: var(--md-surface) !important;
+  border-color: var(--md-card-border) !important;
+  color: var(--md-text);
+}
+:host-context(.dark-theme) .card:hover {
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+}
+:host-context(.dark-theme) .card-placeholder {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+:host-context(.dark-theme) .callout-box {
+  background-color: var(--md-surface);
+  color: var(--md-text);
+}
+:host-context(.dark-theme) .box-header {
+  color: var(--md-muted);
+}
+:host-context(.dark-theme) .box-body {
+  color: var(--md-text);
+}
+
+:host-context(.dark-theme) .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.65);
+}
+:host-context(.dark-theme) .modal-content {
+  background-color: var(--md-surface);
+  color: var(--md-text);
+  border: 1px solid var(--md-card-border);
+}
+
+:host-context(.dark-theme) .page-title,
+:host-context(.dark-theme) .card-title,
+:host-context(.dark-theme) .section-title {
+  color: var(--md-text);
+}
+:host-context(.dark-theme) .card-subtitle {
+  color: var(--md-muted);
+}
+
+/* Form/filter controls */
+:host-context(.dark-theme) .form-container .mat-small {
+  color: var(--md-muted);
+  border-color: var(--md-card-border);
+}
+:host-context(.dark-theme) .form-container .mat-small:hover {
+  color: var(--md-text);
+  border-color: var(--md-text);
+}
+:host-context(.dark-theme) .md-search-icon {
+  color: var(--md-muted);
 }

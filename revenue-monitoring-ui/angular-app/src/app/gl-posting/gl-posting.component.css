@@ -1,3 +1,32 @@
+/* ── Light mode (default) ── */
+:host {
+  --gl-bg: #ffffff;
+  --gl-surface: #ffffff;
+  --gl-text: #1b1c1d;
+  --gl-muted: #555;
+  --gl-border: #e1e4e8;
+  --gl-header-h2: #000000;
+  --gl-search-bg: #ffffff;
+  --gl-search-border: #d0d0d0;
+  --gl-search-icon: #888;
+  display: block;
+}
+
+/* ── Dark mode ── */
+:host(.dark-theme) {
+  --gl-bg: var(--fit-dark-bg, #0f1923);
+  --gl-surface: var(--fit-dark-surface, #111b25);
+  --gl-text: var(--fit-dark-text, #e0e6ed);
+  --gl-muted: var(--fit-dark-muted, #8899a6);
+  --gl-border: var(--fit-dark-border, #2a3f50);
+  --gl-header-h2: var(--fit-dark-text, #e0e6ed);
+  --gl-search-bg: var(--fit-dark-surface, #111b25);
+  --gl-search-border: var(--fit-dark-border, #2a3f50);
+  --gl-search-icon: var(--fit-dark-muted, #8899a6);
+  background: var(--gl-bg);
+  color: var(--gl-text);
+}
+
 /* Header & search styling aligned with Order Management / Operations Controls */
 
 .dashboard-header {
@@ -18,7 +47,7 @@
 .header-main h2 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #000000;
+  color: var(--gl-header-h2);
   margin: 0;
   white-space: nowrap;
 }
@@ -32,8 +61,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: #ffffff;
-  border: 1px solid #d0d0d0;
+  background: var(--gl-search-bg);
+  border: 1px solid var(--gl-search-border);
   border-radius: 999px;
   padding: 4px 10px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -49,7 +78,7 @@
 
 .global-search-icon {
   font-size: 12px;
-  color: #888;
+  color: var(--gl-search-icon);
   cursor: pointer;
 }
 
@@ -58,10 +87,21 @@
   outline: none;
   font-size: 12px;
   min-width: 200px;
+  background: transparent;
+  color: var(--gl-text);
+}
+
+.global-search-input::placeholder {
+  color: var(--gl-muted);
 }
 
 hr {
   margin: 0;
+  border: 0;
+  border-top: 1px solid var(--gl-border);
+  background: transparent;
+  color: var(--gl-border);
+  height: 0;
 }
 
 .header-left {

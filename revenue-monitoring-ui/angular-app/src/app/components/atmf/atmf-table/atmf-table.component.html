@@ -31,6 +31,8 @@
                     } @else {
                       <span class="pct-up">▲ {{ row[column] }}%</span>
                     }
+                  } @else if (isNumericValue(row[column])) {
+                    {{ row[column] | number }}
                   } @else {
                     {{ row[column] }}
                   }

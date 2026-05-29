@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostBinding, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { DataService, PeriodStatus } from 'src/app/providers/data.service';
+import { ThemeService } from 'src/app/providers/theme.service';
 import {
   AdminUserRow,
   ColumnConfig,
@@ -915,7 +916,12 @@ export class AdminComponent implements OnInit {
     private datePipe: DatePipe,
     private dataService: DataService,
     private route: ActivatedRoute,
+    public themeService: ThemeService,
   ) {}
+
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
 
   ngOnInit(): void {
     this.detectAdminPrivileges();

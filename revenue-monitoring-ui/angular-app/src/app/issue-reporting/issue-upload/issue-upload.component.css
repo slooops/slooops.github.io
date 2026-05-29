@@ -1,6 +1,28 @@
 :host {
   display: block;
   font-family: "Inter", sans-serif;
+
+  --iu-surface: #ffffff;
+  --iu-text: #1b1c1d;
+  --iu-muted: #64748b;
+  --iu-border: #e5e7eb;
+  --iu-dropzone-bg: #fafbfc;
+  --iu-dropzone-hover-bg: rgba(0, 112, 210, 0.04);
+  --iu-file-info-bg: #f6f8fa;
+  --iu-btn-bg: #ffffff;
+  --iu-accent: #00bceb;
+}
+
+:host-context(body.dark-theme) {
+  --iu-surface: #1a2733;
+  --iu-text: #e0e6ed;
+  --iu-muted: #8899a6;
+  --iu-border: rgba(42, 63, 80, 0.6);
+  --iu-dropzone-bg: #111b25;
+  --iu-dropzone-hover-bg: rgba(78, 161, 255, 0.08);
+  --iu-file-info-bg: #111b25;
+  --iu-btn-bg: #1a2733;
+  --iu-accent: #4ea1ff;
 }
 
 ::ng-deep .rounded-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
@@ -10,6 +32,8 @@
 .iu-dialog {
   width: 100%;
   overflow: hidden;
+  background: var(--iu-surface);
+  color: var(--iu-text);
 }
 
 /* Header */
@@ -17,32 +41,42 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.625rem 1rem;
-  background: #00bceb;
-  color: #fff;
+  padding: 14px 20px 8px;
+  background: transparent;
+  color: var(--iu-text);
 }
 
 .iu-header__title {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--iu-text);
 }
 
 .iu-header__close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: rgba(255, 255, 255, 0.8);
-  padding: 0.2rem;
-  border-radius: 4px;
   display: flex;
   align-items: center;
-  transition: color 150ms ease;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--iu-muted);
+  cursor: pointer;
+  transition:
+    background 150ms,
+    color 150ms;
 }
 
 .iu-header__close:hover {
-  color: #fff;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--iu-text);
+}
+
+:host-context(body.dark-theme) .iu-header__close:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* Body */
@@ -61,7 +95,7 @@
   align-self: flex-end;
   font-size: 0.75rem;
   font-weight: 500;
-  color: #00bceb;
+  color: var(--iu-accent);
   text-decoration: none;
   transition: color 150ms ease;
 }
@@ -73,37 +107,39 @@
 
 /* Drop zone */
 .iu-dropzone {
-  border: 2px dashed var(--fit-color-border, #c8cdd3);
+  border: 2px dashed var(--iu-border);
   border-radius: 10px;
   padding: 1.5rem 1rem;
+  min-width: 30vw;
   text-align: center;
   cursor: pointer;
-  background: #fafbfc;
+  background: var(--iu-dropzone-bg);
+  color: var(--iu-text);
   transition:
     border-color 200ms ease,
     background 200ms ease;
 }
 
 .iu-dropzone:hover {
-  border-color: var(--fit-color-primary, #0070d2);
-  background: rgba(0, 112, 210, 0.03);
+  border-color: var(--iu-accent);
+  background: var(--iu-dropzone-hover-bg);
 }
 
 .iu-dropzone__icon {
-  color: var(--fit-color-primary, #0070d2);
-  opacity: 0.5;
+  color: var(--iu-accent);
+  opacity: 0.7;
   margin-bottom: 0.5rem;
 }
 
 .iu-dropzone__text {
   font-size: 0.75rem;
-  color: var(--fit-color-text, #333);
+  color: var(--iu-text);
   margin: 0 0 0.125rem;
 }
 
 .iu-dropzone__or {
   font-size: 0.7rem;
-  color: var(--fit-color-text-muted, #999);
+  color: var(--iu-muted);
   margin: 0.25rem 0 0.5rem;
 }
 
@@ -114,17 +150,17 @@
   padding: 0.375rem 1rem;
   font-size: 0.7rem;
   font-weight: 500;
-  color: var(--fit-color-primary, #0070d2);
-  background: #fff;
-  border: 1px solid var(--fit-color-border, #d0d5dd);
+  color: var(--iu-accent);
+  background: var(--iu-btn-bg);
+  border: 1px solid var(--iu-border);
   border-radius: 999px;
   cursor: pointer;
   transition: all 150ms ease;
 }
 
 .iu-dropzone__btn:hover {
-  background: #f0f6ff;
-  border-color: var(--fit-color-primary, #0070d2);
+  background: var(--iu-dropzone-hover-bg);
+  border-color: var(--iu-accent);
 }
 
 /* Selected file */
@@ -134,20 +170,20 @@
   gap: 0.75rem;
   margin-top: 1.25rem;
   padding: 0.75rem 1rem;
-  background: #f6f8fa;
-  border: 1px solid var(--fit-color-border, #e5e7eb);
+  background: var(--iu-file-info-bg);
+  border: 1px solid var(--iu-border);
   border-radius: 10px;
 }
 
 .iu-file-info__icon {
-  color: var(--fit-color-primary, #0070d2);
+  color: var(--iu-accent);
 }
 
 .iu-file-info__name {
   flex: 1;
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--fit-color-text, #1b1c1d);
+  color: var(--iu-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

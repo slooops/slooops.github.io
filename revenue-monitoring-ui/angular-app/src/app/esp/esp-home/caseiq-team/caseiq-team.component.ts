@@ -219,7 +219,7 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (
-      (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) ||
+      (changes['selectedQuarter'] && changes['selectedQuarter'].currentValue) ||
       (changes['caseIqMetrics'] && !changes['caseIqMetrics'].firstChange)
     ) {
       this.refreshingData = true;

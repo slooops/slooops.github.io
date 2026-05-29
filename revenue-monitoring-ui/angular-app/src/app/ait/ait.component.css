@@ -1,3 +1,32 @@
+/* ── Light mode (default) ── */
+:host {
+  --ait-bg: #ffffff;
+  --ait-surface: #ffffff;
+  --ait-text: #1b1c1d;
+  --ait-muted: #555;
+  --ait-border: #e1e4e8;
+  --ait-header-h2: #000000;
+  --ait-search-bg: #ffffff;
+  --ait-search-border: #d0d0d0;
+  --ait-search-icon: #888;
+  display: block;
+}
+
+/* ── Dark mode ── */
+:host(.dark-theme) {
+  --ait-bg: var(--fit-dark-bg, #0f1923);
+  --ait-surface: var(--fit-dark-surface, #111b25);
+  --ait-text: var(--fit-dark-text, #e0e6ed);
+  --ait-muted: var(--fit-dark-muted, #8899a6);
+  --ait-border: var(--fit-dark-border, #2a3f50);
+  --ait-header-h2: var(--fit-dark-text, #e0e6ed);
+  --ait-search-bg: var(--fit-dark-surface, #111b25);
+  --ait-search-border: var(--fit-dark-border, #2a3f50);
+  --ait-search-icon: var(--fit-dark-muted, #8899a6);
+  background: var(--ait-bg);
+  color: var(--ait-text);
+}
+
 /* Header & search styling aligned with Order Management / Operations Controls */
 
 .dashboard-header {
@@ -18,7 +47,7 @@
 .header-main h2 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #000000;
+  color: var(--ait-header-h2);
   margin: 0;
   white-space: nowrap;
 }
@@ -32,8 +61,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: #ffffff;
-  border: 1px solid #d0d0d0;
+  background: var(--ait-search-bg);
+  border: 1px solid var(--ait-search-border);
   border-radius: 999px;
   padding: 4px 10px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -49,7 +78,7 @@
 
 .global-search-icon {
   font-size: 12px;
-  color: #888;
+  color: var(--ait-search-icon);
   cursor: pointer;
 }
 
@@ -58,10 +87,21 @@
   outline: none;
   font-size: 12px;
   min-width: 200px;
+  background: transparent;
+  color: var(--ait-text);
+}
+
+.global-search-input::placeholder {
+  color: var(--ait-muted);
 }
 
 hr {
   margin: 0;
+  border: 0;
+  border-top: 1px solid var(--ait-border);
+  background: transparent;
+  color: var(--ait-border);
+  height: 0;
 }
 
 .header-left {
@@ -95,21 +135,29 @@ hr {
   background: transparent;
   font-size: 14px;
   font-weight: 500;
-  color: #555;
+  color: var(--ait-muted);
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
 }
 
 .pill-tab:hover {
-  background: #f3f8ff;
-  border-color: #d0e3f7;
+  background: var(--ait-pill-hover-bg, #f3f8ff);
+  border-color: var(--ait-pill-hover-border, #d0e3f7);
 }
 
 .pill-tab.active {
-  background: #eff8ff;
-  border-color: #00bceb;
-  color: #00bceb;
+  background: var(--ait-pill-active-bg, #eff8ff);
+  border-color: var(--ait-pill-active-border, #00bceb);
+  color: var(--ait-pill-active-text, #00bceb);
+}
+
+:host(.dark-theme) {
+  --ait-pill-hover-bg: rgba(0, 188, 235, 0.08);
+  --ait-pill-hover-border: rgba(0, 188, 235, 0.25);
+  --ait-pill-active-bg: rgba(0, 188, 235, 0.14);
+  --ait-pill-active-border: #00bceb;
+  --ait-pill-active-text: #00bceb;
 }
 
 .ask-ivan-btn {

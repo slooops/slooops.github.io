@@ -53,6 +53,10 @@ export class AtmfBarLineChartComponent implements OnChanges {
       datalabels: {
         display: (context: any) => context.dataset.type !== 'line',
         color: 'white',
+        font: {
+          size: 9,
+        },
+        backgroundColor: null,
         formatter: (value: any) => value.toLocaleString(),
       },
     },

@@ -642,3 +642,138 @@ tr.mat-mdc-header-row {
   align-items: center;
   width: 100%;
 }
+
+/* ── Dark mode (inherits from ancestor wrapper .dark-theme) ── */
+:host-context(.dark-theme) {
+  background: linear-gradient(
+    to right,
+    var(--fit-dark-bg, #0f1923) 0%,
+    var(--fit-dark-surface, #111b25) 3.5%,
+    var(--fit-dark-surface, #111b25) 50%,
+    var(--fit-dark-surface, #111b25) 97.5%,
+    var(--fit-dark-bg, #0f1923) 100%
+  );
+  color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) .callout-box {
+  background-color: var(--fit-dark-surface, #1a2733);
+  outline-color: var(--fit-dark-border, #2a3f50);
+  color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) .callout-box.callout-box-table {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  outline: 0px;
+}
+:host-context(.dark-theme) .box-header {
+  color: var(--fit-dark-muted, #8899a6);
+}
+:host-context(.dark-theme) .box-body {
+  color: var(--fit-dark-text, #e0e6ed);
+}
+
+/* Material table */
+:host-context(.dark-theme) .mat-mdc-header-row {
+  background-color: var(--fit-dark-bg, #0f1923) !important;
+  border-bottom-color: var(--fit-dark-muted, #8899a6) !important;
+}
+:host-context(.dark-theme) .mat-mdc-header-cell {
+  color: var(--fit-dark-text, #e0e6ed) !important;
+}
+:host-context(.dark-theme) .mat-mdc-row:nth-child(odd) {
+  background-color: var(--fit-dark-surface, #1a2733) !important;
+}
+:host-context(.dark-theme) .mat-mdc-row:nth-child(even) {
+  background-color: var(--fit-dark-bg, #0f1923) !important;
+}
+:host-context(.dark-theme) .mat-mdc-cell {
+  color: var(--fit-dark-text, #e0e6ed) !important;
+}
+:host-context(.dark-theme) ::ng-deep .mat-sort-header-arrow {
+  color: var(--fit-dark-muted, #8899a6);
+}
+
+/* Nested tables */
+:host-context(.dark-theme) .nested-table {
+  border-color: var(--fit-dark-border, #2a3f50);
+}
+:host-context(.dark-theme) .nested-table th {
+  background-color: var(--fit-dark-bg, #0f1923);
+  color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) .nested-table tr:nth-child(odd) {
+  background-color: var(--fit-dark-surface, #1a2733);
+}
+:host-context(.dark-theme) .nested-table tr:nth-child(even) {
+  background-color: var(--fit-dark-bg, #0f1923);
+}
+
+/* Modal */
+:host-context(.dark-theme) .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+:host-context(.dark-theme) .modal-content {
+  background-color: var(--fit-dark-surface, #1a2733);
+  color: var(--fit-dark-text, #e0e6ed);
+  border: 1px solid var(--fit-dark-border, #2a3f50);
+}
+:host-context(.dark-theme) .close-button {
+  color: var(--fit-dark-text, #e0e6ed);
+}
+
+/* Hover table */
+:host-context(.dark-theme) .hover-container .hover-table {
+  background-color: var(--fit-dark-surface, #1a2733);
+  border-color: var(--fit-dark-border, #2a3f50);
+  color: var(--fit-dark-text, #e0e6ed);
+}
+
+/* Export button */
+:host-context(.dark-theme) .export-button {
+  background-color: var(--fit-dark-surface, #1a2733);
+  border-color: var(--fit-dark-border, #2a3f50);
+  color: var(--fit-dark-text, #e0e6ed);
+}
+
+/* Tooltip table */
+:host-context(.dark-theme) .tooltip-table {
+  background: var(--fit-dark-surface, #1a2733);
+  color: var(--fit-dark-text, #e0e6ed);
+  border-color: var(--fit-dark-border, #2a3f50);
+}
+:host-context(.dark-theme) .tooltip-table th,
+:host-context(.dark-theme) .tooltip-table td {
+  border-color: var(--fit-dark-border, #2a3f50);
+}
+:host-context(.dark-theme) .tooltip-table th {
+  background-color: var(--fit-dark-bg, #0f1923);
+}
+
+/* Slider title / captions */
+:host-context(.dark-theme) .slider-title,
+:host-context(.dark-theme) .circle-caption {
+  color: var(--fit-dark-text, #e0e6ed);
+}
+
+/* Vertical divider */
+:host-context(.dark-theme) .vertical-divider {
+  background-color: var(--fit-dark-border, #2a3f50);
+}
+
+/* Clickable text */
+:host-context(.dark-theme) .clickable-text {
+  color: #00bceb;
+}
+:host-context(.dark-theme) .clickable-text:hover {
+  color: #4dd0f1;
+}
+
+/* Titles */
+:host-context(.dark-theme) .card-title,
+:host-context(.dark-theme) .container-title,
+:host-context(.dark-theme) .page-title,
+:host-context(.dark-theme) .section-title {
+  color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) .card-subtitle {
+  color: var(--fit-dark-muted, #8899a6);
+}

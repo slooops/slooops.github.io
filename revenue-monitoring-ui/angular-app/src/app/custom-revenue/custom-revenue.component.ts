@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostBinding, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DataService } from '../providers/data.service';
+import { ThemeService } from '../providers/theme.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
@@ -42,6 +43,10 @@ export interface UserContext {
   standalone: true,
 })
 export class CustomRevenueComponent implements OnInit {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+
   roles: string[] = [];
   userContextData: UserContext;
   private userName: string = '';
@@ -53,6 +58,7 @@ export class CustomRevenueComponent implements OnInit {
     private menuService: MenuService,
     private http: ApiHttpService,
     private route: ActivatedRoute,
+    public themeService: ThemeService,
   ) {
     // Initialize roles and user context in constructor so they're available before template renders
     this.roles = this.authService.getUserAccessRoles();

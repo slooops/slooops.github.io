@@ -28,3 +28,20 @@
   margin-top: 15px;
   max-width: 400px;
 }
+
+/* ── Dark mode ── */
+:host(.dark-theme) {
+  display: block;
+  background: var(--fit-dark-bg, #0f1923);
+  min-height: 100%;
+}
+
+:host(.dark-theme) .error-page {
+  background: var(--fit-dark-surface, #1a2733);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+:host(.dark-theme) .error-title,
+:host(.dark-theme) .error-text {
+  color: var(--fit-dark-text, #e0e6ed);
+}

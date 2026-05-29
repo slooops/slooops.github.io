@@ -1,16 +1,12 @@
 import {
   ChangeDetectorRef,
   Component,
-  Inject,
+  EventEmitter,
+  Input,
   OnInit,
+  Output,
   ViewChild,
 } from '@angular/core';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogRef,
-  MatDialogModule,
-} from '@angular/material/dialog';
 import { AuthenticationService } from '../providers/authentication.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
@@ -23,6 +19,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { BulkApproveRejectComponent } from './bulk-approve-reject/bulk-approve-reject.component';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
+import { ThemeService } from '../providers/theme.service';
 import {
   FilterConfig,
   ActionButtonConfig,
@@ -31,14 +28,6 @@ import {
 import { SelectOption } from '../ui/types/common.types';
 // Imports needed by inline dialog components that remain standalone
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatMenuModule } from '@angular/material/menu';
 import { provideIcons } from '@ng-icons/core';
 
 @Component({
@@ -49,14 +38,26 @@ import { provideIcons } from '@ng-icons/core';
   standalone: false,
 })
 export class IssueReportingComponent implements OnInit {
+  // Modal state — replaces MatDialog usage
+  uploadModalOpen = false;
+  summaryModalOpen = false;
+  summaryModalData: any[] = [];
+  confirmModalOpen = false;
+  confirmModalData: { message: string } = { message: '' };
+  bulkModalOpen = false;
+  bulkModalData: any[] = [];
+  statusModalOpen = false;
+  statusModalData: any = {};
+  private statusModalElement: any = null;
+
   constructor(
     private http: ApiHttpService,
     private destroyManager: DestroyManager,
     private datePipe: DatePipe,
     private cdr: ChangeDetectorRef,
-    private dialog: MatDialog,
     private authService: AuthenticationService,
     private exportToExcelService: ExportToExcelService,
+    public themeService: ThemeService,
   ) {}
   ngOnInit() {
     this.username = this.authService.getUserName();
@@ -213,6 +214,50 @@ export class IssueReportingComponent implements OnInit {
     }
   }
 
+  // ── Native paginator helpers ──
+  irTotalItems(): number {
+    return (
+      this.summaryDatasource?.filteredData?.length ??
+      this.summaryDatasource?.data?.length ??
+      0
+    );
+  }
+
+  irTotalPages(): number {
+    return Math.max(1, Math.ceil(this.irTotalItems() / this.pageSize));
+  }
+
+  irPageStart(): number {
+    return this.irTotalItems() === 0 ? 0 : this.pageIndex * this.pageSize + 1;
+  }
+
+  irPageEnd(): number {
+    return Math.min(this.irTotalItems(), (this.pageIndex + 1) * this.pageSize);
+  }
+
+  onIrPageSizeChange(event: Event): void {
+    const value = Number((event.target as HTMLSelectElement).value);
+    this.onPageChange({ pageIndex: 0, pageSize: value });
+  }
+
+  onIrPrev(): void {
+    if (this.pageIndex > 0) {
+      this.onPageChange({
+        pageIndex: this.pageIndex - 1,
+        pageSize: this.pageSize,
+      });
+    }
+  }
+
+  onIrNext(): void {
+    if (this.pageIndex < this.irTotalPages() - 1) {
+      this.onPageChange({
+        pageIndex: this.pageIndex + 1,
+        pageSize: this.pageSize,
+      });
+    }
+  }
+
   statusOps: string[] = ['Open', 'Closed'];
   getIssueReporting() {
     this.isLoading = true;
@@ -345,10 +390,11 @@ export class IssueReportingComponent implements OnInit {
   }
 
   uploadFile() {
-    const dialogRef = this.dialog.open(IssueUploadComponent, {
-      width: '400px',
-      panelClass: 'rounded-dialog',
-    });
+    this.uploadModalOpen = true;
+  }
+
+  onUploadClosed(_result: string | null) {
+    this.uploadModalOpen = false;
   }
 
   toggleSelectAll(event: any): void {
@@ -557,34 +603,33 @@ export class IssueReportingComponent implements OnInit {
   }
 
   openDialog(message: string) {
-    const dialogRef = this.dialog.open(DialogBox, {
-      width: '400px',
-      panelClass: 'rounded-dialog',
-      data: { message }, // Pass data to dialog
-    });
+    this.confirmModalData = { message };
+    this.confirmModalOpen = true;
+  }
 
-    // Receive data when dialog is closed
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.selectedRows.find((row) => {
-          this.incidentNumber = row.INCIDENT_NUMBER;
-          return row;
-        });
-        if (message === 'Approve') {
-          this.approveRejectSingleIncident('Approved');
-        } else if (message === 'Reject') {
-          this.approveRejectSingleIncident('Rejected');
-        }
+  onConfirmClosed(result: boolean | null) {
+    this.confirmModalOpen = false;
+    if (result) {
+      this.selectedRows.find((row) => {
+        this.incidentNumber = row.INCIDENT_NUMBER;
+        return row;
+      });
+      const message = this.confirmModalData.message;
+      if (message === 'Approve') {
+        this.approveRejectSingleIncident('Approved');
+      } else if (message === 'Reject') {
+        this.approveRejectSingleIncident('Rejected');
       }
-    });
+    }
   }
 
   openSummaryDialog() {
-    const dialogRef = this.dialog.open(SummaryDialog, {
-      width: '550px',
-      panelClass: 'rounded-dialog',
-      data: this.issueSummaryData,
-    });
+    this.summaryModalData = this.issueSummaryData ?? [];
+    this.summaryModalOpen = true;
+  }
+
+  onSummaryClosed() {
+    this.summaryModalOpen = false;
   }
 
   openIncidentDetails(data: any) {
@@ -622,49 +667,48 @@ export class IssueReportingComponent implements OnInit {
       return;
     }
 
-    const dialogRef = this.dialog.open(BulkApproveRejectComponent, {
-      width: '400px',
-      panelClass: 'rounded-dialog',
-      data: this.selectedRows.map((data) => ({
-        incidentNumber: data.INCIDENT_NUMBER,
-        status: data.IT_APPROVAL, // Default empty status
-        approvedBy: this.username, // Replace with logged-in user
-      })),
-    });
+    this.bulkModalData = this.selectedRows.map((data) => ({
+      incidentNumber: data.INCIDENT_NUMBER,
+      status: data.IT_APPROVAL,
+      approvedBy: this.username,
+    }));
+    this.bulkModalOpen = true;
+  }
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.selection.clear();
-        this.selectedRows = [];
-        this.summaryDatasource = null;
-        this.getIssueReporting();
-        this.issueSummaryData = [];
-        this.getIssueReportingSummary();
-        this.cdr.detectChanges();
-      }
-    });
+  onBulkClosed(result: string | null) {
+    this.bulkModalOpen = false;
+    if (result) {
+      this.selection.clear();
+      this.selectedRows = [];
+      this.summaryDatasource = null;
+      this.getIssueReporting();
+      this.issueSummaryData = [];
+      this.getIssueReportingSummary();
+      this.cdr.detectChanges();
+    }
   }
 
   onStatusChange(element: any) {
-    const dialogRef = this.dialog.open(StatusDialog, {
-      width: '450px',
-      panelClass: 'rounded-dialog',
-      data: {
-        status: element.STATUS,
-        incidentNumber: element.INCIDENT_NUMBER,
-        approvedBy: this.username,
-      },
-    });
+    this.statusModalElement = element;
+    this.statusModalData = {
+      status: element.STATUS,
+      incidentNumber: element.INCIDENT_NUMBER,
+      approvedBy: this.username,
+    };
+    this.statusModalOpen = true;
+  }
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.updateStatus(element);
-      } else {
-        this.summaryDatasource = null;
-        this.getIssueReporting();
-        this.cdr.detectChanges();
-      }
-    });
+  onStatusClosed(result: boolean | null) {
+    this.statusModalOpen = false;
+    const element = this.statusModalElement;
+    this.statusModalElement = null;
+    if (result) {
+      this.updateStatus(element);
+    } else {
+      this.summaryDatasource = null;
+      this.getIssueReporting();
+      this.cdr.detectChanges();
+    }
   }
 
   updateStatus(element: any) {
@@ -728,11 +772,12 @@ export interface IssueReportingModel {
 }
 
 @Component({
+  selector: 'app-issue-confirm-dialog',
   template: `
-    <mat-dialog-content>
+    <div class="confirm-body">
       <b>Please confirm you want to {{ data.message }} this Incident:</b>
-    </mat-dialog-content>
-    <mat-dialog-actions style="justify-content: center !important;">
+    </div>
+    <div class="confirm-actions">
       <button
         class="btn"
         [class.approve]="data.message === 'Approve'"
@@ -741,118 +786,134 @@ export interface IssueReportingModel {
       >
         {{ data.message }}
       </button>
-      <button
-        class="btn btn-default"
-        style="background-color: white !important;"
-        (click)="closeDialog(false)"
-      >
+      <button class="btn btn-default" (click)="closeDialog(false)">
         Cancel
       </button>
-    </mat-dialog-actions>
+    </div>
   `,
   styles: [
     `
-      .dialog-content {
-        font-size: 16px;
-        color: #333;
+      .confirm-body {
+        font-size: 14px;
+        color: #1b1c1d;
         text-align: center;
+        padding: 16px 20px 8px;
+      }
+      :host-context(body.dark-theme) .confirm-body {
+        color: #e0e6ed;
+      }
+      .confirm-actions {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 20px 16px;
+      }
+      .btn {
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      .btn-default {
+        background-color: #ffffff;
+        border-color: #d0d7de;
+        color: #1b1c1d;
+      }
+      :host-context(body.dark-theme) .btn-default {
+        background-color: #1a2733;
+        border-color: rgba(42, 63, 80, 0.8);
+        color: #e0e6ed;
       }
       .approve {
-        background-color: #04aa6d !important;
-        color: white !important;
+        background-color: #04aa6d;
+        color: white;
       }
       .reject {
-        background-color: #f44336 !important;
-        color: white !important;
+        background-color: #f44336;
+        color: white;
       }
     `,
   ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatMenuModule,
-    // LoadingSymbolComponent,
-    MatDialogModule,
-  ],
+  imports: [CommonModule],
   standalone: true,
 })
 export class DialogBox {
-  constructor(
-    private dialogRef: MatDialogRef<DialogBox>,
-    @Inject(MAT_DIALOG_DATA) public data: { message: string },
-  ) {}
+  @Input() data: { message: string } = { message: '' };
+  @Output() closed = new EventEmitter<boolean | null>();
 
   closeDialog(isConfirmed: boolean) {
-    this.dialogRef.close(isConfirmed);
+    this.closed.emit(isConfirmed);
   }
 }
 
 @Component({
+  selector: 'app-issue-status-dialog',
   template: `
-    <div>
+    <div class="status-body">
       <b>Please confirm you want to change the status as {{ data.status }}:</b>
     </div>
-    <br />
-    <div style="text-align: center !important;">
+    <div class="status-actions">
       <button class="btn openClose" (click)="closeDialog(true)">Confirm</button>
-      &nbsp;
-      <button
-        class="btn btn-default"
-        style="background-color: white !important;"
-        (click)="closeDialog(false)"
-      >
+      <button class="btn btn-default" (click)="closeDialog(false)">
         Cancel
       </button>
     </div>
   `,
   styles: [
     `
-      .dialog-content {
-        font-size: 16px;
-        color: #333;
+      .status-body {
+        font-size: 14px;
+        color: #1b1c1d;
         text-align: center;
+        padding: 16px 20px 8px;
+      }
+      :host-context(body.dark-theme) .status-body {
+        color: #e0e6ed;
+      }
+      .status-actions {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 20px 16px;
+      }
+      .btn {
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      .btn-default {
+        background-color: #ffffff;
+        border-color: #d0d7de;
+        color: #1b1c1d;
+      }
+      :host-context(body.dark-theme) .btn-default {
+        background-color: #1a2733;
+        border-color: rgba(42, 63, 80, 0.8);
+        color: #e0e6ed;
       }
       .openClose {
-        background-color: #185996 !important;
-        color: white !important;
+        background-color: #185996;
+        color: white;
       }
     `,
   ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatMenuModule,
-    // LoadingSymbolComponent,
-    MatDialogModule,
-  ],
+  imports: [CommonModule],
   standalone: true,
 })
 export class StatusDialog {
-  constructor(
-    private dialogRef: MatDialogRef<StatusDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-  ) {}
+  @Input() data: any = {};
+  @Output() closed = new EventEmitter<boolean | null>();
 
   closeDialog(isConfirmed: boolean) {
-    this.dialogRef.close(isConfirmed);
+    this.closed.emit(isConfirmed);
   }
 }
 
 @Component({
+  selector: 'app-issue-summary-dialog',
   template: `
     <div class="summary-header">
       <h5 class="summary-title">Summary</h5>
@@ -897,38 +958,67 @@ export class StatusDialog {
   `,
   styles: [
     `
+      :host {
+        display: block;
+        background: #ffffff;
+        color: #1b1c1d;
+      }
+      :host-context(body.dark-theme) {
+        background: #1a2733;
+        color: #e0e6ed;
+      }
+
       .summary-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0.75rem 1.25rem;
-        background: #00bceb;
-        border-bottom: 1px solid #e5e7eb;
+        padding: 14px 20px 8px;
+        background: transparent;
       }
 
       .summary-title {
         margin: 0;
-        font-size: 0.875rem;
+        font-size: 0.85rem;
         font-weight: 600;
-        color: white;
+        color: #1b1c1d;
+      }
+      :host-context(body.dark-theme) .summary-title {
+        color: #e0e6ed;
       }
 
       .summary-close-btn {
-        background: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        background: transparent;
         border: none;
-        color: white;
+        color: #64748b;
         font-size: 1rem;
         cursor: pointer;
-        padding: 0.25rem;
-        line-height: 1;
+        border-radius: 6px;
+        transition:
+          background 150ms,
+          color 150ms;
       }
 
       .summary-close-btn:hover {
+        background: rgba(0, 0, 0, 0.06);
         color: #1b1c1d;
+      }
+      :host-context(body.dark-theme) .summary-close-btn {
+        color: #8899a6;
+      }
+      :host-context(body.dark-theme) .summary-close-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #e0e6ed;
       }
 
       .summary-table-wrapper {
-        padding: 1rem 1.25rem 1.25rem;
+        padding: 8px 20px 20px;
+        background: #ffffff;
       }
 
       .summary-table-container {
@@ -978,18 +1068,41 @@ export class StatusDialog {
         font-weight: 600;
         background-color: #f9fafb;
       }
+
+      /* Dark mode */
+      :host-context(body.dark-theme) .summary-table-wrapper {
+        background: #1a2733;
+      }
+      :host-context(body.dark-theme) .summary-table-container {
+        border-color: rgba(42, 63, 80, 0.6);
+      }
+      :host-context(body.dark-theme) .summary-table thead tr {
+        background-color: #1e2d3a;
+        border-bottom-color: rgba(42, 63, 80, 0.6);
+      }
+      :host-context(body.dark-theme) .summary-table th {
+        color: #8899a6;
+      }
+      :host-context(body.dark-theme) .summary-table td {
+        color: #e0e6ed;
+        border-bottom-color: rgba(42, 63, 80, 0.4);
+      }
+      :host-context(body.dark-theme) .summary-table tbody tr:hover {
+        background-color: #233544;
+      }
+      :host-context(body.dark-theme) .bold-row td {
+        background-color: #1e2d3a;
+      }
     `,
   ],
   imports: [CommonModule],
   standalone: true,
 })
 export class SummaryDialog {
-  constructor(
-    private dialogRef: MatDialogRef<StatusDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-  ) {}
+  @Input() data: any[] = [];
+  @Output() closed = new EventEmitter<void>();
 
   closeDialog() {
-    this.dialogRef.close();
+    this.closed.emit();
   }
 }

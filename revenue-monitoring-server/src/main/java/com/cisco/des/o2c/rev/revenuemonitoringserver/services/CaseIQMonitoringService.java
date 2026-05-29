@@ -934,8 +934,8 @@ public class CaseIQMonitoringService {
         String union =
                 // Ghost Success
                 "SELECT incident_number, team_name, category, core_issue, llm_summary, caseiq_run_date, " +
-                        "DBMS_LOB.SUBSTR(incident_description, 4000, 1) AS incident_description, " +
-                        "DBMS_LOB.SUBSTR(resolution_api_summary, 4000, 1) AS resolution_api_summary, " +
+                        "DBMS_LOB.SUBSTR(incident_description, 2000, 1) AS incident_description, " +
+                        "DBMS_LOB.SUBSTR(resolution_api_summary, 2000, 1) AS resolution_api_summary, " +
                         "'Ghost Success' AS anomaly_label " +
                         "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
                         "WHERE resolution_api_status = 'SUCCESS' AND is_active = 'TRUE' " +
@@ -947,8 +947,8 @@ public class CaseIQMonitoringService {
 
                         // Not Defined
                         "SELECT incident_number, team_name, category, core_issue, llm_summary, caseiq_run_date, " +
-                        "DBMS_LOB.SUBSTR(incident_description, 4000, 1) AS incident_description, " +
-                        "DBMS_LOB.SUBSTR(resolution_api_summary, 4000, 1) AS resolution_api_summary, " +
+                        "DBMS_LOB.SUBSTR(incident_description, 2000, 1) AS incident_description, " +
+                        "DBMS_LOB.SUBSTR(resolution_api_summary, 2000, 1) AS resolution_api_summary, " +
                         "'Not Defined' AS anomaly_label " +
                         "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
                         "WHERE llm_summary = 'Not Defined' AND is_active = 'TRUE' " +
@@ -958,8 +958,8 @@ public class CaseIQMonitoringService {
 
                         // No Resolution
                         "SELECT incident_number, team_name, category, core_issue, llm_summary, caseiq_run_date, " +
-                        "DBMS_LOB.SUBSTR(incident_description, 4000, 1) AS incident_description, " +
-                        "DBMS_LOB.SUBSTR(resolution_api_summary, 4000, 1) AS resolution_api_summary, " +
+                        "DBMS_LOB.SUBSTR(incident_description, 2000, 1) AS incident_description, " +
+                        "DBMS_LOB.SUBSTR(resolution_api_summary, 2000, 1) AS resolution_api_summary, " +
                         "'No Resolution' AS anomaly_label " +
                         "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
                         "WHERE resolution_api_status IS NULL AND is_active = 'TRUE' " +
@@ -969,8 +969,8 @@ public class CaseIQMonitoringService {
 
                         // Exception
                         "SELECT incident_number, team_name, category, core_issue, llm_summary, caseiq_run_date, " +
-                        "DBMS_LOB.SUBSTR(incident_description, 4000, 1) AS incident_description, " +
-                        "DBMS_LOB.SUBSTR(resolution_api_summary, 4000, 1) AS resolution_api_summary, " +
+                        "DBMS_LOB.SUBSTR(incident_description, 2000, 1) AS incident_description, " +
+                        "DBMS_LOB.SUBSTR(resolution_api_summary, 2000, 1) AS resolution_api_summary, " +
                         "'Exception' AS anomaly_label " +
                         "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
                         "WHERE is_active = 'TRUE' " +
@@ -983,8 +983,8 @@ public class CaseIQMonitoringService {
 
                         // Null Classification
                         "SELECT incident_number, team_name, category, core_issue, llm_summary, caseiq_run_date, " +
-                        "DBMS_LOB.SUBSTR(incident_description, 4000, 1) AS incident_description, " +
-                        "DBMS_LOB.SUBSTR(resolution_api_summary, 4000, 1) AS resolution_api_summary, " +
+                        "DBMS_LOB.SUBSTR(incident_description, 2000, 1) AS incident_description, " +
+                        "DBMS_LOB.SUBSTR(resolution_api_summary, 2000, 1) AS resolution_api_summary, " +
                         "'Null Classification' AS anomaly_label " +
                         "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
                         "WHERE (category IS NULL OR core_issue IS NULL) AND case_analyzer_status != 'NEW' " +
@@ -996,8 +996,8 @@ public class CaseIQMonitoringService {
                         // Unknown Team
                         "SELECT incident_number, 'UNKNOWN' AS team_name, category, core_issue, llm_summary, caseiq_run_date, "
                         +
-                        "DBMS_LOB.SUBSTR(incident_description, 4000, 1) AS incident_description, " +
-                        "DBMS_LOB.SUBSTR(resolution_api_summary, 4000, 1) AS resolution_api_summary, " +
+                        "DBMS_LOB.SUBSTR(incident_description, 2000, 1) AS incident_description, " +
+                        "DBMS_LOB.SUBSTR(resolution_api_summary, 2000, 1) AS resolution_api_summary, " +
                         "'Unknown Team' AS anomaly_label " +
                         "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
                         "WHERE team_name = 'UNKNOWN' AND is_active = 'TRUE' " +
@@ -1008,8 +1008,8 @@ public class CaseIQMonitoringService {
                         // Resolution Error
                         "SELECT incident_number, team_name, category, core_issue, NULL AS llm_summary, caseiq_run_date, "
                         +
-                        "DBMS_LOB.SUBSTR(incident_description, 4000, 1) AS incident_description, " +
-                        "DBMS_LOB.SUBSTR(resolution_api_summary, 4000, 1) AS resolution_api_summary, " +
+                        "DBMS_LOB.SUBSTR(incident_description, 2000, 1) AS incident_description, " +
+                        "DBMS_LOB.SUBSTR(resolution_api_summary, 2000, 1) AS resolution_api_summary, " +
                         "'Resolution Error' AS anomaly_label " +
                         "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
                         "WHERE (resolution_api_status NOT IN ('SUCCESS', 'NOT_SUPPORTED', 'PARTIAL SUCCESS') " +

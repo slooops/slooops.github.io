@@ -33,6 +33,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
+      supportsDarkMode: true,
       // hideNavbar: true,
     },
   },
@@ -52,6 +53,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
+      supportsDarkMode: true,
     },
   },
 
@@ -81,6 +83,7 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'Continuous Monitoring > Revenue Accounting',
+      supportsDarkMode: true,
     },
   },
   {
@@ -90,6 +93,7 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'Continuous Monitoring > General Ledger',
+      supportsDarkMode: true,
     },
   },
   {
@@ -129,6 +133,7 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'Continuous Monitoring > Invoice to Cash',
+      supportsDarkMode: true,
     },
   },
   // {
@@ -218,6 +223,7 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'Continuous Monitoring > Order Management',
+      supportsDarkMode: true,
     },
   },
   // {
@@ -288,6 +294,7 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'Access Management & Analytics',
+      supportsDarkMode: true,
     },
   },
   {
@@ -297,6 +304,7 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'Analytics ',
+      supportsDarkMode: true,
     },
   },
 
@@ -307,6 +315,7 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'Continuous Monitoring > Accounting, Investment & Treasury',
+      supportsDarkMode: true,
     },
   },
   {

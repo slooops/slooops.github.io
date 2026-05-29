@@ -285,16 +285,103 @@
   ></mat-paginator>
 
   @if (summaryDatasource?.data?.length) {
-    <app-pagination
-      [pageIndex]="pageIndex"
-      [pageSize]="pageSize"
-      [totalItems]="
-        summaryDatasource?.filteredData?.length ??
-        summaryDatasource?.data?.length ??
-        0
-      "
-      [pageSizeOptions]="[10, 25, 50]"
-      (pageChange)="onPageChange($event)"
-    ></app-pagination>
+    <div class="ir-paginator">
+      <div class="ir-paginator__info">
+        {{ irPageStart() }} - {{ irPageEnd() }} of {{ irTotalItems() }}
+      </div>
+
+      <div class="ir-paginator__controls">
+        <div class="ir-paginator__select-wrap">
+          <select
+            class="ir-paginator__select"
+            [value]="pageSize"
+            (change)="onIrPageSizeChange($event)"
+          >
+            @for (size of [10, 25, 50]; track size) {
+              <option [value]="size">{{ size }} per page</option>
+            }
+          </select>
+          <span class="ir-paginator__chevron">▾</span>
+        </div>
+
+        <button
+          type="button"
+          class="ir-paginator__btn"
+          [disabled]="pageIndex === 0"
+          (click)="onIrPrev()"
+        >
+          Previous
+        </button>
+
+        <span class="ir-paginator__page">
+          Page {{ pageIndex + 1 }} of {{ irTotalPages() }}
+        </span>
+
+        <button
+          type="button"
+          class="ir-paginator__btn"
+          [disabled]="pageIndex >= irTotalPages() - 1"
+          (click)="onIrNext()"
+        >
+          Next
+        </button>
+      </div>
+    </div>
   }
 </div>
+
+<!-- ── Custom modals (replace MatDialog) ── -->
+@if (uploadModalOpen) {
+  <app-modal
+    [darkMode]="themeService.isDarkMode"
+    (close)="onUploadClosed(null)"
+  >
+    <app-issue-upload (closed)="onUploadClosed($event)"></app-issue-upload>
+  </app-modal>
+}
+
+@if (summaryModalOpen) {
+  <app-modal
+    [darkMode]="themeService.isDarkMode"
+    borderRadius="16px"
+    (close)="onSummaryClosed()"
+  >
+    <app-issue-summary-dialog
+      [data]="summaryModalData"
+      (closed)="onSummaryClosed()"
+    ></app-issue-summary-dialog>
+  </app-modal>
+}
+
+@if (confirmModalOpen) {
+  <app-modal
+    [darkMode]="themeService.isDarkMode"
+    (close)="onConfirmClosed(null)"
+  >
+    <app-issue-confirm-dialog
+      [data]="confirmModalData"
+      (closed)="onConfirmClosed($event)"
+    ></app-issue-confirm-dialog>
+  </app-modal>
+}
+
+@if (bulkModalOpen) {
+  <app-modal [darkMode]="themeService.isDarkMode" (close)="onBulkClosed(null)">
+    <app-bulk-approve-reject
+      [data]="bulkModalData"
+      (closed)="onBulkClosed($event)"
+    ></app-bulk-approve-reject>
+  </app-modal>
+}
+
+@if (statusModalOpen) {
+  <app-modal
+    [darkMode]="themeService.isDarkMode"
+    (close)="onStatusClosed(null)"
+  >
+    <app-issue-status-dialog
+      [data]="statusModalData"
+      (closed)="onStatusClosed($event)"
+    ></app-issue-status-dialog>
+  </app-modal>
+}

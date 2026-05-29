@@ -12,6 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { AtmfCardComponent } from '../components/atmf/atmf-card/atmf-card.component';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import { AtmfBarLineChartComponent } from '../components/atmf/atmf-bar-line-chart/atmf-bar-line-chart.component';
+import { AtmfStackedChartComponent } from '../components/atmf/atmf-stacked-chart/atmf-stacked-chart.component';
 import { AtmfTableComponent } from '../components/atmf/atmf-table/atmf-table.component';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { provideIcons } from '@ng-icons/core';
@@ -33,6 +34,7 @@ import { ThemeService } from '../providers/theme.service';
     AtmfCardComponent,
     LoadingSymbolComponent,
     AtmfBarLineChartComponent,
+    AtmfStackedChartComponent,
     AtmfTableComponent,
   ],
   standalone: true,
@@ -75,6 +77,16 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   pcloseEstimatedCompletionTime: string;
   mcloseEstimatedCompletionTime: string;
+
+  // Chart data for Invoices Generated and Cash Posted
+  precloseInvChartLabels: string[] = [];
+  precloseInvChartDatasets: any[] = [];
+  midcloseInvChartLabels: string[] = [];
+  midcloseInvChartDatasets: any[] = [];
+  precloseCashChartLabels: string[] = [];
+  precloseCashChartDatasets: any[] = [];
+  midcloseCashChartLabels: string[] = [];
+  midcloseCashChartDatasets: any[] = [];
 
   meStatusColumns: string[] = [
     'Operating Unit',
@@ -342,14 +354,53 @@ export class PeriodCloseTrackingComponent implements OnInit {
   qeCashCollectedDatasource: any;
   getQECashCollected() {
     this.getEndpointData('pclose-qe-cash-collected').subscribe((data: any) => {
+      // Save raw data for chart before formatting
+      const rawCashData = data.map((row: any) => ({ ...row }));
+      this.buildCashChartData(rawCashData);
+
       data.map((cashData) => {
-        cashData.WD_0 = '$' + cashData.WD_0.toLocaleString('en-US');
-        cashData.WD_1 = '$' + cashData.WD_1.toLocaleString('en-US');
-        cashData.WD_2 = '$' + cashData.WD_2.toLocaleString('en-US');
-        cashData.WD_3 = '$' + cashData.WD_3.toLocaleString('en-US');
-        cashData.WD_4 = '$' + cashData.WD_4.toLocaleString('en-US');
-        cashData.WD_5 = '$' + cashData.WD_5.toLocaleString('en-US');
-        cashData.TOTAL = '$' + cashData.TOTAL.toLocaleString('en-US');
+        cashData.WD_0 =
+          '$' +
+          cashData.WD_0.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        cashData.WD_1 =
+          '$' +
+          cashData.WD_1.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        cashData.WD_2 =
+          '$' +
+          cashData.WD_2.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        cashData.WD_3 =
+          '$' +
+          cashData.WD_3.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        cashData.WD_4 =
+          '$' +
+          cashData.WD_4.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        cashData.WD_5 =
+          '$' +
+          cashData.WD_5.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        cashData.TOTAL =
+          '$' +
+          cashData.TOTAL.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
         return cashData;
       });
       this.qeCashCollectedData = data;
@@ -357,7 +408,9 @@ export class PeriodCloseTrackingComponent implements OnInit {
       let tableColumns: any[] = [];
 
       for (let column_name of Object.keys(data[0])) {
-        tableColumns.push(column_name);
+        if (column_name !== 'STATUS') {
+          tableColumns.push(column_name);
+        }
       }
 
       this.qeCashCollectedTableColumns = tableColumns;
@@ -470,10 +523,28 @@ export class PeriodCloseTrackingComponent implements OnInit {
   getPeriodCloseInvoice() {
     this.getEndpointData('period-close-invoice-stats').subscribe(
       (data: any) => {
+        // Save raw data for charts before formatting
+        const rawPreclose = data
+          .filter((obj: any) => obj['CLOSE_TYPE'] === 'PRECLOSE')
+          .map((row: any) => ({ ...row }));
+        const rawMidclose = data
+          .filter((obj: any) => obj['CLOSE_TYPE'] === 'MIDCLOSE')
+          .map((row: any) => ({ ...row }));
+
+        // Build chart data from raw numbers
+        this.buildInvoiceChartData(rawPreclose, 'preclose');
+        this.buildInvoiceChartData(rawMidclose, 'midclose');
+
+        // Format for table display (2 decimal places for amounts)
         data.map((invData) => {
           for (let col of Object.keys(invData)) {
             if (col.includes('AMOUNT')) {
-              invData[col] = '$' + invData[col].toLocaleString('en-US');
+              invData[col] =
+                '$' +
+                invData[col].toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                });
             }
             if (col.includes('COUNT')) {
               invData[col] = invData[col].toLocaleString('en-US');
@@ -730,6 +801,132 @@ export class PeriodCloseTrackingComponent implements OnInit {
       return -1; // Move items not in the desired order to the end
     }
     return indexA - indexB;
+  }
+
+  /**
+   * Build chart data for Invoices Generated.
+   * Stacked bars: Product Amount, Service Amount, Tax Amount
+   * Line on secondary axis: Invoice Count
+   */
+  buildInvoiceChartData(rawData: any[], type: 'preclose' | 'midclose'): void {
+    if (!rawData || rawData.length === 0) return;
+
+    // Determine label key: use QUARTER on quarter-end, PERIOD_NAME otherwise
+    const labelKey = this.isQuarterEnd ? 'QUARTER' : 'PERIOD_NAME';
+    const labels = rawData.map((row) => row[labelKey] || '');
+
+    // Find amount column names dynamically
+    const keys = Object.keys(rawData[0]);
+    const productAmtKey = keys.find(
+      (k) => k.includes('PRODUCT') && k.includes('AMOUNT'),
+    );
+    const serviceAmtKey = keys.find(
+      (k) => k.includes('SERVICE') && k.includes('AMOUNT'),
+    );
+    const taxAmtKey = keys.find(
+      (k) => k.includes('TAX') && k.includes('AMOUNT'),
+    );
+    const countKey = keys.find((k) => k.includes('COUNT'));
+
+    const datasets: any[] = [
+      {
+        type: 'bar',
+        label: 'Service Amount',
+        data: rawData.map((row) => row[serviceAmtKey] || 0),
+        backgroundColor: '#7d8affe4',
+        borderColor: '#7D8AFF',
+        borderWidth: 1,
+        yAxisID: 'y',
+        order: 2,
+      },
+      {
+        type: 'bar',
+        label: 'Product Amount',
+        data: rawData.map((row) => row[productAmtKey] || 0),
+        backgroundColor: '#b02863ff',
+        borderColor: '#B02863',
+        borderWidth: 1,
+        yAxisID: 'y',
+        order: 1,
+      },
+      {
+        type: 'bar',
+        label: 'Tax Amount',
+        data: rawData.map((row) => row[taxAmtKey] || 0),
+        backgroundColor: '#e6971099',
+        borderColor: '#e69710',
+        borderWidth: 1,
+        yAxisID: 'y',
+        order: 3,
+      },
+    ];
+
+    // Add Invoice Count as a line on secondary axis — same style as Interface Load product % line
+    if (countKey) {
+      datasets.unshift({
+        type: 'line',
+        label: 'Invoice Count',
+        data: rawData.map((row) => row[countKey] || 0),
+        borderColor: '#e69710ff',
+        backgroundColor: '#e69710ff',
+        borderWidth: 3,
+        borderDash: [5, 5],
+        fill: false,
+        yAxisID: 'y1',
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#e69710ff',
+        pointBorderColor: '#e69710ff',
+        order: 0,
+        tension: 0.3,
+      });
+    }
+
+    if (type === 'preclose') {
+      this.precloseInvChartLabels = labels;
+      this.precloseInvChartDatasets = datasets;
+    } else {
+      this.midcloseInvChartLabels = labels;
+      this.midcloseInvChartDatasets = datasets;
+    }
+  }
+
+  /**
+   * Build chart data for Cash Posted.
+   * Stacked bars: WD_5 through WD_0
+   */
+  buildCashChartData(rawData: any[]): void {
+    if (!rawData || rawData.length === 0) return;
+
+    // Use PERIOD_NAME for labels
+    const labels = rawData.map((row) => row['PERIOD_NAME'] || '');
+
+    const wdColors = [
+      { bg: '#7d8affee', border: '#7D8AFF' }, // WD 5
+      { bg: '#5b6edbe4', border: '#5b6edb' }, // WD 4
+      { bg: '#9a6bffe4', border: '#9a6bff' }, // WD 3
+      { bg: '#b02863e4', border: '#B02863' }, // WD 2
+      { bg: '#7d3f8fe4', border: '#7d3f8f' }, // WD 1
+      { bg: '#4a2080e4', border: '#4a2080' }, // WD 0
+    ];
+
+    const wdKeys = ['WD_5', 'WD_4', 'WD_3', 'WD_2', 'WD_1', 'WD_0'];
+    const datasets: any[] = wdKeys.map((key, idx) => ({
+      type: 'bar',
+      label: key.replace('_', ' '),
+      data: rawData.map((row) => row[key] || 0),
+      backgroundColor: wdColors[idx].bg,
+      borderColor: wdColors[idx].border,
+      borderWidth: 1,
+      yAxisID: 'y',
+      order: wdKeys.length - idx,
+    }));
+
+    // Same data for both preclose and midclose cash charts
+    this.precloseCashChartLabels = labels;
+    this.precloseCashChartDatasets = datasets;
+    this.midcloseCashChartLabels = labels;
+    this.midcloseCashChartDatasets = datasets;
   }
 
   getEndpointData(endpoint: string): Observable<any> {
