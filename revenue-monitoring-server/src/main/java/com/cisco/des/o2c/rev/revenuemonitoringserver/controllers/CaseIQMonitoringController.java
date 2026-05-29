@@ -213,9 +213,8 @@ public class CaseIQMonitoringController {
 
     @GetMapping("/charts/weekly-volume-by-state")
     public ResponseEntity<List<Map<String, Object>>> weeklyVolumeByState(
-            @RequestParam(defaultValue = "180") int lookbackDays,
-            @RequestParam(required = false) String fiscQtr) {
-        return new ResponseEntity<>(service.getWeeklyCaseVolumeByState(lookbackDays, fiscQtr), HttpStatus.OK);
+            @RequestParam String fiscQtr) {
+        return new ResponseEntity<>(service.getWeeklyCaseVolumeByState(fiscQtr), HttpStatus.OK);
     }
 
     @GetMapping("/charts/hourly-case-pattern")

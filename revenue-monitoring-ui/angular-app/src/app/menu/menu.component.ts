@@ -349,8 +349,8 @@ export class MenuComponent {
       ],
     },
     {
-      label: 'ESP Case Manager',
-      icon: 'phosphorFolderOpenBold',
+      label: 'CaseIQ',
+      icon: 'phosphorBrainBold',
       roles: [
         'CASE_IQ_MANAGER',
         'CASE_IQ_OM',
@@ -363,12 +363,12 @@ export class MenuComponent {
         'CASE_IQ_FINANCE_IT',
       ],
       children: [
-        {
-          label: 'CaseIQ Monitoring',
-          icon: 'phosphorHeartbeatBold',
-          route: '/caseiq-monitoring',
-          roles: ['ADMIN', 'CASE_IQ_MONITORING'],
-        },
+        // {
+        //   label: 'CaseIQ Monitoring',
+        //   icon: 'phosphorHeartbeatBold',
+        //   route: '/caseiq-monitoring',
+        //   roles: ['ADMIN', 'CASE_IQ_MONITORING'],
+        // },
         {
           label: 'Case IQ',
           icon: 'phosphorBrainBold',

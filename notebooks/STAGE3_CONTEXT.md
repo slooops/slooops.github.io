@@ -10,8 +10,8 @@
 - ✅ `Wd0PredictiveService` ports the predecessor's manual Excel formula into Java. Two-layer weighting: per-day weights × WD multipliers.
 - ✅ Three source SQL queries run against Oracle CG1PRD (PRODUCT via `@FINFBLBLO_LINK.CISCO.COM` DB link; SERVICE_FIRD and SERVICE_FLEXI local to `apps.*`).
 - ✅ Two Oracle tables in ARFINRO:
-  - `XXCASEIQ_WD0_PREDICTIONS` — one row per (period, wd, line_type, run) with `WEIGHTED_SUM`, `PREDICTION_LOW`, `PREDICTION_HIGH`, `GENERATED_AT` (UTC).
-  - `XXCASEIQ_WD0_RAW_SNAPSHOTS` — one row per day-bucket, FK to prediction. Captures `COUNT_DATE`, `DAY_OFFSET`, `PER_DAY_WEIGHT`, `LINE_COUNT`, plus `SOURCE_QUERY` tag.
+  - `JSR_WD0_PREDICTIONS` — one row per (period, wd, line_type, run) with `WEIGHTED_SUM`, `PREDICTION_LOW`, `PREDICTION_HIGH`, `GENERATED_AT` (UTC).
+  - `JSR_WD0_RAW_SNAPSHOTS` — one row per day-bucket, FK to prediction. Captures `COUNT_DATE`, `DAY_OFFSET`, `PER_DAY_WEIGHT`, `LINE_COUNT`, plus `SOURCE_QUERY` tag.
 - ✅ REST endpoints under `/api/wd0/v2/`: `projection`, `projection/run` (POST, writes), `projection/dry-run` (GET), `raw-snapshots`, `calendar`.
 - ✅ Scheduler `Wd0PredictiveScheduledJob` (cron `0 0 15 * * MON-FRI` America/Los_Angeles) gated by `wd0.predictions.scheduled.enabled` — runs only WD-3/-2/-1 of each fiscal period.
 - ✅ Validated end-to-end vs predecessor's Excel: PRODUCT and SERVICE LOW/HIGH match exactly within timing drift.
@@ -55,8 +55,8 @@ WD-step (WD-3, WD-2, WD-1) is an **input feature**, not a separate model. So eac
 ### Forward (live snapshots, growing)
 
 ```sql
-SELECT * FROM ARFINRO.XXCASEIQ_WD0_RAW_SNAPSHOTS;
-SELECT * FROM ARFINRO.XXCASEIQ_WD0_PREDICTIONS;
+SELECT * FROM ARFINRO.JSR_WD0_RAW_SNAPSHOTS;
+SELECT * FROM ARFINRO.JSR_WD0_PREDICTIONS;
 ```
 
 Currently has ~1 cycle. After 3-6 months of live operation, will have 3-6 ME + 1-2 QE samples per segment.
@@ -89,7 +89,7 @@ We can replay what the 3 source queries WOULD have returned on past WD-3/-2/-1 d
 - `flow_status_code` and `bill_status_code` reflect _current_ state, not state-at-wd_date. Small under-count.
 - Hard-deleted lines unrecoverable. Minor.
 
-**Validation step:** Reconstruct the MOST RECENT closed period and compare to the live snapshot we captured in `XXCASEIQ_WD0_RAW_SNAPSHOTS`. If they match within ~5%, the reconstruction is trustworthy.
+**Validation step:** Reconstruct the MOST RECENT closed period and compare to the live snapshot we captured in `JSR_WD0_RAW_SNAPSHOTS`. If they match within ~5%, the reconstruction is trustworthy.
 
 ---
 
@@ -183,7 +183,7 @@ target = actual_midclose_count_at_wd0
 ## Hard constraints / do-not-do
 
 - **Do not** modify `Wd0PredictiveService.java` or any Java code. Notebook session is read-only on the server.
-- **Do not** delete rows from `XXCASEIQ_WD0_*` tables — those are live operational data.
+- **Do not** delete rows from `JSR_WD0_*` tables — those are live operational data.
 - **Do not** run heavy queries against PRODUCT via the DB link without a `ROWNUM` cap during exploration — that link is shared.
 - **Use UTC** for any timestamps you compute or store. DB convention.
 - **No emoji** in any notebook output destined for production code paths.

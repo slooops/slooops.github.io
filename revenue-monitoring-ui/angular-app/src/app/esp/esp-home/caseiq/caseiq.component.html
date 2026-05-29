@@ -451,7 +451,9 @@
           } @else {
             <div class="ciq-card-header">
               <span class="ciq-card-title">Weekly Cases Analyzed</span>
-              <span class="analytics-date-range">Last 90 days</span>
+              <span class="analytics-date-range">{{
+                selectedQuarter || "Q4FY26"
+              }}</span>
               <button
                 class="flip-btn"
                 (click)="flipHourlyCard()"

@@ -179,6 +179,11 @@ export class CtmAlertsDashboardComponent
   modalRow: CtmAlertRow | null = null;
 
   // Color maps
+  alertStatusColors: Record<string, string> = {
+    Pending: '#e6a800',
+    Resolved: '#6ebe4a',
+  };
+
   alertTypeColors: Record<string, string> = {
     FAILED: '#e53935',
     DELAYED: '#e6a800',
@@ -240,14 +245,13 @@ export class CtmAlertsDashboardComponent
     forkJoin({
       alerts: this.dataService.getAllAlerts(this.dm),
       summary: this.dataService.getSummary(this.dm),
-      byType: this.dataService.getAlertTypeDistribution(this.dm),
       byPriority: this.dataService.getPriorityDistribution(this.dm),
       topDownstream: this.dataService.getTopDownstreamBlocked(this.dm),
       hourlyTrend: this.dataService.getHourlyTrend(this.dm),
     }).subscribe({
       next: (data) => {
         this.processSummary(data.summary);
-        this.processAlertTypeDonut(data.byType);
+        this.processAlertStatusDonut(data.summary);
         this.processPriorityDonut(data.byPriority);
         this.processDownstream(data.topDownstream);
         this.processThroughput(data.hourlyTrend);
@@ -279,14 +283,17 @@ export class CtmAlertsDashboardComponent
     this.kpiLateStart = s.LATE_START || 0;
   }
 
-  private processAlertTypeDonut(data: CtmDistribution[]): void {
-    this.alertTypeTotal = data.reduce((sum, d) => sum + (d.CNT || 0), 0);
+  private processAlertStatusDonut(summary: CtmSummary): void {
+    const pending = summary.PENDING || 0;
+    const resolved = summary.RESOLVED || 0;
+    this.alertTypeTotal = pending + resolved;
     this.alertTypeData = {
-      labels: data.map((d) => d.ALERT_TYPE || 'Unknown'),
-      values: data.map((d) => d.CNT || 0),
-      colors: data.map(
-        (d) => this.alertTypeColors[d.ALERT_TYPE || ''] || '#888',
-      ),
+      labels: ['Pending', 'Resolved'],
+      values: [pending, resolved],
+      colors: [
+        this.alertStatusColors['Pending'],
+        this.alertStatusColors['Resolved'],
+      ],
     };
   }
 

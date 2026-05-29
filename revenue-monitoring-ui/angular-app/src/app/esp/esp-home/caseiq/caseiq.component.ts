@@ -181,6 +181,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         this.fetchMonitoringData();
         this.fetchAccuracyData();
         this.refetchWeeklyTeamVolume();
+        this.refetchWeeklyCasesAnalyzed();
       }
     }
   }
@@ -1206,18 +1207,18 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       error: () => done(),
     });
 
-    this.http
-      .get(
-        `${base}/weekly-volume-by-state?lookbackDays=90`,
-        this.destroyManager,
-      )
-      .subscribe({
-        next: (d: any) => {
-          this.weeklyVolumeByStateData = d;
-          done();
-        },
-        error: () => done(),
-      });
+    // Weekly volume by state uses the quarter-based view
+    const weeklyStateUrl = this.selectedQuarter
+      ? `${base}/weekly-volume-by-state?fiscQtr=${this.selectedQuarter}`
+      : `${base}/weekly-volume-by-state?fiscQtr=Q4FY26`;
+
+    this.http.get(weeklyStateUrl, this.destroyManager).subscribe({
+      next: (d: any) => {
+        this.weeklyVolumeByStateData = d;
+        done();
+      },
+      error: () => done(),
+    });
 
     this.http
       .get(`${base}/hourly-case-pattern?lookbackDays=1`, this.destroyManager)
@@ -1260,6 +1261,25 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           this.weeklyTeamNoData = false;
           this.weeklyVolumeByTeamData = d;
           this.buildWeeklyVolumeByTeamChart();
+        }
+      },
+    });
+  }
+
+  private refetchWeeklyCasesAnalyzed(): void {
+    if (!this.selectedQuarter) return;
+
+    const url = `caseiq/charts/weekly-volume-by-state?fiscQtr=${this.selectedQuarter}`;
+
+    this.http.get(url, this.destroyManager).subscribe({
+      next: (d: any) => {
+        this.weeklyVolumeByStateData = d ?? [];
+        if (this.hourlyCardFlipped) {
+          if (this.weeklyStateChart) {
+            this.weeklyStateChart.destroy();
+            this.weeklyStateChart = null;
+          }
+          this.buildWeeklyVolumeByStateChart();
         }
       },
     });
@@ -1600,16 +1620,20 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     ) as HTMLCanvasElement;
     if (!canvas) return;
 
-    // Simple weekly total volume (incident_state is unpopulated in recent data)
     const rows = this.weeklyVolumeByStateData;
-    const sorted = [...rows].sort((a: any, b: any) =>
-      (a.WEEK_START ?? '').localeCompare(b.WEEK_START ?? ''),
-    );
-    const labels = sorted.map((r: any) => {
-      const d = new Date(r.WEEK_START);
-      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    });
-    const values = sorted.map((r: any) => r.CASE_COUNT ?? 0);
+
+    // Build a map of week_number -> case_count
+    const weekMap = new Map<number, number>();
+    for (const row of rows) {
+      const week = row.WEEK_NUMBER;
+      if (week == null) continue;
+      weekMap.set(week, (weekMap.get(week) ?? 0) + (row.CASE_COUNT ?? 0));
+    }
+
+    // Always show all 13 weeks, padding missing ones with 0
+    const weeks = Array.from({ length: 13 }, (_, i) => i + 1);
+    const labels = weeks.map((w) => `Week ${w}`);
+    const values = weeks.map((w) => weekMap.get(w) ?? 0);
 
     const chart = new Chart(canvas, {
       type: 'line',
@@ -1671,9 +1695,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             grid: { display: false },
             ticks: {
               font: { size: 9 },
-              maxRotation: 0,
+              maxRotation: 45,
               autoSkip: true,
-              maxTicksLimit: 12,
+              maxTicksLimit: 13,
             },
             border: { display: false },
           },

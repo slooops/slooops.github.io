@@ -45,8 +45,9 @@ import java.util.Map;
  * </ol>
  *
  * <p>
- * Parallel to legacy {@code ARFINRO.MIDCLOSE_PRIDECTION}; the old dashboard
- * keeps running on that table untouched.
+ * Parallel to legacy {@code ARFINRO.MIDCLOSE_PRIDECTION}; that table is now
+ * frozen — the wd0-historical-data dashboard reads from
+ * {@code ARFINRO.JSR_WD0_PREDICTIONS} (filtered to formal WD-3/-2/-1 rows).
  */
 @Service
 public class Wd0PredictiveService {
@@ -137,29 +138,29 @@ public class Wd0PredictiveService {
     // ------------------------------------------------------------------------
     // PERSISTENCE SQL
     // ------------------------------------------------------------------------
-    private static final String INSERT_PREDICTION_SQL = "INSERT INTO ARFINRO.XXCASEIQ_WD0_PREDICTIONS " +
+    private static final String INSERT_PREDICTION_SQL = "INSERT INTO ARFINRO.JSR_WD0_PREDICTIONS " +
             " (PERIOD_NAME, PERIOD_END_DATE, PERIOD_TYPE, WD, LINE_TYPE, " +
             "  WEIGHTED_SUM, PREDICTION_LOW, PREDICTION_HIGH, MODEL_VERSION, GENERATED_AT) " +
             " VALUES (:period_name, :period_end_date, :period_type, :wd, :line_type, " +
             "         :weighted_sum, :prediction_low, :prediction_high, :model_version, :generated_at)";
 
-    private static final String INSERT_SNAPSHOT_SQL = "INSERT INTO ARFINRO.XXCASEIQ_WD0_RAW_SNAPSHOTS " +
+    private static final String INSERT_SNAPSHOT_SQL = "INSERT INTO ARFINRO.JSR_WD0_RAW_SNAPSHOTS " +
             " (PREDICTION_ID, PERIOD_NAME, WD, LINE_TYPE, SOURCE_QUERY, " +
             "  COUNT_DATE, DAY_OFFSET, PER_DAY_WEIGHT, LINE_COUNT, GENERATED_AT) " +
             " VALUES (:prediction_id, :period_name, :wd, :line_type, :source_query, " +
             "         :count_date, :day_offset, :per_day_weight, :line_count, :generated_at)";
 
-    private static final String SELECT_LATEST_PREDICTIONS_SQL = "SELECT p.* FROM ARFINRO.XXCASEIQ_WD0_PREDICTIONS p " +
+    private static final String SELECT_LATEST_PREDICTIONS_SQL = "SELECT p.* FROM ARFINRO.JSR_WD0_PREDICTIONS p " +
             " WHERE p.PERIOD_NAME = :period_name " +
             "   AND p.MODEL_VERSION = :model_version " +
             "   AND p.GENERATED_AT = ( " +
-            "     SELECT MAX(p2.GENERATED_AT) FROM ARFINRO.XXCASEIQ_WD0_PREDICTIONS p2 " +
+            "     SELECT MAX(p2.GENERATED_AT) FROM ARFINRO.JSR_WD0_PREDICTIONS p2 " +
             "      WHERE p2.PERIOD_NAME = p.PERIOD_NAME " +
             "        AND p2.WD = p.WD AND p2.LINE_TYPE = p.LINE_TYPE " +
             "        AND p2.MODEL_VERSION = p.MODEL_VERSION) " +
             " ORDER BY p.WD DESC, p.LINE_TYPE";
 
-    private static final String SELECT_SNAPSHOTS_FOR_PERIOD_SQL = "SELECT * FROM ARFINRO.XXCASEIQ_WD0_RAW_SNAPSHOTS " +
+    private static final String SELECT_SNAPSHOTS_FOR_PERIOD_SQL = "SELECT * FROM ARFINRO.JSR_WD0_RAW_SNAPSHOTS " +
             " WHERE PERIOD_NAME = :period_name " +
             " ORDER BY GENERATED_AT DESC, WD DESC, LINE_TYPE, SOURCE_QUERY, COUNT_DATE";
 
@@ -296,7 +297,8 @@ public class Wd0PredictiveService {
         }
         if (wd == null) {
             throw new IllegalStateException(
-                    "runDate " + runDate + " is not WD-3/-2/-1 of " + ctx.periodName());
+                    "runDate " + runDate + " has no WD label for period " + ctx.periodName()
+                            + " (weekend or post-PE)");
         }
 
         log.info("Generating WD0 predictions for period={} ({}), wd={}, runDate={}",
@@ -320,23 +322,35 @@ public class Wd0PredictiveService {
                 flexibleRows, ctx.periodEndDate());
         double serviceWeightedSum = serviceFuture.weightedSum() + serviceFlexible.weightedSum();
 
-        // 3. WD-level multipliers (ME vs QE swap happens here)
+        // 3. WD-level multipliers (ME vs QE swap happens here). Null for WDs
+        //    outside the predecessor's calibrated range (WD-3/-2/-1) - in that
+        //    case we still persist weighted_sum + snapshots, but bounds are NULL.
         WdMult prodMult = lookupWdMult(wd, ctx.periodType());
         WdMult serviceMult = prodMult; // same multiplier table for both segments
 
-        // ---- DEV LOGGING (scrub before deploy) ----
-        log.info("[WD0-DEV] FINAL wd={} type={} multiplier low={} high={}",
-                wd, ctx.periodType(), prodMult.low(), prodMult.high());
-        log.info("[WD0-DEV] FINAL PRODUCT weighted_sum={} -> low={} high={}",
-                String.format("%.2f", productAgg.weightedSum()),
-                Math.round(productAgg.weightedSum() * prodMult.low()),
-                Math.round(productAgg.weightedSum() * prodMult.high()));
-        log.info("[WD0-DEV] FINAL SERVICE weighted_sum={} (FIRD={} + Flexi={}) -> low={} high={}",
-                String.format("%.2f", serviceWeightedSum),
-                String.format("%.2f", serviceFuture.weightedSum()),
-                String.format("%.2f", serviceFlexible.weightedSum()),
-                Math.round(serviceWeightedSum * serviceMult.low()),
-                Math.round(serviceWeightedSum * serviceMult.high()));
+        if (prodMult == null) {
+            log.info("[WD0-DEV] FINAL wd={} type={} no calibrated bounds (training-only snapshot)",
+                    wd, ctx.periodType());
+            log.info("[WD0-DEV] FINAL PRODUCT weighted_sum={} (bounds NULL)",
+                    String.format("%.2f", productAgg.weightedSum()));
+            log.info("[WD0-DEV] FINAL SERVICE weighted_sum={} (FIRD={} + Flexi={}) (bounds NULL)",
+                    String.format("%.2f", serviceWeightedSum),
+                    String.format("%.2f", serviceFuture.weightedSum()),
+                    String.format("%.2f", serviceFlexible.weightedSum()));
+        } else {
+            log.info("[WD0-DEV] FINAL wd={} type={} multiplier low={} high={}",
+                    wd, ctx.periodType(), prodMult.low(), prodMult.high());
+            log.info("[WD0-DEV] FINAL PRODUCT weighted_sum={} -> low={} high={}",
+                    String.format("%.2f", productAgg.weightedSum()),
+                    Math.round(productAgg.weightedSum() * prodMult.low()),
+                    Math.round(productAgg.weightedSum() * prodMult.high()));
+            log.info("[WD0-DEV] FINAL SERVICE weighted_sum={} (FIRD={} + Flexi={}) -> low={} high={}",
+                    String.format("%.2f", serviceWeightedSum),
+                    String.format("%.2f", serviceFuture.weightedSum()),
+                    String.format("%.2f", serviceFlexible.weightedSum()),
+                    Math.round(serviceWeightedSum * serviceMult.low()),
+                    Math.round(serviceWeightedSum * serviceMult.high()));
+        }
 
         // Store as UTC instant - DB convention is UTC across the platform.
         Timestamp generatedAt = Timestamp.from(Instant.now());
@@ -393,12 +407,12 @@ public class Wd0PredictiveService {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("period", ctx.toMap());
         result.put("wd", wd);
-        result.put("wd_multipliers", Map.of("low", mult.low(), "high", mult.high()));
+        result.put("wd_multipliers", mult == null ? null : Map.of("low", mult.low(), "high", mult.high()));
         result.put("PRODUCT", segmentReport(productAgg, mult));
         Map<String, Object> service = new LinkedHashMap<>();
         service.put("weighted_sum", round1(serviceWeightedSum));
-        service.put("prediction_low", Math.round(serviceWeightedSum * mult.low()));
-        service.put("prediction_high", Math.round(serviceWeightedSum * mult.high()));
+        service.put("prediction_low", mult == null ? null : Math.round(serviceWeightedSum * mult.low()));
+        service.put("prediction_high", mult == null ? null : Math.round(serviceWeightedSum * mult.high()));
         service.put("FUTURE_INVOICE_RELEASE", serviceFuture.toMap());
         service.put("FLEXIBLE_INVOICE", serviceFlexible.toMap());
         result.put("SERVICE", service);
@@ -458,19 +472,19 @@ public class Wd0PredictiveService {
         return new SegmentAgg(sum, weighted);
     }
 
+    /**
+     * Returns the WD multiplier for the given (wd, period_type), or {@code null}
+     * when wd is outside the predecessor's calibrated range (WD-3/-2/-1). Non-formal
+     * days still persist their weighted_sum + per-day snapshots, but bounds are NULL.
+     */
     private WdMult lookupWdMult(String wd, String periodType) {
-        WdMult m = WD_MULTIPLIERS.get(new WdKey(wd, periodType));
-        if (m == null) {
-            throw new IllegalArgumentException(
-                    "No WD multiplier for wd=" + wd + " type=" + periodType);
-        }
-        return m;
+        return WD_MULTIPLIERS.get(new WdKey(wd, periodType));
     }
 
     private long insertPrediction(PeriodContext ctx, String wd, String lineType,
             double weightedSum, WdMult mult, Timestamp generatedAt) {
-        long low = Math.round(weightedSum * mult.low());
-        long high = Math.round(weightedSum * mult.high());
+        Long low = mult == null ? null : Math.round(weightedSum * mult.low());
+        Long high = mult == null ? null : Math.round(weightedSum * mult.high());
         MapSqlParameterSource p = new MapSqlParameterSource()
                 .addValue("period_name", ctx.periodName())
                 .addValue("period_end_date", Date.valueOf(ctx.periodEndDate()))
@@ -513,8 +527,8 @@ public class Wd0PredictiveService {
     private static Map<String, Object> segmentReport(SegmentAgg agg, WdMult mult) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("weighted_sum", round1(agg.weightedSum()));
-        m.put("prediction_low", Math.round(agg.weightedSum() * mult.low()));
-        m.put("prediction_high", Math.round(agg.weightedSum() * mult.high()));
+        m.put("prediction_low", mult == null ? null : Math.round(agg.weightedSum() * mult.low()));
+        m.put("prediction_high", mult == null ? null : Math.round(agg.weightedSum() * mult.high()));
         m.put("days", agg.toMap().get("days"));
         return m;
     }
@@ -565,16 +579,40 @@ public class Wd0PredictiveService {
         return "ME";
     }
 
+    /**
+     * Return the WD-N label for {@code today} relative to {@code periodEnd}.
+     * Counts business days in {@code [today, periodEnd-1]}; weekend days inherit
+     * the label of the next upcoming business day (e.g. a Sunday three days
+     * before PE shares its label with the following Monday).
+     *
+     * <p>Returns {@code null} only when today is on or after PE (those days
+     * belong to the next close cycle, picked up by {@link #computePeriodContext}
+     * on the next run), or when no business-day path of length <= 60 exists.
+     *
+     * <p>Originally limited to WD-3/-2/-1 (predecessor's formal prediction days);
+     * generalised so we can persist daily snapshots throughout the close window
+     * — including weekends — as training data. Bounds are only meaningful at
+     * WD-3/-2/-1 (see {@link #lookupWdMult}); other days persist with NULL bounds.
+     */
     static String workDayLabel(LocalDate today, LocalDate periodEnd) {
-        LocalDate wd1 = previousBusinessDay(periodEnd);
-        LocalDate wd2 = previousBusinessDay(wd1);
-        LocalDate wd3 = previousBusinessDay(wd2);
-        if (today.equals(wd1))
-            return "WD-1";
-        if (today.equals(wd2))
-            return "WD-2";
-        if (today.equals(wd3))
-            return "WD-3";
+        if (!today.isBefore(periodEnd)) {
+            return null;
+        }
+        LocalDate cursor = periodEnd.minusDays(1);
+        int bizDays = 0;
+        while (!cursor.isBefore(today)) {
+            if (cursor.getDayOfWeek() != DayOfWeek.SATURDAY
+                    && cursor.getDayOfWeek() != DayOfWeek.SUNDAY) {
+                bizDays++;
+            }
+            if (cursor.equals(today)) {
+                return bizDays > 0 ? "WD-" + bizDays : null;
+            }
+            cursor = cursor.minusDays(1);
+            if (bizDays > 60) {
+                return null;
+            }
+        }
         return null;
     }
 

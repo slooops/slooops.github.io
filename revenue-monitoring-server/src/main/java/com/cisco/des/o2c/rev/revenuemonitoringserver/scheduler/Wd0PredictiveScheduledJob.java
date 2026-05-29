@@ -13,10 +13,17 @@ import java.time.LocalDate;
 
 /**
  * Runs Jae Won Yoon's (RIP) WD0 prediction method automatically at 3pm Pacific
- * on WD-3, WD-2, and WD-1 of each fiscal-period close window.
+ * every day of the close window (including weekends).
  *
  * <p>
- * Total 3 runs per close cycle (matches predecessor's manual cadence).
+ * Fires every day of the week. The service captures predictions + raw
+ * per-day-bucket snapshots for every day up to ~WD-30 of the next upcoming
+ * period_end. Weekend days inherit the WD label of the next upcoming business
+ * day (so Sat/Sun between two business days share that business day's WD-N).
+ * Bounds (PREDICTION_LOW/HIGH) are only populated at WD-3/-2/-1 (the
+ * predecessor's calibrated days); other days persist {@code weighted_sum}
+ * plus snapshots with NULL bounds, purely as training data for the FY27
+ * retrain.
  *
  * <p>
  * Disabled by default until {@code wd0.predictions.scheduled.enabled=true}
@@ -36,11 +43,14 @@ public class Wd0PredictiveScheduledJob {
     }
 
     /**
-     * Fires at 3:00 PM Pacific Monday-Friday. The service only persists a
-     * prediction if today is WD-3/-2/-1 of an upcoming period close; on all
-     * other weekdays the job logs and exits cheaply.
+     * Fires at 3:00 PM Pacific every day of the week. The service computes the
+     * WD label for today relative to the next upcoming period_end (WD-1, WD-2,
+     * ... up to ~WD-30, with weekend days inheriting the following business
+     * day's label) and persists a snapshot. On the PE date itself (Saturday)
+     * and PE+1 (Sunday), {@code workDayLabel} returns null — those belong to
+     * the next close cycle, picked up by the Monday run.
      */
-    @Scheduled(cron = "0 0 15 * * MON-FRI", zone = "America/Los_Angeles")
+    @Scheduled(cron = "0 0 15 * * *", zone = "America/Los_Angeles")
     public void runAtThreePmPacific() {
         LocalDate today = LocalDate.now(Wd0PredictiveService.PACIFIC);
         PeriodContext ctx;
@@ -52,7 +62,7 @@ public class Wd0PredictiveScheduledJob {
         }
 
         if (ctx.wd() == null) {
-            log.debug("3pm Pacific job: {} is not WD-3/-2/-1 of {} - skipping",
+            log.debug("3pm Pacific job: {} has no WD label for {} - skipping",
                     today, ctx.periodName());
             return;
         }

@@ -407,13 +407,11 @@ public class CaseIQMonitoringService {
             "ORDER BY team_name, week_number";
 
     private static final String WEEKLY_CASE_VOLUME_BY_STATE = "SELECT " +
-            "TO_CHAR(TRUNC(caseiq_run_date, 'IW'), 'YYYY-MM-DD') AS week_start, " +
-            "COUNT(*) AS case_count " +
-            "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
-            "WHERE caseiq_run_date > SYSDATE - :lookback_days " +
-            "AND is_active = 'TRUE' " +
-            "GROUP BY TRUNC(caseiq_run_date, 'IW') " +
-            "ORDER BY TRUNC(caseiq_run_date, 'IW') ASC";
+            "week_number, SUM(incident_count) AS case_count " +
+            "FROM ARFINRO.ASK_CASEIQ_METRICS_WEEKLY_V " +
+            "WHERE quarter = :fisc_qtr " +
+            "GROUP BY week_number " +
+            "ORDER BY week_number ASC";
 
     private static final String HOURLY_CASE_OPEN_PATTERN = "SELECT " +
             "EXTRACT(HOUR FROM CAST(caseiq_run_date AS TIMESTAMP)) AS hour_of_day, " +
@@ -1078,8 +1076,9 @@ public class CaseIQMonitoringService {
         return jdbcManager.queryWithNamedParams(WEEKLY_CASE_VOLUME_BY_TEAM, params);
     }
 
-    public List<Map<String, Object>> getWeeklyCaseVolumeByState(int lookbackDays, String fiscQtr) {
-        return runQuery(WEEKLY_CASE_VOLUME_BY_STATE, buildParams("lookback_days", lookbackDays), fiscQtr);
+    public List<Map<String, Object>> getWeeklyCaseVolumeByState(String fiscQtr) {
+        Map<String, Object> params = buildParams("fisc_qtr", fiscQtr);
+        return jdbcManager.queryWithNamedParams(WEEKLY_CASE_VOLUME_BY_STATE, params);
     }
 
     public List<Map<String, Object>> getHourlyCaseOpenPattern(int lookbackDays, String fiscQtr) {
