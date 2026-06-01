@@ -63,28 +63,46 @@
     <!-- Messages area -->
     <div class="chat-body" #messagesContainer>
       @for (msg of messages; track $index) {
-        <div
-          class="chat-msg"
-          [class.user]="msg.isUser"
-          [class.bot]="!msg.isUser"
-        >
-          @if (!msg.isUser) {
-            <div class="msg-avatar-sm">
-              <img
-                src="assets/icons/Circuit-Logo.png"
-                alt=""
-                class="msg-avatar-img"
-              />
+        @if (msg.isUser || msg.text) {
+          <div
+            class="chat-msg"
+            [class.user]="msg.isUser"
+            [class.bot]="!msg.isUser"
+          >
+            @if (!msg.isUser) {
+              <div class="msg-avatar-sm">
+                <img
+                  src="assets/icons/Circuit-Logo.png"
+                  alt=""
+                  class="msg-avatar-img"
+                />
+              </div>
+            }
+            <div class="msg-bubble" [class.welcome]="msg.isWelcome">
+              {{ msg.text }}
             </div>
-          }
-          <div class="msg-bubble" [class.welcome]="msg.isWelcome">
-            {{ msg.text }}
+          </div>
+        }
+      }
+
+      <!-- Status indicator (shown during status phase) -->
+      @if (isStatusPhase) {
+        <div class="chat-msg bot">
+          <div class="msg-avatar-sm">
+            <img
+              src="assets/icons/Circuit-Logo.png"
+              alt=""
+              class="msg-avatar-img"
+            />
+          </div>
+          <div class="msg-bubble status-bubble">
+            <span class="status-text">{{ statusMessage }}</span>
           </div>
         </div>
       }
 
-      <!-- Typing indicator -->
-      @if (isLoading) {
+      <!-- Typing indicator (shown when loading but no status and no streaming) -->
+      @if (isLoading && !isStreaming && !isStatusPhase) {
         <div class="chat-msg bot">
           <div class="msg-avatar-sm">
             <img

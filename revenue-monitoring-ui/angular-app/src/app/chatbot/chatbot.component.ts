@@ -16,8 +16,9 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
+
 import { AuthenticationService } from '../providers/authentication.service';
+import { ChatbotService } from './chatbot.service';
 import {
   ChatbotPageConfig,
   getChatbotConfig,
@@ -47,7 +48,10 @@ export class ChatbotComponent
   private hasInitialized = false;
 
   isLoading: boolean = false;
-  private activeRequest: Subscription | null = null;
+  isStreaming: boolean = false;
+  isStatusPhase: boolean = false;
+  statusMessage: string = '';
+  private abortController: AbortController | null = null;
 
   /* ── Resize state ── */
   panelWidth = 380;
@@ -73,11 +77,13 @@ export class ChatbotComponent
     private authService: AuthenticationService,
     private httpClient: HttpClient,
     private ngZone: NgZone,
+    private chatbotService: ChatbotService,
   ) {}
 
   ngOnInit(): void {
     this.userName = this.authService.getUserName();
     this.userEmail = this.authService.getUserID();
+    console.log('[Chatbot] Initialized with userName:', this.userName);
     if (!this.apiUrl) {
       this.apiUrl =
         this.authService.getControlTowerSupportAgentApiUrl() ||
@@ -93,6 +99,7 @@ export class ChatbotComponent
   }
 
   ngOnDestroy(): void {
+    this.cancelRequest();
     this.cleanupResizeListeners();
   }
 
@@ -163,47 +170,171 @@ export class ChatbotComponent
   private callAgent(message: string): void {
     this.isLoading = true;
 
-    const url = `${this.apiUrl}/control-tower-ui-chat`;
     const body = {
-      userName: this.userEmail,
+      userName: this.userName,
       userEmail: this.userEmail.toLowerCase() + '@cisco.com',
       message,
     };
-    console.log('[Chatbot] POST', url, body);
 
-    this.activeRequest = this.httpClient
-      .post<{ response: string }>(url, body)
-      .subscribe({
-        next: (res) => {
-          console.log('[Chatbot] Response:', res);
+    // Create empty assistant message bubble for streaming
+    const assistantMsg = { text: '', isUser: false };
+    this.messages.push(assistantMsg);
+
+    this.abortController = new AbortController();
+    const streamUrl = `${this.apiUrl}/control-tower-ui-chat-stream`;
+
+    console.log('[Chatbot] SSE POST', streamUrl, body);
+
+    fetch(streamUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: this.abortController.signal,
+    })
+      .then((res) => {
+        if (!res.ok || !res.body) {
+          throw new Error(`Stream connection failed: ${res.status}`);
+        }
+        return this.processSSEStream(res.body, assistantMsg);
+      })
+      .catch((err) => {
+        if (err.name === 'AbortError') {
+          assistantMsg.text = assistantMsg.text || 'Request cancelled.';
           this.isLoading = false;
-          this.activeRequest = null;
-          this.messages.push({
-            text: res.response || 'No response received.',
-            isUser: false,
-          });
-        },
-        error: (err) => {
-          this.isLoading = false;
-          this.activeRequest = null;
-          console.error('Agent API error:', err);
-          this.messages.push({
-            text: 'Something went wrong reaching the assistant. Please try again.',
-            isUser: false,
-          });
-        },
+          this.isStreaming = false;
+          this.abortController = null;
+          return;
+        }
+        // Fallback to non-streaming endpoint
+        console.warn(
+          '[Chatbot] Stream failed, falling back to regular POST',
+          err,
+        );
+        this.callAgentFallback(body, assistantMsg);
       });
   }
 
-  cancelRequest(): void {
-    if (this.activeRequest) {
-      this.activeRequest.unsubscribe();
-      this.activeRequest = null;
-      this.isLoading = false;
-      this.messages.push({
-        text: 'Request cancelled.',
-        isUser: false,
+  private async processSSEStream(
+    body: ReadableStream<Uint8Array>,
+    assistantMsg: { text: string; isUser: boolean },
+  ): Promise<void> {
+    const reader = body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop() || '';
+
+        for (const part of parts) {
+          if (!part.trim()) continue;
+          let eventName = '';
+          let data = '';
+
+          for (const line of part.split('\n')) {
+            if (line.startsWith('event: ')) {
+              eventName = line.slice(7).trim();
+            } else if (line.startsWith('data: ')) {
+              data = line.slice(6);
+            }
+          }
+
+          if (!eventName || !data) continue;
+
+          if (eventName === 'status') {
+            const payload = JSON.parse(data) as { message: string };
+            this.ngZone.run(() => {
+              this.isStatusPhase = true;
+              this.statusMessage = payload.message || 'Processing…';
+            });
+          } else if (eventName === 'token') {
+            const chunk = JSON.parse(data) as string;
+            this.ngZone.run(() => {
+              this.isStatusPhase = false;
+              this.statusMessage = '';
+              assistantMsg.text += chunk;
+              this.isStreaming = true;
+            });
+          } else if (eventName === 'done') {
+            const payload = JSON.parse(data) as { full_response: string };
+            this.ngZone.run(() => {
+              assistantMsg.text = payload.full_response;
+              this.isLoading = false;
+              this.isStreaming = false;
+              this.isStatusPhase = false;
+              this.statusMessage = '';
+              this.abortController = null;
+            });
+            return;
+          } else if (eventName === 'error') {
+            const payload = JSON.parse(data) as { error: string };
+            this.ngZone.run(() => {
+              assistantMsg.text = payload.error || 'An error occurred.';
+              this.isLoading = false;
+              this.isStreaming = false;
+              this.isStatusPhase = false;
+              this.statusMessage = '';
+              this.abortController = null;
+            });
+            return;
+          }
+        }
+      }
+
+      // Stream ended without a done event
+      this.ngZone.run(() => {
+        if (!assistantMsg.text) {
+          assistantMsg.text = 'No response received.';
+        }
+        this.isLoading = false;
+        this.isStreaming = false;
+        this.abortController = null;
       });
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        this.ngZone.run(() => {
+          assistantMsg.text = 'Stream interrupted. Please try again.';
+          this.isLoading = false;
+          this.abortController = null;
+        });
+      }
+    }
+  }
+
+  private callAgentFallback(
+    body: { userName: string; userEmail: string; message: string },
+    assistantMsg: { text: string; isUser: boolean },
+  ): void {
+    const url = `${this.apiUrl}/control-tower-ui-chat`;
+    this.httpClient.post<{ response: string }>(url, body).subscribe({
+      next: (res) => {
+        assistantMsg.text = res.response || 'No response received.';
+        this.isLoading = false;
+        this.abortController = null;
+      },
+      error: (err) => {
+        console.error('Agent API error:', err);
+        assistantMsg.text =
+          'Something went wrong reaching the assistant. Please try again.';
+        this.isLoading = false;
+        this.abortController = null;
+      },
+    });
+  }
+
+  cancelRequest(): void {
+    if (this.abortController) {
+      this.abortController.abort();
+      this.abortController = null;
+      this.isLoading = false;
+      this.isStreaming = false;
+      this.isStatusPhase = false;
+      this.statusMessage = '';
     }
   }
 
