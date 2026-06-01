@@ -437,8 +437,9 @@ export class SelfHealingComponent
           y: {
             stacked: true,
             beginAtZero: true,
+            grace: '5%',
             grid: { color: 'rgba(0,0,0,0.06)' },
-            ticks: { font: { size: 10 } },
+            ticks: { font: { size: 10 }, precision: 0 },
           },
         },
       },
