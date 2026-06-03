@@ -1,8 +1,6 @@
 <div class="landing-page">
   <!-- Top Bar -->
   <div class="top-bar">
-    <!-- <h3 class="panel-title">Pre-Close Entities</h3> -->
-
     @if (periodName()) {
       <div class="period-info">
         <span
@@ -16,112 +14,292 @@
         <span
           >Last Updated: <b>{{ lastUpdated() }}</b></span
         >
+        @if (userName() === "JASLOOP") {
+          <span class="divider"> | </span>
+          <span class="context-switcher">
+            <button
+              class="ctx-btn"
+              [class.ctx-btn--active]="activeContext() === 1"
+              (click)="setContext(1)"
+            >
+              1
+            </button>
+            <button
+              class="ctx-btn"
+              [class.ctx-btn--active]="activeContext() === 2"
+              (click)="setContext(2)"
+            >
+              2
+            </button>
+            <button
+              class="ctx-btn"
+              [class.ctx-btn--active]="activeContext() === 3"
+              (click)="setContext(3)"
+            >
+              3
+            </button>
+          </span>
+        }
       </div>
     }
   </div>
 
-  <!-- Cockpit Dashboard -->
-  <div class="cockpit-grid">
-    <!-- Pre-Close Metrics -->
-    <div class="cockpit-panel cockpit-panel--it">
-      <div class="dial-row">
-        @for (dial of itOpsDials(); track dial.label) {
-          <app-arc-progress
-            [value]="dial.value"
-            [max]="dial.max"
-            [size]="dial.size"
-            [strokeWidth]="dial.strokeWidth"
-            [displayFormat]="dial.displayFormat"
-            [subtitle]="dial.label"
-            [colorStart]="dial.colorStart"
-            [colorEnd]="dial.colorEnd"
-            [showTotal]="true"
-          />
+  <!-- Context 1: Period Close -->
+  @if (activeContext() === 1) {
+    <div class="cockpit-grid">
+      <!-- Pre-Close Metrics -->
+      <div class="cockpit-panel cockpit-panel--it">
+        <div class="dial-row">
+          @for (dial of itOpsDials(); track dial.label) {
+            <app-arc-progress
+              [value]="dial.value"
+              [max]="dial.max"
+              [size]="dial.size"
+              [strokeWidth]="dial.strokeWidth"
+              [displayFormat]="dial.displayFormat"
+              [subtitle]="dial.label"
+              [colorStart]="dial.colorStart"
+              [colorEnd]="dial.colorEnd"
+              [showTotal]="true"
+            />
+          }
+        </div>
+        @if (itOpsBar(); as bar) {
+          <div class="health-bar-container">
+            <span class="health-label">{{ bar.label }}</span>
+            <div class="health-bar">
+              <div class="health-bar-track" [style.width.%]="bar.value"></div>
+              <div
+                class="health-bar-indicator"
+                [style.left.%]="bar.value"
+              ></div>
+            </div>
+            <span class="health-bar-value">{{ bar.value }}%</span>
+          </div>
         }
       </div>
-      @if (itOpsBar(); as bar) {
-        <div class="health-bar-container">
-          <span class="health-label">{{ bar.label }}</span>
-          <div class="health-bar">
-            <div class="health-bar-track" [style.width.%]="bar.value"></div>
-            <div class="health-bar-indicator" [style.left.%]="bar.value"></div>
+
+      <!-- Mid-Close Metrics -->
+      <div class="cockpit-panel cockpit-panel--finance">
+        <div class="dial-row">
+          @for (dial of finOpsDials(); track dial.label) {
+            <app-arc-progress
+              [value]="dial.value"
+              [max]="dial.max"
+              [size]="dial.size"
+              [strokeWidth]="dial.strokeWidth"
+              [displayFormat]="dial.displayFormat"
+              [subtitle]="dial.label"
+              [colorStart]="dial.colorStart"
+              [colorEnd]="dial.colorEnd"
+              [showTotal]="true"
+            />
+          }
+        </div>
+        @if (finOpsBar(); as bar) {
+          <div class="health-bar-container">
+            <span class="health-label">{{ bar.label }}</span>
+            <div class="health-bar health-bar--colorful">
+              <div class="health-bar-track" [style.width.%]="bar.value"></div>
+              <div
+                class="health-bar-indicator"
+                [style.left.%]="bar.value"
+              ></div>
+            </div>
+            <span class="health-bar-value">{{ bar.value }}%</span>
           </div>
-          <span class="health-bar-value">{{ bar.value }}%</span>
+        }
+      </div>
+
+      <!-- Volume Stats Panel -->
+      <div class="cockpit-panel cockpit-panel--volumes">
+        <div class="panel-title-row">
+          <h3 class="panel-title">Interface Load Volumes</h3>
+          <span class="panel-subtitle"
+            ># of buy / sell entities : {{ entityCount() }}</span
+          >
+        </div>
+        <div class="stat-row">
+          @for (stat of volumeStats(); track stat.label) {
+            <div class="stat-block">
+              <span class="stat-label">{{ stat.label }}</span>
+              <span class="stat-value">{{ stat.value }}</span>
+              @if (stat.trendPercent !== null) {
+                <span
+                  class="stat-trend"
+                  [class.stat-trend--up]="stat.trendDirection === 'UP'"
+                  [class.stat-trend--down]="stat.trendDirection === 'DOWN'"
+                >
+                  {{ stat.trendDirection === "UP" ? "▲" : "▼" }}
+                  {{ stat.trendPercent }}% {{ stat.trendUnit ?? "MoM" }}
+                </span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Priority Issues Panel -->
+      <div class="cockpit-panel cockpit-panel--issues">
+        <h3 class="panel-title">Large Deal Stats</h3>
+        <div class="stat-row">
+          @for (stat of largeDealStats(); track stat.label) {
+            <div class="stat-block">
+              <span class="stat-label">{{ stat.label }}</span>
+              <span class="stat-value">{{ stat.value }}</span>
+              @if (stat.subtitle) {
+                <span class="stat-subtitle">{{ stat.subtitle }}</span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Context 2: CaseIQ Centric -->
+  @if (activeContext() === 2) {
+    <!-- CaseIQ KPI Strip (8 KPIs) -->
+
+    <!-- Charts: 4-up row -->
+    <div class="ctx2-charts-row ctx2-charts-row--quad">
+      <!-- Weekly Case Volume by Team -->
+      <div class="ctx2-chart-card">
+        <span class="ctx2-chart-title">
+          Weekly Case Volume by Team
+          <span class="ctx2-chart-subtitle">{{ fiscalQuarter() ?? "" }}</span>
+        </span>
+        <div class="ctx2-chart-wrapper">
+          @if (ctx2WeeklyTeamData().length > 0) {
+            <canvas #ctx2WeeklyTeamCanvas></canvas>
+          } @else {
+            <div class="ctx2-no-data">No data available</div>
+          }
+        </div>
+      </div>
+
+      <!-- Hourly Processing Load -->
+      <div class="ctx2-chart-card">
+        <span class="ctx2-chart-title">Hourly Processing Load</span>
+        <div class="ctx2-chart-wrapper">
+          @if (ctx2HourlyData().length > 0) {
+            <canvas #ctx2HourlyCanvas></canvas>
+          } @else {
+            <div class="ctx2-no-data">No data available</div>
+          }
+        </div>
+      </div>
+
+      <!-- Transaction Failures -->
+      <div class="ctx2-chart-card">
+        <span class="ctx2-chart-title">Transaction Failures</span>
+        <div class="ctx2-chart-wrapper">
+          @if (!ctx2TxnFailuresLoading()) {
+            <canvas #ctx2TxnFailuresCanvas></canvas>
+          } @else {
+            <div class="ctx2-no-data">Loading...</div>
+          }
+        </div>
+      </div>
+
+      <!-- ESP Cases -->
+      <div class="ctx2-chart-card">
+        <span class="ctx2-chart-title">ESP Cases</span>
+        <div class="ctx2-chart-wrapper">
+          @if (!ctx2EspCasesLoading()) {
+            <canvas #ctx2EspCasesCanvas></canvas>
+          } @else {
+            <div class="ctx2-no-data">Loading...</div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="ctx2-kpi-strip">
+      @for (kpi of ctx2Kpis(); track kpi.title) {
+        <div class="ctx2-kpi" [class]="kpi.color">
+          <span class="ctx2-kpi-title">{{ kpi.title }}</span>
+          <div class="ctx2-kpi-body">
+            @if (kpi.plain) {
+              <span class="ctx2-kpi-value-plain">{{ kpi.plainValue }}</span>
+            } @else {
+              <div class="ctx2-pill">
+                <div
+                  class="ctx2-pill-fill"
+                  [class]="kpi.color"
+                  [style.width.%]="kpi.pillWidth"
+                ></div>
+                <span class="ctx2-pill-text">{{ kpi.pillText }}</span>
+              </div>
+              <span class="ctx2-kpi-pct">{{ kpi.pctText }}</span>
+            }
+          </div>
         </div>
       }
     </div>
+  }
 
-    <!-- Mid-Close Metrics -->
-    <div class="cockpit-panel cockpit-panel--finance">
-      <div class="dial-row">
-        @for (dial of finOpsDials(); track dial.label) {
-          <app-arc-progress
-            [value]="dial.value"
-            [max]="dial.max"
-            [size]="dial.size"
-            [strokeWidth]="dial.strokeWidth"
-            [displayFormat]="dial.displayFormat"
-            [subtitle]="dial.label"
-            [colorStart]="dial.colorStart"
-            [colorEnd]="dial.colorEnd"
-            [showTotal]="true"
-          />
-        }
-      </div>
-      @if (finOpsBar(); as bar) {
-        <div class="health-bar-container">
-          <span class="health-label">{{ bar.label }}</span>
-          <div class="health-bar health-bar--colorful">
-            <div class="health-bar-track" [style.width.%]="bar.value"></div>
-            <div class="health-bar-indicator" [style.left.%]="bar.value"></div>
-          </div>
-          <span class="health-bar-value">{{ bar.value }}%</span>
-        </div>
-      }
-    </div>
-
-    <!-- Volume Stats Panel -->
-    <div class="cockpit-panel cockpit-panel--volumes">
-      <div class="panel-title-row">
-        <h3 class="panel-title">Interface Load Volumes</h3>
-        <span class="panel-subtitle"># of buy / sell entities : 19</span>
-      </div>
-      <div class="stat-row">
-        @for (stat of volumeStats(); track stat.label) {
-          <div class="stat-block">
-            <span class="stat-label">{{ stat.label }}</span>
-            <span class="stat-value">{{ stat.value }}</span>
-            @if (stat.trendPercent !== null) {
-              <span
-                class="stat-trend"
-                [class.stat-trend--up]="stat.trendDirection === 'UP'"
-                [class.stat-trend--down]="stat.trendDirection === 'DOWN'"
-              >
-                {{ stat.trendDirection === "UP" ? "▲" : "▼" }}
-                {{ stat.trendPercent }}% QoQ
-              </span>
-            }
+  <!-- Context 3: Large Deal (Placeholder) -->
+  @if (activeContext() === 3) {
+    <div class="ctx3-wrapper">
+      <!-- Arc dials row -->
+      <div class="ctx3-dials-row">
+        @for (dial of ctx3Dials(); track dial.label) {
+          <div class="ctx3-dial-card">
+            <app-arc-progress
+              [value]="dial.value"
+              [max]="dial.max"
+              [size]="110"
+              [strokeWidth]="10"
+              [displayFormat]="dial.displayFormat"
+              [colorStart]="dial.colorStart"
+              [colorEnd]="dial.colorEnd"
+              [arcDegrees]="240"
+              [showTrack]="true"
+              trackColor="rgba(128,128,128,0.15)"
+            />
+            <span class="ctx3-dial-label">{{ dial.label }}</span>
           </div>
         }
       </div>
-    </div>
 
-    <!-- Priority Issues Panel -->
-    <div class="cockpit-panel cockpit-panel--issues">
-      <h3 class="panel-title">Large Deal Stats</h3>
-      <div class="stat-row">
-        @for (stat of largeDealStats(); track stat.label) {
-          <div class="stat-block">
-            <span class="stat-label">{{ stat.label }}</span>
-            <span class="stat-value">{{ stat.value }}</span>
-            @if (stat.subtitle) {
-              <span class="stat-subtitle">{{ stat.subtitle }}</span>
-            }
+      <!-- KPI strip -->
+      <div class="ctx3-kpi-strip">
+        @for (kpi of ctx3Kpis(); track kpi.label) {
+          <div class="ctx3-kpi-card">
+            <span class="ctx3-kpi-value" [style.color]="kpi.color">{{
+              kpi.value
+            }}</span>
+            <span class="ctx3-kpi-label">{{ kpi.label }}</span>
+            <span class="ctx3-kpi-sub">{{ kpi.sub }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Sparklines row -->
+      <div class="ctx3-sparks-row">
+        @for (spark of ctx3Sparklines(); track spark.label; let i = $index) {
+          <div class="ctx3-spark-card">
+            <span class="ctx3-spark-label">{{ spark.label }}</span>
+            <div class="ctx3-spark-canvas-wrap">
+              @if (i === 0) {
+                <canvas #ctx3Spark0></canvas>
+              }
+              @if (i === 1) {
+                <canvas #ctx3Spark1></canvas>
+              }
+              @if (i === 2) {
+                <canvas #ctx3Spark2></canvas>
+              }
+              @if (i === 3) {
+                <canvas #ctx3Spark3></canvas>
+              }
+            </div>
           </div>
         }
       </div>
     </div>
-  </div>
+  }
 
   <!-- Card Sections -->
   <section class="card-sections">

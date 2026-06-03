@@ -116,6 +116,49 @@
   margin: 0 0.75rem;
 }
 
+/* Context Switcher Buttons */
+.context-switcher {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  margin: 0 -4px 0 0;
+}
+
+.ctx-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 112, 210, 0.25);
+  background: rgba(255, 255, 255, 0.6);
+  color: #555;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: normal;
+  padding: 0;
+}
+
+.ctx-btn:hover {
+  background: rgba(0, 188, 235, 0.12);
+  border-color: rgba(0, 188, 235, 0.5);
+  color: #0070d2;
+}
+
+.ctx-btn--active {
+  background: linear-gradient(135deg, #0070d2, #00bceb);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(0, 112, 210, 0.3);
+}
+
 /* ==========================================================================
    Cockpit Dashboard HUD
    ========================================================================== */
@@ -802,6 +845,25 @@
 
 :host(.dark-theme) .period-info .divider {
   color: var(--fit-dark-border, #2a3f50);
+}
+
+:host(.dark-theme) .ctx-btn {
+  background: rgba(28, 44, 58, 0.8);
+  color: #8899a6;
+  border-color: rgba(42, 63, 80, 0.6);
+}
+
+:host(.dark-theme) .ctx-btn:hover {
+  background: rgba(0, 188, 235, 0.15);
+  border-color: rgba(0, 188, 235, 0.4);
+  color: #00bceb;
+}
+
+:host(.dark-theme) .ctx-btn--active {
+  background: linear-gradient(135deg, #0070d2, #00bceb);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(0, 188, 235, 0.25);
 }
 
 :host(.dark-theme) .health-bar {

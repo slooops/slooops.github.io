@@ -285,26 +285,29 @@ public class CaseIQMonitoringService {
             "ORDER BY error_count DESC " +
             "FETCH FIRST 20 ROWS ONLY";
 
-    private static final String TEAM_ISSUE_MATRIX = "SELECT NVL(team_name, 'UNKNOWN') AS team_name, " +
+    private static final String TEAM_ISSUE_MATRIX = "SELECT NVL(a.team_name, 'UNKNOWN') AS team_name, " +
             "COUNT(*) AS total, " +
-            "COUNT(CASE WHEN resolution_api_status = 'SUCCESS' " +
-            "  AND (context_extracted IS NULL OR resolution_api_summary IS NULL " +
-            "       OR LENGTH(resolution_api_summary) < 5) THEN 1 END) AS ghost_success, " +
-            "COUNT(CASE WHEN llm_summary = 'Not Defined' THEN 1 END) AS not_defined, " +
-            "COUNT(CASE WHEN (category IS NULL OR core_issue IS NULL) " +
-            "  AND case_analyzer_status != 'NEW' THEN 1 END) AS null_classification, " +
-            "COUNT(CASE WHEN UPPER(TRIM(category)) = 'ERROR' " +
-            "  OR REGEXP_LIKE(core_issue, '(Error in analysis|Exception in analysis|Traceback|\\w+(Error|Exception)\\b)', 'i') "
+            "COUNT(CASE WHEN a.resolution_api_status = 'SUCCESS' " +
+            "  AND (a.context_extracted IS NULL OR a.resolution_api_summary IS NULL " +
+            "       OR LENGTH(a.resolution_api_summary) < 5) THEN 1 END) AS ghost_success, " +
+            "COUNT(CASE WHEN a.llm_summary = 'Not Defined' THEN 1 END) AS not_defined, " +
+            "COUNT(CASE WHEN (a.category IS NULL OR a.core_issue IS NULL) " +
+            "  AND a.case_analyzer_status != 'NEW' THEN 1 END) AS null_classification, " +
+            "COUNT(CASE WHEN UPPER(TRIM(a.category)) = 'ERROR' " +
+            "  OR REGEXP_LIKE(a.core_issue, '(Error in analysis|Exception in analysis|Traceback|\\w+(Error|Exception)\\b)', 'i') "
             +
-            "  OR REGEXP_LIKE(llm_summary, '(Error in analysis|Exception in analysis|Traceback|\\w+(Error|Exception)\\b)', 'i') "
+            "  OR REGEXP_LIKE(a.llm_summary, '(Error in analysis|Exception in analysis|Traceback|\\w+(Error|Exception)\\b)', 'i') "
             +
             "THEN 1 END) AS exceptions, " +
-            "COUNT(CASE WHEN resolution_api_status NOT IN ('SUCCESS','NOT_SUPPORTED','PARTIAL SUCCESS') " +
-            "  OR resolution_api_status IS NULL THEN 1 END) AS resolution_failures " +
-            "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL " +
-            "WHERE is_active = 'TRUE' " +
-            "AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " +
-            "GROUP BY NVL(team_name, 'UNKNOWN') " +
+            "COUNT(CASE WHEN a.resolution_api_status NOT IN ('SUCCESS','NOT_SUPPORTED','PARTIAL SUCCESS') " +
+            "  OR a.resolution_api_status IS NULL THEN 1 END) AS resolution_failures, " +
+            "NVL((SELECT COUNT(*) FROM ARFINRO.XXCASEIQ_ESP_STAGING_TBL s " +
+            "  WHERE s.case_analyzer_status = 'AWAITING_RESPONSE_FROM_BOT' " +
+            "  AND NVL(s.team_name, 'UNKNOWN') = NVL(a.team_name, 'UNKNOWN')), 0) AS awaiting_response_from_bot " +
+            "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL a " +
+            "WHERE a.is_active = 'TRUE' " +
+            "AND a.caseiq_run_date >= SYSDATE - :lookback_hours/24 " +
+            "GROUP BY NVL(a.team_name, 'UNKNOWN') " +
             "ORDER BY total DESC";
 
     private static final String ISSUE_TREND_BASE = "SELECT " +
@@ -315,6 +318,15 @@ public class CaseIQMonitoringService {
             "AND NVL(team_name, 'UNKNOWN') = :team_name " +
             "AND caseiq_run_date >= SYSDATE - 84 ";
     // Dynamic condition appended per issue type, then GROUP BY / ORDER BY
+
+    // Trend query for AWAITING_RESPONSE_FROM_BOT — lives in staging table
+    private static final String AWAITING_BOT_TREND_BASE = "SELECT " +
+            "TRUNC(run_date, 'IW') AS week_start, " +
+            "COUNT(*) AS issue_count " +
+            "FROM ARFINRO.XXCASEIQ_ESP_STAGING_TBL " +
+            "WHERE case_analyzer_status = 'AWAITING_RESPONSE_FROM_BOT' " +
+            "AND NVL(team_name, 'UNKNOWN') = :team_name " +
+            "AND run_date >= SYSDATE - 84 ";
 
     private static final Map<String, String> ISSUE_CONDITIONS;
     static {
@@ -336,6 +348,8 @@ public class CaseIQMonitoringService {
         ISSUE_CONDITIONS.put("RESOLUTION_FAILURES",
                 "AND (resolution_api_status NOT IN ('SUCCESS','NOT_SUPPORTED','PARTIAL SUCCESS') " +
                         "     OR resolution_api_status IS NULL) ");
+        ISSUE_CONDITIONS.put("AWAITING_RESPONSE_FROM_BOT",
+                "AND case_analyzer_status = 'AWAITING_RESPONSE_FROM_BOT' ");
     }
 
     private static final String HEALTH_SCORE = "SELECT " +
@@ -358,6 +372,8 @@ public class CaseIQMonitoringService {
             "OR REGEXP_LIKE(llm_summary, '(Error in analysis|Exception in analysis|Traceback|\\w+(Error|Exception)\\b)', 'i') "
             +
             "THEN 1 END) AS exception_cnt, " +
+            "MAX((SELECT COUNT(*) FROM ARFINRO.XXCASEIQ_ESP_STAGING_TBL " +
+            "  WHERE case_analyzer_status = 'AWAITING_RESPONSE_FROM_BOT')) AS awaiting_bot_cnt, " +
             "ROUND((CAST(SYSDATE AS DATE) - CAST(MAX(caseiq_run_date) AS DATE)) * 24 * 60, 1) AS minutes_since_last_run, "
             +
             "ROUND(AVG((CAST(caseiq_run_date AS DATE) - CAST(created_at AS DATE)) * 24 * 60), 2) AS avg_processing_minutes "
@@ -577,7 +593,8 @@ public class CaseIQMonitoringService {
                 + toInt(data.get("NULL_CATEGORY_CNT"))
                 + toInt(data.get("UNKNOWN_TEAM_CNT"))
                 + toInt(data.get("GHOST_SUCCESS_CNT"))
-                + toInt(data.get("EXCEPTION_CNT"));
+                + toInt(data.get("EXCEPTION_CNT"))
+                + toInt(data.get("AWAITING_BOT_CNT"));
 
         double successRate = (double) success / total;
         double errorRate = (double) errors / total;
@@ -826,6 +843,11 @@ public class CaseIQMonitoringService {
         params.put("team_name", teamName);
         String sql;
 
+        // AWAITING_RESPONSE_FROM_BOT lives in the staging table — special path
+        if ("AWAITING_RESPONSE_FROM_BOT".equals(issueType)) {
+            return getAwaitingBotTrend(teamName, fiscQtr);
+        }
+
         if (fiscQtr != null && !fiscQtr.isBlank()) {
             // Use fiscal-calendar-aware weekly grouping
             LocalDate qtrStart = CiscoFiscalCalendar.quarterStartFromString(fiscQtr);
@@ -902,6 +924,84 @@ public class CaseIQMonitoringService {
             while (!cursor.isAfter(currentMonday)) {
                 Map<String, Object> row = new LinkedHashMap<>();
                 row.put("WEEK_START", cursor.toString()); // ISO date string for frontend
+                row.put("ISSUE_COUNT", weekCounts.getOrDefault(cursor.toString(), 0));
+                dense.add(row);
+                cursor = cursor.plusWeeks(1);
+            }
+            return dense;
+        }
+    }
+
+    private List<Map<String, Object>> getAwaitingBotTrend(String teamName, String fiscQtr) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("team_name", teamName);
+        List<Map<String, Object>> sparse;
+
+        if (fiscQtr != null && !fiscQtr.isBlank()) {
+            LocalDate qtrStart = CiscoFiscalCalendar.quarterStartFromString(fiscQtr);
+            LocalDate qtrEnd = CiscoFiscalCalendar.quarterEndFromString(fiscQtr);
+            String dateLiteral = qtrStart.toString();
+            String sql = "SELECT " +
+                    "FLOOR((CAST(run_date AS DATE) - DATE '" + dateLiteral + "') / 7) AS week_start, " +
+                    "COUNT(*) AS issue_count " +
+                    "FROM ARFINRO.XXCASEIQ_ESP_STAGING_TBL " +
+                    "WHERE case_analyzer_status = 'AWAITING_RESPONSE_FROM_BOT' " +
+                    "AND NVL(team_name, 'UNKNOWN') = :team_name " +
+                    "AND fisc_qtr = :fisc_qtr " +
+                    "GROUP BY FLOOR((CAST(run_date AS DATE) - DATE '" + dateLiteral + "') / 7) " +
+                    "ORDER BY week_start";
+            params.put("fisc_qtr", fiscQtr);
+            sparse = jdbcManager.queryWithNamedParams(sql, params);
+
+            LocalDate today = LocalDate.now();
+            LocalDate effectiveEnd = today.isBefore(qtrEnd) ? today : qtrEnd;
+            int totalWeeks = (int) ((effectiveEnd.toEpochDay() - qtrStart.toEpochDay()) / 7) + 1;
+
+            Map<Integer, Integer> weekCounts = new HashMap<>();
+            for (Map<String, Object> row : sparse) {
+                int week = ((Number) row.get("WEEK_START")).intValue();
+                int count = ((Number) row.get("ISSUE_COUNT")).intValue();
+                if (week >= 0 && week < totalWeeks) weekCounts.put(week, count);
+            }
+
+            List<Map<String, Object>> dense = new ArrayList<>();
+            for (int w = 0; w < totalWeeks; w++) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("WEEK_START", w);
+                row.put("ISSUE_COUNT", weekCounts.getOrDefault(w, 0));
+                dense.add(row);
+            }
+            return dense;
+        } else {
+            String sql = AWAITING_BOT_TREND_BASE +
+                    "GROUP BY TRUNC(run_date, 'IW') " +
+                    "ORDER BY week_start";
+            sparse = jdbcManager.queryWithNamedParams(sql, params);
+
+            LocalDate today = LocalDate.now();
+            LocalDate windowStart = today.minusDays(84);
+            LocalDate firstMonday = windowStart.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+            Map<String, Integer> weekCounts = new LinkedHashMap<>();
+            for (Map<String, Object> row : sparse) {
+                Object ws = row.get("WEEK_START");
+                LocalDate weekDate;
+                if (ws instanceof java.sql.Timestamp) {
+                    weekDate = ((java.sql.Timestamp) ws).toLocalDateTime().toLocalDate();
+                } else if (ws instanceof java.sql.Date) {
+                    weekDate = ((java.sql.Date) ws).toLocalDate();
+                } else {
+                    continue;
+                }
+                weekCounts.put(weekDate.toString(), ((Number) row.get("ISSUE_COUNT")).intValue());
+            }
+
+            List<Map<String, Object>> dense = new ArrayList<>();
+            LocalDate cursor = firstMonday;
+            LocalDate currentMonday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            while (!cursor.isAfter(currentMonday)) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("WEEK_START", cursor.toString());
                 row.put("ISSUE_COUNT", weekCounts.getOrDefault(cursor.toString(), 0));
                 dense.add(row);
                 cursor = cursor.plusWeeks(1);

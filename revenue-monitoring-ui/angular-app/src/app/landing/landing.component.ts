@@ -1,10 +1,13 @@
 import {
+  AfterViewChecked,
   Component,
   computed,
+  ElementRef,
   HostBinding,
   OnDestroy,
   OnInit,
   signal,
+  ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -30,6 +33,7 @@ import { AuthenticationService } from '../providers/authentication.service';
 import { ApiHttpService } from '../providers/http.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ThemeService } from '../providers/theme.service';
+import { Chart } from 'chart.js/auto';
 
 interface RoleRouteMap {
   roles: string[];
@@ -123,6 +127,7 @@ export interface StatMetric {
   subtitle: string | null;
   trendPercent: number | null;
   trendDirection: 'UP' | 'DOWN' | null;
+  trendUnit?: string; // e.g. 'MoM', 'QoQ', 'PQM', 'YoY'
 }
 
 @Component({
@@ -146,19 +151,28 @@ export interface StatMetric {
     }),
   ],
   templateUrl: './landing.component.html',
-  styleUrls: ['./landing.component.css'],
+  styleUrls: [
+    './landing.component.css',
+    './landing-context2.css',
+    './landing-context3.css',
+  ],
 })
-export class LandingComponent implements OnInit, OnDestroy {
+export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
   private destroyManager = new DestroyManager();
   private refreshInterval: ReturnType<typeof setInterval> | null = null;
   private readonly REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
   userName = signal('');
   userRoles = signal<string[]>([]);
 
+  // Context switcher (1=Period Close, 2=CaseIQ, 3=Large Deal)
+  activeContext = signal<number>(1);
+
   // Period info signals
   periodName = signal<string | null>(null);
   periodEndDate = signal<string | null>(null);
   lastUpdated = signal<string>('');
+  fiscalQuarter = signal<string | null>(null);
+  isQuarterEnd = signal<boolean>(false);
 
   // Dashboard metrics signals
   itOpsDials = signal<DialMetric[]>([]);
@@ -185,6 +199,255 @@ export class LandingComponent implements OnInit, OnDestroy {
       }
     >
   >(new Map());
+
+  // Context 1: Period Close live data
+  entityCount = signal<number>(0);
+  precloseCompletionPct = signal<number>(0);
+  midcloseCompletionPct = signal<number>(0);
+  precloseCategoryStatus = signal<any[]>([]);
+  midcloseCategoryStatus = signal<any[]>([]);
+  precloseInterfaceLoad = signal<any[]>([]);
+  midcloseInterfaceLoad = signal<any[]>([]);
+
+  // Context 2: CaseIQ live data
+  caseiqHealth = signal<any>(null);
+  caseiqTeamVolumes = signal<any[]>([]);
+  caseiqWeeklyTrend = signal<any[]>([]);
+
+  // Context 2: KPI signals
+  ctx2Accuracy = signal<number | null>(null);
+  ctx2TotalCases = signal<number | null>(null);
+  ctx2InProgressAgent = signal<number>(0);
+  ctx2InProgressTotal = signal<number>(0);
+  ctx2InProgressPct = signal<number>(0);
+  ctx2RoutedAgent = signal<number>(0);
+  ctx2RoutedTotal = signal<number>(0);
+  ctx2RoutedPct = signal<number>(0);
+  ctx2CancelledAgent = signal<number>(0);
+  ctx2CancelledTotal = signal<number>(0);
+  ctx2CancelledPct = signal<number>(0);
+  ctx2ServiceAgent = signal<number>(0);
+  ctx2ServiceTotal = signal<number>(0);
+  ctx2ServicePct = signal<number>(0);
+  ctx2OpsRate = signal<number>(0);
+  ctx2AgentTotal = signal<number>(0);
+  ctx2OpsTotal = signal<number>(0);
+  ctx2ServiceIncidents = signal<number>(0);
+  ctx2ActiveAgentsDeployed = signal<number>(81);
+  ctx2ActiveAgentsTotal = signal<number>(83);
+  ctx2ActiveAgentsPct = computed(() =>
+    this.ctx2ActiveAgentsTotal() > 0
+      ? Math.round(
+          (this.ctx2ActiveAgentsDeployed() / this.ctx2ActiveAgentsTotal()) *
+            100,
+        )
+      : 0,
+  );
+
+  /** Computed KPI config array for Context 2 strip */
+  ctx2Kpis = computed(() => {
+    const fmt = (v: number) => v.toLocaleString();
+    const pct = (v: number, decimals = 0) => `${v.toFixed(decimals)}%`;
+
+    return [
+      {
+        title: 'Case Analyzer Accuracy',
+        color: 'accent',
+        pillWidth: this.ctx2Accuracy() ?? 0,
+        pillText:
+          this.ctx2TotalCases() != null
+            ? `${fmt(this.ctx2TotalCases()!)} cases`
+            : '--',
+        pctText:
+          this.ctx2Accuracy() != null ? pct(this.ctx2Accuracy()!, 1) : '--',
+      },
+      {
+        title: 'In Progress',
+        color: 'cyan',
+        pillWidth: this.ctx2InProgressPct(),
+        pillText: `${fmt(this.ctx2InProgressAgent())} / ${fmt(this.ctx2InProgressTotal())}`,
+        pctText: pct(this.ctx2InProgressPct()),
+      },
+      {
+        title: 'Routed Out',
+        color: 'purple',
+        pillWidth: this.ctx2RoutedPct(),
+        pillText: `${fmt(this.ctx2RoutedAgent())} / ${fmt(this.ctx2RoutedTotal())}`,
+        pctText: pct(this.ctx2RoutedPct()),
+      },
+      {
+        title: 'Canceled',
+        color: 'amber',
+        pillWidth: this.ctx2CancelledPct(),
+        pillText: `${fmt(this.ctx2CancelledAgent())} / ${fmt(this.ctx2CancelledTotal())}`,
+        pctText: pct(this.ctx2CancelledPct()),
+      },
+      {
+        title: 'Service Requests',
+        color: 'green',
+        pillWidth: this.ctx2ServicePct(),
+        pillText: `${fmt(this.ctx2ServiceAgent())} / ${fmt(this.ctx2ServiceTotal())}`,
+        pctText: pct(this.ctx2ServicePct()),
+      },
+      {
+        title: 'Agent vs Ops %',
+        color: 'cyan',
+        pillWidth: this.ctx2OpsRate(),
+        pillText: `${fmt(this.ctx2AgentTotal())} / ${fmt(this.ctx2AgentTotal() + this.ctx2OpsTotal())}`,
+        pctText: pct(this.ctx2OpsRate(), 1),
+      },
+      {
+        title: 'Service Incidents',
+        color: 'red',
+        pillWidth: 0,
+        pillText: '',
+        pctText: '',
+        plain: true,
+        plainValue: fmt(this.ctx2ServiceIncidents()),
+      },
+      {
+        title: 'Active Agents',
+        color: 'accent',
+        pillWidth: this.ctx2ActiveAgentsPct(),
+        pillText: `${this.ctx2ActiveAgentsDeployed()} / ${this.ctx2ActiveAgentsTotal()}`,
+        pctText: pct(this.ctx2ActiveAgentsPct()),
+      },
+    ];
+  });
+
+  // Context 2: Chart data
+  ctx2WeeklyTeamData = signal<any[]>([]);
+  ctx2HourlyData = signal<any[]>([]);
+  ctx2TxnFailuresLoading = signal<boolean>(true);
+  ctx2EspCasesLoading = signal<boolean>(true);
+  ctx2IssueDistLoading = signal<boolean>(true);
+  ctx2DonutSlices = signal<
+    { label: string; color: string; dasharray: string; dashoffset: string }[]
+  >([]);
+  ctx2DonutTotal = signal<number>(0);
+  ctx2DonutLegends = signal<{ label: string; color: string; value: number }[]>(
+    [],
+  );
+
+  // Context 2: Chart instances
+  @ViewChild('ctx2WeeklyTeamCanvas')
+  ctx2WeeklyTeamCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('ctx2HourlyCanvas')
+  ctx2HourlyCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('ctx2TxnFailuresCanvas')
+  ctx2TxnFailuresCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('ctx2EspCasesCanvas')
+  ctx2EspCasesCanvas?: ElementRef<HTMLCanvasElement>;
+  private ctx2WeeklyTeamChart: Chart | null = null;
+  private ctx2HourlyChart: Chart | null = null;
+  private ctx2TxnFailuresChart: Chart | null = null;
+  private ctx2EspCasesChart: Chart | null = null;
+  private ctx2ChartsBuilt = false;
+  private ctx2RawTxnFailures: any[] = [];
+  private ctx2RawEspCases: any[] = [];
+  private ctx2RawIssuesDist: any[] = [];
+
+  // Context 3: Large Deal live data
+  largeDealSummary = signal<any>(null);
+  largeDealByStatus = signal<any[]>([]);
+  orderCompletion = signal<any[]>([]);
+
+  // Context 3: placeholder arc dials
+  ctx3Dials = signal([
+    {
+      label: 'Pipeline Coverage',
+      value: 73,
+      max: 100,
+      colorStart: '#0070d2',
+      colorEnd: '#00bceb',
+      displayFormat: 'PERCENT' as const,
+    },
+    {
+      label: 'Commit Accuracy',
+      value: 88,
+      max: 100,
+      colorStart: '#6ebe4a',
+      colorEnd: '#00d4aa',
+      displayFormat: 'PERCENT' as const,
+    },
+    {
+      label: 'Best Case Attain.',
+      value: 61,
+      max: 100,
+      colorStart: '#9933ff',
+      colorEnd: '#ff6600',
+      displayFormat: 'PERCENT' as const,
+    },
+    {
+      label: 'Quota Attainment',
+      value: 54,
+      max: 100,
+      colorStart: '#e6a800',
+      colorEnd: '#e53935',
+      displayFormat: 'PERCENT' as const,
+    },
+  ]);
+
+  // Context 3: placeholder KPIs
+  ctx3Kpis = signal([
+    {
+      label: 'Total Pipeline',
+      value: '$2.4B',
+      sub: '+12% QoQ',
+      color: '#0070d2',
+    },
+    { label: 'Commit', value: '$880M', sub: '88% of plan', color: '#6ebe4a' },
+    {
+      label: 'Large Deals (>$5M)',
+      value: '47',
+      sub: '12 new',
+      color: '#00bceb',
+    },
+    { label: 'At-Risk Deals', value: '9', sub: '$214M ARR', color: '#e53935' },
+    {
+      label: 'Avg Deal Cycle',
+      value: '38 days',
+      sub: '-4d vs PY',
+      color: '#9933ff',
+    },
+    { label: 'Win Rate', value: '62%', sub: 'vs 58% PY', color: '#00d4aa' },
+  ]);
+
+  // Context 3: sparkline canvas refs + chart instances
+  @ViewChild('ctx3Spark0') ctx3Spark0?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('ctx3Spark1') ctx3Spark1?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('ctx3Spark2') ctx3Spark2?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('ctx3Spark3') ctx3Spark3?: ElementRef<HTMLCanvasElement>;
+  private ctx3SparkCharts: (Chart | null)[] = [null, null, null, null];
+  private ctx3ChartsBuilt = false;
+
+  // Context 3: sparkline configs (placeholder trends)
+  ctx3Sparklines = signal([
+    {
+      label: 'Pipeline Trend',
+      color: '#0070d2',
+      data: [1.8, 1.9, 2.0, 2.1, 2.15, 2.3, 2.4],
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+    },
+    {
+      label: 'Commit vs Quota',
+      color: '#6ebe4a',
+      data: [72, 75, 78, 80, 83, 86, 88],
+      labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7'],
+    },
+    {
+      label: 'Deal Volume',
+      color: '#9933ff',
+      data: [31, 34, 38, 40, 42, 45, 47],
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+    },
+    {
+      label: 'Win Rate %',
+      color: '#00d4aa',
+      data: [55, 57, 59, 58, 60, 61, 62],
+      labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7'],
+    },
+  ]);
 
   /** IT Operations 360 cards */
   private readonly itOpsAllCards: LandingCard[] = [
@@ -517,10 +780,12 @@ export class LandingComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.fetchMetrics();
-    this.refreshInterval = setInterval(
-      () => this.fetchMetrics(),
-      this.REFRESH_INTERVAL_MS,
-    );
+    this.fetchContextData();
+    this.fetchContext2Data();
+    this.refreshInterval = setInterval(() => {
+      this.fetchMetrics();
+      this.fetchContextData();
+    }, this.REFRESH_INTERVAL_MS);
   }
 
   private fetchMetrics(): void {
@@ -531,10 +796,860 @@ export class LandingComponent implements OnInit, OnDestroy {
       });
   }
 
+  /** Switch the active cockpit context */
+  setContext(ctx: number): void {
+    this.activeContext.set(ctx);
+    if (ctx === 2) {
+      this.ctx2ChartsBuilt = false;
+    }
+    if (ctx === 3) {
+      this.ctx3ChartsBuilt = false;
+      // destroy so they rebuild fresh when canvases remount
+      this.ctx3SparkCharts.forEach((c) => c?.destroy());
+      this.ctx3SparkCharts = [null, null, null, null];
+    }
+  }
+
+  ngAfterViewChecked(): void {
+    if (this.activeContext() === 2 && !this.ctx2ChartsBuilt) {
+      this.buildCtx2Charts();
+    }
+    if (this.activeContext() === 3 && !this.ctx3ChartsBuilt) {
+      this.buildCtx3Sparklines();
+    }
+  }
+
+  /** Fetch live context data from the context engine endpoint */
+  private fetchContextData(): void {
+    this.http
+      .get('landing-context', this.destroyManager)
+      .subscribe((response: any) => {
+        this.parseContextResponse(response);
+      });
+  }
+
+  /** Parse the combined context engine response */
+  private parseContextResponse(response: any): void {
+    // Period info (shared)
+    if (response.periodInfo) {
+      const pi = response.periodInfo;
+      this.periodName.set(pi.periodName ?? null);
+      this.periodEndDate.set(pi.periodEndDate ?? null);
+      this.lastUpdated.set(pi.lastUpdated ?? '');
+      this.fiscalQuarter.set(pi.fiscalQuarter ?? null);
+      this.isQuarterEnd.set(pi.isQuarterEnd ?? false);
+    }
+
+    // Context 1: Period Close
+    if (response.context1) {
+      const c1 = response.context1;
+      this.entityCount.set(c1.entityCount ?? 0);
+
+      // Overall progress
+      if (c1.progress) {
+        const preclose = c1.progress['PRECLOSE'];
+        const midclose = c1.progress['MIDCLOSE'];
+        this.precloseCompletionPct.set(
+          preclose ? Number(preclose['COMPLETION_PCT'] ?? 0) : 0,
+        );
+        this.midcloseCompletionPct.set(
+          midclose ? Number(midclose['COMPLETION_PCT'] ?? 0) : 0,
+        );
+      }
+
+      // Category status for arc dials
+      if (c1.categoryStatus) {
+        this.precloseCategoryStatus.set(c1.categoryStatus['PRECLOSE'] ?? []);
+        this.midcloseCategoryStatus.set(c1.categoryStatus['MIDCLOSE'] ?? []);
+      }
+
+      // Interface load
+      if (c1.interfaceLoad) {
+        this.precloseInterfaceLoad.set(c1.interfaceLoad['PRECLOSE'] ?? []);
+        this.midcloseInterfaceLoad.set(c1.interfaceLoad['MIDCLOSE'] ?? []);
+      }
+
+      // Build live dials from category status
+      this.buildPeriodCloseDials();
+      this.buildInterfaceLoadStats();
+    }
+
+    // Context 2: CaseIQ
+    if (response.context2) {
+      const c2 = response.context2;
+      this.caseiqHealth.set(c2.health ?? null);
+      this.caseiqTeamVolumes.set(c2.teamVolumes ?? []);
+      this.caseiqWeeklyTrend.set(c2.weeklyTrend ?? []);
+    }
+
+    // Context 3: Large Deal
+    if (response.context3) {
+      const c3 = response.context3;
+      this.largeDealSummary.set(c3.summary ?? null);
+      this.largeDealByStatus.set(c3.byStatus ?? []);
+      this.orderCompletion.set(c3.orderCompletion ?? []);
+    }
+  }
+
+  /** Build preclose/midclose arc dials from live category completion data */
+  private buildPeriodCloseDials(): void {
+    const dialConfig = {
+      size: 90,
+      strokeWidth: 8,
+      colorStart: '#00d084',
+      colorEnd: '#00bceb',
+    };
+
+    const categoryLabels: Record<string, string> = {
+      ELIGIBLE_FOR_INVOICING: 'Invoicing',
+      INVOICING: 'Invoicing',
+      ACCOUNTING: 'AR Accounting',
+      INTERCOMPANY: 'Intercompany',
+      DEFERRALS: 'Deferrals',
+      GL_POSTING: 'GL Posting',
+    };
+
+    // Use a subset for the 4-dial display (matching original: Invoicing, AR, Intercompany, GL)
+    const displayCategories = [
+      'INVOICING',
+      'ACCOUNTING',
+      'INTERCOMPANY',
+      'GL_POSTING',
+    ];
+
+    const buildDials = (categories: any[]): DialMetric[] => {
+      return displayCategories
+        .map((cat) => {
+          const row = categories.find((c: any) => c['CATEGORY'] === cat);
+          if (!row) return null;
+          const total =
+            Number(row['TOTAL_OUS'] ?? 0) - Number(row['NA_OUS'] ?? 0);
+          const completed = Number(row['COMPLETED_OUS'] ?? 0);
+          return {
+            value: completed,
+            max: total,
+            label: categoryLabels[cat] ?? cat,
+            displayFormat: 'COUNT' as const,
+            ...dialConfig,
+          };
+        })
+        .filter(Boolean) as DialMetric[];
+    };
+
+    this.itOpsDials.set(buildDials(this.precloseCategoryStatus()));
+    this.finOpsDials.set(buildDials(this.midcloseCategoryStatus()));
+
+    // Update bars with live completion percentage
+    this.itOpsBar.set({
+      value: this.precloseCompletionPct(),
+      label: 'Pre-Close Progress',
+    });
+    this.finOpsBar.set({
+      value: this.midcloseCompletionPct(),
+      label: 'Mid-Close Progress',
+    });
+  }
+
+  /** Build interface load volume stats from live data */
+  private buildInterfaceLoadStats(): void {
+    const stats: StatMetric[] = [];
+    const preclose = this.precloseInterfaceLoad();
+    const midclose = this.midcloseInterfaceLoad();
+
+    const buildStatRow = (rows: any[], closeLabel: string): void => {
+      for (const row of rows) {
+        const lineType = row['LINE_TYPE'];
+        const count = Number(row['LINE_COUNT'] ?? 0);
+        const mom = row['MOM_PERCENTAGE'];
+        const pqm = row['PQM_PERCENTAGE'];
+        const qoq = row['QOQ_PERCENTAGE'];
+        const yoy = row['YOY_PERCENTAGE'];
+
+        // Pick the most relevant trend based on period position
+        let trendPct: number | null = null;
+        let trendDir: 'UP' | 'DOWN' | null = null;
+        let trendUnit = 'MoM';
+
+        if (this.isQuarterEnd()) {
+          const pct = qoq ?? yoy;
+          trendUnit = qoq != null ? 'QoQ' : 'YoY';
+          if (pct != null) {
+            trendPct = Math.abs(Number(pct));
+            trendDir = Number(pct) >= 0 ? 'UP' : 'DOWN';
+          }
+        } else {
+          const pct = mom ?? pqm;
+          trendUnit = mom != null ? 'MoM' : 'PQM';
+          if (pct != null) {
+            trendPct = Math.abs(Number(pct));
+            trendDir = Number(pct) >= 0 ? 'UP' : 'DOWN';
+          }
+        }
+
+        stats.push({
+          value: this.formatValue(count, null),
+          label: `${closeLabel} ${lineType === 'SERVICE' ? 'Service' : 'Product'}`,
+          subtitle: null,
+          trendPercent: trendPct,
+          trendDirection: trendDir,
+          trendUnit,
+        });
+      }
+    };
+
+    buildStatRow(preclose, 'Pre-Close');
+    buildStatRow(midclose, 'Mid-Close');
+
+    this.volumeStats.set(stats);
+  }
+
+  // ========================================================================
+  // Context 2: CaseIQ Data + Charts
+  // ========================================================================
+
+  /** Fetch all Context 2 data (CaseIQ KPIs + Home charts) */
+  private fetchContext2Data(): void {
+    const qtr = this.fiscalQuarter() || 'Q4FY26';
+
+    // CaseIQ summary metrics (for KPIs)
+    this.http
+      .get(`caseiq/summary?fiscQtr=${qtr}`, this.destroyManager)
+      .subscribe((data: any) => {
+        if (Array.isArray(data) && data.length > 0) {
+          this.parseCtx2KpiData(data);
+        }
+      });
+
+    // Weekly volume by team chart
+    this.http
+      .get(
+        `caseiq/charts/weekly-volume-by-team?fiscQtr=${qtr}`,
+        this.destroyManager,
+      )
+      .subscribe((d: any) => {
+        this.ctx2WeeklyTeamData.set(Array.isArray(d) ? d : []);
+        this.ctx2ChartsBuilt = false;
+      });
+
+    // Hourly case pattern
+    this.http
+      .get(
+        'caseiq/charts/hourly-case-pattern?lookbackDays=1',
+        this.destroyManager,
+      )
+      .subscribe((d: any) => {
+        this.ctx2HourlyData.set(Array.isArray(d) ? d : []);
+        this.ctx2ChartsBuilt = false;
+      });
+
+    // Transaction failures (home endpoint)
+    this.http
+      .get('landing-page-transaction-failures', this.destroyManager)
+      .subscribe((d: any) => {
+        this.ctx2RawTxnFailures = Array.isArray(d) ? d : [];
+        this.ctx2TxnFailuresLoading.set(false);
+        this.ctx2ChartsBuilt = false;
+      });
+
+    // ESP cases (home endpoint)
+    this.http
+      .get('landing-page-esp-cases', this.destroyManager)
+      .subscribe((d: any) => {
+        this.ctx2RawEspCases = Array.isArray(d) ? d : [];
+        this.ctx2EspCasesLoading.set(false);
+        this.ctx2ChartsBuilt = false;
+      });
+
+    // Issue distribution (home endpoint)
+    this.http
+      .get('landing-page-issues-distribution', this.destroyManager)
+      .subscribe((d: any) => {
+        this.ctx2RawIssuesDist = Array.isArray(d) ? d : [];
+        this.ctx2IssueDistLoading.set(false);
+        this.buildCtx2Donut();
+      });
+  }
+
+  /** Parse CaseIQ summary data into KPI signals */
+  private parseCtx2KpiData(data: any[]): void {
+    // Find Finance IT section
+    const financeIT = data.find((r: any) =>
+      (r.SECTION_NAME || '').toLowerCase().includes('finance it'),
+    );
+    if (!financeIT) return;
+
+    // Accuracy
+    const accuracy = financeIT.ACCURACY_PCT ?? financeIT.SUCCESS_RATE_PCT;
+    this.ctx2Accuracy.set(accuracy != null ? Number(accuracy) : null);
+    this.ctx2TotalCases.set(
+      financeIT.TOTAL_CASES != null ? Number(financeIT.TOTAL_CASES) : null,
+    );
+
+    // In Progress
+    const ipAgent = Number(financeIT.IN_PROGRESS_AGENT ?? 0);
+    const ipOps = Number(financeIT.IN_PROGRESS_OPS ?? 0);
+    const ipTotal = ipAgent + ipOps;
+    this.ctx2InProgressAgent.set(ipAgent);
+    this.ctx2InProgressTotal.set(ipTotal);
+    this.ctx2InProgressPct.set(
+      ipTotal > 0 ? Math.round((ipAgent / ipTotal) * 100) : 0,
+    );
+
+    // Routed Out
+    const routedAgent = Number(
+      financeIT.RECOMMENDED_ROUTE_OUT ?? financeIT.RECOMMENDED_ROUTED_OUT ?? 0,
+    );
+    const routedOps = Number(
+      financeIT.NOT_RECOMMENDED_ROUTE_OUT ??
+        financeIT.NOT_RECOMMENDED_ROUTED_OUT ??
+        0,
+    );
+    const routedTotal = routedAgent + routedOps;
+    this.ctx2RoutedAgent.set(routedAgent);
+    this.ctx2RoutedTotal.set(routedTotal);
+    this.ctx2RoutedPct.set(
+      routedTotal > 0 ? Math.round((routedAgent / routedTotal) * 100) : 0,
+    );
+
+    // Cancelled
+    const cancelledAgent = Number(financeIT.RECOMMENDED_CANCELLED ?? 0);
+    const cancelledOps = Number(financeIT.NOT_RECOMMENDED_CANCELLED ?? 0);
+    const cancelledTotal = cancelledAgent + cancelledOps;
+    this.ctx2CancelledAgent.set(cancelledAgent);
+    this.ctx2CancelledTotal.set(cancelledTotal);
+    this.ctx2CancelledPct.set(
+      cancelledTotal > 0
+        ? Math.round((cancelledAgent / cancelledTotal) * 100)
+        : 0,
+    );
+
+    // Service Requests
+    const svcAgent = Number(financeIT.RESOLVED_AGENT ?? 0);
+    const svcOps = Number(financeIT.RESOLVED_OPS ?? 0);
+    const svcTotal = svcAgent + svcOps;
+    this.ctx2ServiceAgent.set(svcAgent);
+    this.ctx2ServiceTotal.set(svcTotal);
+    this.ctx2ServicePct.set(
+      svcTotal > 0 ? Math.round((svcAgent / svcTotal) * 100) : 0,
+    );
+
+    // Agent vs Ops
+    const agentCases = ipAgent + routedAgent + cancelledAgent + svcAgent;
+    const opsCases = ipOps + routedOps + cancelledOps + svcOps;
+    const totalCasesAll = agentCases + opsCases;
+    this.ctx2AgentTotal.set(agentCases);
+    this.ctx2OpsTotal.set(opsCases);
+    this.ctx2OpsRate.set(
+      totalCasesAll > 0
+        ? Math.round((agentCases / totalCasesAll) * 1000) / 10
+        : 0,
+    );
+
+    // Service Incidents
+    this.ctx2ServiceIncidents.set(Number(financeIT.SERVICE_INCIDENTS ?? 0));
+  }
+
+  /** Build all Context 2 Chart.js charts */
+  private buildCtx2Charts(): void {
+    let anyBuilt = false;
+
+    // Weekly Team chart
+    if (
+      this.ctx2WeeklyTeamCanvas?.nativeElement &&
+      this.ctx2WeeklyTeamData().length > 0 &&
+      !this.ctx2WeeklyTeamChart
+    ) {
+      this.buildCtx2WeeklyTeamChart();
+      anyBuilt = true;
+    }
+
+    // Hourly chart
+    if (
+      this.ctx2HourlyCanvas?.nativeElement &&
+      this.ctx2HourlyData().length > 0 &&
+      !this.ctx2HourlyChart
+    ) {
+      this.buildCtx2HourlyChart();
+      anyBuilt = true;
+    }
+
+    // Transaction Failures chart
+    if (
+      this.ctx2TxnFailuresCanvas?.nativeElement &&
+      this.ctx2RawTxnFailures.length > 0 &&
+      !this.ctx2TxnFailuresChart
+    ) {
+      this.buildCtx2TxnFailuresChart();
+      anyBuilt = true;
+    }
+
+    // ESP Cases chart
+    if (
+      this.ctx2EspCasesCanvas?.nativeElement &&
+      this.ctx2RawEspCases.length > 0 &&
+      !this.ctx2EspCasesChart
+    ) {
+      this.buildCtx2EspCasesChart();
+      anyBuilt = true;
+    }
+
+    if (anyBuilt || (this.ctx2WeeklyTeamChart && this.ctx2HourlyChart)) {
+      this.ctx2ChartsBuilt = true;
+    }
+  }
+
+  private readonly ctx2TeamColors: Record<string, string> = {
+    'Finance IT': '#0070d2',
+    OM: '#00bceb',
+    SM: '#6ebe4a',
+    I2C: '#9933ff',
+    AIT: '#ff6600',
+    FPP: '#e6a800',
+    P2P: '#e53935',
+    CAPITAL: '#00d4aa',
+  };
+
+  private buildCtx2WeeklyTeamChart(): void {
+    const canvas = this.ctx2WeeklyTeamCanvas?.nativeElement;
+    if (!canvas) return;
+
+    const weekMap = new Map<number, Map<string, number>>();
+    const teams = new Set<string>();
+    for (const row of this.ctx2WeeklyTeamData()) {
+      const week = row.WEEK_NUMBER;
+      const team = row.TEAM_NAME;
+      if (week == null || !team) continue;
+      teams.add(team);
+      if (!weekMap.has(week)) weekMap.set(week, new Map());
+      weekMap.get(week)?.set(team, row.INCIDENT_COUNT ?? 0);
+    }
+
+    const weeks = Array.from({ length: 13 }, (_, i) => i + 1);
+    const labels = weeks.map((w) => `Week ${w}`);
+
+    const datasets = Array.from(teams)
+      .filter((t) => t !== 'UNKNOWN')
+      .sort((a, b) => a.localeCompare(b))
+      .map((team) => {
+        const hex = this.ctx2TeamColors[team] ?? '#555555';
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return {
+          label: team,
+          data: weeks.map((w) => weekMap.get(w)?.get(team) ?? 0),
+          borderColor: hex,
+          backgroundColor: (ctx: any) => {
+            const chart = ctx.chart;
+            const { ctx: canvasCtx, chartArea } = chart;
+            if (!chartArea) return `rgba(${r}, ${g}, ${b}, 0.1)`;
+            const gradient = canvasCtx.createLinearGradient(
+              0,
+              chartArea.top,
+              0,
+              chartArea.bottom,
+            );
+            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.25)`);
+            gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+            return gradient;
+          },
+          borderWidth: 2.5,
+          pointBackgroundColor: '#ffffff',
+          pointBorderColor: hex,
+          pointBorderWidth: 2,
+          pointRadius: 3,
+          pointHoverRadius: 5.5,
+          tension: 0.4,
+          fill: true,
+        };
+      });
+
+    this.ctx2WeeklyTeamChart = new Chart(canvas, {
+      type: 'line',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: { boxWidth: 10, font: { size: 10 }, padding: 12 },
+          },
+          tooltip: {
+            backgroundColor: 'rgba(20, 30, 40, 0.9)',
+            titleFont: { size: 10 },
+            bodyFont: { size: 11 },
+            borderColor: 'rgba(0, 188, 235, 0.3)',
+            borderWidth: 1,
+            cornerRadius: 10,
+            padding: 8,
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 9 },
+              maxRotation: 45,
+              autoSkip: true,
+              maxTicksLimit: 12,
+            },
+            border: { display: false },
+          },
+          y: {
+            grid: { color: 'rgba(0,0,0,0.04)' },
+            ticks: { font: { size: 10 }, maxTicksLimit: 5 },
+            border: { display: false },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  }
+
+  private buildCtx2HourlyChart(): void {
+    const canvas = this.ctx2HourlyCanvas?.nativeElement;
+    if (!canvas) return;
+
+    const hourMap = new Map<number, number>();
+    for (const row of this.ctx2HourlyData()) {
+      hourMap.set(row.HOUR_OF_DAY, row.CASE_COUNT);
+    }
+    const currentHour = new Date().getHours();
+    const hours = Array.from(
+      { length: 12 },
+      (_, i) => (currentHour - 11 + i + 24) % 24,
+    );
+    const values = hours.map((h) => hourMap.get(h) ?? 0);
+    const labels = hours.map((h) => {
+      const suffix = h >= 12 ? 'pm' : 'am';
+      let display = h % 12;
+      if (display === 0) display = 12;
+      return `${display}${suffix}`;
+    });
+
+    this.ctx2HourlyChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            data: values,
+            borderColor: '#00bceb',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#00bceb',
+            pointBorderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5.5,
+            tension: 0.4,
+            fill: true,
+            backgroundColor: (ctx: any) => {
+              const chart = ctx.chart;
+              const { ctx: canvasCtx, chartArea } = chart;
+              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
+              const gradient = canvasCtx.createLinearGradient(
+                0,
+                chartArea.top,
+                0,
+                chartArea.bottom,
+              );
+              gradient.addColorStop(0, 'rgba(0, 188, 235, 0.35)');
+              gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
+              return gradient;
+            },
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(20, 30, 40, 0.85)',
+            borderColor: 'rgba(0, 188, 235, 0.3)',
+            borderWidth: 1,
+            cornerRadius: 10,
+            displayColors: false,
+            callbacks: {
+              title: (items) =>
+                items[0]?.label ? `${items[0].label} UTC` : '',
+              label: (item) => item.parsed.y.toLocaleString() + ' cases',
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 9 },
+              maxRotation: 0,
+              autoSkip: true,
+              maxTicksLimit: 6,
+            },
+            border: { display: false },
+          },
+          y: {
+            grid: { color: 'rgba(0,0,0,0.04)' },
+            ticks: { font: { size: 10 }, maxTicksLimit: 5 },
+            border: { display: false },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  }
+
+  private buildCtx2TxnFailuresChart(): void {
+    const canvas = this.ctx2TxnFailuresCanvas?.nativeElement;
+    if (!canvas || this.ctx2RawTxnFailures.length === 0) return;
+
+    const qtr = this.fiscalQuarter() || '';
+    const filtered = qtr
+      ? this.ctx2RawTxnFailures.filter((r: any) => r.QUARTER === qtr)
+      : this.ctx2RawTxnFailures;
+
+    const labels = filtered.map((r: any) => r.PERIOD_NAME || r.WEEK || '');
+    const values = filtered.map((r: any) => r.FAILURE_COUNT ?? r.COUNT ?? 0);
+
+    this.ctx2TxnFailuresChart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            data: values,
+            backgroundColor: 'rgba(229, 57, 53, 0.7)',
+            borderColor: '#e53935',
+            borderWidth: 1,
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 9 }, maxRotation: 45 },
+            border: { display: false },
+          },
+          y: {
+            grid: { color: 'rgba(0,0,0,0.04)' },
+            ticks: { font: { size: 10 } },
+            border: { display: false },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  }
+
+  private buildCtx2EspCasesChart(): void {
+    const canvas = this.ctx2EspCasesCanvas?.nativeElement;
+    if (!canvas || this.ctx2RawEspCases.length === 0) return;
+
+    const qtr = this.fiscalQuarter() || '';
+    const filtered = qtr
+      ? this.ctx2RawEspCases.filter(
+          (r: any) => (r.FISCAL_QTR || r.QUARTER) === qtr,
+        )
+      : this.ctx2RawEspCases;
+
+    const labels = filtered.map((r: any) => r.PERIOD_NAME || r.WEEK || '');
+    const values = filtered.map((r: any) => r.CASE_COUNT ?? r.COUNT ?? 0);
+
+    this.ctx2EspCasesChart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            data: values,
+            backgroundColor: 'rgba(0, 188, 235, 0.6)',
+            borderColor: '#00bceb',
+            borderWidth: 1,
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 9 }, maxRotation: 45 },
+            border: { display: false },
+          },
+          y: {
+            grid: { color: 'rgba(0,0,0,0.04)' },
+            ticks: { font: { size: 10 } },
+            border: { display: false },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  }
+
+  /** Build issue distribution donut data */
+  private buildCtx2Donut(): void {
+    if (this.ctx2RawIssuesDist.length === 0) return;
+
+    const total = this.ctx2RawIssuesDist.reduce(
+      (sum: number, r: any) => sum + Number(r.COUNT ?? r.ISSUE_COUNT ?? 0),
+      0,
+    );
+    this.ctx2DonutTotal.set(total);
+
+    const colors = [
+      '#6ebe4a',
+      '#00bceb',
+      '#0070d2',
+      '#9933ff',
+      '#ff6600',
+      '#e53935',
+    ];
+    const circumference = 2 * Math.PI * 16; // r=16
+
+    let offset = 0;
+    const slices: {
+      label: string;
+      color: string;
+      dasharray: string;
+      dashoffset: string;
+    }[] = [];
+    const legends: { label: string; color: string; value: number }[] = [];
+
+    for (let i = 0; i < this.ctx2RawIssuesDist.length; i++) {
+      const row = this.ctx2RawIssuesDist[i];
+      const count = Number(row.COUNT ?? row.ISSUE_COUNT ?? 0);
+      const pct = total > 0 ? (count / total) * 100 : 0;
+      const segmentLen = (pct / 100) * circumference;
+      const color = colors[i % colors.length];
+
+      slices.push({
+        label: row.ASSIGNEE || row.LABEL || `Segment ${i + 1}`,
+        color,
+        dasharray: `${segmentLen} ${circumference - segmentLen}`,
+        dashoffset: `${-offset}`,
+      });
+
+      legends.push({
+        label: row.ASSIGNEE || row.LABEL || `Segment ${i + 1}`,
+        color,
+        value: Math.round(pct),
+      });
+
+      offset += segmentLen;
+    }
+
+    this.ctx2DonutSlices.set(slices);
+    this.ctx2DonutLegends.set(legends);
+  }
+
+  // ========================================================================
+  // Context 3: Large Deal Sparklines
+  // ========================================================================
+
+  private buildCtx3Sparklines(): void {
+    const canvases = [
+      this.ctx3Spark0,
+      this.ctx3Spark1,
+      this.ctx3Spark2,
+      this.ctx3Spark3,
+    ];
+    const configs = this.ctx3Sparklines();
+    let anyBuilt = false;
+
+    canvases.forEach((ref, i) => {
+      if (!ref?.nativeElement || this.ctx3SparkCharts[i]) return;
+      const cfg = configs[i];
+      if (!cfg) return;
+
+      const hex = cfg.color;
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+
+      this.ctx3SparkCharts[i] = new Chart(ref.nativeElement, {
+        type: 'line',
+        data: {
+          labels: cfg.labels,
+          datasets: [
+            {
+              data: cfg.data,
+              borderColor: hex,
+              borderWidth: 2,
+              pointBackgroundColor: '#ffffff',
+              pointBorderColor: hex,
+              pointBorderWidth: 2,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              tension: 0.4,
+              fill: true,
+              backgroundColor: (ctx: any) => {
+                const chart = ctx.chart;
+                const { ctx: canvasCtx, chartArea } = chart;
+                if (!chartArea) return `rgba(${r}, ${g}, ${b}, 0.1)`;
+                const grad = canvasCtx.createLinearGradient(
+                  0,
+                  chartArea.top,
+                  0,
+                  chartArea.bottom,
+                );
+                grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.3)`);
+                grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+                return grad;
+              },
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(20, 30, 40, 0.85)',
+              borderColor: `rgba(${r}, ${g}, ${b}, 0.4)`,
+              borderWidth: 1,
+              cornerRadius: 8,
+              displayColors: false,
+              titleFont: { size: 10 },
+              bodyFont: { size: 11 },
+            },
+          },
+          scales: {
+            x: { display: false },
+            y: { display: false, beginAtZero: false },
+          },
+        },
+      });
+      anyBuilt = true;
+    });
+
+    if (anyBuilt) this.ctx3ChartsBuilt = true;
+  }
+
   ngOnDestroy(): void {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
+    this.ctx2WeeklyTeamChart?.destroy();
+    this.ctx2HourlyChart?.destroy();
+    this.ctx2TxnFailuresChart?.destroy();
+    this.ctx2EspCasesChart?.destroy();
+    this.ctx3SparkCharts.forEach((c) => c?.destroy());
     this.destroyManager.ngOnDestroy();
   }
 

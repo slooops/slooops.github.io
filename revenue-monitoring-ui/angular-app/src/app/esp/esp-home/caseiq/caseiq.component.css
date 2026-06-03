@@ -644,6 +644,7 @@
   flex-wrap: wrap;
   gap: 4px;
   min-width: 120px;
+  max-width: 240px;
   justify-content: flex-end;
 }
 

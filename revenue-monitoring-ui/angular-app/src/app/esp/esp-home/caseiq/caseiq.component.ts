@@ -1946,6 +1946,12 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         issueKey: 'EXCEPTIONS',
       },
       {
+        name: 'Awaiting response from bot',
+        count: h.AWAITING_BOT_CNT || 0,
+        severity: 'warning',
+        issueKey: 'AWAITING_RESPONSE_FROM_BOT',
+      },
+      {
         name: 'resolution_api_status is ERROR/FAILURE/Unknown/NULL',
         count: failCount,
         severity: 'critical',

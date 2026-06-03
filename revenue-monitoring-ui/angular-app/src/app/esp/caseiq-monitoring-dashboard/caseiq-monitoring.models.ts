@@ -11,6 +11,7 @@ export interface HealthOverview {
   UNKNOWN_TEAM_CNT: number;
   GHOST_SUCCESS_CNT: number;
   EXCEPTION_CNT: number;
+  AWAITING_BOT_CNT: number;
   MINUTES_SINCE_LAST_RUN: number;
   AVG_PROCESSING_MINUTES: number;
   health_score: number;
@@ -91,6 +92,7 @@ export interface TeamIssueMatrixEntry {
   NULL_CLASSIFICATION: number;
   EXCEPTIONS: number;
   RESOLUTION_FAILURES: number;
+  AWAITING_RESPONSE_FROM_BOT: number;
 }
 
 export interface IssueTrendEntry {
