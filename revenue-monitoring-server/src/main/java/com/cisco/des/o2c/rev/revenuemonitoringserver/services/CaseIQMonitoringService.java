@@ -303,7 +303,8 @@ public class CaseIQMonitoringService {
             "  OR a.resolution_api_status IS NULL THEN 1 END) AS resolution_failures, " +
             "NVL((SELECT COUNT(*) FROM ARFINRO.XXCASEIQ_ESP_STAGING_TBL s " +
             "  WHERE s.case_analyzer_status = 'AWAITING_RESPONSE_FROM_BOT' " +
-            "  AND NVL(s.team_name, 'UNKNOWN') = NVL(a.team_name, 'UNKNOWN')), 0) AS awaiting_response_from_bot " +
+            "  AND NVL(s.team_name, 'UNKNOWN') = NVL(a.team_name, 'UNKNOWN') " +
+            "  AND (:fisc_qtr IS NULL OR s.fisc_qtr = :fisc_qtr)), 0) AS awaiting_response_from_bot " +
             "FROM ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL a " +
             "WHERE a.is_active = 'TRUE' " +
             "AND a.caseiq_run_date >= SYSDATE - :lookback_hours/24 " +
@@ -373,7 +374,8 @@ public class CaseIQMonitoringService {
             +
             "THEN 1 END) AS exception_cnt, " +
             "MAX((SELECT COUNT(*) FROM ARFINRO.XXCASEIQ_ESP_STAGING_TBL " +
-            "  WHERE case_analyzer_status = 'AWAITING_RESPONSE_FROM_BOT')) AS awaiting_bot_cnt, " +
+            "  WHERE case_analyzer_status = 'AWAITING_RESPONSE_FROM_BOT' " +
+            "  AND (:fisc_qtr IS NULL OR fisc_qtr = :fisc_qtr))) AS awaiting_bot_cnt, " +
             "ROUND((CAST(SYSDATE AS DATE) - CAST(MAX(caseiq_run_date) AS DATE)) * 24 * 60, 1) AS minutes_since_last_run, "
             +
             "ROUND(AVG((CAST(caseiq_run_date AS DATE) - CAST(created_at AS DATE)) * 24 * 60), 2) AS avg_processing_minutes "
@@ -554,10 +556,12 @@ public class CaseIQMonitoringService {
     }
 
     private List<Map<String, Object>> runQuery(String sql, Map<String, Object> params, String fiscQtr) {
+        // Always bind fisc_qtr (null when not selected) so staging subqueries can
+        // reference it
+        params.put("fisc_qtr", (fiscQtr != null && !fiscQtr.isBlank()) ? fiscQtr : null);
         if (fiscQtr != null && !fiscQtr.isBlank()) {
             sql = stripDateLookback(sql);
             sql = injectFiscQtr(sql);
-            params.put("fisc_qtr", fiscQtr);
             params.remove("lookback_hours");
             params.remove("lookback_days");
         }
@@ -961,7 +965,8 @@ public class CaseIQMonitoringService {
             for (Map<String, Object> row : sparse) {
                 int week = ((Number) row.get("WEEK_START")).intValue();
                 int count = ((Number) row.get("ISSUE_COUNT")).intValue();
-                if (week >= 0 && week < totalWeeks) weekCounts.put(week, count);
+                if (week >= 0 && week < totalWeeks)
+                    weekCounts.put(week, count);
             }
 
             List<Map<String, Object>> dense = new ArrayList<>();
