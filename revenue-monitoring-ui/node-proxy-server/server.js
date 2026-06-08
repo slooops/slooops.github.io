@@ -20,7 +20,7 @@ app.use((req, res, next) => {
   req.authenticatedUserName = req.headers["auth_user"];
   req.authenticatedUserFirstName = req.headers["givenname"];
 
-  console.log("All headers:", req.headers, req);
+  console.log("All headers:", req.headers);
   next();
 });
 
