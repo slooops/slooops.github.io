@@ -18,6 +18,12 @@ let hasLoggedHeaders = false;
 app.use(express.json());
 
 app.use((req, res, next) => {
+  req.authenticatedUserName = req.headers["auth_user"];
+  req.authenticatedUserFirstName = req.headers["givenname"];
+
+  // req.authenticatedUserName = "avudutha";
+  // req.authenticatedUserFirstName = "Abhijith";
+
   // function sanitizeHeaders(headers) {
   //   const masked = { ...headers };
 
@@ -103,10 +109,12 @@ app.use(
   }),
 );
 
-app.use(express.static(path.join(__dirname, "../ui/dist/browser")));
+app.use(express.static(path.join(__dirname, "../angular-app/dist/browser")));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../ui/dist/browser", "index.html"));
+  res.sendFile(
+    path.join(__dirname, "../angular-app/dist/browser", "index.html"),
+  );
 });
 
 app.listen(port, () => {
