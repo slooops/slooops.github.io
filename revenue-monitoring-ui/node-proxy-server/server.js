@@ -109,12 +109,10 @@ app.use(
   }),
 );
 
-app.use(express.static(path.join(__dirname, "../angular-app/dist/browser")));
+app.use(express.static(path.join(__dirname, "../ui/dist/browser")));
 
 app.get("*", (req, res) => {
-  res.sendFile(
-    path.join(__dirname, "../angular-app/dist/browser", "index.html"),
-  );
+  res.sendFile(path.join(__dirname, "../ui/dist/browser", "index.html"));
 });
 
 app.listen(port, () => {
