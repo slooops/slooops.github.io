@@ -128,14 +128,14 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   // Resolution Agents Deployed per team
   resolutionAgents: { team: string; deployed: number; total: number }[] = [
-    { team: 'Finance IT', deployed: 81, total: 83 },
+    { team: 'Finance IT', deployed: 89, total: 90 },
     { team: 'OM', deployed: 14, total: 14 },
     { team: 'SM', deployed: 11, total: 11 },
     { team: 'I2C', deployed: 18, total: 19 },
-    { team: 'AIT', deployed: 10, total: 10 },
+    { team: 'AIT', deployed: 11, total: 11 },
     { team: 'FPP', deployed: 14, total: 14 },
-    { team: 'P2P', deployed: 8, total: 8 },
-    { team: 'CAPITAL', deployed: 6, total: 7 },
+    { team: 'P2P', deployed: 10, total: 10 },
+    { team: 'CAPITAL', deployed: 11, total: 11 },
   ];
 
   @Input() caseIqMetrics: any;
