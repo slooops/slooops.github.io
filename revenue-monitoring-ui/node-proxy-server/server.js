@@ -24,24 +24,18 @@ app.use((req, res, next) => {
   // req.authenticatedUserName = "avudutha";
   // req.authenticatedUserFirstName = "Abhijith";
 
-  // function sanitizeHeaders(headers) {
-  //   const masked = { ...headers };
+  function sanitizeHeaders(headers) {
+    const masked = { ...headers };
 
-  //   ["authorization", "cookie", "set-cookie"].forEach((key) => {
-  //     if (masked[key]) masked[key] = "***MASKED***";
-  //   });
+    ["authorization", "cookie", "set-cookie"].forEach((key) => {
+      if (masked[key]) masked[key] = "***MASKED***";
+    });
 
-  //   return masked;
-  // }
+    return masked;
+  }
 
   if (!hasLoggedHeaders) {
-    console.log(
-      JSON.stringify({
-        event: "sso_headers",
-        headers: req.headers,
-      }),
-    );
-
+    console.log(JSON.stringify(sanitizeHeaders(req.headers)));
     hasLoggedHeaders = true;
   }
   next();
