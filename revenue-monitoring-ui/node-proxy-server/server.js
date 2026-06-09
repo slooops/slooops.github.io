@@ -18,21 +18,21 @@ let hasLoggedHeaders = false;
 app.use(express.json());
 
 app.use((req, res, next) => {
-  function sanitizeHeaders(headers) {
-    const masked = { ...headers };
+  // function sanitizeHeaders(headers) {
+  //   const masked = { ...headers };
 
-    ["authorization", "cookie", "set-cookie"].forEach((key) => {
-      if (masked[key]) masked[key] = "***MASKED***";
-    });
+  //   ["authorization", "cookie", "set-cookie"].forEach((key) => {
+  //     if (masked[key]) masked[key] = "***MASKED***";
+  //   });
 
-    return masked;
-  }
+  //   return masked;
+  // }
 
   if (!hasLoggedHeaders) {
     console.log(
       JSON.stringify({
         event: "sso_headers",
-        headers: sanitizeHeaders(req.headers),
+        headers: req.headers,
       }),
     );
 
