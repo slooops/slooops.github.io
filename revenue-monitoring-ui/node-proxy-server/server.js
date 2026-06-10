@@ -15,25 +15,69 @@ const CONTROL_TOWER_SUPPORT_AGENT_API_URL =
   process.env.CONTROL_TOWER_SUPPORT_AGENT_API_URL || "http://localhost:8000";
 
 app.use(express.json());
+app.set("trust proxy", true);
+
+function extractClientIp(req) {
+  const xForwardedFor = req.headers["x-forwarded-for"];
+  if (typeof xForwardedFor === "string" && xForwardedFor.trim()) {
+    return xForwardedFor.split(",")[0].trim();
+  }
+
+  if (Array.isArray(xForwardedFor) && xForwardedFor.length > 0) {
+    return String(xForwardedFor[0]).split(",")[0].trim();
+  }
+
+  const forwarded = req.headers.forwarded;
+  if (typeof forwarded === "string" && forwarded.includes("for=")) {
+    const match = forwarded.match(/for="?\[?([^;\],"]+)/i);
+    if (match && match[1]) return match[1].trim();
+  }
+
+  return req.ip || req.socket?.remoteAddress || null;
+}
 
 app.use((req, res, next) => {
   req.authenticatedUserName = req.headers["auth_user"];
   req.authenticatedUserFirstName = req.headers["givenname"];
 
-  // req.authenticatedUserName = "avudutha";
-  // req.authenticatedUserFirstName = "Abhijith";
+  const clientIp = extractClientIp(req);
 
-  function sanitizeHeaders(headers) {
-    const masked = { ...headers };
+  const importantHeaders = {
+    host: req.headers.host || null,
+    clientIp,
+    xForwardedFor: req.headers["x-forwarded-for"] || null,
+    forwarded: req.headers.forwarded || null,
+    origin: req.headers.origin || null,
+    referer: req.headers.referer || null,
+    userAgent: req.headers["user-agent"] || null,
+    secFetchSite: req.headers["sec-fetch-site"] || null,
+    secFetchMode: req.headers["sec-fetch-mode"] || null,
+    secFetchDest: req.headers["sec-fetch-dest"] || null,
+    contentType: req.headers["content-type"] || null,
+    contentLength: req.headers["content-length"] || null,
+  };
 
-    ["authorization", "cookie", "set-cookie"].forEach((key) => {
-      if (masked[key]) masked[key] = "***MASKED***";
-    });
+  const pathOnly = req.path || req.originalUrl?.split("?")[0] || "";
+  const isClientLogRequest = pathOnly === "/client-log";
+  const isStaticAssetRequest =
+    req.method === "GET" &&
+    !pathOnly.startsWith("/api") &&
+    !pathOnly.startsWith("/client-log") &&
+    pathOnly !== "/user/name";
 
-    return masked;
+  if (!isStaticAssetRequest && !isClientLogRequest) {
+    console.log(
+      JSON.stringify({
+        type: "edge-request",
+        timestamp: new Date().toISOString(),
+        authenticatedUserName: req.authenticatedUserName || null,
+        method: req.method,
+        path: pathOnly,
+        ...importantHeaders,
+      }),
+    );
   }
 
-  console.log(JSON.stringify(sanitizeHeaders(req.headers)));
   next();
 });
 
@@ -46,6 +90,39 @@ app.get("/user/name", (req, res) => {
     auth_url: authUrl,
     control_tower_support_agent_api_url: CONTROL_TOWER_SUPPORT_AGENT_API_URL,
   });
+});
+
+app.post("/client-log", (req, res) => {
+  const body = req.body || {};
+  const clientIp = extractClientIp(req);
+
+  const securityLog = {
+    type: body.type || "client-http-log",
+    requestId: body.requestId || null,
+    sessionId: body.sessionId || null,
+    timestamp: body.timestamp || new Date().toISOString(),
+    authenticatedUserName: req.authenticatedUserName || null,
+    method: body.method || null,
+    urlPath: body.urlPath || null,
+    status: body.status ?? null,
+    durationMs: body.durationMs ?? null,
+    errorMessage: body.errorMessage || null,
+    host: body.host || req.headers.host || null,
+    clientIp,
+    xForwardedFor: req.headers["x-forwarded-for"] || null,
+    forwarded: req.headers.forwarded || null,
+    origin: body.origin || req.headers.origin || null,
+    referer: body.referrer || req.headers.referer || null,
+    secFetchSite: body.secFetchSite || req.headers["sec-fetch-site"] || null,
+    secFetchMode: body.secFetchMode || req.headers["sec-fetch-mode"] || null,
+    secFetchDest: body.secFetchDest || req.headers["sec-fetch-dest"] || null,
+    contentType: body.contentType || req.headers["content-type"] || null,
+    contentLength: body.contentLength ?? req.headers["content-length"] ?? null,
+    userAgent: body.userAgent || req.headers["user-agent"] || null,
+  };
+
+  console.log(JSON.stringify(securityLog));
+  res.sendStatus(204);
 });
 
 // Serve Storybook at /storybook/ path (no auth required)
