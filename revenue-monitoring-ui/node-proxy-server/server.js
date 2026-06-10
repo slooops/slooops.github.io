@@ -13,7 +13,6 @@ const o2cRedirectTarget =
   process.env.O2C_REDIRECT_TARGET || "http://localhost:3500";
 const CONTROL_TOWER_SUPPORT_AGENT_API_URL =
   process.env.CONTROL_TOWER_SUPPORT_AGENT_API_URL || "http://localhost:8000";
-let hasLoggedHeaders = false;
 
 app.use(express.json());
 
@@ -34,10 +33,7 @@ app.use((req, res, next) => {
     return masked;
   }
 
-  if (!hasLoggedHeaders) {
-    console.log(JSON.stringify(sanitizeHeaders(req.headers)));
-    hasLoggedHeaders = true;
-  }
+  console.log(JSON.stringify(sanitizeHeaders(req.headers)));
   next();
 });
 
