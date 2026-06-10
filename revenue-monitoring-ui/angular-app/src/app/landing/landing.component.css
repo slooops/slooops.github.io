@@ -168,7 +168,7 @@
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto;
   padding: var(--landing-space-md) var(--landing-space-lg);
-  gap: var(--landing-space-xs) var(--landing-space-xl);
+  gap: var(--landing-space-xs) var(--landing-space-md);
   position: relative;
   z-index: 1;
 }
@@ -353,7 +353,7 @@
 
 .card-sections {
   display: flex;
-  gap: var(--landing-space-xl);
+  gap: var(--landing-space-md);
   padding: var(--landing-space-md) var(--landing-space-lg);
   align-items: flex-start;
 }
@@ -969,4 +969,25 @@
 :host(.dark-theme) .stat-value,
 :host(.dark-theme) .health-bar-value {
   color: var(--fit-dark-text, #e0e6ed);
+}
+
+/* ── Context stage slide transitions ─────────────────────────────────── */
+.ctx-stage {
+  position: relative;
+}
+
+.ctx-pane {
+  width: 100%;
+  animation: ctx-fade-in 1s ease both;
+}
+
+@keyframes ctx-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(0px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

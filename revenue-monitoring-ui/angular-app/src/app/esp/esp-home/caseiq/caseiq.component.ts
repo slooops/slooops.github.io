@@ -56,6 +56,16 @@ interface CaseIqTableRow {
   cancelled: CaseIqTableMetric;
 }
 
+interface CaseiqKpi {
+  title: string;
+  color: string;
+  pillWidth?: number;
+  pillText?: string;
+  pctText?: string;
+  plain?: boolean;
+  plainValue?: string;
+}
+
 @Component({
   selector: 'app-caseiq',
   templateUrl: './caseiq.component.html',
@@ -1006,6 +1016,68 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (this.resolutionAgentsUrl) {
       window.open(this.resolutionAgentsUrl, '_blank', 'noopener,noreferrer');
     }
+  }
+
+  /** Data-driven KPI strip — mirrors the landing ctx2Kpis() pattern */
+  caseiqKpis(): CaseiqKpi[] {
+    const fitRow = this.getFinanceITRow();
+    const accuracyPct = this.getAccuracyForSection('Finance IT');
+    const accuracyCases = this.getTotalCasesFromAccuracy('Finance IT');
+    const opsRate = this.getOpsAutomationRate();
+    const agentTotal = this.getFinanceITAgentTotalCases();
+    const opsTotal = this.getOpsTotalCases();
+    const fm = this.getFinanceITMetrics();
+
+    return [
+      {
+        title: 'Case Analyzer Accuracy',
+        color: 'accent',
+        pillWidth: accuracyPct ?? 0,
+        pillText: accuracyCases != null ? `${accuracyCases.toLocaleString()} cases` : '--',
+        pctText: accuracyPct != null ? `${accuracyPct.toFixed(1)}%` : '--',
+      },
+      {
+        title: 'In Progress',
+        color: 'cyan',
+        pillWidth: fitRow?.inProgress?.agentPct ?? 0,
+        pillText: `${fitRow ? this.valueDisplay(fitRow.inProgress.agent) : '--'} / ${this.getSumMetricTotal('inProgress').toLocaleString()}`,
+        pctText: fitRow?.inProgress?.agentPct != null ? `${Math.round(fitRow.inProgress.agentPct)}%` : '--',
+      },
+      {
+        title: 'Routed Out',
+        color: 'purple',
+        pillWidth: fitRow?.routed?.agentPct ?? 0,
+        pillText: `${fitRow ? this.valueDisplay(fitRow.routed.agent) : '--'} / ${this.getSumMetricTotal('routed').toLocaleString()}`,
+        pctText: fitRow?.routed?.agentPct != null ? `${Math.round(fitRow.routed.agentPct)}%` : '--',
+      },
+      {
+        title: 'Canceled',
+        color: 'amber',
+        pillWidth: fitRow?.cancelled?.agentPct ?? 0,
+        pillText: `${fitRow ? this.valueDisplay(fitRow.cancelled.agent) : '--'} / ${this.getSumMetricTotal('cancelled').toLocaleString()}`,
+        pctText: fitRow?.cancelled?.agentPct != null ? `${Math.round(fitRow.cancelled.agentPct)}%` : '--',
+      },
+      {
+        title: 'Service Requests',
+        color: 'green',
+        pillWidth: fitRow?.service?.agentPct ?? 0,
+        pillText: `${fitRow ? this.valueDisplay(fitRow.service.agent) : '--'} / ${this.getSumMetricTotal('service').toLocaleString()}`,
+        pctText: fitRow?.service?.agentPct != null ? `${Math.round(fitRow.service.agentPct)}%` : '--',
+      },
+      {
+        title: 'Agent vs Ops %',
+        color: 'dual',
+        pillWidth: opsRate,
+        pillText: `${opsRate.toFixed(1)}%`,
+        pctText: `${agentTotal.toLocaleString()} / ${(agentTotal + opsTotal).toLocaleString()}`,
+      },
+      {
+        title: 'Service Incidents',
+        color: 'accent',
+        plain: true,
+        plainValue: fm?.SERVICE_INCIDENTS != null ? Number(fm.SERVICE_INCIDENTS).toLocaleString() : '--',
+      },
+    ];
   }
 
   /** Agent ratio for Finance IT */

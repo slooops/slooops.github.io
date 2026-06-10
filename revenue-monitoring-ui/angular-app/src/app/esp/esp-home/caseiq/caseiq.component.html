@@ -5,166 +5,30 @@
 }
 
 @if (!isLoading) {
-  @let opsRate = getOpsAutomationRate();
   @let summaryRows = getSummaryRows();
 
   <!-- Component Performance Table + Chart Row -->
   @if (summaryRows.length) {
-    @let fitRow = getFinanceITRow();
     <div class="caseiq-kpi-strip">
-      <!-- Case Analyzer Accuracy -->
-      <div class="caseiq-kpi accent">
-        <span class="caseiq-kpi-title">Case Analyzer Accuracy</span>
-        <div class="caseiq-kpi-body">
-          <div class="caseiq-pill">
-            <div
-              class="caseiq-pill-fill accent"
-              [style.width.%]="getAccuracyForSection('Finance IT') ?? 0"
-            ></div>
-            <span class="caseiq-pill-text">
-              @if (getTotalCasesFromAccuracy("Finance IT") != null) {
-                {{ getTotalCasesFromAccuracy("Finance IT") | number }} cases
-              } @else {
-                --
-              }
-            </span>
-          </div>
-          <span class="caseiq-kpi-pct">
-            @if (getAccuracyForSection("Finance IT") != null) {
-              {{ getAccuracyForSection("Finance IT") | number: "1.1-1" }}%
+      @for (kpi of caseiqKpis(); track kpi.title) {
+        <div class="caseiq-kpi {{ kpi.color }}">
+          <span class="caseiq-kpi-title">{{ kpi.title }}</span>
+          <div class="caseiq-kpi-body">
+            @if (kpi.plain) {
+              <span class="caseiq-kpi-value-plain">{{ kpi.plainValue }}</span>
             } @else {
-              --
+              <div class="caseiq-pill">
+                <div
+                  class="caseiq-pill-fill {{ kpi.color }}"
+                  [style.width.%]="kpi.pillWidth"
+                ></div>
+                <span class="caseiq-pill-text">{{ kpi.pillText }}</span>
+              </div>
+              <span class="caseiq-kpi-pct">{{ kpi.pctText }}</span>
             }
-          </span>
-        </div>
-      </div>
-
-      <!-- In Progress -->
-      <div class="caseiq-kpi cyan">
-        <span class="caseiq-kpi-title">In Progress</span>
-        <div class="caseiq-kpi-body">
-          <div class="caseiq-pill">
-            <div
-              class="caseiq-pill-fill cyan"
-              [style.width.%]="fitRow?.inProgress?.agentPct ?? 0"
-            ></div>
-            <span class="caseiq-pill-text">
-              {{ fitRow ? valueDisplay(fitRow.inProgress.agent) : "--" }}
-              / {{ getSumMetricTotal("inProgress") | number }}
-            </span>
           </div>
-          <span class="caseiq-kpi-pct">
-            @if (fitRow?.inProgress?.agentPct != null) {
-              {{ fitRow!.inProgress.agentPct | number: "1.0-0" }}%
-            } @else {
-              --
-            }
-          </span>
         </div>
-      </div>
-
-      <!-- Routed Out -->
-      <div class="caseiq-kpi purple">
-        <span class="caseiq-kpi-title">Routed Out</span>
-        <div class="caseiq-kpi-body">
-          <div class="caseiq-pill">
-            <div
-              class="caseiq-pill-fill purple"
-              [style.width.%]="fitRow?.routed?.agentPct ?? 0"
-            ></div>
-            <span class="caseiq-pill-text">
-              {{ fitRow ? valueDisplay(fitRow.routed.agent) : "--" }}
-              / {{ getSumMetricTotal("routed") | number }}
-            </span>
-          </div>
-          <span class="caseiq-kpi-pct">
-            @if (fitRow?.routed?.agentPct != null) {
-              {{ fitRow!.routed.agentPct | number: "1.0-0" }}%
-            } @else {
-              --
-            }
-          </span>
-        </div>
-      </div>
-
-      <!-- Canceled -->
-      <div class="caseiq-kpi amber">
-        <span class="caseiq-kpi-title">Canceled</span>
-        <div class="caseiq-kpi-body">
-          <div class="caseiq-pill">
-            <div
-              class="caseiq-pill-fill amber"
-              [style.width.%]="fitRow?.cancelled?.agentPct ?? 0"
-            ></div>
-            <span class="caseiq-pill-text">
-              {{ fitRow ? valueDisplay(fitRow.cancelled.agent) : "--" }}
-              / {{ getSumMetricTotal("cancelled") | number }}
-            </span>
-          </div>
-          <span class="caseiq-kpi-pct">
-            @if (fitRow?.cancelled?.agentPct != null) {
-              {{ fitRow!.cancelled.agentPct | number: "1.0-0" }}%
-            } @else {
-              --
-            }
-          </span>
-        </div>
-      </div>
-
-      <!-- Service Requests -->
-      <div class="caseiq-kpi green">
-        <span class="caseiq-kpi-title">Service Requests</span>
-        <div class="caseiq-kpi-body">
-          <div class="caseiq-pill">
-            <div
-              class="caseiq-pill-fill green"
-              [style.width.%]="fitRow?.service?.agentPct ?? 0"
-            ></div>
-            <span class="caseiq-pill-text">
-              {{ fitRow ? valueDisplay(fitRow.service.agent) : "--" }}
-              / {{ getSumMetricTotal("service") | number }}
-            </span>
-          </div>
-          <span class="caseiq-kpi-pct">
-            @if (fitRow?.service?.agentPct != null) {
-              {{ fitRow!.service.agentPct | number: "1.0-0" }}%
-            } @else {
-              --
-            }
-          </span>
-        </div>
-      </div>
-
-      <!-- Case Automation Rate (dual pill: agent vs ops) -->
-      <div class="caseiq-kpi dual">
-        <span class="caseiq-kpi-title">Agent vs Ops %</span>
-        <div class="caseiq-kpi-body">
-          <div class="caseiq-pill">
-            <div class="caseiq-pill-fill cyan" [style.width.%]="opsRate"></div>
-            <span class="caseiq-pill-text"
-              >{{ opsRate | number: "1.1-1" }}%</span
-            >
-          </div>
-          <span class="caseiq-kpi-pct">
-            {{ getFinanceITAgentTotalCases() | number }}
-            / {{ getFinanceITAgentTotalCases() + getOpsTotalCases() | number }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Service Incidents -->
-      <div class="caseiq-kpi accent">
-        <span class="caseiq-kpi-title">Service Incidents</span>
-        <div class="caseiq-kpi-body">
-          <span class="caseiq-kpi-value-plain">
-            @if (getFinanceITMetrics()?.SERVICE_INCIDENTS != null) {
-              {{ getFinanceITMetrics()?.SERVICE_INCIDENTS | number }}
-            } @else {
-              --
-            }
-          </span>
-        </div>
-      </div>
+      }
     </div>
 
     <!-- Components Table -->

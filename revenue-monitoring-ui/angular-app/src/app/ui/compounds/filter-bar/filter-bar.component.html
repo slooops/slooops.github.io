@@ -12,8 +12,6 @@
     </app-text-input>
   </div>
 
-  <span class="fit-filter-bar__divider"></span>
-
   <div class="fit-filter-bar__filters">
     <app-multi-select-dropdown
       [options]="roleOptions"
@@ -34,8 +32,6 @@
   </div>
 
   <span class="fit-filter-bar__count">{{ totalCount }} users</span>
-
-  <span class="fit-filter-bar__divider"></span>
 
   <div class="fit-filter-bar__actions">
     @if (selectedCount > 1) {

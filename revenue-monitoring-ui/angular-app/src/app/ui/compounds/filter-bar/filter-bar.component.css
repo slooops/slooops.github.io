@@ -4,10 +4,7 @@
   display: flex;
   align-items: center;
   gap: var(--fit-space-lg);
-  padding: var(--fit-space-md);
-  background-color: var(--fit-color-bg-subtle);
-  border-radius: 15px;
-  margin-bottom: var(--fit-space-lg);
+  margin-bottom: var(--fit-space-sm);
 }
 
 .fit-filter-bar__search {
@@ -18,13 +15,6 @@
 .fit-filter-bar__filters {
   display: flex;
   gap: var(--fit-space-md);
-}
-
-.fit-filter-bar__divider {
-  width: 1px;
-  height: 24px;
-  background: var(--fit-color-border);
-  flex-shrink: 0;
 }
 
 .fit-filter-bar__count {

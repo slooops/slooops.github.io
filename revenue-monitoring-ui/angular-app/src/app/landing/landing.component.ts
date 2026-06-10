@@ -348,106 +348,81 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
   private ctx2RawIssuesDist: any[] = [];
 
   // Context 3: Large Deal live data
-  largeDealSummary = signal<any>(null);
-  largeDealByStatus = signal<any[]>([]);
-  orderCompletion = signal<any[]>([]);
+  private ctx3RawRevSummary: any[] = [];
+  private ctx3RawByProgram: any[] = [];
+  private ctx3RawByAccount: any[] = [];
 
-  // Context 3: placeholder arc dials
-  ctx3Dials = signal([
+  // Context 3: arc dials (driven by live data)
+  ctx3Dials = signal<
     {
-      label: 'Pipeline Coverage',
-      value: 73,
+      label: string;
+      value: number;
+      max: number;
+      colorStart: string;
+      colorEnd: string;
+      displayFormat: 'PERCENT' | 'COUNT';
+    }[]
+  >([
+    {
+      label: 'Overall Completion',
+      value: 0,
       max: 100,
       colorStart: '#0070d2',
       colorEnd: '#00bceb',
-      displayFormat: 'PERCENT' as const,
+      displayFormat: 'PERCENT',
     },
     {
-      label: 'Commit Accuracy',
-      value: 88,
+      label: 'CCA Program',
+      value: 0,
       max: 100,
       colorStart: '#6ebe4a',
       colorEnd: '#00d4aa',
-      displayFormat: 'PERCENT' as const,
+      displayFormat: 'PERCENT',
     },
     {
-      label: 'Best Case Attain.',
-      value: 61,
+      label: 'WPA Program',
+      value: 0,
       max: 100,
       colorStart: '#9933ff',
       colorEnd: '#ff6600',
-      displayFormat: 'PERCENT' as const,
+      displayFormat: 'PERCENT',
     },
     {
-      label: 'Quota Attainment',
-      value: 54,
+      label: 'Rev Recognition',
+      value: 0,
       max: 100,
       colorStart: '#e6a800',
       colorEnd: '#e53935',
-      displayFormat: 'PERCENT' as const,
+      displayFormat: 'PERCENT',
     },
   ]);
 
-  // Context 3: placeholder KPIs
-  ctx3Kpis = signal([
+  // Context 3: KPIs (driven by live data)
+  ctx3Kpis = signal<
+    { label: string; value: string; sub: string; color: string }[]
+  >([
+    { label: 'Total Order Value', value: '--', sub: '', color: '#0070d2' },
+    { label: 'Qtr Rev Estimate', value: '--', sub: '', color: '#00bceb' },
+    { label: 'Rev Recognized', value: '--', sub: '', color: '#6ebe4a' },
     {
-      label: 'Total Pipeline',
-      value: '$2.4B',
-      sub: '+12% QoQ',
-      color: '#0070d2',
+      label: 'Rev Gap',
+      value: '--',
+      sub: 'Estimate - Recognized',
+      color: '#e53935',
     },
-    { label: 'Commit', value: '$880M', sub: '88% of plan', color: '#6ebe4a' },
-    {
-      label: 'Large Deals (>$5M)',
-      value: '47',
-      sub: '12 new',
-      color: '#00bceb',
-    },
-    { label: 'At-Risk Deals', value: '9', sub: '$214M ARR', color: '#e53935' },
-    {
-      label: 'Avg Deal Cycle',
-      value: '38 days',
-      sub: '-4d vs PY',
-      color: '#9933ff',
-    },
-    { label: 'Win Rate', value: '62%', sub: 'vs 58% PY', color: '#00d4aa' },
+    { label: 'Total Deals', value: '--', sub: '', color: '#9933ff' },
+    { label: 'Total Orders', value: '--', sub: '', color: '#e6a800' },
   ]);
 
-  // Context 3: sparkline canvas refs + chart instances
-  @ViewChild('ctx3Spark0') ctx3Spark0?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('ctx3Spark1') ctx3Spark1?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('ctx3Spark2') ctx3Spark2?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('ctx3Spark3') ctx3Spark3?: ElementRef<HTMLCanvasElement>;
-  private ctx3SparkCharts: (Chart | null)[] = [null, null, null, null];
+  // Context 3: chart canvas refs + chart instances
+  @ViewChild('ctxStage') ctxStageEl?: ElementRef<HTMLDivElement>;
+  @ViewChild('ctx3AccountChart')
+  ctx3AccountChartCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('ctx3RevenueChart')
+  ctx3RevenueChartCanvas?: ElementRef<HTMLCanvasElement>;
+  private ctx3AccountChart: Chart | null = null;
+  private ctx3RevenueChart: Chart | null = null;
   private ctx3ChartsBuilt = false;
-
-  // Context 3: sparkline configs (placeholder trends)
-  ctx3Sparklines = signal([
-    {
-      label: 'Pipeline Trend',
-      color: '#0070d2',
-      data: [1.8, 1.9, 2.0, 2.1, 2.15, 2.3, 2.4],
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-    },
-    {
-      label: 'Commit vs Quota',
-      color: '#6ebe4a',
-      data: [72, 75, 78, 80, 83, 86, 88],
-      labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7'],
-    },
-    {
-      label: 'Deal Volume',
-      color: '#9933ff',
-      data: [31, 34, 38, 40, 42, 45, 47],
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-    },
-    {
-      label: 'Win Rate %',
-      color: '#00d4aa',
-      data: [55, 57, 59, 58, 60, 61, 62],
-      labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7'],
-    },
-  ]);
 
   /** IT Operations 360 cards */
   private readonly itOpsAllCards: LandingCard[] = [
@@ -782,6 +757,7 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.fetchMetrics();
     this.fetchContextData();
     this.fetchContext2Data();
+    this.fetchContext3Data();
     this.refreshInterval = setInterval(() => {
       this.fetchMetrics();
       this.fetchContextData();
@@ -798,15 +774,64 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   /** Switch the active cockpit context */
   setContext(ctx: number): void {
-    this.activeContext.set(ctx);
-    if (ctx === 2) {
+    // Tear down ctx2 charts whenever we leave ctx2 (canvases will be removed from DOM)
+    if (this.activeContext() === 2 && ctx !== 2) {
+      this.ctx2WeeklyTeamChart?.destroy();
+      this.ctx2WeeklyTeamChart = null;
+      this.ctx2HourlyChart?.destroy();
+      this.ctx2HourlyChart = null;
+      this.ctx2TxnFailuresChart?.destroy();
+      this.ctx2TxnFailuresChart = null;
+      this.ctx2EspCasesChart?.destroy();
+      this.ctx2EspCasesChart = null;
       this.ctx2ChartsBuilt = false;
     }
-    if (ctx === 3) {
+    // Tear down ctx3 charts whenever we leave ctx3
+    if (this.activeContext() === 3 && ctx !== 3) {
+      this.ctx3AccountChart?.destroy();
+      this.ctx3AccountChart = null;
+      this.ctx3RevenueChart?.destroy();
+      this.ctx3RevenueChart = null;
       this.ctx3ChartsBuilt = false;
-      // destroy so they rebuild fresh when canvases remount
-      this.ctx3SparkCharts.forEach((c) => c?.destroy());
-      this.ctx3SparkCharts = [null, null, null, null];
+    }
+
+    // Animate the stage height so card-sections below rise/fall smoothly
+    const el = this.ctxStageEl?.nativeElement;
+    if (el) {
+      el.style.height = el.offsetHeight + 'px';
+      el.style.overflow = 'hidden';
+    }
+
+    this.activeContext.set(ctx);
+
+    if (el) {
+      // Double rAF: first frame lets Angular render the new @if pane,
+      // second frame measures the natural content height (works for both
+      // expand and shrink) then animates the container to that height.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const pinnedHeight = el.style.height;
+
+          // Momentarily go to auto to read the real content height.
+          // No paint occurs between these synchronous assignments.
+          el.style.transition = 'none';
+          el.style.height = 'auto';
+          const targetHeight = el.offsetHeight; // natural height of new content
+          el.style.height = pinnedHeight; // restore pinned height
+
+          // Force the browser to commit the restore before we set the transition.
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+          el.offsetHeight;
+
+          el.style.transition = 'height 0.45s ease';
+          el.style.height = targetHeight + 'px';
+          setTimeout(() => {
+            el.style.height = '';
+            el.style.overflow = '';
+            el.style.transition = '';
+          }, 450);
+        });
+      });
     }
   }
 
@@ -815,7 +840,7 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.buildCtx2Charts();
     }
     if (this.activeContext() === 3 && !this.ctx3ChartsBuilt) {
-      this.buildCtx3Sparklines();
+      this.buildCtx3Charts();
     }
   }
 
@@ -882,13 +907,7 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.caseiqWeeklyTrend.set(c2.weeklyTrend ?? []);
     }
 
-    // Context 3: Large Deal
-    if (response.context3) {
-      const c3 = response.context3;
-      this.largeDealSummary.set(c3.summary ?? null);
-      this.largeDealByStatus.set(c3.byStatus ?? []);
-      this.orderCompletion.set(c3.orderCompletion ?? []);
-    }
+    // Context 3: Large Deal (data fetched separately in fetchContext3Data)
   }
 
   /** Build preclose/midclose arc dials from live category completion data */
@@ -1011,13 +1030,42 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
   private fetchContext2Data(): void {
     const qtr = this.fiscalQuarter() || 'Q4FY26';
 
-    // CaseIQ summary metrics (for KPIs)
+    // CaseIQ metrics — same endpoint as the CaseIQ dashboard
     this.http
-      .get(`caseiq/summary?fiscQtr=${qtr}`, this.destroyManager)
+      .get('xxcaseiq-metrics', this.destroyManager)
       .subscribe((data: any) => {
-        if (Array.isArray(data) && data.length > 0) {
-          this.parseCtx2KpiData(data);
+        if (!Array.isArray(data)) return;
+        // Filter by quarter, then find Finance IT (TEAM_NAME === 'ALL')
+        const filtered = qtr
+          ? data.filter((m: any) => m?.FISCAL_QTR === qtr)
+          : data;
+        const financeIT = filtered.find(
+          (m: any) => m?.TEAM_NAME?.toUpperCase() === 'ALL',
+        );
+        if (financeIT) this.parseCtx2KpiData(financeIT);
+      });
+
+    // Accuracy — separate endpoint (same as CaseIQ page)
+    this.http
+      .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
+      .subscribe((data: any) => {
+        if (!Array.isArray(data)) return;
+        const filtered = qtr
+          ? data.filter((item: any) => item?.Quarter === qtr)
+          : data;
+        // Finance IT accuracy = average of Total Accuracy across all teams
+        let sum = 0;
+        let count = 0;
+        for (const item of filtered) {
+          const acc = Number(item['Total Accuracy']);
+          if (Number.isFinite(acc)) {
+            sum += acc;
+            count++;
+          }
         }
+        this.ctx2Accuracy.set(
+          count > 0 ? Math.round((sum / count) * 100) / 100 : null,
+        );
       });
 
     // Weekly volume by team chart
@@ -1071,16 +1119,8 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   /** Parse CaseIQ summary data into KPI signals */
-  private parseCtx2KpiData(data: any[]): void {
-    // Find Finance IT section
-    const financeIT = data.find((r: any) =>
-      (r.SECTION_NAME || '').toLowerCase().includes('finance it'),
-    );
-    if (!financeIT) return;
-
-    // Accuracy
-    const accuracy = financeIT.ACCURACY_PCT ?? financeIT.SUCCESS_RATE_PCT;
-    this.ctx2Accuracy.set(accuracy != null ? Number(accuracy) : null);
+  private parseCtx2KpiData(financeIT: any): void {
+    // financeIT is already the TEAM_NAME='ALL' row filtered by quarter
     this.ctx2TotalCases.set(
       financeIT.TOTAL_CASES != null ? Number(financeIT.TOTAL_CASES) : null,
     );
@@ -1339,7 +1379,7 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
             data: values,
             borderColor: '#00bceb',
             borderWidth: 2.5,
-            pointBackgroundColor: '#ffffff',
+            pointBackgroundColor: '#f2f6f9',
             pointBorderColor: '#00bceb',
             pointBorderWidth: 2,
             pointRadius: 3,
@@ -1406,98 +1446,315 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   private buildCtx2TxnFailuresChart(): void {
     const canvas = this.ctx2TxnFailuresCanvas?.nativeElement;
-    if (!canvas || this.ctx2RawTxnFailures.length === 0) return;
+    const ctx = canvas?.getContext('2d');
+    if (!ctx || !canvas || this.ctx2RawTxnFailures.length === 0) return;
 
+    // Same parsing as home.component's applyTransactionFailuresQuarterFilter
     const qtr = this.fiscalQuarter() || '';
+    const weekMap = new Map<
+      string,
+      {
+        totalIssues: number;
+        inProgress: number;
+        resolvedOps: number;
+        resolvedAgent: number;
+      }
+    >();
     const filtered = qtr
       ? this.ctx2RawTxnFailures.filter((r: any) => r.QUARTER === qtr)
       : this.ctx2RawTxnFailures;
 
-    const labels = filtered.map((r: any) => r.PERIOD_NAME || r.WEEK || '');
-    const values = filtered.map((r: any) => r.FAILURE_COUNT ?? r.COUNT ?? 0);
+    filtered.forEach((item: any) => {
+      const weekLabel = `Week ${item.WEEK_NUMBER}`;
+      const count = item.COUNT || 0;
+      const category = (item.CATEGORY || '').toString().toLowerCase().trim();
+      if (!weekMap.has(weekLabel))
+        weekMap.set(weekLabel, {
+          totalIssues: 0,
+          inProgress: 0,
+          resolvedOps: 0,
+          resolvedAgent: 0,
+        });
+      const w = weekMap.get(weekLabel)!;
+      if (category === 'total issue' || category === 'total issues')
+        w.totalIssues = count;
+      else if (category === 'in progress') w.inProgress = count;
+      else if (category === 'resolved (ops)') w.resolvedOps = count;
+      else if (category === 'resolved (agent)') w.resolvedAgent = count;
+    });
 
-    this.ctx2TxnFailuresChart = new Chart(canvas, {
+    const fixedWeeks = Array.from({ length: 13 }, (_, i) => `Week ${i + 1}`);
+    const def = {
+      totalIssues: 0,
+      inProgress: 0,
+      resolvedOps: 0,
+      resolvedAgent: 0,
+    };
+    const totalIssues = fixedWeeks.map(
+      (w) => (weekMap.get(w) || def).totalIssues,
+    );
+    const inProgress = fixedWeeks.map(
+      (w) => (weekMap.get(w) || def).inProgress,
+    );
+    const resolvedOps = fixedWeeks.map(
+      (w) => (weekMap.get(w) || def).resolvedOps,
+    );
+    const resolvedAgent = fixedWeeks.map(
+      (w) => (weekMap.get(w) || def).resolvedAgent,
+    );
+
+    const sum = (arr: number[]) => arr.reduce((s, v) => s + v, 0);
+    const purpleGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    purpleGrad.addColorStop(0, 'rgba(153,51,255,0.5)');
+    purpleGrad.addColorStop(1, 'rgba(153,51,255,0)');
+    const greenGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    greenGrad.addColorStop(0, 'rgba(110,190,74,0.5)');
+    greenGrad.addColorStop(1, 'rgba(110,190,74,0)');
+
+    this.ctx2TxnFailuresChart?.destroy();
+    this.ctx2TxnFailuresChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels,
+        labels: fixedWeeks,
         datasets: [
           {
-            data: values,
-            backgroundColor: 'rgba(229, 57, 53, 0.7)',
-            borderColor: '#e53935',
+            type: 'bar' as any,
+            label: `Total Issues (${sum(totalIssues).toLocaleString()})`,
+            data: totalIssues,
+            backgroundColor: '#909ca8ef',
+            borderColor: '#d3d6d966',
             borderWidth: 1,
-            borderRadius: 4,
+            barPercentage: 0.7,
+            categoryPercentage: 0.8,
+            order: 2,
+          },
+          {
+            type: 'bar' as any,
+            label: `In Progress (${sum(inProgress).toLocaleString()})`,
+            data: inProgress,
+            backgroundColor: '#f39c12',
+            borderColor: '#f39c12',
+            borderWidth: 1,
+            barPercentage: 0.7,
+            categoryPercentage: 0.8,
+            order: 2,
+          },
+          {
+            type: 'line' as any,
+            label: `Resolved (Ops) (${sum(resolvedOps).toLocaleString()})`,
+            data: resolvedOps,
+            borderColor: '#9933ff',
+            backgroundColor: purpleGrad,
+            pointBackgroundColor: '#f2f6f9',
+            pointBorderColor: '#9933ff',
+            pointBorderWidth: 2,
+            tension: 0.25,
+            pointRadius: 3,
+            borderWidth: 2.5,
+            fill: 'origin' as any,
+            order: 1,
+          },
+          {
+            type: 'line' as any,
+            label: `Resolved (Agent) (${sum(resolvedAgent).toLocaleString()})`,
+            data: resolvedAgent,
+            borderColor: '#6ebe4a',
+            backgroundColor: greenGrad,
+            pointBackgroundColor: '#f2f6f9',
+            pointBorderColor: '#6ebe4a',
+            pointBorderWidth: 2,
+            tension: 0.25,
+            pointRadius: 3,
+            borderWidth: 2.5,
+            fill: 'origin' as any,
+            order: 1,
           },
         ],
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: { font: { size: 9 }, maxRotation: 45 },
-            border: { display: false },
-          },
-          y: {
-            grid: { color: 'rgba(0,0,0,0.04)' },
-            ticks: { font: { size: 10 } },
-            border: { display: false },
-            beginAtZero: true,
-          },
-        },
-      },
+      options: this.ctx2MixedChartOptions(),
     });
   }
 
   private buildCtx2EspCasesChart(): void {
     const canvas = this.ctx2EspCasesCanvas?.nativeElement;
-    if (!canvas || this.ctx2RawEspCases.length === 0) return;
+    const ctx = canvas?.getContext('2d');
+    if (!ctx || !canvas || this.ctx2RawEspCases.length === 0) return;
 
+    // Same parsing as home.component's applyEspCasesQuarterFilter
     const qtr = this.fiscalQuarter() || '';
+    const weekMap = new Map<
+      number,
+      {
+        totalCases: number;
+        resolvedAgent: number;
+        resolvedOps: number;
+        inProgress: number;
+      }
+    >();
     const filtered = qtr
-      ? this.ctx2RawEspCases.filter(
-          (r: any) => (r.FISCAL_QTR || r.QUARTER) === qtr,
-        )
+      ? this.ctx2RawEspCases.filter((r: any) => r.FISCAL_QTR === qtr)
       : this.ctx2RawEspCases;
 
-    const labels = filtered.map((r: any) => r.PERIOD_NAME || r.WEEK || '');
-    const values = filtered.map((r: any) => r.CASE_COUNT ?? r.COUNT ?? 0);
+    filtered.forEach((item: any) => {
+      const weekNum = Number(item.WEEK_NUMBER) || 0;
+      weekMap.set(weekNum, {
+        totalCases: Number(item.TOTAL_CASES) || 0,
+        resolvedAgent: Number(item.RESOLVED_AGENT) || 0,
+        resolvedOps: Number(item.RESOLVED_OPS) || 0,
+        inProgress: Number(item.IN_PROGRESS) || 0,
+      });
+    });
 
-    this.ctx2EspCasesChart = new Chart(canvas, {
+    const fixedWeeks = Array.from({ length: 13 }, (_, i) => `Week ${i + 1}`);
+    const def = {
+      totalCases: 0,
+      resolvedAgent: 0,
+      resolvedOps: 0,
+      inProgress: 0,
+    };
+    const totalCases = fixedWeeks.map(
+      (_, i) => (weekMap.get(i + 1) || def).totalCases,
+    );
+    const resolvedAgent = fixedWeeks.map(
+      (_, i) => (weekMap.get(i + 1) || def).resolvedAgent,
+    );
+    const resolvedOps = fixedWeeks.map(
+      (_, i) => (weekMap.get(i + 1) || def).resolvedOps,
+    );
+    const inProgress = fixedWeeks.map(
+      (_, i) => (weekMap.get(i + 1) || def).inProgress,
+    );
+
+    const sum = (arr: number[]) => arr.reduce((s, v) => s + v, 0);
+    const purpleGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    purpleGrad.addColorStop(0, 'rgba(153,51,255,0.55)');
+    purpleGrad.addColorStop(1, 'rgba(153,51,255,0)');
+    const greenGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    greenGrad.addColorStop(0, 'rgba(110,190,74,0.55)');
+    greenGrad.addColorStop(1, 'rgba(110,190,74,0)');
+
+    this.ctx2EspCasesChart?.destroy();
+    this.ctx2EspCasesChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels,
+        labels: fixedWeeks,
         datasets: [
           {
-            data: values,
-            backgroundColor: 'rgba(0, 188, 235, 0.6)',
-            borderColor: '#00bceb',
+            type: 'bar' as any,
+            label: `Total Cases (${sum(totalCases).toLocaleString()})`,
+            data: totalCases,
+            backgroundColor: '#9baab8',
+            borderColor: '#9baab8',
             borderWidth: 1,
-            borderRadius: 4,
+            barPercentage: 0.7,
+            categoryPercentage: 0.8,
+            order: 2,
+          },
+          {
+            type: 'bar' as any,
+            label: `In Progress (${sum(inProgress).toLocaleString()})`,
+            data: inProgress,
+            backgroundColor: '#f39c12',
+            borderColor: '#f39c12',
+            borderWidth: 1,
+            barPercentage: 0.7,
+            categoryPercentage: 0.8,
+            order: 2,
+          },
+          {
+            type: 'line' as any,
+            label: `Resolved (Ops) (${sum(resolvedOps).toLocaleString()})`,
+            data: resolvedOps,
+            borderColor: '#9933ff',
+            backgroundColor: purpleGrad,
+            pointBackgroundColor: '#f2f6f9',
+            pointBorderColor: '#9933ff',
+            pointBorderWidth: 2,
+            tension: 0.25,
+            pointRadius: 3,
+            borderWidth: 2.5,
+            fill: 'origin' as any,
+            order: 1,
+          },
+          {
+            type: 'line' as any,
+            label: `Resolved (Agent) (${sum(resolvedAgent).toLocaleString()})`,
+            data: resolvedAgent,
+            borderColor: '#6ebe4a',
+            backgroundColor: greenGrad,
+            pointBackgroundColor: '#f2f6f9',
+            pointBorderColor: '#6ebe4a',
+            pointBorderWidth: 2,
+            tension: 0.25,
+            pointRadius: 3,
+            borderWidth: 2.5,
+            fill: 'origin' as any,
+            order: 1,
           },
         ],
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: { font: { size: 9 }, maxRotation: 45 },
-            border: { display: false },
-          },
-          y: {
-            grid: { color: 'rgba(0,0,0,0.04)' },
-            ticks: { font: { size: 10 } },
-            border: { display: false },
-            beginAtZero: true,
+      options: this.ctx2MixedChartOptions(),
+    });
+  }
+
+  private ctx2MixedChartOptions(): any {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'nearest', intersect: false },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          align: 'center',
+          labels: {
+            usePointStyle: true,
+            pointStyle: 'circle',
+            boxWidth: 8,
+            boxHeight: 8,
+            padding: 12,
+            font: { size: 10 },
           },
         },
+        tooltip: {
+          enabled: true,
+          displayColors: true,
+          backgroundColor: '#222',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          padding: 8,
+          cornerRadius: 4,
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: (c: any) =>
+              (c.dataset.label || '').replace(/\s*\([\d,]+\)\s*$/, '') +
+              ': ' +
+              (c.parsed.y ?? c.raw),
+          },
+        },
+        datalabels: { display: false },
       },
-    });
+      scales: {
+        x: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: {
+            font: { size: 9 },
+            maxRotation: 45,
+            minRotation: 45,
+            autoSkip: false,
+            callback: (_: any, i: number) => `Week ${i + 1}`,
+          },
+        },
+        y: {
+          beginAtZero: true,
+          border: { display: false },
+          grid: { color: 'rgba(0,0,0,0.04)', lineWidth: 1 },
+          ticks: { font: { size: 10 } },
+        },
+      },
+    };
   }
 
   /** Build issue distribution donut data */
@@ -1557,88 +1814,346 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   // ========================================================================
-  // Context 3: Large Deal Sparklines
+  // Context 3: Large Deal Charts + Data Fetch
   // ========================================================================
 
-  private buildCtx3Sparklines(): void {
-    const canvases = [
-      this.ctx3Spark0,
-      this.ctx3Spark1,
-      this.ctx3Spark2,
-      this.ctx3Spark3,
-    ];
-    const configs = this.ctx3Sparklines();
+  private fetchContext3Data(): void {
+    // 1) Revenue Summary (per deal)
+    this.http
+      .get('order-status-rev-summary', this.destroyManager)
+      .subscribe((data: any) => {
+        this.ctx3RawRevSummary = Array.isArray(data) ? data : [];
+        this.updateCtx3Kpis();
+        this.updateCtx3Dials();
+        this.ctx3ChartsBuilt = false; // force rebuild
+      });
+
+    // 2) By Program
+    this.http
+      .get('order-status-summary', this.destroyManager)
+      .subscribe((data: any) => {
+        this.ctx3RawByProgram = Array.isArray(data) ? data : [];
+        this.updateCtx3Dials();
+      });
+
+    // 3) By Account
+    this.http
+      .get('large-deal-summary-account', this.destroyManager)
+      .subscribe((data: any) => {
+        this.ctx3RawByAccount = Array.isArray(data) ? data : [];
+        this.ctx3ChartsBuilt = false; // force rebuild
+      });
+  }
+
+  private updateCtx3Kpis(): void {
+    const rows = this.ctx3RawRevSummary;
+    if (!rows.length) return;
+
+    const totalValue = rows.reduce((s, r) => s + (r.TOTAL_ORDER_VALUE ?? 0), 0);
+    const revEst = rows.reduce(
+      (s, r) => s + (r.CURRENT_QTR_REV_ESTIMATE ?? 0),
+      0,
+    );
+    const invRev = rows.reduce(
+      (s, r) => s + (r.CURRENT_QTR_INV_GL_REV ?? 0),
+      0,
+    );
+    const accrRev = rows.reduce(
+      (s, r) => s + (r.CURRENT_QTR_ACCR_GL_REV ?? 0),
+      0,
+    );
+    const revRecog = rows.reduce(
+      (s, r) => s + (r.CURRENT_QTR_REVENUE_RECOG ?? 0),
+      0,
+    );
+    const revGap = revEst - revRecog;
+    const dealCount = new Set(rows.map((r) => r.DEAL_ID)).size;
+    const orderCount = rows.reduce((s, r) => s + (r.SALES_ORDER_COUNT ?? 0), 0);
+
+    const fmt = (v: number) => {
+      if (v >= 1_000_000_000) return '$' + (v / 1_000_000_000).toFixed(1) + 'B';
+      if (v >= 1_000_000) return '$' + (v / 1_000_000).toFixed(1) + 'M';
+      if (v >= 1_000) return '$' + (v / 1_000).toFixed(0) + 'K';
+      return '$' + v.toFixed(0);
+    };
+
+    this.ctx3Kpis.set([
+      {
+        label: 'Total Order Value',
+        value: fmt(totalValue),
+        sub: `${dealCount} deals`,
+        color: '#0070d2',
+      },
+      {
+        label: 'Qtr Rev Estimate',
+        value: fmt(revEst),
+        sub: '',
+        color: '#00bceb',
+      },
+      {
+        label: 'Rev Recognized',
+        value: fmt(revRecog),
+        sub: `Inv ${fmt(invRev)} + Accr ${fmt(accrRev)}`,
+        color: '#6ebe4a',
+      },
+      {
+        label: 'Rev Gap',
+        value: fmt(revGap),
+        sub: 'Estimate − Recognized',
+        color: '#e53935',
+      },
+      {
+        label: 'Total Deals',
+        value: String(dealCount),
+        sub: '',
+        color: '#9933ff',
+      },
+      {
+        label: 'Total Orders',
+        value: String(orderCount),
+        sub: '',
+        color: '#e6a800',
+      },
+    ]);
+  }
+
+  private updateCtx3Dials(): void {
+    const programRows = this.ctx3RawByProgram;
+    const revRows = this.ctx3RawRevSummary;
+
+    // Overall completion: weighted by order count
+    const totalOrders = programRows.reduce(
+      (s, r) => s + (r.ORDER_COUNT ?? 0),
+      0,
+    );
+    const completedOrders = programRows
+      .filter((r) => r.STATUS === 'Completed')
+      .reduce((s, r) => s + (r.ORDER_COUNT ?? 0), 0);
+    const overallPct =
+      totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 0;
+
+    // CCA completion
+    const ccaRows = programRows.filter((r) => r.PROGRAM_NAME === 'CCA');
+    const ccaTotal = ccaRows.reduce((s, r) => s + (r.ORDER_COUNT ?? 0), 0);
+    const ccaCompleted = ccaRows
+      .filter((r) => r.STATUS === 'Completed')
+      .reduce((s, r) => s + (r.ORDER_COUNT ?? 0), 0);
+    const ccaPct =
+      ccaTotal > 0 ? Math.round((ccaCompleted / ccaTotal) * 100) : 0;
+
+    // WPA completion
+    const wpaRows = programRows.filter((r) => r.PROGRAM_NAME === 'WPA');
+    const wpaTotal = wpaRows.reduce((s, r) => s + (r.ORDER_COUNT ?? 0), 0);
+    const wpaCompleted = wpaRows
+      .filter((r) => r.STATUS === 'Completed')
+      .reduce((s, r) => s + (r.ORDER_COUNT ?? 0), 0);
+    const wpaPct =
+      wpaTotal > 0 ? Math.round((wpaCompleted / wpaTotal) * 100) : 0;
+
+    // Revenue recognition ratio
+    const revEst = revRows.reduce(
+      (s, r) => s + (r.CURRENT_QTR_REV_ESTIMATE ?? 0),
+      0,
+    );
+    const revRecog = revRows.reduce(
+      (s, r) => s + (r.CURRENT_QTR_REVENUE_RECOG ?? 0),
+      0,
+    );
+    const revPct = revEst > 0 ? Math.round((revRecog / revEst) * 100) : 0;
+
+    this.ctx3Dials.set([
+      {
+        label: 'Overall Completion',
+        value: overallPct,
+        max: 100,
+        colorStart: '#0070d2',
+        colorEnd: '#00bceb',
+        displayFormat: 'PERCENT',
+      },
+      {
+        label: 'CCA Program',
+        value: ccaPct,
+        max: 100,
+        colorStart: '#6ebe4a',
+        colorEnd: '#00d4aa',
+        displayFormat: 'PERCENT',
+      },
+      {
+        label: 'WPA Program',
+        value: wpaPct,
+        max: 100,
+        colorStart: '#9933ff',
+        colorEnd: '#ff6600',
+        displayFormat: 'PERCENT',
+      },
+      {
+        label: 'Rev Recognition',
+        value: revPct,
+        max: 100,
+        colorStart: '#e6a800',
+        colorEnd: '#e53935',
+        displayFormat: 'PERCENT',
+      },
+    ]);
+  }
+
+  private buildCtx3Charts(): void {
     let anyBuilt = false;
 
-    canvases.forEach((ref, i) => {
-      if (!ref?.nativeElement || this.ctx3SparkCharts[i]) return;
-      const cfg = configs[i];
-      if (!cfg) return;
+    // Stacked bar: Orders by Account colored by Status
+    if (
+      this.ctx3AccountChartCanvas?.nativeElement &&
+      this.ctx3RawByAccount.length > 0 &&
+      !this.ctx3AccountChart
+    ) {
+      this.buildCtx3AccountChart();
+      anyBuilt = true;
+    }
 
-      const hex = cfg.color;
-      const r = parseInt(hex.slice(1, 3), 16);
-      const g = parseInt(hex.slice(3, 5), 16);
-      const b = parseInt(hex.slice(5, 7), 16);
+    // Revenue bar: Order Value by Account
+    if (
+      this.ctx3RevenueChartCanvas?.nativeElement &&
+      this.ctx3RawRevSummary.length > 0 &&
+      !this.ctx3RevenueChart
+    ) {
+      this.buildCtx3RevenueChart();
+      anyBuilt = true;
+    }
 
-      this.ctx3SparkCharts[i] = new Chart(ref.nativeElement, {
-        type: 'line',
-        data: {
-          labels: cfg.labels,
-          datasets: [
-            {
-              data: cfg.data,
-              borderColor: hex,
-              borderWidth: 2,
-              pointBackgroundColor: '#ffffff',
-              pointBorderColor: hex,
-              pointBorderWidth: 2,
-              pointRadius: 3,
-              pointHoverRadius: 5,
-              tension: 0.4,
-              fill: true,
-              backgroundColor: (ctx: any) => {
-                const chart = ctx.chart;
-                const { ctx: canvasCtx, chartArea } = chart;
-                if (!chartArea) return `rgba(${r}, ${g}, ${b}, 0.1)`;
-                const grad = canvasCtx.createLinearGradient(
-                  0,
-                  chartArea.top,
-                  0,
-                  chartArea.bottom,
-                );
-                grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.3)`);
-                grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
-                return grad;
-              },
-            },
-          ],
-        },
+    if (anyBuilt) this.ctx3ChartsBuilt = true;
+  }
+
+  private buildCtx3AccountChart(): void {
+    const raw = this.ctx3RawByAccount.filter(
+      (r) => !/^(total|sub total)/i.test((r.ACCOUNT ?? '').trim()),
+    );
+    const accounts = [...new Set(raw.map((r) => r.ACCOUNT))];
+    const statuses = [...new Set(raw.map((r) => r.STATUS))].filter(Boolean);
+    const statusColors: Record<string, string> = {
+      Completed: '#6ebe4a',
+      Cancelled: '#e53935',
+      'Scheduled For Invoicing': '#e6a800',
+      'Yet To Be Provisioned': '#ff6600',
+      'Order Not Booked Yet': '#9933ff',
+    };
+
+    const datasets = statuses.map((status) => ({
+      label: status,
+      data: accounts.map((acc) => {
+        const row = raw.find((r) => r.ACCOUNT === acc && r.STATUS === status);
+        return row ? row.ORDER_COUNT : 0;
+      }),
+      backgroundColor: statusColors[status] ?? '#8899a6',
+      borderRadius: 4,
+    }));
+
+    this.ctx3AccountChart = new Chart(
+      this.ctx3AccountChartCanvas!.nativeElement,
+      {
+        type: 'bar',
+        data: { labels: accounts, datasets },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           interaction: { intersect: false, mode: 'index' },
           plugins: {
-            legend: { display: false },
+            legend: {
+              position: 'bottom',
+              labels: { boxWidth: 10, font: { size: 10 } },
+            },
             tooltip: {
-              backgroundColor: 'rgba(20, 30, 40, 0.85)',
-              borderColor: `rgba(${r}, ${g}, ${b}, 0.4)`,
-              borderWidth: 1,
+              backgroundColor: 'rgba(20, 30, 40, 0.9)',
               cornerRadius: 8,
-              displayColors: false,
-              titleFont: { size: 10 },
-              bodyFont: { size: 11 },
             },
           },
           scales: {
-            x: { display: false },
-            y: { display: false, beginAtZero: false },
+            x: {
+              stacked: true,
+              ticks: { font: { size: 9 }, maxRotation: 30 },
+              grid: { display: false },
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true,
+              ticks: { font: { size: 10 } },
+              grid: { color: 'rgba(128,128,128,0.1)' },
+            },
           },
         },
-      });
-      anyBuilt = true;
+      },
+    );
+  }
+
+  private buildCtx3RevenueChart(): void {
+    const data = this.ctx3RawRevSummary;
+    // Aggregate revenue by account
+    const accountMap = new Map<
+      string,
+      { value: number; revEst: number; revRecog: number }
+    >();
+    data.forEach((r) => {
+      const key = r.ACCOUNT ?? 'Unknown';
+      const existing = accountMap.get(key) ?? {
+        value: 0,
+        revEst: 0,
+        revRecog: 0,
+      };
+      existing.value += r.TOTAL_ORDER_VALUE ?? 0;
+      existing.revEst += r.CURRENT_QTR_REV_ESTIMATE ?? 0;
+      existing.revRecog += r.CURRENT_QTR_REVENUE_RECOG ?? 0;
+      accountMap.set(key, existing);
     });
 
-    if (anyBuilt) this.ctx3ChartsBuilt = true;
+    const accounts = [...accountMap.keys()].sort(
+      (a, b) => accountMap.get(b)!.value - accountMap.get(a)!.value,
+    );
+    const values = accounts.map((a) => accountMap.get(a)!.value / 1_000_000); // in $M
+
+    this.ctx3RevenueChart = new Chart(
+      this.ctx3RevenueChartCanvas!.nativeElement,
+      {
+        type: 'bar',
+        data: {
+          labels: accounts,
+          datasets: [
+            {
+              label: 'Order Value ($M)',
+              data: values,
+              backgroundColor: 'rgba(0, 112, 210, 0.7)',
+              borderColor: '#0070d2',
+              borderWidth: 1,
+              borderRadius: 4,
+            },
+          ],
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(20, 30, 40, 0.9)',
+              cornerRadius: 8,
+              callbacks: {
+                label: (item) => `$${(item.raw as number).toFixed(1)}M`,
+              },
+            },
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: { font: { size: 10 }, callback: (v) => '$' + v + 'M' },
+              grid: { color: 'rgba(128,128,128,0.1)' },
+            },
+            y: {
+              ticks: { font: { size: 10 } },
+              grid: { display: false },
+            },
+          },
+        },
+      },
+    );
   }
 
   ngOnDestroy(): void {
@@ -1649,7 +2164,8 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.ctx2HourlyChart?.destroy();
     this.ctx2TxnFailuresChart?.destroy();
     this.ctx2EspCasesChart?.destroy();
-    this.ctx3SparkCharts.forEach((c) => c?.destroy());
+    this.ctx3AccountChart?.destroy();
+    this.ctx3RevenueChart?.destroy();
     this.destroyManager.ngOnDestroy();
   }
 
