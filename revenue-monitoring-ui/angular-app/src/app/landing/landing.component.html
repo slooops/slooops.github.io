@@ -14,7 +14,7 @@
         <span
           >Last Updated: <b>{{ lastUpdated() }}</b></span
         >
-        @if (userName() === "JASLOOP" || userName() === "SSREEPAT") {
+        @if (userRoles().includes("ADMIN")) {
           <span class="divider"> | </span>
           <span class="context-switcher">
             <button
