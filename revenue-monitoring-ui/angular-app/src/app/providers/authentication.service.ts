@@ -131,6 +131,7 @@ export class AuthenticationService {
   authUrl: string;
   controlTowerSupportAgentApiUrl: string;
   bypassRoutes = ['/caseiq'];
+  enableMockAuth: boolean = false;
   async getUserId() {
     return fetch('/user/name')
       .then((response) => response.json())
@@ -142,6 +143,7 @@ export class AuthenticationService {
         this.authUrl = info['auth_url'];
         this.controlTowerSupportAgentApiUrl =
           info['control_tower_support_agent_api_url'];
+        this.enableMockAuth = info['environment'];
       })
       .catch((error) => {
         console.error('Error fetching user info:', error);
@@ -211,6 +213,10 @@ export class AuthenticationService {
   }
 
   getUserAccessRoles(): string[] {
+    if (this.enableMockAuth) {
+      return ['ADMIN'];
+    }
+
     return [...this.userAccessRoles, ...this.adminRoles];
   }
 

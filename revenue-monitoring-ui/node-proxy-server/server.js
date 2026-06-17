@@ -13,6 +13,7 @@ const o2cRedirectTarget =
   process.env.O2C_REDIRECT_TARGET || "http://localhost:3500";
 const CONTROL_TOWER_SUPPORT_AGENT_API_URL =
   process.env.CONTROL_TOWER_SUPPORT_AGENT_API_URL || "http://localhost:8000";
+const environment = process.env.ENVIRONMENT || "local";
 
 app.use(express.json());
 app.set("trust proxy", true);
@@ -89,6 +90,7 @@ app.get("/user/name", (req, res) => {
     auth_client_secret: authClientSecret,
     auth_url: authUrl,
     control_tower_support_agent_api_url: CONTROL_TOWER_SUPPORT_AGENT_API_URL,
+    enable_mock_auth: environment !== "production" ? true : false,
   });
 });
 
