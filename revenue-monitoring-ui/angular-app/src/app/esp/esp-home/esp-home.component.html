@@ -61,6 +61,25 @@
             }
           </div>
         </div>
+
+        @if (activeTab === "Finance IT" && roles.includes("ADMIN")) {
+          <div class="ciq-view-toggle">
+            <button
+              class="ciq-view-btn"
+              [class.ciq-view-btn--active]="caseiqView === 'ops'"
+              (click)="caseiqView = 'ops'"
+            >
+              Operations
+            </button>
+            <button
+              class="ciq-view-btn"
+              [class.ciq-view-btn--active]="caseiqView === 'executive'"
+              (click)="caseiqView = 'executive'"
+            >
+              Executive
+            </button>
+          </div>
+        }
       </div>
       <div class="period-info">
         <span
@@ -130,6 +149,7 @@
         <app-caseiq
           [selectedQuarter]="selectedQuarter"
           [caseIqMetrics]="componentLevelMetrics"
+          [caseiqView]="caseiqView"
           (teamNavigate)="onTileClick($event)"
         ></app-caseiq>
       </div>

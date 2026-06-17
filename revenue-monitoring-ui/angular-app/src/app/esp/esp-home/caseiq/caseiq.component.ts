@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.component';
@@ -24,7 +25,7 @@ import {
 } from '@ng-icons/phosphor-icons/bold';
 import { phosphorEmptyDuotone } from '@ng-icons/phosphor-icons/duotone';
 import * as echarts from 'echarts/core';
-import { BarChart, LineChart } from 'echarts/charts';
+import { BarChart, LineChart, SankeyChart } from 'echarts/charts';
 import {
   GridComponent,
   TooltipComponent,
@@ -38,6 +39,7 @@ import { Router } from '@angular/router';
 echarts.use([
   BarChart,
   LineChart,
+  SankeyChart,
   GridComponent,
   TooltipComponent,
   LegendComponent,
@@ -191,6 +193,15 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   private analyticsDataReady = false;
   teamCardFlipped = false;
   hourlyCardFlipped = false;
+  sankeyCardFlipped = false;
+
+  // ── Context Switcher: "Operations" vs "Executive" ──────────
+  @Input() caseiqView: 'ops' | 'executive' = 'ops';
+
+  // ── Business/Executive view data ──────────────────────────
+  espSummaryData: any[] = [];
+  espSummaryLoading = true;
+  private themeSub?: Subscription;
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('caseIqMetrics' in changes) {
@@ -215,12 +226,54 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         this.fetchAccuracyData();
         this.refetchWeeklyTeamVolume();
         this.refetchWeeklyCasesAnalyzed();
+        // Rebuild executive charts when quarter changes
+        if (this.caseiqView === 'executive') {
+          setTimeout(() => {
+            this.buildMttrChart();
+            this.buildExecWeeklyChart();
+            this.buildExecHourlyChart();
+            this.buildSankeyChart();
+          }, 100);
+        }
+      }
+    }
+
+    if ('caseiqView' in changes && this.viewInitialized) {
+      if (this.caseiqView === 'executive') {
+        setTimeout(() => {
+          this.buildMttrChart();
+          this.buildExecWeeklyChart();
+          this.buildExecHourlyChart();
+          this.buildSankeyChart();
+        }, 50);
+      } else if (this.caseiqView === 'ops') {
+        // Rebuild ops charts — canvases were removed from DOM during executive view
+        setTimeout(() => {
+          this.createAllCharts();
+          this.tryBuildAnalyticsCharts();
+        }, 50);
       }
     }
   }
 
   ngAfterViewInit(): void {
     this.viewInitialized = true;
+
+    // Rebuild executive charts when theme toggles
+    this.themeSub = this.themeService.isDarkMode$.subscribe(() => {
+      if (this.caseiqView === 'executive') {
+        setTimeout(() => {
+          this.buildMttrChart();
+          this.buildExecWeeklyChart();
+          this.buildExecHourlyChart();
+          if (this.sankeyCardFlipped) {
+            this.buildSankeyChart2Step();
+          } else {
+            this.buildSankeyChart();
+          }
+        }, 50);
+      }
+    });
 
     // Close chart dropdown on outside click
     document.addEventListener('click', this.outsideClickListener);
@@ -237,12 +290,16 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     // Always fetch analytics chart data on init
     this.fetchAnalyticsCharts();
 
+    // Fetch business view data
+    this.fetchEspSummaryData();
+
     // Initial build of sections/charts once view is ready
     this.buildSectionsFromMetrics();
     this.showLoadingForMoment();
   }
 
   ngOnDestroy(): void {
+    this.themeSub?.unsubscribe();
     document.removeEventListener('click', this.outsideClickListener);
   }
 
@@ -1984,5 +2041,685 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   closeAccuracyModal(): void {
     this.showAccuracyModal = false;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ── Executive / Business View ─────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // switchView is no longer needed — caseiqView is an @Input from parent
+
+  private fetchEspSummaryData(): void {
+    this.espSummaryLoading = true;
+    this.http
+      .get('esp-case-service-metric-summary', this.destroyManager)
+      .subscribe({
+        next: (data: any) => {
+          this.espSummaryData = Array.isArray(data) ? data : [];
+          this.espSummaryLoading = false;
+          if (this.caseiqView === 'executive') {
+            setTimeout(() => {
+              this.buildMttrChart();
+              this.buildExecWeeklyChart();
+              this.buildExecHourlyChart();
+              this.buildSankeyChart();
+            }, 0);
+          }
+        },
+        error: () => {
+          this.espSummaryLoading = false;
+        },
+      });
+  }
+
+  /** Get ESP summary rows filtered by the currently selected quarter */
+  getEspForQuarter(): any[] {
+    const qtr = this.selectedQuarter || '';
+    if (!qtr) return this.espSummaryData;
+    return this.espSummaryData.filter((r: any) => r.FISC_QTR === qtr);
+  }
+
+  /** Grand Total row for the selected quarter */
+  getEspGrandTotal(): any | null {
+    return (
+      this.getEspForQuarter().find(
+        (r: any) => r.SERVICE_OFFERING === 'Grand Total',
+      ) || null
+    );
+  }
+
+  /** Non-total service offering rows for selected quarter, sorted by inflow desc */
+  getEspServiceOfferings(): any[] {
+    return this.getEspForQuarter()
+      .filter((r: any) => r.SERVICE_OFFERING !== 'Grand Total')
+      .sort((a: any, b: any) => (b.INFLOW || 0) - (a.INFLOW || 0));
+  }
+
+  /** Aggregate ESP metrics by CaseIQ team */
+  getEspByTeam(): {
+    team: string;
+    inflow: number;
+    resolved: number;
+    cancelled: number;
+    routedOut: number;
+    backlog: number;
+    escalated: number;
+    mttrBiz: number;
+    mttrCal: number;
+  }[] {
+    const teamMap: Record<string, string> = {};
+    // Build SO→team mapping from CaseIQ metrics
+    if (Array.isArray(this.caseIqMetrics)) {
+      this.caseIqMetrics.forEach((m: any) => {
+        if (m?.TEAM_NAME && m?.IMPACTED_SERVICE_OFFERING) {
+          teamMap[m.IMPACTED_SERVICE_OFFERING] = m.TEAM_NAME;
+        }
+      });
+    }
+
+    const teams: Record<string, any> = {};
+    for (const row of this.getEspServiceOfferings()) {
+      const team = teamMap[row.SERVICE_OFFERING] || 'Other';
+      if (!teams[team]) {
+        teams[team] = {
+          team,
+          inflow: 0,
+          resolved: 0,
+          cancelled: 0,
+          routedOut: 0,
+          backlog: 0,
+          escalated: 0,
+          mttrBizSum: 0,
+          mttrCalSum: 0,
+          mttrCount: 0,
+        };
+      }
+      const t = teams[team];
+      t.inflow += Number(row.INFLOW) || 0;
+      t.resolved += Number(row.RESOLVED) || 0;
+      t.cancelled += Number(row.CANCELLED) || 0;
+      t.routedOut += Number(row.ROUTED_OUT) || 0;
+      t.backlog += Number(row.BACKLOG) || 0;
+      t.escalated += Number(row.ESCALATED) || 0;
+      const parsed = this.parseMttr(row.MTTR);
+      if (parsed) {
+        t.mttrBizSum += parsed.biz;
+        t.mttrCalSum += parsed.cal;
+        t.mttrCount++;
+      }
+    }
+    return Object.values(teams)
+      .map((t: any) => ({
+        team: t.team,
+        inflow: t.inflow,
+        resolved: t.resolved,
+        cancelled: t.cancelled,
+        routedOut: t.routedOut,
+        backlog: t.backlog,
+        escalated: t.escalated,
+        mttrBiz: t.mttrCount
+          ? Math.round((t.mttrBizSum / t.mttrCount) * 100) / 100
+          : 0,
+        mttrCal: t.mttrCount
+          ? Math.round((t.mttrCalSum / t.mttrCount) * 100) / 100
+          : 0,
+      }))
+      .sort((a, b) => b.inflow - a.inflow);
+  }
+
+  /** Parse MTTR string like "(1.49/2.35)" into { biz, cal } */
+  parseMttr(mttr: string | null): { biz: number; cal: number } | null {
+    if (!mttr || mttr === '0') return null;
+    const match = mttr.match(/\(?([\d.]+)\/([\d.]+)\)?/);
+    if (!match) return null;
+    return { biz: parseFloat(match[1]), cal: parseFloat(match[2]) };
+  }
+
+  /** Executive KPIs */
+  executiveKpis(): CaseiqKpi[] {
+    const gt = this.getEspGrandTotal();
+    if (!gt) return [];
+    const parsed = this.parseMttr(gt.MTTR);
+    const inflow = Number(gt.INFLOW) || 0;
+    const resolved = Number(gt.RESOLVED) || 0;
+    const resolutionRate = inflow
+      ? Math.round((resolved / inflow) * 1000) / 10
+      : 0;
+
+    return [
+      {
+        title: 'MTTR (Business Days)',
+        color: 'accent',
+        plain: true,
+        plainValue: parsed ? `${parsed.biz} days` : '--',
+      },
+      {
+        title: 'MTTR (Calendar Days)',
+        color: 'cyan',
+        plain: true,
+        plainValue: parsed ? `${parsed.cal} days` : '--',
+      },
+      {
+        title: 'Resolution Rate',
+        color: 'green',
+        pillWidth: resolutionRate,
+        pillText: `${resolved} / ${inflow}`,
+        pctText: `${resolutionRate}%`,
+      },
+      {
+        title: 'Inflow',
+        color: 'cyan',
+        plain: true,
+        plainValue: inflow.toLocaleString(),
+      },
+      {
+        title: 'Current Backlog',
+        color: 'amber',
+        plain: true,
+        plainValue: (Number(gt.BACKLOG) || 0).toLocaleString(),
+      },
+      {
+        title: 'Escalations',
+        color: 'purple',
+        plain: true,
+        plainValue: (Number(gt.ESCALATED) || 0).toLocaleString(),
+      },
+    ];
+  }
+
+  /** Build MTTR by Service Offering horizontal bar chart (ECharts) */
+  private buildMttrChart(): void {
+    const offerings = this.getEspServiceOfferings()
+      .map((r: any) => ({
+        name: r.SERVICE_OFFERING,
+        ...this.parseMttr(r.MTTR),
+      }))
+      .filter((r: any) => r.biz != null && r.biz > 0)
+      .sort((a: any, b: any) => b.cal - a.cal);
+
+    if (!offerings.length) return;
+
+    const labels = offerings.map((o: any) => {
+      let name: string = o.name;
+      name = name.replace('Billing, Invoice and Revenue - ', 'BIR: ');
+      name = name.replace('Billing Invoice and Revenue - ', 'BIR: ');
+      return name.length > 35 ? name.substring(0, 32) + '...' : name;
+    });
+
+    const isDark = this.themeService.isDarkMode;
+    const textColor = isDark ? '#e0e6ed' : '#1b1c1d';
+    const mutedColor = isDark ? '#8899a6' : '#666';
+    const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+
+    this.chartOptionsMap['mttrSO'] = {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
+        backgroundColor: 'rgba(20,30,40,0.9)',
+        textStyle: { color: textColor, fontSize: 11 },
+      },
+      legend: {
+        top: 0,
+        textStyle: { color: textColor, fontSize: 11 },
+        itemWidth: 12,
+        itemHeight: 12,
+      },
+      grid: { top: 30, left: 10, right: 30, bottom: 10, containLabel: true },
+      xAxis: {
+        type: 'value',
+        name: 'Days',
+        nameTextStyle: { color: mutedColor, fontSize: 11 },
+        axisLabel: { color: mutedColor },
+        splitLine: { lineStyle: { color: gridColor } },
+      },
+      yAxis: {
+        type: 'category',
+        data: labels,
+        axisLabel: { color: textColor, fontSize: 10 },
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      series: [
+        {
+          name: 'Business Days',
+          type: 'bar',
+          data: offerings.map((o: any) => o.biz),
+          itemStyle: {
+            color: 'rgba(0, 112, 210, 0.7)',
+            borderRadius: [0, 4, 4, 0],
+          },
+          barGap: '10%',
+        },
+        {
+          name: 'Calendar Days',
+          type: 'bar',
+          data: offerings.map((o: any) => o.cal),
+          itemStyle: {
+            color: 'rgba(0, 188, 235, 0.5)',
+            borderRadius: [0, 4, 4, 0],
+          },
+        },
+      ],
+    };
+  }
+
+  /** Build a weekly volume chart for the executive view (ECharts) */
+  private buildExecWeeklyChart(): void {
+    if (this.weeklyTeamNoData || !this.weeklyVolumeByTeamData.length) return;
+
+    const weekMap = new Map<number, Map<string, number>>();
+    const teams = new Set<string>();
+    for (const row of this.weeklyVolumeByTeamData) {
+      const week = row.WEEK_NUMBER;
+      const team = row.TEAM_NAME;
+      if (week == null || !team) continue;
+      teams.add(team);
+      if (!weekMap.has(week)) weekMap.set(week, new Map());
+      weekMap.get(week)?.set(team, row.INCIDENT_COUNT ?? 0);
+    }
+
+    const weeks = Array.from({ length: 13 }, (_, i) => i + 1);
+    const labels = weeks.map((w) => `Week ${w}`);
+    const teamColorHex = this.teamColors;
+
+    const series = Array.from(teams)
+      .filter((t) => t !== 'UNKNOWN')
+      .sort((a, b) => a.localeCompare(b))
+      .map((team) => {
+        const hex = teamColorHex[team] ?? '#555555';
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return {
+          name: team,
+          type: 'line' as const,
+          data: weeks.map((w) => weekMap.get(w)?.get(team) ?? 0),
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: { width: 2.5, color: hex },
+          itemStyle: { color: hex },
+          areaStyle: { color: `rgba(${r}, ${g}, ${b}, 0.1)` },
+        };
+      });
+
+    const isDark = this.themeService.isDarkMode;
+    const textColor = isDark ? '#e0e6ed' : '#1b1c1d';
+
+    this.chartOptionsMap['execWeekly'] = {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(20, 30, 40, 0.9)',
+        textStyle: { fontSize: 11 },
+      },
+      legend: {
+        bottom: 0,
+        textStyle: { color: textColor, fontSize: 10 },
+        itemWidth: 10,
+        itemHeight: 10,
+        padding: [0, 0, 0, 0],
+      },
+      grid: { top: 10, left: 40, right: 20, bottom: 40 },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLabel: { fontSize: 9, rotate: 45 },
+        axisLine: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: { fontSize: 10 },
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } },
+      },
+      series,
+    };
+  }
+
+  /** Build hourly throughput chart for the executive view (24h window, ECharts) */
+  private buildExecHourlyChart(): void {
+    if (!this.hourlyCasePatternData.length) return;
+
+    const hourMap = new Map<number, number>();
+    for (const row of this.hourlyCasePatternData) {
+      hourMap.set(row.HOUR_OF_DAY, row.CASE_COUNT);
+    }
+    const currentHour = new Date().getHours();
+    const hours = Array.from(
+      { length: 24 },
+      (_, i) => (currentHour - 23 + i + 24) % 24,
+    );
+    const values = hours.map((h) => hourMap.get(h) ?? 0);
+    const labels = hours.map((h) => {
+      const suffix = h >= 12 ? 'pm' : 'am';
+      let display = h % 12;
+      if (display === 0) display = 12;
+      return `${display}${suffix}`;
+    });
+
+    this.chartOptionsMap['execHourly'] = {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(20,30,40,0.85)',
+        textStyle: { color: '#00bceb', fontSize: 14, fontWeight: 'bold' },
+        formatter: (params: any) => {
+          const p = params[0];
+          return `<span style="color:#8899a6;font-size:10px">${p.name} UTC</span><br/><span style="color:#00bceb;font-size:14px;font-weight:bold">${p.value.toLocaleString()} cases</span>`;
+        },
+      },
+      grid: { top: 10, left: 40, right: 20, bottom: 20 },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLabel: {
+          fontSize: 9,
+          interval: 3,
+        },
+        axisLine: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: { fontSize: 10 },
+        splitLine: { show: false },
+      },
+      series: [
+        {
+          type: 'line',
+          data: values,
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: { width: 3, color: '#00bceb' },
+          itemStyle: { color: '#00bceb' },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(0,188,235,0.35)' },
+              { offset: 1, color: 'rgba(0,188,235,0)' },
+            ]),
+          },
+        },
+      ],
+    };
+  }
+
+  flipSankeyCard(): void {
+    this.sankeyCardFlipped = !this.sankeyCardFlipped;
+    setTimeout(() => {
+      if (this.sankeyCardFlipped) {
+        this.buildSankeyChart2Step();
+      } else {
+        this.buildSankeyChart();
+      }
+    }, 50);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ── Sankey Diagram (ECharts native) ───────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  private buildSankeyChart(): void {
+    const rows = this.getSummaryRows();
+    if (!rows.length) return;
+
+    // 3-step Sankey: Component → Agent/Ops → Outcome
+    const links: { source: string; target: string; value: number }[] = [];
+    const nodeSet = new Set<string>();
+
+    // Accumulators for step 2 → step 3
+    const agentOutcomes = {
+      inProgress: 0,
+      routedOut: 0,
+      canceled: 0,
+      serviceReqs: 0,
+    };
+    const opsOutcomes = {
+      inProgress: 0,
+      routedOut: 0,
+      canceled: 0,
+      serviceReqs: 0,
+    };
+
+    // Step 1: Component → Agent / Ops
+    for (const row of rows) {
+      const comp = row.sectionName;
+      nodeSet.add(comp);
+      const agentTotal = this.getAgentTotalCases(row);
+      const opsTotal = this.getComponentOpsTotalCases(row);
+
+      if (agentTotal > 0) {
+        links.push({ source: comp, target: 'Agent', value: agentTotal });
+        nodeSet.add('Agent');
+      }
+      if (opsTotal > 0) {
+        links.push({ source: comp, target: 'Ops', value: opsTotal });
+        nodeSet.add('Ops');
+      }
+
+      agentOutcomes.inProgress += row.inProgress.agent ?? 0;
+      agentOutcomes.routedOut += row.routed.agent ?? 0;
+      agentOutcomes.canceled += row.cancelled.agent ?? 0;
+      agentOutcomes.serviceReqs += row.service.agent ?? 0;
+
+      opsOutcomes.inProgress += row.inProgress.ops ?? 0;
+      opsOutcomes.routedOut += row.routed.ops ?? 0;
+      opsOutcomes.canceled += row.cancelled.ops ?? 0;
+      opsOutcomes.serviceReqs += row.service.ops ?? 0;
+    }
+
+    // Step 2: Agent → outcomes
+    if (agentOutcomes.inProgress > 0) {
+      links.push({
+        source: 'Agent',
+        target: 'In Progress',
+        value: agentOutcomes.inProgress,
+      });
+      nodeSet.add('In Progress');
+    }
+    if (agentOutcomes.routedOut > 0) {
+      links.push({
+        source: 'Agent',
+        target: 'Routed Out',
+        value: agentOutcomes.routedOut,
+      });
+      nodeSet.add('Routed Out');
+    }
+    if (agentOutcomes.canceled > 0) {
+      links.push({
+        source: 'Agent',
+        target: 'Canceled',
+        value: agentOutcomes.canceled,
+      });
+      nodeSet.add('Canceled');
+    }
+    if (agentOutcomes.serviceReqs > 0) {
+      links.push({
+        source: 'Agent',
+        target: 'Service Requests',
+        value: agentOutcomes.serviceReqs,
+      });
+      nodeSet.add('Service Requests');
+    }
+
+    // Step 2: Ops → outcomes
+    if (opsOutcomes.inProgress > 0) {
+      links.push({
+        source: 'Ops',
+        target: 'In Progress',
+        value: opsOutcomes.inProgress,
+      });
+      nodeSet.add('In Progress');
+    }
+    if (opsOutcomes.routedOut > 0) {
+      links.push({
+        source: 'Ops',
+        target: 'Routed Out',
+        value: opsOutcomes.routedOut,
+      });
+      nodeSet.add('Routed Out');
+    }
+    if (opsOutcomes.canceled > 0) {
+      links.push({
+        source: 'Ops',
+        target: 'Canceled',
+        value: opsOutcomes.canceled,
+      });
+      nodeSet.add('Canceled');
+    }
+    if (opsOutcomes.serviceReqs > 0) {
+      links.push({
+        source: 'Ops',
+        target: 'Service Requests',
+        value: opsOutcomes.serviceReqs,
+      });
+      nodeSet.add('Service Requests');
+    }
+
+    if (!links.length) return;
+
+    const nodeColors: Record<string, string> = {
+      Agent: '#0070d2',
+      Ops: '#8899a6',
+      'In Progress': '#e6a800',
+      'Routed Out': '#00bceb',
+      Canceled: '#9933ff',
+      'Service Requests': '#6ebe4a',
+    };
+
+    const colorFor = (key: string) => {
+      if (nodeColors[key]) return nodeColors[key];
+      if (this.teamColors[key]) return this.teamColors[key];
+      return '#0070d2';
+    };
+
+    const isDark = this.themeService.isDarkMode;
+    const textColor = isDark ? '#e0e6ed' : '#1b1c1d';
+
+    const data = Array.from(nodeSet).map((name) => ({
+      name,
+      itemStyle: { color: colorFor(name) },
+    }));
+
+    this.chartOptionsMap['sankey3Step'] = {
+      tooltip: {
+        trigger: 'item',
+        triggerOn: 'mousemove',
+        backgroundColor: 'rgba(20,30,40,0.9)',
+        textStyle: { fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif' },
+      },
+      series: [
+        {
+          type: 'sankey',
+          data,
+          links,
+          lineStyle: { color: 'gradient', opacity: 0.4 },
+          label: {
+            color: textColor,
+            fontSize: 9,
+            fontFamily: 'Inter, system-ui, sans-serif',
+          },
+          emphasis: { focus: 'adjacency' },
+          nodeWidth: 20,
+          nodeGap: 10,
+          layoutIterations: 32,
+          draggable: false,
+          left: '2%',
+          right: '15%',
+          top: '5%',
+          bottom: '5%',
+        },
+      ],
+    } as EChartsOption;
+  }
+
+  /** 2-step Sankey: Component → Outcomes directly (ECharts) */
+  private buildSankeyChart2Step(): void {
+    const rows = this.getSummaryRows();
+    if (!rows.length) return;
+
+    const links: { source: string; target: string; value: number }[] = [];
+    const nodeSet = new Set<string>();
+
+    for (const row of rows) {
+      const comp = row.sectionName;
+      nodeSet.add(comp);
+      const inProg = row.inProgress.total ?? 0;
+      const routed = row.routed.total ?? 0;
+      const cancelled = row.cancelled.total ?? 0;
+      const service = row.service.total ?? 0;
+
+      if (inProg > 0) {
+        links.push({ source: comp, target: 'In Progress', value: inProg });
+        nodeSet.add('In Progress');
+      }
+      if (routed > 0) {
+        links.push({ source: comp, target: 'Routed Out', value: routed });
+        nodeSet.add('Routed Out');
+      }
+      if (cancelled > 0) {
+        links.push({ source: comp, target: 'Canceled', value: cancelled });
+        nodeSet.add('Canceled');
+      }
+      if (service > 0) {
+        links.push({
+          source: comp,
+          target: 'Service Requests',
+          value: service,
+        });
+        nodeSet.add('Service Requests');
+      }
+    }
+
+    if (!links.length) return;
+
+    const outcomeColors: Record<string, string> = {
+      'In Progress': '#e6a800',
+      'Routed Out': '#00bceb',
+      Canceled: '#9933ff',
+      'Service Requests': '#6ebe4a',
+    };
+
+    const colorFor = (key: string) => {
+      if (outcomeColors[key]) return outcomeColors[key];
+      if (this.teamColors[key]) return this.teamColors[key];
+      return '#0070d2';
+    };
+
+    const isDark = this.themeService.isDarkMode;
+    const textColor = isDark ? '#e0e6ed' : '#1b1c1d';
+
+    const data = Array.from(nodeSet).map((name) => ({
+      name,
+      itemStyle: { color: colorFor(name) },
+    }));
+
+    this.chartOptionsMap['sankey2Step'] = {
+      tooltip: {
+        trigger: 'item',
+        triggerOn: 'mousemove',
+        backgroundColor: 'rgba(20,30,40,0.9)',
+        textStyle: { fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif' },
+      },
+      series: [
+        {
+          type: 'sankey',
+          data,
+          links,
+          lineStyle: { color: 'gradient', opacity: 0.4 },
+          label: {
+            color: textColor,
+            fontSize: 9,
+            fontFamily: 'Inter, system-ui, sans-serif',
+          },
+          emphasis: { focus: 'adjacency' },
+          nodeWidth: 20,
+          nodeGap: 10,
+          layoutIterations: 32,
+          draggable: false,
+          left: '2%',
+          right: '15%',
+          top: '5%',
+          bottom: '5%',
+        },
+      ],
+    } as EChartsOption;
   }
 }

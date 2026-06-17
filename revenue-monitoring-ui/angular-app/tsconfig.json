@@ -9,6 +9,7 @@
     },
     "forceConsistentCasingInFileNames": true,
     "strict": false,
+    "skipLibCheck": true,
     "esModuleInterop": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,

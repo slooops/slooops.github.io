@@ -85,6 +85,9 @@ export class EspHomeComponent implements OnInit {
   activeTab: string = ''; // Will be set based on user roles
   overallAccuracy: string = '';
 
+  // CaseIQ context switcher (Operations / Executive)
+  caseiqView: 'ops' | 'executive' = 'ops';
+
   // Quarter filter properties
   selectedQuarter: string = '';
   showQuarterDropdown: boolean = false;
