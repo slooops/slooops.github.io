@@ -328,6 +328,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.userName = this.authService.getUserName();
     this.userId = this.authService.getUserID();
     this.userRoles = this.authService.getUserAccessRoles();
+    console.log(this.userRoles);
     this.chatApiUrl = this.authService.getControlTowerSupportAgentApiUrl();
     this.isAdmin$ = this.userRoles.includes('ADMIN');
     this.searchContextService.o2cSearchVisible$.subscribe((isVisible) => {
