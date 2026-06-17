@@ -1,5 +1,4 @@
 import {
-  AfterViewChecked,
   Component,
   computed,
   ElementRef,
@@ -33,7 +32,25 @@ import { AuthenticationService } from '../providers/authentication.service';
 import { ApiHttpService } from '../providers/http.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ThemeService } from '../providers/theme.service';
-import { Chart } from 'chart.js/auto';
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import * as echarts from 'echarts/core';
+import { BarChart, LineChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import type { EChartsOption } from 'echarts';
+
+echarts.use([
+  BarChart,
+  LineChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  CanvasRenderer,
+]);
 
 interface RoleRouteMap {
   roles: string[];
@@ -133,8 +150,9 @@ export interface StatMetric {
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, NgIcon, ArcProgressComponent],
+  imports: [CommonModule, NgIcon, ArcProgressComponent, NgxEchartsDirective],
   providers: [
+    provideEchartsCore({ echarts }),
     provideIcons({
       phosphorShieldCheckDuotone,
       phosphorCalendarCheckDuotone,
@@ -157,7 +175,7 @@ export interface StatMetric {
     './landing-context3.css',
   ],
 })
-export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class LandingComponent implements OnInit, OnDestroy {
   private destroyManager = new DestroyManager();
   private refreshInterval: ReturnType<typeof setInterval> | null = null;
   private readonly REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
@@ -329,20 +347,11 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
     [],
   );
 
-  // Context 2: Chart instances
-  @ViewChild('ctx2WeeklyTeamCanvas')
-  ctx2WeeklyTeamCanvas?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('ctx2HourlyCanvas')
-  ctx2HourlyCanvas?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('ctx2TxnFailuresCanvas')
-  ctx2TxnFailuresCanvas?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('ctx2EspCasesCanvas')
-  ctx2EspCasesCanvas?: ElementRef<HTMLCanvasElement>;
-  private ctx2WeeklyTeamChart: Chart | null = null;
-  private ctx2HourlyChart: Chart | null = null;
-  private ctx2TxnFailuresChart: Chart | null = null;
-  private ctx2EspCasesChart: Chart | null = null;
-  private ctx2ChartsBuilt = false;
+  // Context 2: ECharts options
+  ctx2WeeklyTeamOption = signal<EChartsOption | null>(null);
+  ctx2HourlyOption = signal<EChartsOption | null>(null);
+  ctx2TxnFailuresOption = signal<EChartsOption | null>(null);
+  ctx2EspCasesOption = signal<EChartsOption | null>(null);
   private ctx2RawTxnFailures: any[] = [];
   private ctx2RawEspCases: any[] = [];
   private ctx2RawIssuesDist: any[] = [];
@@ -414,15 +423,10 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
     { label: 'Total Orders', value: '--', sub: '', color: '#e6a800' },
   ]);
 
-  // Context 3: chart canvas refs + chart instances
+  // Context 3: chart options
   @ViewChild('ctxStage') ctxStageEl?: ElementRef<HTMLDivElement>;
-  @ViewChild('ctx3AccountChart')
-  ctx3AccountChartCanvas?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('ctx3RevenueChart')
-  ctx3RevenueChartCanvas?: ElementRef<HTMLCanvasElement>;
-  private ctx3AccountChart: Chart | null = null;
-  private ctx3RevenueChart: Chart | null = null;
-  private ctx3ChartsBuilt = false;
+  ctx3AccountOption = signal<EChartsOption | null>(null);
+  ctx3RevenueOption = signal<EChartsOption | null>(null);
 
   /** IT Operations 360 cards */
   private readonly itOpsAllCards: LandingCard[] = [
@@ -774,27 +778,6 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   /** Switch the active cockpit context */
   setContext(ctx: number): void {
-    // Tear down ctx2 charts whenever we leave ctx2 (canvases will be removed from DOM)
-    if (this.activeContext() === 2 && ctx !== 2) {
-      this.ctx2WeeklyTeamChart?.destroy();
-      this.ctx2WeeklyTeamChart = null;
-      this.ctx2HourlyChart?.destroy();
-      this.ctx2HourlyChart = null;
-      this.ctx2TxnFailuresChart?.destroy();
-      this.ctx2TxnFailuresChart = null;
-      this.ctx2EspCasesChart?.destroy();
-      this.ctx2EspCasesChart = null;
-      this.ctx2ChartsBuilt = false;
-    }
-    // Tear down ctx3 charts whenever we leave ctx3
-    if (this.activeContext() === 3 && ctx !== 3) {
-      this.ctx3AccountChart?.destroy();
-      this.ctx3AccountChart = null;
-      this.ctx3RevenueChart?.destroy();
-      this.ctx3RevenueChart = null;
-      this.ctx3ChartsBuilt = false;
-    }
-
     // Animate the stage height so card-sections below rise/fall smoothly
     const el = this.ctxStageEl?.nativeElement;
     if (el) {
@@ -832,15 +815,6 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
           }, 450);
         });
       });
-    }
-  }
-
-  ngAfterViewChecked(): void {
-    if (this.activeContext() === 2 && !this.ctx2ChartsBuilt) {
-      this.buildCtx2Charts();
-    }
-    if (this.activeContext() === 3 && !this.ctx3ChartsBuilt) {
-      this.buildCtx3Charts();
     }
   }
 
@@ -1075,8 +1049,11 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.destroyManager,
       )
       .subscribe((d: any) => {
-        this.ctx2WeeklyTeamData.set(Array.isArray(d) ? d : []);
-        this.ctx2ChartsBuilt = false;
+        const data = Array.isArray(d) ? d : [];
+        this.ctx2WeeklyTeamData.set(data);
+        this.ctx2WeeklyTeamOption.set(
+          data.length ? this.buildCtx2WeeklyTeamOption(data) : null,
+        );
       });
 
     // Hourly case pattern
@@ -1086,8 +1063,11 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.destroyManager,
       )
       .subscribe((d: any) => {
-        this.ctx2HourlyData.set(Array.isArray(d) ? d : []);
-        this.ctx2ChartsBuilt = false;
+        const data = Array.isArray(d) ? d : [];
+        this.ctx2HourlyData.set(data);
+        this.ctx2HourlyOption.set(
+          data.length ? this.buildCtx2HourlyOption(data) : null,
+        );
       });
 
     // Transaction failures (home endpoint)
@@ -1096,7 +1076,11 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
       .subscribe((d: any) => {
         this.ctx2RawTxnFailures = Array.isArray(d) ? d : [];
         this.ctx2TxnFailuresLoading.set(false);
-        this.ctx2ChartsBuilt = false;
+        this.ctx2TxnFailuresOption.set(
+          this.ctx2RawTxnFailures.length
+            ? this.buildCtx2TxnFailuresOption(this.ctx2RawTxnFailures)
+            : null,
+        );
       });
 
     // ESP cases (home endpoint)
@@ -1105,7 +1089,11 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
       .subscribe((d: any) => {
         this.ctx2RawEspCases = Array.isArray(d) ? d : [];
         this.ctx2EspCasesLoading.set(false);
-        this.ctx2ChartsBuilt = false;
+        this.ctx2EspCasesOption.set(
+          this.ctx2RawEspCases.length
+            ? this.buildCtx2EspCasesOption(this.ctx2RawEspCases)
+            : null,
+        );
       });
 
     // Issue distribution (home endpoint)
@@ -1189,55 +1177,6 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.ctx2ServiceIncidents.set(Number(financeIT.SERVICE_INCIDENTS ?? 0));
   }
 
-  /** Build all Context 2 Chart.js charts */
-  private buildCtx2Charts(): void {
-    let anyBuilt = false;
-
-    // Weekly Team chart
-    if (
-      this.ctx2WeeklyTeamCanvas?.nativeElement &&
-      this.ctx2WeeklyTeamData().length > 0 &&
-      !this.ctx2WeeklyTeamChart
-    ) {
-      this.buildCtx2WeeklyTeamChart();
-      anyBuilt = true;
-    }
-
-    // Hourly chart
-    if (
-      this.ctx2HourlyCanvas?.nativeElement &&
-      this.ctx2HourlyData().length > 0 &&
-      !this.ctx2HourlyChart
-    ) {
-      this.buildCtx2HourlyChart();
-      anyBuilt = true;
-    }
-
-    // Transaction Failures chart
-    if (
-      this.ctx2TxnFailuresCanvas?.nativeElement &&
-      this.ctx2RawTxnFailures.length > 0 &&
-      !this.ctx2TxnFailuresChart
-    ) {
-      this.buildCtx2TxnFailuresChart();
-      anyBuilt = true;
-    }
-
-    // ESP Cases chart
-    if (
-      this.ctx2EspCasesCanvas?.nativeElement &&
-      this.ctx2RawEspCases.length > 0 &&
-      !this.ctx2EspCasesChart
-    ) {
-      this.buildCtx2EspCasesChart();
-      anyBuilt = true;
-    }
-
-    if (anyBuilt || (this.ctx2WeeklyTeamChart && this.ctx2HourlyChart)) {
-      this.ctx2ChartsBuilt = true;
-    }
-  }
-
   private readonly ctx2TeamColors: Record<string, string> = {
     'Finance IT': '#0070d2',
     OM: '#00bceb',
@@ -1249,13 +1188,10 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
     CAPITAL: '#00d4aa',
   };
 
-  private buildCtx2WeeklyTeamChart(): void {
-    const canvas = this.ctx2WeeklyTeamCanvas?.nativeElement;
-    if (!canvas) return;
-
+  private buildCtx2WeeklyTeamOption(rows: any[]): EChartsOption {
     const weekMap = new Map<number, Map<string, number>>();
     const teams = new Set<string>();
-    for (const row of this.ctx2WeeklyTeamData()) {
+    for (const row of rows) {
       const week = row.WEEK_NUMBER;
       const team = row.TEAM_NAME;
       if (week == null || !team) continue;
@@ -1267,94 +1203,67 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
     const weeks = Array.from({ length: 13 }, (_, i) => i + 1);
     const labels = weeks.map((w) => `Week ${w}`);
 
-    const datasets = Array.from(teams)
+    const series = Array.from(teams)
       .filter((t) => t !== 'UNKNOWN')
       .sort((a, b) => a.localeCompare(b))
       .map((team) => {
         const hex = this.ctx2TeamColors[team] ?? '#555555';
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
         return {
-          label: team,
+          name: team,
+          type: 'line' as const,
+          smooth: true,
           data: weeks.map((w) => weekMap.get(w)?.get(team) ?? 0),
-          borderColor: hex,
-          backgroundColor: (ctx: any) => {
-            const chart = ctx.chart;
-            const { ctx: canvasCtx, chartArea } = chart;
-            if (!chartArea) return `rgba(${r}, ${g}, ${b}, 0.1)`;
-            const gradient = canvasCtx.createLinearGradient(
-              0,
-              chartArea.top,
-              0,
-              chartArea.bottom,
-            );
-            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.25)`);
-            gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
-            return gradient;
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: { width: 2.5, color: hex },
+          itemStyle: { color: '#f2f6f9', borderColor: hex, borderWidth: 2 },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: `${hex}40` },
+              { offset: 1, color: `${hex}00` },
+            ]),
           },
-          borderWidth: 2.5,
-          pointBackgroundColor: '#ffffff',
-          pointBorderColor: hex,
-          pointBorderWidth: 2,
-          pointRadius: 3,
-          pointHoverRadius: 5.5,
-          tension: 0.4,
-          fill: true,
         };
       });
 
-    this.ctx2WeeklyTeamChart = new Chart(canvas, {
-      type: 'line',
-      data: { labels, datasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { intersect: false, mode: 'index' },
-        plugins: {
-          legend: {
-            display: true,
-            position: 'bottom',
-            labels: { boxWidth: 10, font: { size: 10 }, padding: 12 },
-          },
-          tooltip: {
-            backgroundColor: 'rgba(20, 30, 40, 0.9)',
-            titleFont: { size: 10 },
-            bodyFont: { size: 11 },
-            borderColor: 'rgba(0, 188, 235, 0.3)',
-            borderWidth: 1,
-            cornerRadius: 10,
-            padding: 8,
-          },
-        },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: {
-              font: { size: 9 },
-              maxRotation: 45,
-              autoSkip: true,
-              maxTicksLimit: 12,
-            },
-            border: { display: false },
-          },
-          y: {
-            grid: { color: 'rgba(0,0,0,0.04)' },
-            ticks: { font: { size: 10 }, maxTicksLimit: 5 },
-            border: { display: false },
-            beginAtZero: true,
-          },
-        },
+    return {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(20, 30, 40, 0.9)',
+        borderColor: 'rgba(0, 188, 235, 0.3)',
+        borderWidth: 1,
+        textStyle: { color: '#fff', fontSize: 11 },
       },
-    });
+      legend: {
+        bottom: 0,
+        itemWidth: 10,
+        itemHeight: 10,
+        textStyle: { fontSize: 10 },
+      },
+      grid: { left: 8, right: 8, top: 10, bottom: 42, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLabel: { fontSize: 9, rotate: 45 },
+        splitLine: { show: false },
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        axisLabel: { fontSize: 10 },
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } },
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      series,
+    };
   }
 
-  private buildCtx2HourlyChart(): void {
-    const canvas = this.ctx2HourlyCanvas?.nativeElement;
-    if (!canvas) return;
-
+  private buildCtx2HourlyOption(rows: any[]): EChartsOption {
     const hourMap = new Map<number, number>();
-    for (const row of this.ctx2HourlyData()) {
+    for (const row of rows) {
       hourMap.set(row.HOUR_OF_DAY, row.CASE_COUNT);
     }
     const currentHour = new Date().getHours();
@@ -1370,85 +1279,60 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
       return `${display}${suffix}`;
     });
 
-    this.ctx2HourlyChart = new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
-            data: values,
+    return {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(20, 30, 40, 0.85)',
+        borderColor: 'rgba(0, 188, 235, 0.3)',
+        borderWidth: 1,
+        formatter: (params: any) => {
+          const point = Array.isArray(params) ? params[0] : params;
+          return `${point?.axisValue ?? ''} UTC<br/>${Number(point?.data ?? 0).toLocaleString()} cases`;
+        },
+      },
+      legend: { show: false },
+      grid: { left: 8, right: 8, top: 10, bottom: 24, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLabel: { fontSize: 9 },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        axisLabel: { fontSize: 10 },
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } },
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      series: [
+        {
+          type: 'line',
+          data: values,
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: { width: 2.5, color: '#00bceb' },
+          itemStyle: {
+            color: '#f2f6f9',
             borderColor: '#00bceb',
-            borderWidth: 2.5,
-            pointBackgroundColor: '#f2f6f9',
-            pointBorderColor: '#00bceb',
-            pointBorderWidth: 2,
-            pointRadius: 3,
-            pointHoverRadius: 5.5,
-            tension: 0.4,
-            fill: true,
-            backgroundColor: (ctx: any) => {
-              const chart = ctx.chart;
-              const { ctx: canvasCtx, chartArea } = chart;
-              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
-              const gradient = canvasCtx.createLinearGradient(
-                0,
-                chartArea.top,
-                0,
-                chartArea.bottom,
-              );
-              gradient.addColorStop(0, 'rgba(0, 188, 235, 0.35)');
-              gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
-              return gradient;
-            },
+            borderWidth: 2,
           },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { intersect: false, mode: 'index' },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: 'rgba(20, 30, 40, 0.85)',
-            borderColor: 'rgba(0, 188, 235, 0.3)',
-            borderWidth: 1,
-            cornerRadius: 10,
-            displayColors: false,
-            callbacks: {
-              title: (items) =>
-                items[0]?.label ? `${items[0].label} UTC` : '',
-              label: (item) => item.parsed.y.toLocaleString() + ' cases',
-            },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(0, 188, 235, 0.35)' },
+              { offset: 1, color: 'rgba(0, 188, 235, 0)' },
+            ]),
           },
         },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: {
-              font: { size: 9 },
-              maxRotation: 0,
-              autoSkip: true,
-              maxTicksLimit: 6,
-            },
-            border: { display: false },
-          },
-          y: {
-            grid: { color: 'rgba(0,0,0,0.04)' },
-            ticks: { font: { size: 10 }, maxTicksLimit: 5 },
-            border: { display: false },
-            beginAtZero: true,
-          },
-        },
-      },
-    });
+      ],
+    };
   }
 
-  private buildCtx2TxnFailuresChart(): void {
-    const canvas = this.ctx2TxnFailuresCanvas?.nativeElement;
-    const ctx = canvas?.getContext('2d');
-    if (!ctx || !canvas || this.ctx2RawTxnFailures.length === 0) return;
-
+  private buildCtx2TxnFailuresOption(rawRows: any[]): EChartsOption {
     // Same parsing as home.component's applyTransactionFailuresQuarterFilter
     const qtr = this.fiscalQuarter() || '';
     const weekMap = new Map<
@@ -1461,8 +1345,8 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     >();
     const filtered = qtr
-      ? this.ctx2RawTxnFailures.filter((r: any) => r.QUARTER === qtr)
-      : this.ctx2RawTxnFailures;
+      ? rawRows.filter((r: any) => r.QUARTER === qtr)
+      : rawRows;
 
     filtered.forEach((item: any) => {
       const weekLabel = `Week ${item.WEEK_NUMBER}`;
@@ -1503,83 +1387,21 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
       (w) => (weekMap.get(w) || def).resolvedAgent,
     );
 
-    const sum = (arr: number[]) => arr.reduce((s, v) => s + v, 0);
-    const purpleGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    purpleGrad.addColorStop(0, 'rgba(153,51,255,0.5)');
-    purpleGrad.addColorStop(1, 'rgba(153,51,255,0)');
-    const greenGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    greenGrad.addColorStop(0, 'rgba(110,190,74,0.5)');
-    greenGrad.addColorStop(1, 'rgba(110,190,74,0)');
-
-    this.ctx2TxnFailuresChart?.destroy();
-    this.ctx2TxnFailuresChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: fixedWeeks,
-        datasets: [
-          {
-            type: 'bar' as any,
-            label: `Total Issues (${sum(totalIssues).toLocaleString()})`,
-            data: totalIssues,
-            backgroundColor: '#909ca8ef',
-            borderColor: '#d3d6d966',
-            borderWidth: 1,
-            barPercentage: 0.7,
-            categoryPercentage: 0.8,
-            order: 2,
-          },
-          {
-            type: 'bar' as any,
-            label: `In Progress (${sum(inProgress).toLocaleString()})`,
-            data: inProgress,
-            backgroundColor: '#f39c12',
-            borderColor: '#f39c12',
-            borderWidth: 1,
-            barPercentage: 0.7,
-            categoryPercentage: 0.8,
-            order: 2,
-          },
-          {
-            type: 'line' as any,
-            label: `Resolved (Ops) (${sum(resolvedOps).toLocaleString()})`,
-            data: resolvedOps,
-            borderColor: '#9933ff',
-            backgroundColor: purpleGrad,
-            pointBackgroundColor: '#f2f6f9',
-            pointBorderColor: '#9933ff',
-            pointBorderWidth: 2,
-            tension: 0.25,
-            pointRadius: 3,
-            borderWidth: 2.5,
-            fill: 'origin' as any,
-            order: 1,
-          },
-          {
-            type: 'line' as any,
-            label: `Resolved (Agent) (${sum(resolvedAgent).toLocaleString()})`,
-            data: resolvedAgent,
-            borderColor: '#6ebe4a',
-            backgroundColor: greenGrad,
-            pointBackgroundColor: '#f2f6f9',
-            pointBorderColor: '#6ebe4a',
-            pointBorderWidth: 2,
-            tension: 0.25,
-            pointRadius: 3,
-            borderWidth: 2.5,
-            fill: 'origin' as any,
-            order: 1,
-          },
-        ],
+    return this.buildCtx2MixedOption(
+      fixedWeeks,
+      {
+        total: totalIssues,
+        inProgress,
+        resolvedOps,
+        resolvedAgent,
       },
-      options: this.ctx2MixedChartOptions(),
-    });
+      {
+        totalLabel: 'Total Issues',
+      },
+    );
   }
 
-  private buildCtx2EspCasesChart(): void {
-    const canvas = this.ctx2EspCasesCanvas?.nativeElement;
-    const ctx = canvas?.getContext('2d');
-    if (!ctx || !canvas || this.ctx2RawEspCases.length === 0) return;
-
+  private buildCtx2EspCasesOption(rawRows: any[]): EChartsOption {
     // Same parsing as home.component's applyEspCasesQuarterFilter
     const qtr = this.fiscalQuarter() || '';
     const weekMap = new Map<
@@ -1592,8 +1414,8 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     >();
     const filtered = qtr
-      ? this.ctx2RawEspCases.filter((r: any) => r.FISCAL_QTR === qtr)
-      : this.ctx2RawEspCases;
+      ? rawRows.filter((r: any) => r.FISCAL_QTR === qtr)
+      : rawRows;
 
     filtered.forEach((item: any) => {
       const weekNum = Number(item.WEEK_NUMBER) || 0;
@@ -1625,135 +1447,137 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
       (_, i) => (weekMap.get(i + 1) || def).inProgress,
     );
 
-    const sum = (arr: number[]) => arr.reduce((s, v) => s + v, 0);
-    const purpleGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    purpleGrad.addColorStop(0, 'rgba(153,51,255,0.55)');
-    purpleGrad.addColorStop(1, 'rgba(153,51,255,0)');
-    const greenGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    greenGrad.addColorStop(0, 'rgba(110,190,74,0.55)');
-    greenGrad.addColorStop(1, 'rgba(110,190,74,0)');
-
-    this.ctx2EspCasesChart?.destroy();
-    this.ctx2EspCasesChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: fixedWeeks,
-        datasets: [
-          {
-            type: 'bar' as any,
-            label: `Total Cases (${sum(totalCases).toLocaleString()})`,
-            data: totalCases,
-            backgroundColor: '#9baab8',
-            borderColor: '#9baab8',
-            borderWidth: 1,
-            barPercentage: 0.7,
-            categoryPercentage: 0.8,
-            order: 2,
-          },
-          {
-            type: 'bar' as any,
-            label: `In Progress (${sum(inProgress).toLocaleString()})`,
-            data: inProgress,
-            backgroundColor: '#f39c12',
-            borderColor: '#f39c12',
-            borderWidth: 1,
-            barPercentage: 0.7,
-            categoryPercentage: 0.8,
-            order: 2,
-          },
-          {
-            type: 'line' as any,
-            label: `Resolved (Ops) (${sum(resolvedOps).toLocaleString()})`,
-            data: resolvedOps,
-            borderColor: '#9933ff',
-            backgroundColor: purpleGrad,
-            pointBackgroundColor: '#f2f6f9',
-            pointBorderColor: '#9933ff',
-            pointBorderWidth: 2,
-            tension: 0.25,
-            pointRadius: 3,
-            borderWidth: 2.5,
-            fill: 'origin' as any,
-            order: 1,
-          },
-          {
-            type: 'line' as any,
-            label: `Resolved (Agent) (${sum(resolvedAgent).toLocaleString()})`,
-            data: resolvedAgent,
-            borderColor: '#6ebe4a',
-            backgroundColor: greenGrad,
-            pointBackgroundColor: '#f2f6f9',
-            pointBorderColor: '#6ebe4a',
-            pointBorderWidth: 2,
-            tension: 0.25,
-            pointRadius: 3,
-            borderWidth: 2.5,
-            fill: 'origin' as any,
-            order: 1,
-          },
-        ],
+    return this.buildCtx2MixedOption(
+      fixedWeeks,
+      {
+        total: totalCases,
+        inProgress,
+        resolvedOps,
+        resolvedAgent,
       },
-      options: this.ctx2MixedChartOptions(),
-    });
+      {
+        totalLabel: 'Total Cases',
+      },
+    );
   }
 
-  private ctx2MixedChartOptions(): any {
+  private buildCtx2MixedOption(
+    labels: string[],
+    data: {
+      total: number[];
+      inProgress: number[];
+      resolvedOps: number[];
+      resolvedAgent: number[];
+    },
+    opts: { totalLabel: string },
+  ): EChartsOption {
+    const sum = (arr: number[]) => arr.reduce((s, v) => s + v, 0);
+
     return {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'nearest', intersect: false },
-      plugins: {
-        legend: {
-          display: true,
-          position: 'top',
-          align: 'center',
-          labels: {
-            usePointStyle: true,
-            pointStyle: 'circle',
-            boxWidth: 8,
-            boxHeight: 8,
-            padding: 12,
-            font: { size: 10 },
-          },
-        },
-        tooltip: {
-          enabled: true,
-          displayColors: true,
-          backgroundColor: '#222',
-          titleColor: '#fff',
-          bodyColor: '#fff',
-          padding: 8,
-          cornerRadius: 4,
-          mode: 'index',
-          intersect: false,
-          callbacks: {
-            label: (c: any) =>
-              (c.dataset.label || '').replace(/\s*\([\d,]+\)\s*$/, '') +
-              ': ' +
-              (c.parsed.y ?? c.raw),
-          },
-        },
-        datalabels: { display: false },
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          border: { display: false },
-          ticks: {
-            font: { size: 9 },
-            maxRotation: 45,
-            minRotation: 45,
-            autoSkip: false,
-            callback: (_: any, i: number) => `Week ${i + 1}`,
-          },
-        },
-        y: {
-          beginAtZero: true,
-          border: { display: false },
-          grid: { color: 'rgba(0,0,0,0.04)', lineWidth: 1 },
-          ticks: { font: { size: 10 } },
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#222',
+        textStyle: { color: '#fff' },
+        formatter: (params: any) => {
+          const rows = (params as any[])
+            .map((p) => {
+              const name = String(p.seriesName).replace(
+                /\s*\([\d,]+\)\s*$/,
+                '',
+              );
+              return `${p.marker} ${name}: ${Number(p.value ?? 0).toLocaleString()}`;
+            })
+            .join('<br/>');
+          const title =
+            Array.isArray(params) && params[0] ? params[0].axisValue : '';
+          return `${title}<br/>${rows}`;
         },
       },
+      legend: {
+        top: 0,
+        icon: 'circle',
+        itemWidth: 8,
+        itemHeight: 8,
+        itemGap: 12,
+        textStyle: { fontSize: 10 },
+      },
+      grid: { left: 8, right: 8, top: 28, bottom: 28, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLabel: { fontSize: 9, rotate: 45 },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        axisLabel: { fontSize: 10 },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } },
+      },
+      series: [
+        {
+          name: `${opts.totalLabel} (${sum(data.total).toLocaleString()})`,
+          type: 'bar',
+          data: data.total,
+          barMaxWidth: 18,
+          itemStyle: { color: '#909ca8ef', borderRadius: [4, 4, 0, 0] },
+          z: 1,
+        },
+        {
+          name: `In Progress (${sum(data.inProgress).toLocaleString()})`,
+          type: 'bar',
+          data: data.inProgress,
+          barMaxWidth: 18,
+          itemStyle: { color: '#f39c12', borderRadius: [4, 4, 0, 0] },
+          z: 2,
+        },
+        {
+          name: `Resolved (Ops) (${sum(data.resolvedOps).toLocaleString()})`,
+          type: 'line',
+          data: data.resolvedOps,
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: { color: '#9933ff', width: 2.5 },
+          itemStyle: {
+            color: '#f2f6f9',
+            borderColor: '#9933ff',
+            borderWidth: 2,
+          },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(153,51,255,0.55)' },
+              { offset: 1, color: 'rgba(153,51,255,0)' },
+            ]),
+          },
+          z: 4,
+        },
+        {
+          name: `Resolved (Agent) (${sum(data.resolvedAgent).toLocaleString()})`,
+          type: 'line',
+          data: data.resolvedAgent,
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: { color: '#6ebe4a', width: 2.5 },
+          itemStyle: {
+            color: '#f2f6f9',
+            borderColor: '#6ebe4a',
+            borderWidth: 2,
+          },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(110,190,74,0.55)' },
+              { offset: 1, color: 'rgba(110,190,74,0)' },
+            ]),
+          },
+          z: 5,
+        },
+      ],
     };
   }
 
@@ -1825,7 +1649,11 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.ctx3RawRevSummary = Array.isArray(data) ? data : [];
         this.updateCtx3Kpis();
         this.updateCtx3Dials();
-        this.ctx3ChartsBuilt = false; // force rebuild
+        this.ctx3RevenueOption.set(
+          this.ctx3RawRevSummary.length
+            ? this.buildCtx3RevenueOption(this.ctx3RawRevSummary)
+            : null,
+        );
       });
 
     // 2) By Program
@@ -1841,7 +1669,11 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
       .get('large-deal-summary-account', this.destroyManager)
       .subscribe((data: any) => {
         this.ctx3RawByAccount = Array.isArray(data) ? data : [];
-        this.ctx3ChartsBuilt = false; // force rebuild
+        this.ctx3AccountOption.set(
+          this.ctx3RawByAccount.length
+            ? this.buildCtx3AccountOption(this.ctx3RawByAccount)
+            : null,
+        );
       });
   }
 
@@ -1997,34 +1829,8 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
     ]);
   }
 
-  private buildCtx3Charts(): void {
-    let anyBuilt = false;
-
-    // Stacked bar: Orders by Account colored by Status
-    if (
-      this.ctx3AccountChartCanvas?.nativeElement &&
-      this.ctx3RawByAccount.length > 0 &&
-      !this.ctx3AccountChart
-    ) {
-      this.buildCtx3AccountChart();
-      anyBuilt = true;
-    }
-
-    // Revenue bar: Order Value by Account
-    if (
-      this.ctx3RevenueChartCanvas?.nativeElement &&
-      this.ctx3RawRevSummary.length > 0 &&
-      !this.ctx3RevenueChart
-    ) {
-      this.buildCtx3RevenueChart();
-      anyBuilt = true;
-    }
-
-    if (anyBuilt) this.ctx3ChartsBuilt = true;
-  }
-
-  private buildCtx3AccountChart(): void {
-    const raw = this.ctx3RawByAccount.filter(
+  private buildCtx3AccountOption(rawInput: any[]): EChartsOption {
+    const raw = rawInput.filter(
       (r) => !/^(total|sub total)/i.test((r.ACCOUNT ?? '').trim()),
     );
     const accounts = [...new Set(raw.map((r) => r.ACCOUNT))];
@@ -2037,55 +1843,57 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
       'Order Not Booked Yet': '#9933ff',
     };
 
-    const datasets = statuses.map((status) => ({
-      label: status,
+    const series = statuses.map((status) => ({
+      name: status,
+      type: 'bar' as const,
+      stack: 'total',
       data: accounts.map((acc) => {
         const row = raw.find((r) => r.ACCOUNT === acc && r.STATUS === status);
         return row ? row.ORDER_COUNT : 0;
       }),
-      backgroundColor: statusColors[status] ?? '#8899a6',
-      borderRadius: 4,
+      barMaxWidth: 24,
+      itemStyle: {
+        color: statusColors[status] ?? '#8899a6',
+        borderRadius: [4, 4, 0, 0],
+      },
     }));
 
-    this.ctx3AccountChart = new Chart(
-      this.ctx3AccountChartCanvas!.nativeElement,
-      {
-        type: 'bar',
-        data: { labels: accounts, datasets },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: { intersect: false, mode: 'index' },
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: { boxWidth: 10, font: { size: 10 } },
-            },
-            tooltip: {
-              backgroundColor: 'rgba(20, 30, 40, 0.9)',
-              cornerRadius: 8,
-            },
-          },
-          scales: {
-            x: {
-              stacked: true,
-              ticks: { font: { size: 9 }, maxRotation: 30 },
-              grid: { display: false },
-            },
-            y: {
-              stacked: true,
-              beginAtZero: true,
-              ticks: { font: { size: 10 } },
-              grid: { color: 'rgba(128,128,128,0.1)' },
-            },
-          },
-        },
+    return {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
+        backgroundColor: 'rgba(20, 30, 40, 0.9)',
+        textStyle: { color: '#fff', fontSize: 11 },
       },
-    );
+      legend: {
+        bottom: 0,
+        icon: 'circle',
+        itemWidth: 10,
+        itemHeight: 10,
+        textStyle: { fontSize: 10 },
+      },
+      grid: { left: 8, right: 8, top: 10, bottom: 38, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: accounts,
+        axisLabel: { fontSize: 9, rotate: 30 },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        axisLabel: { fontSize: 10 },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: { lineStyle: { color: 'rgba(128,128,128,0.1)' } },
+      },
+      series,
+    };
   }
 
-  private buildCtx3RevenueChart(): void {
-    const data = this.ctx3RawRevSummary;
+  private buildCtx3RevenueOption(data: any[]): EChartsOption {
     // Aggregate revenue by account
     const accountMap = new Map<
       string,
@@ -2109,63 +1917,54 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewChecked {
     );
     const values = accounts.map((a) => accountMap.get(a)!.value / 1_000_000); // in $M
 
-    this.ctx3RevenueChart = new Chart(
-      this.ctx3RevenueChartCanvas!.nativeElement,
-      {
-        type: 'bar',
-        data: {
-          labels: accounts,
-          datasets: [
-            {
-              label: 'Order Value ($M)',
-              data: values,
-              backgroundColor: 'rgba(0, 112, 210, 0.7)',
-              borderColor: '#0070d2',
-              borderWidth: 1,
-              borderRadius: 4,
-            },
-          ],
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: 'rgba(20, 30, 40, 0.9)',
-              cornerRadius: 8,
-              callbacks: {
-                label: (item) => `$${(item.raw as number).toFixed(1)}M`,
-              },
-            },
-          },
-          scales: {
-            x: {
-              beginAtZero: true,
-              ticks: { font: { size: 10 }, callback: (v) => '$' + v + 'M' },
-              grid: { color: 'rgba(128,128,128,0.1)' },
-            },
-            y: {
-              ticks: { font: { size: 10 } },
-              grid: { display: false },
-            },
-          },
+    return {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
+        backgroundColor: 'rgba(20, 30, 40, 0.9)',
+        textStyle: { color: '#fff', fontSize: 11 },
+        formatter: (params: any) => {
+          const p = Array.isArray(params) ? params[0] : params;
+          return `${p?.name ?? ''}<br/>$${Number(p?.value ?? 0).toFixed(1)}M`;
         },
       },
-    );
+      grid: { left: 8, right: 8, top: 10, bottom: 22, containLabel: true },
+      xAxis: {
+        type: 'value',
+        min: 0,
+        axisLabel: { fontSize: 10, formatter: '${value}M' },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: { lineStyle: { color: 'rgba(128,128,128,0.1)' } },
+      },
+      yAxis: {
+        type: 'category',
+        data: accounts,
+        axisLabel: { fontSize: 10 },
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      series: [
+        {
+          name: 'Order Value ($M)',
+          type: 'bar',
+          data: values,
+          barMaxWidth: 18,
+          itemStyle: {
+            color: 'rgba(0, 112, 210, 0.7)',
+            borderColor: '#0070d2',
+            borderWidth: 1,
+            borderRadius: [0, 4, 4, 0],
+          },
+        },
+      ],
+    };
   }
 
   ngOnDestroy(): void {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
-    this.ctx2WeeklyTeamChart?.destroy();
-    this.ctx2HourlyChart?.destroy();
-    this.ctx2TxnFailuresChart?.destroy();
-    this.ctx2EspCasesChart?.destroy();
-    this.ctx3AccountChart?.destroy();
-    this.ctx3RevenueChart?.destroy();
     this.destroyManager.ngOnDestroy();
   }
 

@@ -10,11 +10,32 @@ import {
 import { ApiHttpService } from '../providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { RegressionService } from '../regression.service';
-import { Chart, registerables } from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
+import * as echarts from 'echarts/core';
+import { BarChart, LineChart, PieChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import type { EChartsOption } from 'echarts';
 import { ThemeService } from '../providers/theme.service';
-import { ChartData, ChartDataset } from 'chart.js/auto';
-import { ChartOptions } from 'chart.js'; // Import ChartOptions for proper typing
+
+const createLineGradient = (startColor: string, endColor: string) =>
+  new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+    { offset: 0, color: startColor },
+    { offset: 1, color: endColor },
+  ]);
+
+echarts.use([
+  BarChart,
+  LineChart,
+  PieChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  CanvasRenderer,
+]);
 
 import { Observable, interval, last, startWith, switchMap } from 'rxjs';
 import { tap } from 'rxjs/operators';
@@ -25,10 +46,6 @@ import { MenuService } from '../providers/menu.service';
 import { TableModalComponent } from '../components/table-modal/table-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
-
-Chart.register(...registerables, ChartDataLabels);
-// Default datalabels OFF globally — charts opt-in via their own config
-Chart.defaults.set('plugins.datalabels', { display: false });
 
 @Component({
   selector: 'app-wd0-historical-data',
@@ -60,8 +77,7 @@ export class Wd0HistoricalDataComponent
   productActualsLoading: boolean = true;
   serviceActualsLoading: boolean = true;
 
-  servicePieChart: Chart<any> | null = null;
-  productPieChart: Chart<any> | null = null;
+  chartOptionsMap: Record<string, EChartsOption> = {};
 
   upperCI: number;
   lowerCI: number;
@@ -77,34 +93,12 @@ export class Wd0HistoricalDataComponent
     private exportToExcelService: ExportToExcelService,
     public themeService: ThemeService,
   ) {
-    Chart.register(...registerables);
     this.http = http;
   }
 
   refreshInterval = 300000; //ms = 5 minutes
 
-  private lineChart: Chart<any> | null = null;
-  private serviceLineChart: Chart<any> | null = null;
-  private productLineChart: Chart<any> | null = null;
-
-  ngOnDestroy(): void {
-    // Destroy the chart instance if it exists
-    if (this.lineChart) {
-      this.lineChart.destroy();
-      this.lineChart = null; // Set to null to avoid memory leaks
-    }
-
-    // Destroy other charts if applicable
-    if (this.serviceLineChart) {
-      this.serviceLineChart.destroy();
-      this.serviceLineChart = null;
-    }
-
-    if (this.productLineChart) {
-      this.productLineChart.destroy();
-      this.productLineChart = null;
-    }
-  }
+  ngOnDestroy(): void {}
 
   displayedColumns: string[] = [];
   historicalData: HistoricalDataModel[];
@@ -342,16 +336,16 @@ export class Wd0HistoricalDataComponent
     canvasId: string,
   ): void {
     const pieColors = [
-      'rgba(54, 162, 235, 0.6)', // Blue
-      'rgba(100, 255, 218, 0.6)', // Mint
-      'rgba(255, 99, 132, 0.6)', // Red-pink
-      'rgba(255, 159, 64, 0.6)', // Orange
-      'rgba(153, 102, 255, 0.6)', // Purple
-      'rgba(75, 192, 192, 0.6)', // Teal
-      'rgba(235, 154, 229, 0.6)', // Muted pink-purple
-      'rgba(201, 203, 207, 0.6)', // Gray
-      'rgba(0, 255, 157, 0.6)', // Lime
-      'rgba(255, 205, 86, 0.6)', // Yellow
+      'rgba(54, 162, 235, 0.6)',
+      'rgba(100, 255, 218, 0.6)',
+      'rgba(255, 99, 132, 0.6)',
+      'rgba(255, 159, 64, 0.6)',
+      'rgba(153, 102, 255, 0.6)',
+      'rgba(75, 192, 192, 0.6)',
+      'rgba(235, 154, 229, 0.6)',
+      'rgba(201, 203, 207, 0.6)',
+      'rgba(0, 255, 157, 0.6)',
+      'rgba(255, 205, 86, 0.6)',
     ];
 
     const labels = data.map(
@@ -361,52 +355,28 @@ export class Wd0HistoricalDataComponent
     const counts = data.map((entry) => entry.TOTAL_COUNT);
     const colors = data.map((_, index) => pieColors[index % pieColors.length]);
 
-    const ctx = (
-      document.getElementById(canvasId) as HTMLCanvasElement
-    )?.getContext('2d');
-
-    if (ctx) {
-      new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels,
-          datasets: [
-            {
-              data: counts,
-              backgroundColor: colors,
-              borderWidth: 0,
-              hoverOffset: 0, // No offset effect on hover
-            },
-          ],
+    this.chartOptionsMap[canvasId] = {
+      tooltip: { show: false },
+      series: [
+        {
+          type: 'pie',
+          radius: ['50%', '80%'],
+          data: counts.map((value, i) => ({
+            value,
+            name: labels[i],
+            itemStyle: { color: colors[i] },
+          })),
+          label: { show: false },
+          emphasis: { disabled: true },
+          animation: false,
         },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false }, // Hide legend
-            tooltip: { enabled: false }, // Disable tooltips
-            datalabels: {
-              display: false, // This hides the data labels
-            },
-          },
-          // Removes animations on hover & segment highlighting
-          hover: {
-            mode: null,
-          },
-          animation: {
-            animateRotate: false,
-            animateScale: false,
-          },
-        },
-      });
+      ],
+    };
 
-      // Set custom legend
-      this.customLegend = labels.map((label, i) => ({
-        label,
-        color: colors[i],
-      }));
-    } else {
-      console.error(`Canvas with id ${canvasId} not found`);
-    }
+    this.customLegend = labels.map((label, i) => ({
+      label,
+      color: colors[i],
+    }));
   }
 
   getWd0Volumes(productActuals: number[], serviceActuals: number[]) {
@@ -650,8 +620,6 @@ export class Wd0HistoricalDataComponent
     });
   }
 
-  private retryCountServiceLine = 0;
-  private maxRetriesServiceLine = 5;
   // Update the Q3 Service Line Predictive Model Chart
   updateServiceLineChart(serviceData: any[], serviceActuals: number[]) {
     const labels = serviceData.map((entry: any) => entry.WD).reverse();
@@ -670,29 +638,19 @@ export class Wd0HistoricalDataComponent
 
     const actualsPresent = serviceActuals.some((value) => value !== null);
 
-    const chartData: ChartData<'line'> = {
+    const chartData: any = {
       labels: labels,
       datasets: [
         {
           label: 'Low',
           data: lowData,
-          tension: 0.3,
-          type: 'line',
           fill: '+1',
-          backgroundColor: '#41414110',
-          borderColor: '#8549ba', // Purple for Low line
-          pointBackgroundColor: '#8549ba', // Purple for dots
-          pointBorderColor: '#8549ba', // Purple for dot borders
+          borderColor: '#9933ff',
         },
         {
           label: 'High',
           data: highData,
-          tension: 0.3,
-          type: 'line',
-          fill: false,
-          borderColor: '#00a950', // Green for High line
-          pointBackgroundColor: '#00a950', // Green for dots
-          pointBorderColor: '#00a950', // Green for dot borders
+          borderColor: '#6ebe4a',
         },
       ],
     };
@@ -701,59 +659,18 @@ export class Wd0HistoricalDataComponent
       chartData.datasets.push({
         label: 'Actuals',
         data: serviceActuals,
-        tension: 0.3,
-        type: 'line',
-        backgroundColor: 'rgba(255, 255, 0, 0.1)',
-        borderColor: '#ffde5a', // Yellow for Actuals line
-        pointBackgroundColor: '#ffde5a', // Yellow for dots
-        pointBorderColor: '#ffde5a', // Yellow for dot borders
+        borderColor: '#2EA8FF',
       });
     }
 
-    const canvas = document.getElementById(
-      'q3ServiceLinePredictiveModel',
-    ) as HTMLCanvasElement;
-
-    // Check if canvas is available
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-
-      if (ctx) {
-        // Destroy existing chart if it exists
-        if (this.serviceLineChart) {
-          this.serviceLineChart.destroy();
-          this.serviceLineChart = null;
-        }
-
-        // Create the new chart
-        this.serviceLineChart = new Chart(ctx, {
-          // new Chart('q3ServiceLinePredictiveModel', {
-          type: 'line',
-          data: chartData,
-          options: this.getChartOptions(),
-        });
-
-        this.serviceLoading = false; // Stop loading when chart is created
-        this.cdr.detectChanges(); // Trigger change detection
-      } else {
-        console.error('Failed to get 2D context for service line chart');
-      }
-    } else {
-      // console.error('Canvas element for Service Line chart not created');
-      // Retry logic for canvas creation
-      if (this.retryCountServiceLine < this.maxRetriesServiceLine) {
-        setTimeout(() => {
-          this.retryCountServiceLine++;
-          this.updateServiceLineChart(serviceData, serviceActuals);
-        }, 1000);
-      } else {
-        console.error('Max retries reached for Service Line chart');
-      }
-    }
+    this.chartOptionsMap['q3ServiceLinePredictiveModel'] =
+      this.buildLineChartOptions(
+        chartData.labels as string[],
+        chartData.datasets,
+      );
+    this.serviceLoading = false;
+    this.cdr.detectChanges();
   }
-
-  private retryCountProductLine = 0;
-  private maxRetriesProdcutLine = 5;
 
   updateProductLineChart(productData: any[], productActuals: number[]) {
     const labels = productData.map((entry: any) => entry.WD).reverse();
@@ -772,29 +689,19 @@ export class Wd0HistoricalDataComponent
 
     const actualsPresent = productActuals.some((value) => value !== null);
 
-    const chartData: ChartData<'line'> = {
+    const chartData: any = {
       labels: labels,
       datasets: [
         {
           label: 'Low',
           data: lowData,
-          tension: 0.3,
-          type: 'line',
           fill: '+1',
-          backgroundColor: '#41414110',
-          borderColor: '#8549ba', // Purple for Low line
-          pointBackgroundColor: '#8549ba', // Purple for dots
-          pointBorderColor: '#8549ba', // Purple for dot borders
+          borderColor: '#9933ff',
         },
         {
           label: 'High',
           data: highData,
-          tension: 0.3,
-          type: 'line',
-          fill: false,
-          borderColor: '#00a950', // Green for High line
-          pointBackgroundColor: '#00a950', // Green for dots
-          pointBorderColor: '#00a950', // Green for dot borders
+          borderColor: '#6ebe4a',
         },
       ],
     };
@@ -803,191 +710,112 @@ export class Wd0HistoricalDataComponent
       chartData.datasets.push({
         label: 'Actuals',
         data: productActuals,
-        tension: 0.3,
-        type: 'line',
-        backgroundColor: 'rgba(255, 255, 0, 0.1)',
-        borderColor: '#ffe57e', // Yellow for Actuals line
-        pointBackgroundColor: '#ffe57e', // Yellow for dots
-        pointBorderColor: '#ffe57e', // Yellow for dot borders
+        borderColor: '#2EA8FF',
       });
     }
 
-    const canvas = document.getElementById(
-      'productLinePredictiveModel',
-    ) as HTMLCanvasElement;
-
-    // Check if canvas is available
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-
-      if (ctx) {
-        // Destroy existing chart if it exists
-        if (this.productLineChart) {
-          this.productLineChart.destroy();
-          this.productLineChart = null;
-        }
-
-        // Create the new chart
-        this.productLineChart = new Chart(ctx, {
-          type: 'line',
-          data: chartData,
-          options: this.getChartOptions(),
-        });
-
-        this.productLoading = false; // Stop loading when chart is created
-        this.cdr.detectChanges(); // Trigger change detection
-      } else {
-        // this.handleChartCreationError();
-      }
-    } else {
-      // console.error('Canvas element for Product Line chart not created');
-      // Retry logic for canvas creation
-      if (this.retryCountProductLine < this.maxRetriesProdcutLine) {
-        setTimeout(() => {
-          this.retryCountProductLine++;
-          this.updateProductLineChart(productData, productActuals);
-        }, 1000);
-      } else {
-        console.error('Max retries reached for Product Line chart');
-      }
-    }
+    this.chartOptionsMap['productLinePredictiveModel'] =
+      this.buildLineChartOptions(
+        chartData.labels as string[],
+        chartData.datasets,
+      );
+    this.productLoading = false;
+    this.cdr.detectChanges();
   }
 
-  // Common Chart Options
-  getChartOptions(): ChartOptions {
-    return {
-      responsive: true,
-      plugins: {
-        tooltip: {
-          displayColors: false, // Remove color box
-        },
-        datalabels: {
-          display: true,
+  private buildLineChartOptions(
+    labels: string[],
+    datasets: any[],
+  ): EChartsOption {
+    const series = datasets.map((ds: any) => {
+      const gradientMap: Record<string, any> = {
+        '#9933ff': createLineGradient(
+          'rgba(153, 51, 255, 0.5)',
+          'rgba(153, 51, 255, 0)',
+        ),
+        '#6ebe4a': createLineGradient(
+          'rgba(110, 190, 74, 0.5)',
+          'rgba(110, 190, 74, 0)',
+        ),
+        '#2EA8FF': createLineGradient(
+          'rgba(46, 168, 255, 0.3)',
+          'rgba(46, 168, 255, 0)',
+        ),
+      };
+
+      const base: any = {
+        name: ds.label,
+        type: 'line',
+        data: ds.data,
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 6,
+        lineStyle: { color: ds.borderColor, width: 2 },
+        itemStyle: { color: ds.borderColor },
+        label: {
+          show: true,
+          position: 'top',
+          distance: 5,
+          fontSize: 10,
           color: '#4f4f4f',
-          font: {
-            size: 10,
-            weight: 'bolder',
-          },
-          backgroundColor: 'rgba(255, 255, 255, 0.833)', // White background for the labels
+          backgroundColor: 'rgba(255,255,255,0.83)',
           borderRadius: 3,
-          padding: {
-            top: 2,
-            bottom: 2,
-            left: 4,
-            right: 4,
-          },
-
-          formatter: (value, context) => {
-            return value.toLocaleString(); // Apply commas to all values
-          },
-          anchor: (context) => {
-            const datasets = context.chart.data.datasets;
-            const dataIndex = context.dataIndex;
-
-            // Get values for High, Low, and Actuals
-            const highValue = datasets.find((d) => d.label === 'High')?.data[
-              dataIndex
-            ];
-            const lowValue = datasets.find((d) => d.label === 'Low')?.data[
-              dataIndex
-            ];
-            const actualValue = datasets.find((d) => d.label === 'Actuals')
-              ?.data[dataIndex];
-
-            // Validate that all required values are present
-            if (
-              highValue === undefined ||
-              lowValue === undefined ||
-              actualValue === undefined
-            ) {
-              // console.warn('Missing data for anchor positioning', {
-              //   highValue,
-              //   lowValue,
-              //   actualValue,
-              // });
-              return 'center'; // Fallback
-            }
-
-            // Create an array of the values and sort them to determine rank
-            const sortedValues = [
-              { label: 'High', value: Number(highValue) },
-              { label: 'Low', value: Number(lowValue) },
-              { label: 'Actuals', value: Number(actualValue) },
-            ].sort((a, b) => b.value - a.value); // Descending order
-
-            // Assign positions based on rank
-            const currentLabel = context.dataset.label;
-            if (currentLabel === sortedValues[0].label) {
-              return 'end'; // Highest value gets positioned above
-            } else if (currentLabel === sortedValues[2].label) {
-              return 'start'; // Lowest value gets positioned below
-            }
-            return 'center'; // Middle value stays centered
-          },
-          align: (context) => {
-            const datasets = context.chart.data.datasets;
-            const dataIndex = context.dataIndex;
-
-            // Get values for High, Low, and Actuals
-            const highValue = datasets.find((d) => d.label === 'High')?.data[
-              dataIndex
-            ];
-            const lowValue = datasets.find((d) => d.label === 'Low')?.data[
-              dataIndex
-            ];
-            const actualValue = datasets.find((d) => d.label === 'Actuals')
-              ?.data[dataIndex];
-
-            // Validate that all required values are present
-            if (
-              highValue === undefined ||
-              lowValue === undefined ||
-              actualValue === undefined
-            ) {
-              // console.warn('Missing data for alignment', {
-              //   highValue,
-              //   lowValue,
-              //   actualValue,
-              // });
-              return 'center'; // Fallback
-            }
-
-            // Create an array of the values and sort them to determine rank
-            const sortedValues = [
-              { label: 'High', value: Number(highValue) },
-              { label: 'Low', value: Number(lowValue) },
-              { label: 'Actuals', value: Number(actualValue) },
-            ].sort((a, b) => b.value - a.value); // Descending order
-
-            // Assign alignment based on rank
-            const currentLabel = context.dataset.label;
-            if (currentLabel === sortedValues[0].label) {
-              return 'top'; // Highest value aligns at the top
-            } else if (currentLabel === sortedValues[2].label) {
-              return 'bottom'; // Lowest value aligns at the bottom
-            }
-            return 'center'; // Middle value aligns at the center
-          },
+          padding: [2, 4],
+          formatter: (params: any) =>
+            params.value != null ? params.value.toLocaleString() : '',
         },
+        labelLayout: (params: any) => {
+          if (params.dataIndex === 0) {
+            return { dx: 14 };
+          }
+          if (params.dataIndex === labels.length - 1) {
+            return { dx: -10 };
+          }
+          return {};
+        },
+        areaStyle: {
+          color:
+            gradientMap[ds.borderColor] ??
+            createLineGradient('rgba(65, 65, 65, 0.12)', 'rgba(65, 65, 65, 0)'),
+        },
+      };
+      return base;
+    });
+
+    return {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#222',
+        textStyle: { color: '#fff' },
       },
-      scales: {
-        x: {
-          // Default x-axis configuration
-        },
-        y: {
-          title: {
-            display: true,
-            text: 'Line Count',
-          },
-          ticks: {
-            display: false, // Hide the Y-axis numbers
-          },
-          grid: {
-            drawTicks: false, // Don't draw the tick marks
-          },
-          position: 'left',
-        },
+      legend: {
+        top: 0,
+        textStyle: { fontSize: 10 },
+        icon: 'circle',
+        itemWidth: 10,
+        itemHeight: 10,
       },
+      grid: { top: 35, left: 8, right: 8, bottom: 10, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        boundaryGap: false,
+        axisLabel: { fontSize: 10, margin: 8 },
+        axisTick: { show: false },
+        axisLine: { show: false },
+        splitLine: { show: true, lineStyle: { color: '#f0f0f0' } },
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Line Count',
+        nameLocation: 'end',
+        nameTextStyle: {
+          fontSize: 10,
+        },
+        axisLabel: { show: false },
+        splitLine: { lineStyle: { color: '#f0f0f0' } },
+      },
+      series,
     };
   }
 
@@ -1336,143 +1164,122 @@ export class Wd0HistoricalDataComponent
     }
   };
 
-  private retryCountLineGraph = 0;
-  private maxRetriesLineGraph = 5;
-
   createLineGraph(fastestTimes, slowestTimes, labels, lines, actualTimes) {
-    const canvas = document.getElementById(
-      'lineChartCanvas',
-    ) as HTMLCanvasElement;
-
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-
-      if (ctx) {
-        // Check if lineChart already exists. If so, destroy it.
-        if (this.lineChart) {
-          this.lineChart.destroy();
-          this.lineChart = null;
-        }
-
-        // Now, recreate the chart with the new data
-        this.lineChart = new Chart(ctx, {
-          type: 'line', // This specifies the default chart type
-          data: {
-            labels: labels,
-            datasets: [
-              {
-                label: 'Actual Run (hrs)',
-                data: actualTimes,
-                yAxisID: 'y1',
-                tension: 0.3,
-                type: 'line',
-                borderColor: '#ffde5ad0', // Yellow color for the actual run line
-                backgroundColor: '#ffde5a50', // Transparent yellow for the line fill
-                pointBackgroundColor: '#ffde5a', // Yellow for points
-              },
-              {
-                label: 'Lower Bound (hrs)',
-                data: fastestTimes,
-                yAxisID: 'y1',
-                tension: 0.3,
-                type: 'line',
-                borderColor: '#8549ba99', // Purple color for the lower bound line
-                backgroundColor: '#8549ba50', // Transparent purple for the line fill
-                pointBackgroundColor: '#8549ba', // Purple for points
-              },
-              {
-                label: 'Upper Bound (hrs)',
-                data: slowestTimes,
-                yAxisID: 'y1',
-                tension: 0.3,
-                type: 'line',
-                borderColor: '#00a95099', // Green color for the upper bound line
-                backgroundColor: '#64f4a85a', // Transparent green for the line fill
-                pointBackgroundColor: '#24d577c4', // Green for points
-              },
-              {
-                label: 'Product (lines)',
-                data: lines.map((line) => line[0]),
-                yAxisID: 'y',
-                type: 'bar',
-                backgroundColor: '#4dc9f699', // Product lines color
-                // barThickness: 20, // Optional: adjust bar thickness
-              },
-              {
-                label: 'Service (lines)',
-                data: lines.map((line) => line[1]),
-                yAxisID: 'y',
-                type: 'bar',
-                backgroundColor: '#166a8f99', // Service lines color
-                // barThickness: 20, // Optional: adjust bar thickness
-              },
-            ],
+    this.chartOptionsMap['lineChartCanvas'] = {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#222',
+        textStyle: { color: '#fff' },
+      },
+      legend: {
+        top: 0,
+        left: 'center',
+        width: '80%',
+        textStyle: { fontSize: 10 },
+        itemWidth: 10,
+        itemHeight: 10,
+        itemGap: 12,
+        icon: 'circle',
+      },
+      grid: { top: 55, left: 8, right: 10, bottom: 10, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLabel: { fontSize: 10, margin: 8 },
+        axisTick: { show: false },
+        axisLine: { show: false },
+      },
+      yAxis: [
+        {
+          type: 'value',
+          name: 'Lines',
+          position: 'left',
+          nameTextStyle: { fontSize: 10 },
+          axisLabel: { fontSize: 10 },
+          splitLine: { lineStyle: { color: '#f0f0f0' } },
+        },
+        {
+          type: 'value',
+          name: 'Hours',
+          position: 'right',
+          nameTextStyle: { fontSize: 10 },
+          axisLabel: { fontSize: 10 },
+          splitLine: { show: false },
+        },
+      ],
+      series: [
+        {
+          name: 'Actual Run (hrs)',
+          type: 'line',
+          yAxisIndex: 1,
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          showSymbol: true,
+          data: actualTimes,
+          lineStyle: { color: '#2EA8FF' },
+          itemStyle: { color: '#2EA8FF' },
+          areaStyle: {
+            color: createLineGradient(
+              'rgba(46, 168, 255, 0.28)',
+              'rgba(46, 168, 255, 0)',
+            ),
           },
-
-          options: {
-            scales: {
-              x: {
-                grid: {
-                  offset: false,
-                },
-              },
-
-              y: {
-                type: 'linear',
-                position: 'left',
-                beginAtZero: false,
-                title: {
-                  display: true,
-                  text: 'Lines',
-                },
-              },
-              y1: {
-                type: 'linear',
-                position: 'right',
-                beginAtZero: true,
-                grid: {
-                  drawOnChartArea: false, // only want the grid lines for one axis to show up
-                },
-                title: {
-                  display: true,
-                  text: 'Hours',
-                },
-              },
-            },
-            plugins: {
-              tooltip: {
-                displayColors: false, // Remove color box
-              },
-              legend: {
-                onClick: () => false, // Disable toggling visibility by clicking on legend items
-              },
-              datalabels: {
-                display: false, // Show the data values
-              },
-            },
+        },
+        {
+          name: 'Lower Bound (hrs)',
+          type: 'line',
+          yAxisIndex: 1,
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          showSymbol: true,
+          data: fastestTimes,
+          lineStyle: { color: '#9933ff' },
+          itemStyle: { color: '#9933ff' },
+          areaStyle: {
+            color: createLineGradient(
+              'rgba(153, 51, 255, 0.5)',
+              'rgba(153, 51, 255, 0)',
+            ),
           },
-        });
-        this.loading = false; // Set loading to false after data is processed
-        this.cdr.detectChanges(); // Trigger change detection
-      } else {
-        console.error('Failed to get 2D context for line chart');
-      }
-    } else {
-      if (this.retryCountLineGraph < this.maxRetriesLineGraph) {
-        this.retryCountLineGraph++;
-        setTimeout(() => {
-          this.createLineGraph(
-            fastestTimes,
-            slowestTimes,
-            labels,
-            lines,
-            actualTimes,
-          );
-        }, 1000);
-      } else {
-        console.error('Max retries reached for chart creation');
-      }
-    }
+        },
+        {
+          name: 'Upper Bound (hrs)',
+          type: 'line',
+          yAxisIndex: 1,
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          showSymbol: true,
+          data: slowestTimes,
+          lineStyle: { color: '#6ebe4a' },
+          itemStyle: { color: '#6ebe4a' },
+          areaStyle: {
+            color: createLineGradient(
+              'rgba(110, 190, 74, 0.5)',
+              'rgba(110, 190, 74, 0)',
+            ),
+          },
+        },
+        {
+          name: 'Product (lines)',
+          type: 'bar',
+          yAxisIndex: 0,
+          data: lines.map((line) => line[0]),
+          itemStyle: { color: '#909ca8' },
+        },
+        {
+          name: 'Service (lines)',
+          type: 'bar',
+          yAxisIndex: 0,
+          data: lines.map((line) => line[1]),
+          itemStyle: { color: '#f39c12' },
+        },
+      ],
+    };
+    this.loading = false;
+    this.cdr.detectChanges();
   }
 }
 

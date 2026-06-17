@@ -9,18 +9,42 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ModalComponent } from '../modal/modal.component';
-import { Chart } from 'chart.js/auto';
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import * as echarts from 'echarts/core';
+import { BarChart, LineChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import type { EChartsOption } from 'echarts';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ThemeService } from 'src/app/providers/theme.service';
 import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.component';
+
+echarts.use([
+  BarChart,
+  LineChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  CanvasRenderer,
+]);
 
 @Component({
   selector: 'app-accuracy-detail-modal',
   templateUrl: './accuracy-detail-modal.component.html',
   styleUrl: './accuracy-detail-modal.component.css',
   standalone: true,
-  imports: [CommonModule, ModalComponent, LoadingSymbolComponent],
+  imports: [
+    CommonModule,
+    ModalComponent,
+    LoadingSymbolComponent,
+    NgxEchartsDirective,
+  ],
+  providers: [provideEchartsCore({ echarts })],
 })
 export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
   @Input() teamName = '';
@@ -34,8 +58,8 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
   categoryLoading = false;
   coreIssueLoading = false;
 
-  private categoryChart: any = null;
-  private coreIssueChart: any = null;
+  categoryChartOptions: EChartsOption = {};
+  coreIssueChartOptions: EChartsOption = {};
 
   constructor(
     private readonly http: ApiHttpService,
@@ -49,13 +73,10 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.destroyCharts();
-  }
+  ngOnDestroy(): void {}
 
   switchTab(tab: 'category' | 'coreIssue'): void {
     this.activeTab = tab;
-    setTimeout(() => this.buildActiveChart(), 50);
   }
 
   private fetchData(): void {
@@ -76,9 +97,7 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
         next: (d: any) => {
           this.categoryData = d ?? [];
           this.categoryLoading = false;
-          if (this.activeTab === 'category') {
-            setTimeout(() => this.buildCategoryChart(), 50);
-          }
+          this.buildCategoryChart();
         },
         error: () => {
           this.categoryLoading = false;
@@ -94,9 +113,7 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
         next: (d: any) => {
           this.coreIssueData = d ?? [];
           this.coreIssueLoading = false;
-          if (this.activeTab === 'coreIssue') {
-            setTimeout(() => this.buildCoreIssueChart(), 50);
-          }
+          this.buildCoreIssueChart();
         },
         error: () => {
           this.coreIssueLoading = false;
@@ -104,28 +121,8 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
       });
   }
 
-  private buildActiveChart(): void {
-    if (this.activeTab === 'category') {
-      this.buildCategoryChart();
-    } else {
-      this.buildCoreIssueChart();
-    }
-  }
-
-  private destroyCharts(): void {
-    this.categoryChart?.destroy();
-    this.categoryChart = null;
-    this.coreIssueChart?.destroy();
-    this.coreIssueChart = null;
-  }
-
   private buildCategoryChart(): void {
-    this.categoryChart?.destroy();
-    const canvas = document.getElementById(
-      'modal-category-chart',
-    ) as HTMLCanvasElement;
-    if (!canvas || !this.categoryData.length) return;
-
+    if (!this.categoryData.length) return;
     const data = this.categoryData;
     const labels = data.map((d: any) => d.CATEGORY ?? 'Unknown');
     const totals = data.map((d: any) => d.TOTAL ?? 0);
@@ -139,9 +136,7 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
       const validated = d.VALIDATED ?? 0;
       return total > 0 ? Math.round((validated / total) * 1000) / 10 : 0;
     });
-
-    this.categoryChart = this.buildComboChart(
-      canvas,
+    this.categoryChartOptions = this.buildComboOptions(
       labels,
       totals,
       accuracies,
@@ -150,13 +145,7 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
   }
 
   private buildCoreIssueChart(): void {
-    this.coreIssueChart?.destroy();
-    const canvas = document.getElementById(
-      'modal-core-issue-chart',
-    ) as HTMLCanvasElement;
-    if (!canvas || !this.coreIssueData.length) return;
-
-    // Take only the top 10 by case count (data is already sorted by total DESC)
+    if (!this.coreIssueData.length) return;
     const data = this.coreIssueData.slice(0, 10);
     const labels = data.map((d: any) => d.CORE_ISSUE ?? 'Unknown');
     const totals = data.map((d: any) => d.TOTAL ?? 0);
@@ -170,9 +159,7 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
       const validated = d.VALIDATED ?? 0;
       return total > 0 ? Math.round((validated / total) * 1000) / 10 : 0;
     });
-
-    this.coreIssueChart = this.buildComboChart(
-      canvas,
+    this.coreIssueChartOptions = this.buildComboOptions(
       labels,
       totals,
       accuracies,
@@ -180,149 +167,87 @@ export class AccuracyDetailModalComponent implements OnChanges, OnDestroy {
     );
   }
 
-  private buildComboChart(
-    canvas: HTMLCanvasElement,
+  private buildComboOptions(
     labels: string[],
     totals: number[],
     accuracies: number[],
-    validationRates: number[] = [],
-  ): any {
-    return new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            type: 'line' as const,
-            label: 'Accuracy Rate',
-            data: accuracies,
-            borderColor: '#00bceb',
-            borderWidth: 2.5,
-            pointBackgroundColor: '#ffffff',
-            pointBorderColor: '#00bceb',
-            pointBorderWidth: 2,
-            pointRadius: 3,
-            pointHoverRadius: 5.5,
-            tension: 0.4,
-            fill: true,
-            backgroundColor: (ctx: any) => {
-              const chart = ctx.chart;
-              const { ctx: canvasCtx, chartArea } = chart;
-              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
-              const gradient = canvasCtx.createLinearGradient(
-                chartArea.left,
-                0,
-                chartArea.right,
-                0,
-              );
-              gradient.addColorStop(0, 'rgba(0, 188, 235, 0)');
-              gradient.addColorStop(1, 'rgba(0, 188, 235, 0.35)');
-              return gradient;
-            },
-            xAxisID: 'xAccuracy',
-            indexAxis: 'y' as const,
-            order: 0,
-          },
-          {
-            type: 'line' as const,
-            label: 'Validation Rate',
-            data: validationRates,
-            borderColor: '#6ebe4a',
-            borderWidth: 2.5,
-            borderDash: [5, 3],
-            pointBackgroundColor: '#ffffff',
-            pointBorderColor: '#6ebe4a',
-            pointBorderWidth: 2,
-            pointRadius: 3,
-            pointHoverRadius: 5.5,
-            tension: 0.4,
-            fill: false,
-            xAxisID: 'xAccuracy',
-            indexAxis: 'y' as const,
-            order: 0,
-          },
-          {
-            type: 'bar' as const,
-            label: 'Cases',
-            data: totals,
-            backgroundColor: 'rgba(100, 120, 140, 0.45)',
-            hoverBackgroundColor: 'rgba(100, 120, 140, 0.65)',
-            borderWidth: 0,
-            borderRadius: 4,
-            xAxisID: 'x',
-            order: 1,
-          },
-        ],
+    validationRates: number[],
+  ): EChartsOption {
+    return {
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      legend: {
+        bottom: 0,
+        itemWidth: 10,
+        itemHeight: 10,
+        textStyle: { fontSize: 10 },
       },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        layout: { padding: { top: 6, bottom: 6, left: 6, right: 6 } },
-        interaction: { intersect: false, mode: 'nearest', axis: 'y' },
-        plugins: {
-          legend: {
-            display: true,
-            position: 'bottom',
-            labels: {
-              boxWidth: 10,
-              boxHeight: 10,
-              padding: 14,
-              font: { size: 10 },
-              usePointStyle: true,
-            },
-          },
-          tooltip: {
-            backgroundColor: 'rgba(20, 30, 40, 0.9)',
-            titleFont: { size: 11 },
-            bodyFont: { size: 12 },
-            borderColor: 'rgba(0, 188, 235, 0.3)',
-            borderWidth: 1,
-            cornerRadius: 10,
-            padding: 10,
-            callbacks: {
-              label: (ctx) => {
-                if (ctx.datasetIndex === 0) return `Accuracy: ${ctx.parsed.x}%`;
-                if (ctx.datasetIndex === 1)
-                  return `Validation: ${ctx.parsed.x}%`;
-                return `Cases: ${ctx.parsed.x.toLocaleString()}`;
-              },
-            },
+      grid: { top: 30, right: 60, bottom: 40, left: 120, containLabel: false },
+      yAxis: {
+        type: 'category',
+        data: labels.map((l) =>
+          l.length > 28 ? l.substring(0, 26) + '\u2026' : l,
+        ),
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: { fontSize: 10 },
+        inverse: true,
+      },
+      xAxis: [
+        {
+          type: 'value',
+          position: 'bottom',
+          axisLine: { show: false },
+          splitLine: { show: false },
+          axisLabel: { fontSize: 10 },
+        },
+        {
+          type: 'value',
+          position: 'top',
+          min: 0,
+          max: 105,
+          axisLine: { show: false },
+          splitLine: { show: false },
+          axisLabel: {
+            fontSize: 9,
+            formatter: (v: number) => (v <= 100 ? v + '%' : ''),
           },
         },
-        scales: {
-          x: {
-            position: 'bottom',
-            grid: { display: false },
-            ticks: { font: { size: 10 }, maxTicksLimit: 6 },
-            border: { display: false },
-          },
-          xAccuracy: {
-            position: 'top',
-            min: 0,
-            max: 105,
-            grid: { display: false },
-            ticks: {
-              font: { size: 9 },
-              callback: (val) => ((val as number) <= 100 ? val + '%' : ''),
-              maxTicksLimit: 6,
-              stepSize: 25,
-            },
-            border: { display: false },
-          },
-          y: {
-            grid: { display: false },
-            ticks: {
-              font: { size: 10 },
-              callback: function (_value, index) {
-                const lbl = labels[index] ?? '';
-                return lbl.length > 28 ? lbl.substring(0, 26) + '…' : lbl;
-              },
-            },
-            border: { display: false },
-          },
+      ],
+      series: [
+        {
+          name: 'Cases',
+          type: 'bar',
+          data: totals,
+          xAxisIndex: 0,
+          itemStyle: { color: 'rgba(100, 120, 140, 0.45)', borderRadius: 4 },
+          barMaxWidth: 20,
+          z: 1,
         },
-      },
-    });
+        {
+          name: 'Accuracy Rate',
+          type: 'line',
+          data: accuracies,
+          xAxisIndex: 1,
+          lineStyle: { color: '#00bceb', width: 2.5 },
+          itemStyle: { color: '#00bceb' },
+          symbol: 'circle',
+          symbolSize: 6,
+          smooth: true,
+          z: 2,
+        },
+        {
+          name: 'Validation Rate',
+          type: 'line',
+          data: validationRates,
+          xAxisIndex: 1,
+          lineStyle: { color: '#6ebe4a', width: 2.5, type: 'dashed' },
+          itemStyle: { color: '#6ebe4a' },
+          symbol: 'circle',
+          symbolSize: 6,
+          smooth: true,
+          z: 2,
+        },
+      ],
+    };
   }
 }

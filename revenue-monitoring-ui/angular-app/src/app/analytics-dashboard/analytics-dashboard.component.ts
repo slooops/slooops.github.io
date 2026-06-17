@@ -1,7 +1,6 @@
 import {
   Component,
   OnInit,
-  AfterViewInit,
   OnDestroy,
   HostBinding,
   HostListener,
@@ -13,7 +12,17 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { ThemeService } from '../providers/theme.service';
 import { Subscription } from 'rxjs';
-import { Chart, registerables } from 'chart.js';
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import * as echarts from 'echarts/core';
+import { PieChart, BarChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  TitleComponent,
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import type { EChartsOption } from 'echarts';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -30,18 +39,20 @@ import {
 } from '@ng-icons/phosphor-icons/duotone';
 import { phosphorArrowClockwiseBold } from '@ng-icons/phosphor-icons/bold';
 
-Chart.register(...registerables);
+echarts.use([
+  PieChart,
+  BarChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  TitleComponent,
+  CanvasRenderer,
+]);
 
 interface PageVisitSummary {
   PAGE_ROUTE: string;
   TOTAL_VISITS: number;
   UNIQUE_USERS: number;
-}
-
-interface ChartDataset {
-  labels: string[];
-  data: number[];
-  backgroundColor: string[];
 }
 
 interface RouteVisitDetail {
@@ -84,8 +95,15 @@ const ACRONYMS: Record<string, string> = {
   templateUrl: './analytics-dashboard.component.html',
   styleUrls: ['./analytics-dashboard.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, LoadingSymbolComponent, NgIcon],
+  imports: [
+    CommonModule,
+    FormsModule,
+    LoadingSymbolComponent,
+    NgIcon,
+    NgxEchartsDirective,
+  ],
   providers: [
+    provideEchartsCore({ echarts }),
     DestroyManager,
     provideIcons({
       phosphorPresentationChartDuotone,
@@ -102,9 +120,7 @@ const ACRONYMS: Record<string, string> = {
     }),
   ],
 })
-export class AnalyticsDashboardComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
   isLoading = true;
   summaryData: PageVisitSummary[] = [];
 
@@ -122,12 +138,12 @@ export class AnalyticsDashboardComponent
   modalLoading = false;
   modalDetails: RouteVisitDetail[] = [];
 
-  // Charts
-  private continuousMonitoringChart: any = null;
-  private caseIqChart: any = null;
-  private businessInsightsChart: any = null;
-  private topPagesChart: any = null;
-  private uniqueUsersChart: any = null;
+  // ECharts options
+  continuousMonitoringChartOptions: EChartsOption = {};
+  caseIqChartOptions: EChartsOption = {};
+  businessInsightsChartOptions: EChartsOption = {};
+  topPagesChartOptions: EChartsOption = {};
+  uniqueUsersChartOptions: EChartsOption = {};
 
   // Color palettes
   private readonly COLORS = {
@@ -179,51 +195,17 @@ export class AnalyticsDashboardComponent
     return this.themeService.isDarkMode ? '#2a3f50' : '#e0e0e0';
   }
 
-  private get donutBorderColor(): string {
-    return this.themeService.isDarkMode ? '#111b25' : '#ffffff';
-  }
-
   ngOnInit(): void {
     this.loadAnalyticsData();
     this.themeSub = this.themeService.isDarkMode$.subscribe(() => {
       if (!this.isLoading && this.summaryData.length > 0) {
-        // Recreate charts so colors update
-        setTimeout(() => this.initializeCharts(), 0);
+        this.initializeCharts();
       }
     });
   }
 
-  ngAfterViewInit(): void {
-    // Charts will be initialized after data loads
-  }
-
   ngOnDestroy(): void {
-    // Destroy all charts to prevent memory leaks
-    this.destroyAllCharts();
     this.themeSub?.unsubscribe();
-  }
-
-  private destroyAllCharts(): void {
-    if (this.continuousMonitoringChart) {
-      this.continuousMonitoringChart.destroy();
-      this.continuousMonitoringChart = null;
-    }
-    if (this.caseIqChart) {
-      this.caseIqChart.destroy();
-      this.caseIqChart = null;
-    }
-    if (this.businessInsightsChart) {
-      this.businessInsightsChart.destroy();
-      this.businessInsightsChart = null;
-    }
-    if (this.topPagesChart) {
-      this.topPagesChart.destroy();
-      this.topPagesChart = null;
-    }
-    if (this.uniqueUsersChart) {
-      this.uniqueUsersChart.destroy();
-      this.uniqueUsersChart = null;
-    }
   }
 
   loadAnalyticsData(): void {
@@ -238,13 +220,8 @@ export class AnalyticsDashboardComponent
           this.calculateStats();
           this.lastUpdated = new Date().toLocaleString();
 
-          // FIRST: Set isLoading = false so DOM renders the canvas elements
           this.isLoading = false;
-
-          // THEN: Wait for Angular to render the DOM, then initialize charts
-          setTimeout(() => {
-            this.initializeCharts();
-          }, 100);
+          this.initializeCharts();
         },
         error: (err) => {
           console.error('Failed to load analytics data:', err);
@@ -278,164 +255,94 @@ export class AnalyticsDashboardComponent
   }
 
   private initializeCharts(): void {
-    // console.log('[CHARTS] initializeCharts() called');
-    // console.log('[CHARTS] summaryData length:', this.summaryData.length);
-    this.destroyAllCharts();
-
-    try {
-      this.createContinuousMonitoringChart();
-    } catch (e) {
-      console.error('[CHARTS] Error in createContinuousMonitoringChart:', e);
-    }
-
-    try {
-      this.createCaseIqChart();
-    } catch (e) {
-      console.error('[CHARTS] Error in createCaseIqChart:', e);
-    }
-
-    try {
-      this.createBusinessInsightsChart();
-    } catch (e) {
-      console.error('[CHARTS] Error in createBusinessInsightsChart:', e);
-    }
-
-    try {
-      this.createTopPagesChart();
-    } catch (e) {
-      console.error('[CHARTS] Error in createTopPagesChart:', e);
-    }
-
-    try {
-      this.createUniqueUsersChart();
-    } catch (e) {
-      console.error('[CHARTS] Error in createUniqueUsersChart:', e);
-    }
-
-    console.log('[CHARTS] All chart creation attempts complete');
+    this.createContinuousMonitoringChart();
+    this.createCaseIqChart();
+    this.createBusinessInsightsChart();
+    this.createTopPagesChart();
+    this.createUniqueUsersChart();
   }
 
   private filterByPrefix(prefix: string): PageVisitSummary[] {
-    // Match both exact route (e.g., "/invoice-to-cash") and sub-routes (e.g., "/invoice-to-cash/pre-invoicing")
-    // Exclude parent-only routes from the results
-    const filtered = this.summaryData.filter(
+    return this.summaryData.filter(
       (item) =>
         !EXCLUDED_ROUTES.includes(item.PAGE_ROUTE) &&
         (item.PAGE_ROUTE === prefix ||
           item.PAGE_ROUTE.startsWith(prefix + '/')),
     );
-    console.log(
-      `[CHARTS] filterByPrefix('${prefix}') returned ${filtered.length} items:`,
-      filtered,
-    );
-    return filtered;
   }
 
   private extractTabName(route: string): string {
     const parts = route.split('/');
     const lastPart = parts[parts.length - 1];
-    // Convert slug to title case, respecting known acronyms
     return lastPart
       .split('-')
       .map((word) => {
         const lowerWord = word.toLowerCase();
-        // Check if this word is a known acronym
         if (ACRONYMS[lowerWord]) {
           return ACRONYMS[lowerWord];
         }
-        // Otherwise, title case it
         return word.charAt(0).toUpperCase() + word.slice(1);
       })
       .join(' ');
   }
 
-  private createDonutChart(
-    canvasId: string,
+  private buildDonutOptions(
     data: PageVisitSummary[],
     title: string,
     colors: string[],
-  ): any {
-    // console.log(
-    //   `[CHARTS] createDonutChart('${canvasId}') called with ${data.length} data items`,
-    // );
-
-    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
-    // console.log(`[CHARTS] Canvas element for '${canvasId}':`, canvas);
-
-    if (!canvas) {
-      console.log(`[CHARTS] Canvas element '${canvasId}' NOT FOUND in DOM`);
-      return null;
-    }
-    if (data.length === 0) {
-      console.log(`[CHARTS] No data for chart '${canvasId}', skipping`);
-      return null;
-    }
-
+  ): EChartsOption {
+    if (data.length === 0) return {};
     const labels = data.map((item) => this.extractTabName(item.PAGE_ROUTE));
     const values = data.map((item) => Number(item.TOTAL_VISITS));
-    // console.log(`[CHARTS] '${canvasId}' labels:`, labels);
-    // console.log(`[CHARTS] '${canvasId}' values:`, values);
-
+    const total = values.reduce((a, b) => a + b, 0);
     const textColor = this.chartTextColor;
-    return new Chart(canvas, {
-      type: 'doughnut',
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            data: values,
-            backgroundColor: colors.slice(0, data.length),
-            borderWidth: 2,
-            borderColor: this.donutBorderColor,
-          },
-        ],
+
+    return {
+      title: {
+        text: title,
+        left: 'center',
+        textStyle: { color: textColor, fontSize: 14, fontWeight: 'bold' },
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              padding: 15,
-              usePointStyle: true,
-              font: { size: 11 },
-              color: textColor,
-            },
-          },
-          title: {
-            display: true,
-            text: title,
-            font: { size: 14, weight: 'bold' },
-            color: textColor,
-            padding: { bottom: 10 },
-          },
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const total = values.reduce((a, b) => a + b, 0);
-                const percentage = ((context.parsed / total) * 100).toFixed(1);
-                return `${context.label}: ${context.parsed} visits (${percentage}%)`;
-              },
-            },
-          },
+      tooltip: {
+        trigger: 'item',
+        formatter: (params: any) => {
+          const pct =
+            total > 0 ? ((params.value / total) * 100).toFixed(1) : '0';
+          return `${params.name}: ${params.value} visits (${pct}%)`;
         },
-        cutout: '60%',
       },
-    });
+      legend: {
+        bottom: 0,
+        textStyle: { color: textColor, fontSize: 11 },
+        icon: 'circle',
+        itemWidth: 10,
+        itemHeight: 10,
+      },
+      series: [
+        {
+          type: 'pie',
+          radius: ['60%', '90%'],
+          center: ['50%', '50%'],
+          avoidLabelOverlap: false,
+          label: { show: false },
+          labelLine: { show: false },
+          data: labels.map((name, i) => ({
+            name,
+            value: values[i],
+            itemStyle: { color: colors[i % colors.length] },
+          })),
+        },
+      ],
+    };
   }
 
   private createContinuousMonitoringChart(): void {
-    // console.log('[CHARTS] createContinuousMonitoringChart() called');
-
-    // Combine all monitoring-related routes (include parent route + sub-routes)
     const invoiceData = this.filterByPrefix('/invoice-to-cash');
     const revenueData = this.filterByPrefix('/revenue-accounting');
     const orderData = this.filterByPrefix('/order-management');
     const opsData = this.filterByPrefix('/operations-controls');
 
-    // Aggregate by category
-    const aggregated: { label: string; visits: number }[] = [
+    const aggregated = [
       {
         label: 'Invoice to Cash',
         visits: invoiceData.reduce((s, i) => s + Number(i.TOTAL_VISITS), 0),
@@ -454,76 +361,54 @@ export class AnalyticsDashboardComponent
       },
     ].filter((item) => item.visits > 0);
 
-    // console.log('[CHARTS] Continuous Monitoring aggregated data:', aggregated);
-
-    const canvas = document.getElementById(
-      'continuousMonitoringChart',
-    ) as HTMLCanvasElement;
-
-    // console.log('[CHARTS] continuousMonitoringChart canvas:', canvas);
-
-    if (!canvas) {
-      console.log('[CHARTS] Canvas continuousMonitoringChart NOT FOUND');
-      return;
-    }
     if (aggregated.length === 0) {
-      console.log('[CHARTS] No aggregated data for continuousMonitoringChart');
+      this.continuousMonitoringChartOptions = {};
       return;
     }
+    const total = aggregated.reduce((a, b) => a + b.visits, 0);
+    const textColor = this.chartTextColor;
 
-    // console.log('[CHARTS] Creating continuousMonitoringChart...');
-    const cmTextColor = this.chartTextColor;
-    this.continuousMonitoringChart = new Chart(canvas, {
-      type: 'doughnut',
-      data: {
-        labels: aggregated.map((i) => i.label),
-        datasets: [
-          {
-            data: aggregated.map((i) => i.visits),
-            backgroundColor: this.COLORS.cisco.slice(0, aggregated.length),
-            borderWidth: 2,
-            borderColor: this.donutBorderColor,
-          },
-        ],
+    this.continuousMonitoringChartOptions = {
+      title: {
+        text: 'Continuous Monitoring Usage',
+        left: 'center',
+        textStyle: { color: textColor, fontSize: 14, fontWeight: 'bold' },
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              padding: 15,
-              usePointStyle: true,
-              font: { size: 11 },
-              color: cmTextColor,
-            },
-          },
-          title: {
-            display: true,
-            text: 'Continuous Monitoring Usage',
-            font: { size: 14, weight: 'bold' },
-            color: cmTextColor,
-          },
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const total = aggregated.reduce((a, b) => a + b.visits, 0);
-                const percentage = ((context.parsed / total) * 100).toFixed(1);
-                return `${context.label}: ${context.parsed} visits (${percentage}%)`;
-              },
-            },
-          },
+      tooltip: {
+        trigger: 'item',
+        formatter: (params: any) => {
+          const pct = ((params.value / total) * 100).toFixed(1);
+          return `${params.name}: ${params.value} visits (${pct}%)`;
         },
-        cutout: '60%',
       },
-    });
+      legend: {
+        bottom: 0,
+        textStyle: { color: textColor, fontSize: 11 },
+        icon: 'circle',
+        itemWidth: 10,
+        itemHeight: 10,
+      },
+      series: [
+        {
+          type: 'pie',
+          radius: ['60%', '90%'],
+          label: { show: false },
+          labelLine: { show: false },
+          data: aggregated.map((item, i) => ({
+            name: item.label,
+            value: item.visits,
+            itemStyle: {
+              color: this.COLORS.cisco[i % this.COLORS.cisco.length],
+            },
+          })),
+        },
+      ],
+    };
   }
 
   private createCaseIqChart(): void {
     const caseIqData = this.filterByPrefix('/case-iq');
-    this.caseIqChart = this.createDonutChart(
-      'caseIqChart',
+    this.caseIqChartOptions = this.buildDonutOptions(
       caseIqData,
       'Case IQ Team Usage',
       this.COLORS.cisco,
@@ -532,8 +417,7 @@ export class AnalyticsDashboardComponent
 
   private createBusinessInsightsChart(): void {
     const biData = this.filterByPrefix('/business-insights');
-    this.businessInsightsChart = this.createDonutChart(
-      'businessInsightsChart',
+    this.businessInsightsChartOptions = this.buildDonutOptions(
       biData,
       'Business Insights Usage',
       this.COLORS.green,
@@ -541,83 +425,57 @@ export class AnalyticsDashboardComponent
   }
 
   private createTopPagesChart(): void {
-    // console.log('[CHARTS] createTopPagesChart() called');
-
-    // Get top 10 pages overall, excluding parent-only routes
     const topPages = this.summaryData
       .filter((item) => !EXCLUDED_ROUTES.includes(item.PAGE_ROUTE))
       .slice(0, 10)
       .map((item) => ({
         label: this.extractTabName(item.PAGE_ROUTE),
         visits: Number(item.TOTAL_VISITS),
-        route: item.PAGE_ROUTE,
       }));
 
-    // console.log('[CHARTS] topPages data:', topPages);
-
-    const canvas = document.getElementById(
-      'topPagesChart',
-    ) as HTMLCanvasElement;
-
-    // console.log('[CHARTS] topPagesChart canvas:', canvas);
-
-    if (!canvas) {
-      console.log('[CHARTS] Canvas topPagesChart NOT FOUND');
-      return;
-    }
     if (topPages.length === 0) {
-      console.log('[CHARTS] No data for topPagesChart');
+      this.topPagesChartOptions = {};
       return;
     }
+    const textColor = this.chartTextColor;
+    const mutedColor = this.chartMutedColor;
 
-    // console.log('[CHARTS] Creating topPagesChart...');
-    const tpTextColor = this.chartTextColor;
-    const tpMutedColor = this.chartMutedColor;
-    this.topPagesChart = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: topPages.map((i) => i.label),
-        datasets: [
-          {
-            label: 'Total Visits',
-            data: topPages.map((i) => i.visits),
-            backgroundColor: this.COLORS.cisco[0],
-            borderRadius: 4,
-          },
-        ],
+    this.topPagesChartOptions = {
+      title: {
+        text: 'Top 10 Most Visited Pages',
+        left: 'center',
+        textStyle: { color: textColor, fontSize: 14, fontWeight: 'bold' },
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        indexAxis: 'y',
-        plugins: {
-          legend: { display: false },
-          title: {
-            display: true,
-            text: 'Top 10 Most Visited Pages',
-            font: { size: 14, weight: 'bold' },
-            color: tpTextColor,
-          },
-        },
-        scales: {
-          x: {
-            beginAtZero: true,
-            grid: { display: false },
-            ticks: { color: tpMutedColor },
-          },
-          y: {
-            grid: { display: false },
-            ticks: { color: tpMutedColor },
-          },
-        },
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      grid: { left: 120, right: 20, top: 40, bottom: 20, containLabel: false },
+      xAxis: {
+        type: 'value',
+        axisLabel: { color: mutedColor },
+        splitLine: { show: false },
+        axisLine: { show: false },
       },
-    });
+      yAxis: {
+        type: 'category',
+        data: topPages.map((i) => i.label).reverse(),
+        axisLabel: { color: mutedColor, fontSize: 11 },
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      series: [
+        {
+          type: 'bar',
+          data: topPages.map((i) => i.visits).reverse(),
+          itemStyle: {
+            color: this.COLORS.cisco[0],
+            borderRadius: [0, 4, 4, 0],
+          },
+          barMaxWidth: 20,
+        },
+      ],
+    };
   }
 
   private createUniqueUsersChart(): void {
-    // console.log('[CHARTS] createUniqueUsersChart() called');
-
-    // Get pages by unique users, excluding parent-only routes
     const byUsers = this.summaryData
       .filter((item) => !EXCLUDED_ROUTES.includes(item.PAGE_ROUTE))
       .slice(0, 8)
@@ -626,65 +484,46 @@ export class AnalyticsDashboardComponent
         users: Number(item.UNIQUE_USERS),
       }));
 
-    // console.log('[CHARTS] byUsers data:', byUsers);
-
-    const canvas = document.getElementById(
-      'uniqueUsersChart',
-    ) as HTMLCanvasElement;
-
-    // console.log('[CHARTS] uniqueUsersChart canvas:', canvas);
-
-    if (!canvas) {
-      console.log('[CHARTS] Canvas uniqueUsersChart NOT FOUND');
-      return;
-    }
     if (byUsers.length === 0) {
-      console.log('[CHARTS] No data for uniqueUsersChart');
+      this.uniqueUsersChartOptions = {};
       return;
     }
+    const textColor = this.chartTextColor;
+    const mutedColor = this.chartMutedColor;
 
-    // console.log('[CHARTS] Creating uniqueUsersChart...');
-    const uuTextColor = this.chartTextColor;
-    const uuMutedColor = this.chartMutedColor;
-    const uuGridColor = this.chartGridColor;
-    this.uniqueUsersChart = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: byUsers.map((i) => i.label),
-        datasets: [
-          {
-            label: 'Unique Users',
-            data: byUsers.map((i) => i.users),
-            backgroundColor: this.COLORS.cisco[1],
-            borderRadius: 4,
-          },
-        ],
+    this.uniqueUsersChartOptions = {
+      title: {
+        text: 'Pages by Unique Users',
+        left: 'center',
+        textStyle: { color: textColor, fontSize: 14, fontWeight: 'bold' },
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          title: {
-            display: true,
-            text: 'Pages by Unique Users',
-            font: { size: 14, weight: 'bold' },
-            color: uuTextColor,
-          },
-        },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: { color: uuMutedColor },
-          },
-          y: {
-            beginAtZero: true,
-            grid: { color: uuGridColor },
-            ticks: { color: uuMutedColor },
-          },
-        },
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      grid: { left: 10, right: 10, top: 40, bottom: 30, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: byUsers.map((i) => i.label),
+        axisLabel: { color: mutedColor, fontSize: 10, rotate: 30 },
+        axisLine: { show: false },
+        axisTick: { show: false },
       },
-    });
+      yAxis: {
+        type: 'value',
+        axisLabel: { color: mutedColor },
+        splitLine: { lineStyle: { color: this.chartGridColor } },
+        axisLine: { show: false },
+      },
+      series: [
+        {
+          type: 'bar',
+          data: byUsers.map((i) => i.users),
+          itemStyle: {
+            color: this.COLORS.cisco[1],
+            borderRadius: [4, 4, 0, 0],
+          },
+          barMaxWidth: 30,
+        },
+      ],
+    };
   }
 
   onPeriodChange(): void {

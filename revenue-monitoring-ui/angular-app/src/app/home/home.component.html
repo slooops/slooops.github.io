@@ -136,10 +136,11 @@
         @if (transactionFailuresLoading()) {
           <app-loading-symbol-small></app-loading-symbol-small>
         } @else {
-          <canvas
-            #transactionFailuresCanvas
-            aria-label="Transaction Failures Chart"
-          ></canvas>
+          <div
+            echarts
+            [options]="transactionFailuresChartOptions"
+            style="height: 100%; width: 100%"
+          ></div>
         }
       </div>
     </div>
@@ -150,7 +151,11 @@
         @if (espCasesLoading()) {
           <app-loading-symbol-small></app-loading-symbol-small>
         } @else {
-          <canvas #espCasesCanvas aria-label="ESP Cases Chart"></canvas>
+          <div
+            echarts
+            [options]="espCasesChartOptions"
+            style="height: 100%; width: 100%"
+          ></div>
         }
       </div>
     </div>
@@ -243,104 +248,19 @@
   <div class="issues-table-section">
     <div class="table-header-row">
       <h3 class="table-title">High Priority Issues List</h3>
-      <div class="table-toolbar-row">
-        <div class="toolbar-left">
-          <div class="search-container">
-            <span class="search-icon-wrapper">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 256 256"
-                fill="currentColor"
-              >
-                <path
-                  d="M229.66,218.34l-50.07-50.07a88.11,88.11,0,1,0-11.31,11.31l50.07,50.07a8,8,0,0,0,11.31-11.31ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"
-                />
-              </svg>
-            </span>
-            <input
-              type="text"
-              class="search-input"
-              placeholder="Search this table"
-              [ngModel]="searchTerm()"
-              (ngModelChange)="searchTerm.set($event); applySearch()"
-            />
-          </div>
-
-          <div class="filters-container">
-            <button class="filter-chip" (click)="toggleFiltersDropdown($event)">
-              <ng-icon name="phosphorFunnelSimpleBold" size="13" />
-              Filters
-              @if (hasActiveFilters()) {
-                <span class="filter-count">{{ activeFilters().length }}</span>
-              }
-            </button>
-
-            @if (showFiltersDropdown()) {
-              <div
-                class="filters-dropdown"
-                (click)="$event.stopPropagation()"
-                tabindex="0"
-                aria-label="Active filters menu"
-              >
-                <div class="filter-sections">
-                  @for (option of filterOptions(); track option) {
-                    <div class="filter-section">
-                      <div class="filter-section-title">
-                        {{ option.label }}
-                      </div>
-                      <div class="filter-options">
-                        @for (val of option.values; track val) {
-                          <label class="filter-option">
-                            <input
-                              type="checkbox"
-                              (change)="addFilter(option.id, option.label, val)"
-                              [checked]="isFilterActive(option.id, val)"
-                            />
-                            <span class="checkmark"></span>
-                            {{ val }}
-                          </label>
-                        }
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-
-          <span class="result-count">{{ resultCount() }} results</span>
-          <button
-            class="reset-link"
-            [class.disabled]="!hasActiveFilters()"
-            (click)="clearAllFilters()"
-            [disabled]="!hasActiveFilters()"
-          >
-            Reset filters
-          </button>
-
-          @if (hasActiveFilters()) {
-            <div class="filter-tags-inline">
-              @for (filter of activeFilters(); track filter) {
-                <div class="filter-tag">
-                  <span class="filter-label">{{ filter.key }}</span>
-                  <span class="filter-value">{{ filter.value }}</span>
-                  <button
-                    class="remove-filter"
-                    (click)="removeFilter(filter.key, filter.value)"
-                  >
-                    ✕
-                  </button>
-                </div>
-              }
-            </div>
-          }
-        </div>
-
-        <button class="action-btn" (click)="exportIssuesToExcel()">
-          <ng-icon name="phosphorArrowLineDownBold" size="14" />
-          Download
-        </button>
+      <div class="table-toolbar">
+        <app-filter-button-bar
+          [filters]="filterConfigs"
+          [filterValues]="filterValues"
+          [actions]="actionButtons"
+          [totalCount]="dataSource?.data?.length || 0"
+          [filteredCount]="resultCount()"
+          [showFilterToggle]="!!dataSource?.data?.length"
+          countLabel="results"
+          (filterChange)="onFilterChange($event)"
+          (filterClear)="onFilterClear()"
+          (actionClick)="onActionButtonClick($event)"
+        ></app-filter-button-bar>
       </div>
     </div>
 
@@ -443,7 +363,6 @@
     }
   </div>
 </div>
-<br /><br /><br />
 <!-- } -->
 
 <!-- Loading Spinner -->

@@ -1,7 +1,25 @@
 import { Component, HostBinding, OnInit, signal } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Chart, registerables, ChartOptions } from 'chart.js';
+import * as echarts from 'echarts/core';
+import { BarChart, LineChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import type { EChartsOption } from 'echarts';
+
+echarts.use([
+  BarChart,
+  LineChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  CanvasRenderer,
+]);
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { HomeDataService } from 'src/app/home/home-data.service';
@@ -38,12 +56,14 @@ type PairConfig = {
     CardComponent,
     TableComponent,
     MenuMiniComponent,
+    NgxEchartsDirective,
   ],
   providers: [
     DestroyManager,
     provideIcons({
       phosphorSparkleBold,
     }),
+    provideEchartsCore({ echarts }),
   ],
   standalone: true,
 })
@@ -59,7 +79,6 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
     public themeService: ThemeService,
   ) {
     this.http = http;
-    Chart.register(...registerables);
   }
   protected http: ApiHttpService;
 
@@ -82,15 +101,7 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
 
   espWeeklyComparisonSummary: any[] = [];
 
-  sbpBirChartQ1Q2: Chart | null = null;
-  sbpBirChartQ2Q3: Chart | null = null;
-  sbpBirChartQ3Q4: Chart | null = null;
-  sbpBirChartQ4Q1: Chart | null = null;
-
-  sbpPrmcChartQ1Q2: Chart | null = null;
-  sbpPrmcChartQ2Q3: Chart | null = null;
-  sbpPrmcChartQ3Q4: Chart | null = null;
-  sbpPrmcChartQ4Q1: Chart | null = null;
+  chartOptionsMap: Record<string, EChartsOption> = {};
 
   q1: string | null = null;
   q2: string | null = null;
@@ -106,8 +117,23 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
     this.loadPeriodInfo();
     this.roles = this.authService.getRoles();
 
-    // Update chart colors when theme changes
-    this.themeService.isDarkMode$.subscribe(() => this.updateChartTheme());
+    // Rebuild charts when theme changes
+    this.themeService.isDarkMode$.subscribe(() => {
+      const pair = this.quarterPairs[this.selectedTabIndex];
+      if (pair) {
+        const chartNameMap: { [key: string]: string } = {
+          'Q1-Q2': 'Q1Q2',
+          'Q2-Q3': 'Q2Q3',
+          'Q3-Q4': 'Q3Q4',
+          'Q4-Q1': 'Q4Q1',
+        };
+        this.generateChartForPair(
+          pair.left,
+          pair.right,
+          chartNameMap[pair.key],
+        );
+      }
+    });
 
     this.http
       .get('sbp-esp-weekly-comparison-summary', this.destroyManager, {
@@ -299,114 +325,82 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
       this.COLORS,
     );
 
-    const prmcCanvasId = `sbpPrmcChart${name}`;
-    const birCanvasId = `sbpBirChart${name}`;
-
-    const prmcCanvas = document.getElementById(
-      prmcCanvasId,
-    ) as HTMLCanvasElement;
-    const birCanvas = document.getElementById(birCanvasId) as HTMLCanvasElement;
-
-    // Validate canvas elements exist before attempting to create charts
-    if (!prmcCanvas) {
-      console.error(`Canvas not found: ${prmcCanvasId}`);
-      return;
-    }
-    if (!birCanvas) {
-      console.error(`Canvas not found: ${birCanvasId}`);
-      return;
-    }
-
-    try {
-      if (prmcCanvas.getContext('2d')) {
-        const existingChart = this[`sbpPrmcChart${name}`];
-        if (existingChart) {
-          existingChart.destroy();
-        }
-
-        this[`sbpPrmcChart${name}`] = new Chart(prmcCanvas, {
-          type: 'bar',
-          data: { labels, datasets: prmcDatasets },
-          options: this.sharedChartOptions,
-        });
-      }
-
-      if (birCanvas.getContext('2d')) {
-        const existingChart = this[`sbpBirChart${name}`];
-        if (existingChart) {
-          existingChart.destroy();
-        }
-
-        this[`sbpBirChart${name}`] = new Chart(birCanvas, {
-          type: 'bar',
-          data: { labels, datasets: birDatasets },
-          options: this.sharedChartOptions,
-        });
-      }
-    } catch (error) {
-      console.error(`Error creating charts for ${name}:`, error);
-    }
+    this.chartOptionsMap[`sbpBirChart${name}`] = this.buildEchartsOptions(
+      labels,
+      birDatasets,
+    );
+    this.chartOptionsMap[`sbpPrmcChart${name}`] = this.buildEchartsOptions(
+      labels,
+      prmcDatasets,
+    );
   }
 
-  get sharedChartOptions(): ChartOptions {
+  private buildEchartsOptions(
+    labels: string[],
+    datasets: any[],
+  ): EChartsOption {
     const isDark = this.themeService.isDarkMode;
-    const legendColor = isDark ? '#e0e6ed' : '#4f4f4f';
+    const textColor = isDark ? '#e0e6ed' : '#4f4f4f';
     const tickColor = isDark ? '#8899a6' : '#666';
-    const gridColor = isDark ? 'rgba(136,153,166,0.18)' : '#f0f0f0';
+    const gridLineColor = isDark ? 'rgba(136,153,166,0.18)' : '#f0f0f0';
+
+    const series = datasets.map((ds: any) => {
+      const isLine = ds.type === 'line';
+      const base: any = {
+        name: ds.label,
+        type: isLine ? 'line' : 'bar',
+        data: ds.data,
+      };
+      if (isLine) {
+        const color = ds.borderColor || ds.backgroundColor || '#999';
+        const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        base.smooth = true;
+        base.symbol = 'circle';
+        base.symbolSize = 6;
+        base.lineStyle = { width: 2, color };
+        base.itemStyle = { color };
+        base.areaStyle = {
+          color: match
+            ? new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                {
+                  offset: 0,
+                  color: `rgba(${match[1]},${match[2]},${match[3]},0.35)`,
+                },
+                {
+                  offset: 1,
+                  color: `rgba(${match[1]},${match[2]},${match[3]},0)`,
+                },
+              ])
+            : 'transparent',
+        };
+      } else {
+        base.itemStyle = { color: ds.backgroundColor || ds.borderColor };
+        base.barMaxWidth = 32;
+      }
+      return base;
+    });
 
     return {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'nearest', intersect: false },
-      plugins: {
-        legend: {
-          display: true,
-          position: 'top',
-          align: 'center',
-          labels: {
-            usePointStyle: true,
-            pointStyle: 'circle',
-            boxWidth: 8,
-            boxHeight: 8,
-            padding: 15,
-            font: { family: 'Inter, sans-serif', size: 12, weight: 'normal' },
-            color: legendColor,
-          },
-        },
-        tooltip: {
-          enabled: true,
-          displayColors: false,
-          backgroundColor: '#222',
-          titleColor: '#fff',
-          bodyColor: '#fff',
-          padding: 10,
-          cornerRadius: 4,
-        },
-        datalabels: {
-          display: false,
-        },
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#222',
+        textStyle: { color: '#fff' },
       },
-      scales: {
-        x: {
-          beginAtZero: true,
-          grid: { display: false },
-          border: { display: false },
-          ticks: {
-            font: { family: 'Inter, sans-serif', size: 11, weight: 'normal' },
-            color: tickColor,
-            maxRotation: 0,
-          },
-        },
-        y: {
-          beginAtZero: true,
-          border: { display: false },
-          grid: { color: gridColor, lineWidth: 1 },
-          ticks: {
-            font: { family: 'Inter, sans-serif', size: 11 },
-            color: isDark ? '#8899a6' : '#999',
-          },
-        },
+      legend: { top: 0, textStyle: { color: textColor, fontSize: 12 } },
+      grid: { top: 34, left: 8, right: 8, bottom: 10, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLabel: { color: tickColor, fontSize: 11, margin: 6 },
+        axisLine: { show: false },
+        axisTick: { show: false },
       },
+      yAxis: {
+        type: 'value',
+        axisLabel: { color: tickColor, fontSize: 11, margin: 6 },
+        splitLine: { lineStyle: { color: gridLineColor } },
+      },
+      series,
     };
   }
 
@@ -471,8 +465,6 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
   onTabClick(event: any): void {
     const tabIndex = event.index;
 
-    this.destroyCharts();
-
     // NEW: Use quarter pairs based on tab index
     const pair = this.quarterPairs[tabIndex];
     if (!pair) {
@@ -492,81 +484,10 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
 
     this[loadingFlag] = false as any;
 
-    // Timeout allows Angular's change detection to complete before Chart.js renders
+    // Timeout allows Angular's change detection to complete before ECharts renders
     setTimeout(() => {
       this.generateChartForPair(pair.left, pair.right, chartName);
     }, 100);
-  }
-
-  /** Re-apply theme colors to all live Chart.js instances */
-  private updateChartTheme(): void {
-    const opts = this.sharedChartOptions;
-    const charts = [
-      this.sbpBirChartQ1Q2,
-      this.sbpBirChartQ2Q3,
-      this.sbpBirChartQ3Q4,
-      this.sbpBirChartQ4Q1,
-      this.sbpPrmcChartQ1Q2,
-      this.sbpPrmcChartQ2Q3,
-      this.sbpPrmcChartQ3Q4,
-      this.sbpPrmcChartQ4Q1,
-    ];
-    const isDark = this.themeService.isDarkMode;
-    const dotFill = isDark ? '#2a3f50' : '#fff';
-    for (const chart of charts) {
-      if (!chart) continue;
-      chart.options.scales = opts.scales;
-      chart.options.plugins!.legend = opts.plugins!.legend;
-      // Update dot fill color on line datasets
-      for (const ds of chart.data.datasets) {
-        if (
-          (ds as any).type === 'line' ||
-          (!(ds as any).type && (chart.config as any).type === 'line')
-        ) {
-          (ds as any).pointBackgroundColor = dotFill;
-        }
-      }
-      chart.update();
-    }
-  }
-
-  destroyCharts(): void {
-    try {
-      if (this.sbpBirChartQ1Q2) {
-        this.sbpBirChartQ1Q2.destroy();
-        this.sbpBirChartQ1Q2 = null;
-      }
-      if (this.sbpBirChartQ2Q3) {
-        this.sbpBirChartQ2Q3.destroy();
-        this.sbpBirChartQ2Q3 = null;
-      }
-      if (this.sbpBirChartQ3Q4) {
-        this.sbpBirChartQ3Q4.destroy();
-        this.sbpBirChartQ3Q4 = null;
-      }
-      if (this.sbpBirChartQ4Q1) {
-        this.sbpBirChartQ4Q1.destroy();
-        this.sbpBirChartQ4Q1 = null;
-      }
-      if (this.sbpPrmcChartQ1Q2) {
-        this.sbpPrmcChartQ1Q2.destroy();
-        this.sbpPrmcChartQ1Q2 = null;
-      }
-      if (this.sbpPrmcChartQ2Q3) {
-        this.sbpPrmcChartQ2Q3.destroy();
-        this.sbpPrmcChartQ2Q3 = null;
-      }
-      if (this.sbpPrmcChartQ3Q4) {
-        this.sbpPrmcChartQ3Q4.destroy();
-        this.sbpPrmcChartQ3Q4 = null;
-      }
-      if (this.sbpPrmcChartQ4Q1) {
-        this.sbpPrmcChartQ4Q1.destroy();
-        this.sbpPrmcChartQ4Q1 = null;
-      }
-    } catch (error) {
-      console.error('Error destroying charts:', error);
-    }
   }
 
   COLORS = {
@@ -838,26 +759,6 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
     return pairs;
   }
 
-  private lineGradient(borderColor: string): (ctx: any) => any {
-    const match = borderColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if (!match) return () => borderColor;
-    const [, r, g, b] = match;
-    return (ctx: any) => {
-      const chart = ctx.chart;
-      const { ctx: canvasCtx, chartArea } = chart;
-      if (!chartArea) return `rgba(${r}, ${g}, ${b}, 0.1)`;
-      const gradient = canvasCtx.createLinearGradient(
-        0,
-        chartArea.top,
-        0,
-        chartArea.bottom,
-      );
-      gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.35)`);
-      gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
-      return gradient;
-    };
-  }
-
   generateDatasetsForQuarterComparison(
     firstQuarter: string | null,
     secondQuarter: string | null,
@@ -886,9 +787,6 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
 
-    const isDark = this.themeService.isDarkMode;
-    const dotFill = isDark ? '#2a3f50' : '#fff';
-
     const datasets = categories.flatMap((category) => {
       const mappedKey =
         categoryColorKeyMap[category.toLowerCase()] ||
@@ -903,20 +801,10 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
       const lineProps = (colorObj: any) =>
         isLine
           ? {
-              tension: 0.25,
-              pointRadius: 3,
-              pointHoverRadius: 5,
-              pointBackgroundColor: dotFill,
-              pointBorderColor: colorObj?.borderColor,
-              pointBorderWidth: 2,
-              borderWidth: 2,
-              fill: 'origin',
-              order: 1,
-              backgroundColor: this.lineGradient(
-                colorObj?.borderColor || 'rgba(0,0,0,1)',
-              ),
+              borderColor: colorObj?.borderColor,
+              backgroundColor: colorObj?.backgroundColor,
             }
-          : { order: 2 };
+          : {};
 
       const displayName =
         category.toUpperCase() === 'PDF' ? 'PDF' : toTitleCase(category);

@@ -3,14 +3,13 @@ import {
   Input,
   Output,
   EventEmitter,
-  OnInit,
   OnChanges,
   SimpleChanges,
   HostBinding,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { ThemeService } from '../../../providers/theme.service';
+import { SupervisorIncident } from '../caseiq-incidents/caseiq-incidents.component';
 
 interface PipelineStep {
   name: string;
@@ -40,36 +39,29 @@ interface NotificationEvent {
   templateUrl: './caseiq-incident-detail.component.html',
   styleUrls: ['./caseiq-incident-detail.component.css'],
 })
-export class CaseiqIncidentDetailComponent implements OnInit, OnChanges {
+export class CaseiqIncidentDetailComponent implements OnChanges {
   @HostBinding('class.dark-theme') get darkThemeClass() {
     return this.themeService.isDarkMode;
   }
 
-  @Input() incidentNumber: string = '';
+  @Input() incident: SupervisorIncident | null = null;
+  @Input() backLabel: string = 'Back to Incidents';
   @Output() back = new EventEmitter<void>();
 
   isLoading = false;
   error: string | null = null;
-  incident: any = null;
+  incidentNumber = '';
+  incidentViewModel: any = null;
 
   activeTab: 'pipeline' | 'notifications' = 'pipeline';
   pipelineSteps: PipelineStep[] = [];
   notifications: NotificationEvent[] = [];
 
-  constructor(
-    private httpClient: HttpClient,
-    public themeService: ThemeService,
-  ) {}
-
-  ngOnInit(): void {
-    if (this.incidentNumber) {
-      this.fetchIncidentDetail();
-    }
-  }
+  constructor(public themeService: ThemeService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['incidentNumber'] && !changes['incidentNumber'].firstChange) {
-      this.fetchIncidentDetail();
+    if (changes['incident']) {
+      this.hydrateDetail();
     }
   }
 
@@ -77,25 +69,100 @@ export class CaseiqIncidentDetailComponent implements OnInit, OnChanges {
     this.back.emit();
   }
 
-  fetchIncidentDetail(): void {
-    if (!this.incidentNumber) return;
-    this.isLoading = true;
-    this.error = null;
+  reloadDetail(): void {
+    this.hydrateDetail();
+  }
 
-    this.httpClient
-      .get<any>(`/api/caseiq-supervisor/incidents/${this.incidentNumber}`)
-      .subscribe({
-        next: (data) => {
-          this.incident = data;
-          this.parsePipeline(data);
-          this.parseNotifications(data);
-          this.isLoading = false;
+  private hydrateDetail(): void {
+    if (!this.incident) {
+      this.incidentNumber = '';
+      this.incidentViewModel = null;
+      this.pipelineSteps = [];
+      this.notifications = [];
+      return;
+    }
+
+    this.incidentNumber = this.incident.incidentNumber;
+    this.incidentViewModel = {
+      status: this.incident.outcome,
+      team_name: this.incident.team,
+      category: this.incident.category,
+      core_issue: this.incident.coreIssue,
+      resolution_path: this.incident.resolutionPath,
+      duration: '3.6m',
+      shared_state_id: `ss-${this.incident.incidentNumber.toLowerCase()}-20260616`,
+      pipeline: [
+        {
+          name: 'Intake',
+          status: 'completed',
+          details: {
+            owner: 'ESP Gateway',
+            summary: 'Incident received and validated',
+            timestamp: this.incident.processedAt,
+          },
         },
-        error: (err) => {
-          this.error = 'Failed to load incident details.';
-          this.isLoading = false;
+        {
+          name: 'Classification',
+          status: 'completed',
+          details: {
+            category: this.incident.category,
+            core_issue: this.incident.coreIssue,
+            confidence: '0.96',
+          },
         },
-      });
+        {
+          name: 'Resolution Orchestration',
+          status: this.incident.outcome === 'Failed' ? 'failed' : 'completed',
+          details: {
+            path: this.incident.resolutionPath,
+            outcome: this.incident.outcome,
+          },
+          sub_agent_calls: [
+            {
+              name: 'I2C Agent',
+              team: 'I2C',
+              status:
+                this.incident.outcome === 'Failed' ? 'failed' : 'completed',
+            },
+          ],
+        },
+        {
+          name: 'Responder',
+          status:
+            this.incident.outcome === 'In Progress'
+              ? 'in progress'
+              : 'completed',
+          details: {
+            notification: 'CaseIQ orchestrator update sent',
+            channel: 'Webex + Email',
+          },
+        },
+      ],
+      notifications: [
+        {
+          type: 'ESP Update',
+          description: 'Incident routing status updated in orchestrator.',
+          timestamp: this.incident.processedAt,
+          details: {
+            incident: this.incident.incidentNumber,
+            team: this.incident.team,
+            outcome: this.incident.outcome,
+          },
+        },
+        {
+          type: 'Agent Action',
+          description: 'I2C agent completed the assigned workflow step.',
+          timestamp: this.incident.processedAt,
+          details: {
+            path: this.incident.resolutionPath,
+            pipeline_stages: this.incident.pipelineStages,
+          },
+        },
+      ],
+    };
+
+    this.parsePipeline(this.incidentViewModel);
+    this.parseNotifications(this.incidentViewModel);
   }
 
   private parsePipeline(data: any): void {

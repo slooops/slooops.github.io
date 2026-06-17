@@ -115,6 +115,13 @@
   width: 100%;
 }
 
+.ctx3-chart-wrapper .ctx3-echart {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .ctx3-chart-wrapper canvas {
   position: absolute;
   inset: 0;

@@ -109,7 +109,7 @@
               </div>
               <nav class="ms-drawer-nav">
                 @for (subItem of child.children; track subItem.label) {
-                  @if (!subItem.disabled) {
+                  @if (!subItem.disabled && isVisible(subItem)) {
                     <button
                       class="ms-drawer-item"
                       (click)="navigateFromFlyout(subItem)"

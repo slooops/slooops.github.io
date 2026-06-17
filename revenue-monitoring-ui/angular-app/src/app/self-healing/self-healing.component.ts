@@ -1,23 +1,31 @@
-import {
-  Component,
-  HostBinding,
-  OnInit,
-  ViewChild,
-  ElementRef,
-  OnDestroy,
-  AfterViewChecked,
-} from '@angular/core';
+import { Component, HostBinding, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { NgIcon } from '@ng-icons/core';
-import { Chart, registerables } from 'chart.js';
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import * as echarts from 'echarts/core';
+import { BarChart, LineChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import type { EChartsOption } from 'echarts';
 import { ExceptionsComponent } from './exceptions/exceptions.component';
 import { ExceptionDetailsComponent } from './exception-details/exception-details.component';
 import { ThemeService } from '../providers/theme.service';
 import { DataService } from '../providers/data.service';
 
-Chart.register(...registerables);
+echarts.use([
+  BarChart,
+  LineChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  CanvasRenderer,
+]);
 
 interface KpiCard {
   label: string;
@@ -66,24 +74,16 @@ interface TrendPoint {
     CommonModule,
     FormsModule,
     NgIcon,
+    NgxEchartsDirective,
     ExceptionsComponent,
     ExceptionDetailsComponent,
   ],
+  providers: [provideEchartsCore({ echarts })],
   templateUrl: './self-healing.component.html',
   styleUrls: ['./self-healing.component.css'],
 })
-export class SelfHealingComponent
-  implements OnInit, OnDestroy, AfterViewChecked
-{
+export class SelfHealingComponent implements OnInit, OnDestroy {
   private readonly API_URL = 'https://i2c-aria-dev.cisco.com/api/runs';
-  private chartsPendingRender = false;
-
-  @ViewChild('trendCanvas') trendCanvasRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('categoryCanvas')
-  categoryCanvasRef!: ElementRef<HTMLCanvasElement>;
-
-  private trendChart: any = null;
-  private categoryChart: any = null;
 
   constructor(
     private http: HttpClient,
@@ -93,6 +93,8 @@ export class SelfHealingComponent
 
   trendData: TrendPoint[] = [];
   trendLoading = false;
+  trendChartOptions: EChartsOption = {};
+  categoryChartOptions: EChartsOption = {};
 
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
@@ -102,10 +104,7 @@ export class SelfHealingComponent
     this.fetchCategoryModeData();
   }
 
-  ngOnDestroy(): void {
-    this.trendChart?.destroy();
-    this.categoryChart?.destroy();
-  }
+  ngOnDestroy(): void {}
 
   @HostBinding('class.dark-theme')
   get darkThemeClass() {
@@ -142,7 +141,6 @@ export class SelfHealingComponent
     if (this.exceptionOrigin === 'command-center') {
       this.selectedExceptionId = null;
       this.selectedMenuIndex = 0;
-      this.rerenderAllCharts();
     } else {
       this.selectedExceptionId = null;
     }
@@ -156,28 +154,6 @@ export class SelfHealingComponent
   goBackToCommandCenter(): void {
     this.selectedMenuIndex = 0;
     this.selectedExceptionId = null;
-    this.rerenderAllCharts();
-  }
-
-  private rerenderAllCharts(): void {
-    this.chartsPendingRender = true;
-  }
-
-  ngAfterViewChecked(): void {
-    if (
-      this.chartsPendingRender &&
-      this.trendCanvasRef &&
-      this.categoryCanvasRef
-    ) {
-      this.chartsPendingRender = false;
-      // Double rAF ensures layout is complete across Safari, Firefox, and Chrome
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          this.renderTrendChart();
-          this.renderCategoryChart();
-        });
-      });
-    }
   }
 
   /* ── Period Status ── */
@@ -262,7 +238,7 @@ export class SelfHealingComponent
             analysisFailed: d.failed ?? 0,
           }));
           this.trendLoading = false;
-          setTimeout(() => this.renderTrendChart(), 0);
+          this.renderTrendChart();
         },
         error: () => {
           this.trendLoading = false;
@@ -271,98 +247,66 @@ export class SelfHealingComponent
   }
 
   private renderTrendChart(): void {
-    if (!this.trendCanvasRef || this.trendData.length < 2) return;
-    this.trendChart?.destroy();
+    if (this.trendData.length < 2) return;
     const labels = this.trendData.map((d) =>
       new Date(d.date).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
       }),
     );
-    const allDatasets = [
+
+    const seriesConfig = [
       {
-        label: 'Analysis Completed',
-        data: this.trendData.map((d) => d.analysisCompleted),
-        borderColor: '#0070d2',
-        backgroundColor: 'rgba(0, 112, 210, 0.08)',
-        fill: true,
-        tension: 0.3,
-        pointRadius: 4,
-        pointBackgroundColor: '#0070d2',
-        borderWidth: 2,
+        name: 'Analysis Completed',
+        key: 'analysisCompleted',
+        color: '#0070d2',
       },
-      {
-        label: 'Analysis Failed',
-        data: this.trendData.map((d) => d.analysisFailed),
-        borderColor: '#e53935',
-        backgroundColor: 'rgba(229, 57, 53, 0.05)',
-        fill: true,
-        tension: 0.3,
-        pointRadius: 4,
-        pointBackgroundColor: '#e53935',
-        borderWidth: 2,
-      },
-      {
-        label: 'Review Accepted',
-        data: this.trendData.map((d) => d.reviewCompleted),
-        borderColor: '#6ebe4a',
-        backgroundColor: 'rgba(110, 190, 74, 0.08)',
-        fill: true,
-        tension: 0.3,
-        pointRadius: 4,
-        pointBackgroundColor: '#6ebe4a',
-        borderWidth: 2,
-      },
-      {
-        label: 'Review Rejected',
-        data: this.trendData.map((d) => d.reviewRejected),
-        borderColor: '#ff6600',
-        backgroundColor: 'rgba(255, 102, 0, 0.05)',
-        fill: true,
-        tension: 0.3,
-        pointRadius: 4,
-        pointBackgroundColor: '#ff6600',
-        borderWidth: 2,
-      },
+      { name: 'Analysis Failed', key: 'analysisFailed', color: '#e53935' },
+      { name: 'Review Accepted', key: 'reviewCompleted', color: '#6ebe4a' },
+      { name: 'Review Rejected', key: 'reviewRejected', color: '#ff6600' },
     ];
-    const datasets = allDatasets.map((ds) => {
-      const hasData = ds.data.some((v) => v > 0);
-      if (!hasData) {
+
+    const series = seriesConfig
+      .map((s) => {
+        const data = this.trendData.map((d) => (d as any)[s.key] as number);
+        const hasData = data.some((v) => v > 0);
+        if (!hasData) return null;
         return {
-          ...ds,
-          borderWidth: 0,
-          pointRadius: 0,
-          fill: false,
-          backgroundColor: 'transparent',
+          name: s.name,
+          type: 'line' as const,
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: { width: 2, color: s.color },
+          itemStyle: { color: s.color },
+          areaStyle: { color: s.color, opacity: 0.06 },
+          data,
         };
-      }
-      return ds;
-    });
-    this.trendChart = new Chart(this.trendCanvasRef.nativeElement, {
-      type: 'line',
-      data: { labels, datasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: true,
-            position: 'bottom',
-            labels: { usePointStyle: true, padding: 16, font: { size: 11 } },
-          },
-          tooltip: { mode: 'index', intersect: false },
-        },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-          y: {
-            beginAtZero: true,
-            grid: { color: 'rgba(0,0,0,0.06)' },
-            ticks: { font: { size: 10 } },
-          },
-        },
-        interaction: { mode: 'nearest', axis: 'x', intersect: false },
+      })
+      .filter(Boolean);
+
+    this.trendChartOptions = {
+      tooltip: { trigger: 'axis' },
+      legend: {
+        bottom: 0,
+        itemWidth: 10,
+        itemHeight: 10,
+        textStyle: { fontSize: 11 },
       },
-    });
+      grid: { top: 20, right: 20, bottom: 50, left: 50 },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.06)' } },
+      },
+      series,
+    };
   }
 
   /* ── Category x Mode (stacked bar) ── */
@@ -397,53 +341,50 @@ export class SelfHealingComponent
             return row;
           });
           this.categoryModes = modes;
-          setTimeout(() => this.renderCategoryChart(), 0);
+          this.renderCategoryChart();
         },
         error: () => {},
       });
   }
 
   renderCategoryChart(): void {
-    if (!this.categoryCanvasRef || !this.categoryModeData.length) return;
-    this.categoryChart?.destroy();
-    const labels = this.categoryModeData.map((r) => r.category as string);
-    const datasets = this.categoryModes.map((mode) => ({
-      label: this.formatStatus(mode),
-      data: this.categoryModeData.map((r) => (r[mode] as number) || 0),
-      backgroundColor: this.modeColors[mode] || '#888',
-      borderRadius: 4,
-      maxBarThickness: 48,
-    }));
-    this.categoryChart = new Chart(this.categoryCanvasRef.nativeElement, {
-      type: 'bar',
-      data: { labels, datasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: true,
-            position: 'bottom',
-            labels: { usePointStyle: true, padding: 16, font: { size: 11 } },
-          },
-          tooltip: { mode: 'index', intersect: false },
-        },
-        scales: {
-          x: {
-            stacked: true,
-            grid: { display: false },
-            ticks: { font: { size: 10 } },
-          },
-          y: {
-            stacked: true,
-            beginAtZero: true,
-            grace: '5%',
-            grid: { color: 'rgba(0,0,0,0.06)' },
-            ticks: { font: { size: 10 }, precision: 0 },
-          },
-        },
+    if (!this.categoryModeData.length) return;
+    const categories = this.categoryModeData.map((r) => r.category as string);
+
+    const series = this.categoryModes.map((mode) => ({
+      name: this.formatStatus(mode),
+      type: 'bar' as const,
+      stack: 'total',
+      barMaxWidth: 48,
+      itemStyle: {
+        color: this.modeColors[mode] || '#888',
+        borderRadius: [4, 4, 0, 0],
       },
-    });
+      data: this.categoryModeData.map((r) => (r[mode] as number) || 0),
+    }));
+
+    this.categoryChartOptions = {
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      legend: {
+        bottom: 0,
+        itemWidth: 10,
+        itemHeight: 10,
+        textStyle: { fontSize: 11 },
+      },
+      grid: { top: 20, right: 20, bottom: 50, left: 50 },
+      xAxis: {
+        type: 'category',
+        data: categories,
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.06)' } },
+      },
+      series,
+    };
   }
 
   /* ── Patterns ── */

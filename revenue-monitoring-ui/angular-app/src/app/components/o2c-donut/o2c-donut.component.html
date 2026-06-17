@@ -5,7 +5,7 @@
     [style.background-color]="showCircleBackground ? '#f4f5f6' : 'transparent'"
     [style.min-width]="chartSize"
     [style.height]="chartSize"
-    >
+  >
     <!-- Loading state in chart area -->
     @if (showLoadingState) {
       <div class="chart-loading-state">
@@ -13,12 +13,15 @@
       </div>
     }
 
-    <!-- Actual chart canvas -->
+    <!-- Actual chart -->
     @if (showChartAndLegend) {
-      <canvas
-        [id]="canvasId"
+      <div
+        echarts
+        [options]="chartOptions"
+        [style.width]="chartSize"
+        [style.height]="chartSize"
         [style.opacity]="showChartAndLegend ? 1 : 0"
-      ></canvas>
+      ></div>
     }
 
     <!-- No data indicator in chart area (optional) -->
@@ -28,7 +31,7 @@
           <path
             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
             fill="#ccc"
-            />
+          />
         </svg>
       </div>
     }
@@ -40,9 +43,7 @@
     @if (showLoadingState) {
       <div class="loading-legend">
         @for (item of [1, 2, 3]; track item; let i = $index) {
-          <div
-            class="loading-legend-item"
-            >
+          <div class="loading-legend-item">
             <div class="loading-shimmer loading-color-box"></div>
             <div class="loading-shimmer loading-text"></div>
             <div class="loading-shimmer loading-number"></div>
@@ -59,9 +60,9 @@
             class="legend-item"
             [style.--item-index]="i + 1"
             [class.total-row]="item.type === 'Total Exceptions'"
-            >
+          >
             <div class="legend-left">
-              @if (item.color !== 'transparent') {
+              @if (item.color !== "transparent") {
                 <span
                   class="legend-color-box"
                   [style.background]="item.color"
@@ -72,11 +73,13 @@
             <div class="legend-right">
               <span class="legend-count">
                 {{
-                item.count !== undefined && item.count !== null ? item.count : "-"
+                  item.count !== undefined && item.count !== null
+                    ? item.count
+                    : "-"
                 }}
               </span>
               <span class="legend-value">
-                {{ item.value | currency : "USD" : "" }}
+                {{ item.value | currency: "USD" : "" }}
               </span>
             </div>
           </div>

@@ -38,7 +38,7 @@
             @if (isQ1Q2Loading) {
               <app-loading-symbol></app-loading-symbol>
             }
-            <canvas id="birChartQ1Q2"></canvas>
+            <div echarts [options]="chartOptionsMap['birChartQ1Q2']" style="height: 100%; width: 100%;"></div>
           </div>
         </div>
         <div class="card">
@@ -46,7 +46,7 @@
             @if (isQ1Q2Loading) {
               <app-loading-symbol></app-loading-symbol>
             }
-            <canvas id="prmcChartQ1Q2"></canvas>
+            <div echarts [options]="chartOptionsMap['prmcChartQ1Q2']" style="height: 100%; width: 100%;"></div>
           </div>
         </div>
       </div>
@@ -91,7 +91,7 @@
             @if (isQ2Q3Loading) {
               <app-loading-symbol></app-loading-symbol>
             }
-            <canvas id="birChartQ2Q3"></canvas>
+            <div echarts [options]="chartOptionsMap['birChartQ2Q3']" style="height: 100%; width: 100%;"></div>
           </div>
         </div>
         <div class="card">
@@ -99,7 +99,7 @@
             @if (isQ2Q3Loading) {
               <app-loading-symbol></app-loading-symbol>
             }
-            <canvas id="prmcChartQ2Q3"></canvas>
+            <div echarts [options]="chartOptionsMap['prmcChartQ2Q3']" style="height: 100%; width: 100%;"></div>
           </div>
         </div>
       </div>
@@ -144,7 +144,7 @@
             @if (isQ3Q4Loading) {
               <app-loading-symbol></app-loading-symbol>
             }
-            <canvas id="birChartQ3Q4"></canvas>
+            <div echarts [options]="chartOptionsMap['birChartQ3Q4']" style="height: 100%; width: 100%;"></div>
           </div>
         </div>
         <div class="card">
@@ -152,7 +152,7 @@
             @if (isQ3Q4Loading) {
               <app-loading-symbol></app-loading-symbol>
             }
-            <canvas id="prmcChartQ3Q4"></canvas>
+            <div echarts [options]="chartOptionsMap['prmcChartQ3Q4']" style="height: 100%; width: 100%;"></div>
           </div>
         </div>
       </div>
@@ -197,7 +197,7 @@
             @if (isQ4Q1Loading) {
               <app-loading-symbol></app-loading-symbol>
             }
-            <canvas id="birChartQ4Q1"></canvas>
+            <div echarts [options]="chartOptionsMap['birChartQ4Q1']" style="height: 100%; width: 100%;"></div>
           </div>
         </div>
         <div class="card">
@@ -205,7 +205,7 @@
             @if (isQ4Q1Loading) {
               <app-loading-symbol></app-loading-symbol>
             }
-            <canvas id="prmcChartQ4Q1"></canvas>
+            <div echarts [options]="chartOptionsMap['prmcChartQ4Q1']" style="height: 100%; width: 100%;"></div>
           </div>
         </div>
       </div>

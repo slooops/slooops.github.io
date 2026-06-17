@@ -23,8 +23,26 @@ import {
   phosphorArrowLineDownBold,
 } from '@ng-icons/phosphor-icons/bold';
 import { phosphorEmptyDuotone } from '@ng-icons/phosphor-icons/duotone';
-import { Chart } from 'chart.js/auto';
+import * as echarts from 'echarts/core';
+import { BarChart, LineChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import type { EChartsOption } from 'echarts';
 import { Router } from '@angular/router';
+
+echarts.use([
+  BarChart,
+  LineChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  CanvasRenderer,
+]);
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { AccuracyDetailModalComponent } from 'src/app/components/accuracy-detail-modal/accuracy-detail-modal.component';
@@ -37,6 +55,14 @@ import {
   TeamIssueMatrixEntry,
 } from '../../caseiq-monitoring-dashboard/caseiq-monitoring.models';
 import { LineChartComponent } from '../../caseiq-monitoring-dashboard/line-chart/line-chart.component';
+import { PaginationComponent } from '../../../ui/atoms/pagination/pagination.component';
+import { PageChangeEvent } from '../../../ui';
+import {
+  ActionButtonConfig,
+  FilterButtonBarComponent,
+  FilterConfig,
+  FilterValues,
+} from '../../../components/filter-button-bar/filter-button-bar.component';
 
 interface CaseIqTableMetric {
   total: number | null;
@@ -79,6 +105,9 @@ interface CaseiqKpi {
     NgIcon,
     AccuracyDetailModalComponent,
     LineChartComponent,
+    NgxEchartsDirective,
+    FilterButtonBarComponent,
+    PaginationComponent,
   ],
   providers: [
     provideIcons({
@@ -87,6 +116,7 @@ interface CaseiqKpi {
       phosphorArrowLineDownBold,
       phosphorEmptyDuotone,
     }),
+    provideEchartsCore({ echarts }),
   ],
   standalone: true,
 })
@@ -111,9 +141,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     return this.themeService.isDarkMode;
   }
 
-  // Track created Chart.js instances; using `any` here avoids
-  // over-constraining generics for different chart types.
-  private charts: any[] = [];
+  chartOptionsMap: Record<string, EChartsOption> = {};
   private viewInitialized = false;
   private readonly integerFormatter = new Intl.NumberFormat('en-US', {
     maximumFractionDigits: 0,
@@ -161,13 +189,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   accuracyOverTimeData: any[] = [];
   analyticsChartsLoading = true;
   private analyticsDataReady = false;
-  private analyticsCharts: any[] = [];
   teamCardFlipped = false;
   hourlyCardFlipped = false;
-  private teamChart: any = null;
-  private accuracyTimeChart: any = null;
-  private hourlyChart: any = null;
-  private weeklyStateChart: any = null;
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('caseIqMetrics' in changes) {
@@ -220,10 +243,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   ngOnDestroy(): void {
-    this.charts.forEach((chart) => chart.destroy());
-    this.charts = [];
-    this.analyticsCharts.forEach((chart) => chart.destroy());
-    this.analyticsCharts = [];
     document.removeEventListener('click', this.outsideClickListener);
   }
 
@@ -356,25 +375,11 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     this.selectedChartComponent = option;
     this.showChartDropdown = false;
     // Rebuild the chart when the dropdown selection changes
-    this.charts.forEach((chart) => chart.destroy());
-    this.charts = [];
-    setTimeout(() => {
-      this.createAllCharts();
-    }, 0);
+    this.createAllCharts();
   }
 
   private createAllCharts(): void {
-    // Clean up any existing charts before recreating
-    this.charts.forEach((chart) => chart.destroy());
-    this.charts = [];
-
-    // Find the index of Finance IT section (canvas id is based on it)
-    const sections = this.sections();
-    const financeIndex = sections.indexOf('Finance IT');
-    if (financeIndex === -1) return;
-
-    const barId = `overall-bar-${financeIndex}`;
-    this.createBarChart(barId, this.selectedChartComponent);
+    this.createBarChart('overall-bar', this.selectedChartComponent);
   }
 
   // Helper to filter metrics by the selected quarter (FISCAL_QTR).
@@ -393,17 +398,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     );
   }
 
-  private createBarChart(canvasId: string, sectionName: string): void {
-    const canvas = document.getElementById(
-      canvasId,
-    ) as HTMLCanvasElement | null;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let labels: string[] = [];
-
+  private createBarChart(_canvasId: string, sectionName: string): void {
     // Individual values for each bar/segment (excluding Total Cases bar)
     let serviceResolved = 0;
     let serviceOthers = 0;
@@ -432,8 +427,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       const teamData = this.getSectionMetrics(sectionName);
 
       if (teamData) {
-        labels = ['Service Requests', 'In Progress', 'Routed Out', 'Cancelled'];
-
         // First bar now represents total RESOLVED,
         // stacked as RESOLVED_AGENT and RESOLVED_OPS.
         serviceResolved = Number(teamData.RESOLVED_AGENT) || 0;
@@ -489,314 +482,101 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       opsLegendCount,
     )} - ${this.percentageFormatter.format(opsPercent)}%)`;
 
-    const axisFontSize =
-      window.innerWidth <= 1700 ? (window.innerWidth <= 1500 ? 10 : 10) : 10;
+    const categories = [
+      'Service Requests',
+      'In Progress',
+      'Routed Out',
+      'Cancelled',
+    ];
 
-    const chart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            // Total Service Requests (Resolved by Ops)
-            data: [serviceOthers, 0, 0, 0],
-            backgroundColor: 'rgba(54, 162, 235, 0.7)',
-            ...({
-              segmentPercentages: [resolvedOpsPct, 0, 0, 0],
-            } as any),
-            borderWidth: 0,
-            stack: 'stack1',
-            label: 'Resolved (Ops)',
-          },
-          {
-            // Total Service Requests (Resolved by Agent)
-            data: [serviceResolved, 0, 0, 0],
-            backgroundColor: 'rgba(255, 206, 86, 0.7)',
-            ...({
-              segmentPercentages: [resolvedAgentPct, 0, 0, 0],
-            } as any),
-            borderWidth: 0,
-            stack: 'stack1',
-            label: 'Resolved (Agent)',
-          },
-          {
-            // In Progress (Ops)
-            data: [0, inProgressOps, 0, 0],
-            backgroundColor: 'rgba(54, 162, 235, 0.7)',
-            ...({
-              segmentPercentages: [0, inProgressOpsPct, 0, 0],
-            } as any),
-            borderWidth: 0,
-            stack: 'stack1',
-            label: 'In Progress (Ops)',
-          },
-          {
-            // In Progress (Agent)
-            data: [0, inProgressAgent, 0, 0],
-            backgroundColor: 'rgba(255, 206, 86, 0.7)',
-            ...({
-              segmentPercentages: [0, inProgressAgentPct, 0, 0],
-            } as any),
-            borderWidth: 0,
-            stack: 'stack1',
-            label: 'In Progress (Agent)',
-          },
-          {
-            // Routed Out (Misrouted)
-            data: [0, 0, routedOutMisrouted, 0],
-            backgroundColor: 'rgba(54, 162, 235, 0.7)',
-            ...({
-              segmentPercentages: [0, 0, routedMisroutedPct, 0],
-            } as any),
-            borderWidth: 0,
-            stack: 'stack1',
-            label: 'Routed (Ops)',
-          },
-          {
-            // Routed Out (Recommended)
-            data: [0, 0, routedOutRecommended, 0],
-            backgroundColor: 'rgba(255, 206, 86, 0.7)',
-            ...({
-              segmentPercentages: [0, 0, routedRecommendedPct, 0],
-            } as any),
-            borderWidth: 0,
-            stack: 'stack1',
-            label: 'Routed (Agent)',
-          },
-          {
-            // Cancelled (Others)
-            data: [0, 0, 0, cancelledOthers],
-            backgroundColor: 'rgba(54, 162, 235, 0.7)',
-            ...({
-              segmentPercentages: [0, 0, 0, cancelledOthersPct],
-            } as any),
-            borderWidth: 0,
-            stack: 'stack1',
-            label: 'Cancelled (Ops)',
-          },
-          {
-            // Cancelled (Recommended)
-            data: [0, 0, 0, cancelledRecommended],
-            backgroundColor: 'rgba(255, 206, 86, 0.7)',
-            ...({
-              segmentPercentages: [0, 0, 0, cancelledRecommendedPct],
-            } as any),
-            borderWidth: 0,
-            stack: 'stack1',
-            label: 'Cancelled (Agent)',
-          },
-        ],
+    this.chartOptionsMap['barChart'] = {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
+        backgroundColor: '#222',
+        textStyle: { color: '#fff' },
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-          mode: 'nearest',
-          intersect: true,
-        },
-        layout: {
-          padding: {
-            top: 12,
-            bottom: 48,
-          },
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            enabled: true,
-            filter: (context) => {
-              const dataIndex = context.dataIndex;
-              let stackTotal = 0;
-
-              context.chart.data.datasets.forEach((ds) => {
-                const v = (ds.data?.[dataIndex] as number) || 0;
-                stackTotal += v;
-              });
-
-              // Suppress tooltips when there is no data at this x-position
-              return stackTotal > 0;
-            },
-            callbacks: {
-              label: (context) => {
-                const value = (context.parsed.y as number) || 0;
-                const dataIndex = context.dataIndex;
-                let stackTotal = 0;
-
-                context.chart.data.datasets.forEach((ds) => {
-                  const v = (ds.data?.[dataIndex] as number) || 0;
-                  stackTotal += v;
-                });
-
-                const percent = stackTotal
-                  ? ((value / stackTotal) * 100).toFixed(1)
-                  : '0.0';
-
-                const label = context.dataset.label || '';
-                return `${label}: ${value} (${percent}%)`;
-              },
-            },
-          },
-        },
-        scales: {
-          x: {
-            display: true,
-            grid: { display: false },
-            border: { display: true },
-            stacked: true,
-            ticks: {
-              color: '#000',
-              font: {
-                size: axisFontSize,
-                // weight: 'bold',
-              },
-              maxRotation: 0,
-              minRotation: 0,
-              autoSkip: false,
-            },
-          },
-          y: {
-            display: false,
-          },
-        },
+      legend: {
+        bottom: 0,
+        data: [agentLegendLabel, opsLegendLabel],
+        textStyle: { fontSize: 11 },
+        itemWidth: 11,
+        itemHeight: 11,
       },
-      plugins: [
+      grid: { top: 20, left: 40, right: 20, bottom: 40 },
+      xAxis: {
+        type: 'category',
+        data: categories,
+        axisLabel: { fontSize: 10 },
+        axisLine: { show: true },
+        axisTick: { show: false },
+      },
+      yAxis: { type: 'value', show: false },
+      series: [
         {
-          id: 'barValueLabels',
-          afterDatasetsDraw: (chart) => {
-            const ctx = chart.ctx;
-            const labelCount = chart.data.labels ? chart.data.labels.length : 0;
-
-            for (let index = 0; index < labelCount; index++) {
-              let stackTotal = 0;
-              let x = 0;
-              let topY = Number.POSITIVE_INFINITY;
-
-              // First pass: compute stack total and top of bar for this x index
-              chart.data.datasets.forEach((dataset, dsIndex) => {
-                const meta = chart.getDatasetMeta(dsIndex);
-                const bar: any = meta.data[index];
-                if (!bar) {
-                  return;
-                }
-
-                const value = (dataset.data?.[index] as number) || 0;
-                stackTotal += value;
-
-                if (!x) {
-                  x = bar.x;
-                }
-                if (bar.y < topY) {
-                  topY = bar.y;
-                }
-              });
-
-              if (!stackTotal || !isFinite(topY)) {
-                continue;
-              }
-
-              // Draw total label above the stacked bar
-              ctx.fillStyle = '#333';
-              ctx.font = `bold ${axisFontSize}px sans-serif`;
-              ctx.textAlign = 'center';
-              ctx.textBaseline = 'bottom';
-              ctx.fillText(stackTotal.toString(), x, topY - 5);
-
-              // Second pass: draw labels inside each segment using
-              // precomputed percentages from the API where available.
-              chart.data.datasets.forEach((dataset, dsIndex) => {
-                const meta = chart.getDatasetMeta(dsIndex);
-                const bar: any = meta.data[index];
-                if (!bar) {
-                  return;
-                }
-
-                const value = (dataset.data?.[index] as number) || 0;
-                if (!value || stackTotal <= 0) {
-                  return;
-                }
-
-                const dsAny: any = dataset;
-                const percentages: number[] = dsAny.segmentPercentages || [];
-                const rawPercentage =
-                  typeof percentages[index] === 'number'
-                    ? percentages[index]
-                    : (value / stackTotal) * 100;
-                const percentage = Math.round(rawPercentage);
-
-                if (value == 1) {
-                  console.log('Skipping label for single value segment:');
-                  return;
-                }
-
-                // Skip if percentage is 15% or less of the bar total
-                if (percentage <= 15) {
-                  return;
-                }
-
-                const centerX = bar.x;
-                const centerY = (bar.y + bar.base) / 2;
-
-                ctx.fillStyle = '#000';
-                ctx.font = `bold ${axisFontSize}px sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(`${value} (${percentage}%)`, centerX, centerY);
-              });
-            }
+          name: opsLegendLabel,
+          type: 'bar',
+          stack: 'total',
+          data: [
+            serviceOthers,
+            inProgressOps,
+            routedOutMisrouted,
+            cancelledOthers,
+          ],
+          itemStyle: { color: 'rgba(54, 162, 235, 0.7)' },
+          barMaxWidth: 60,
+          label: {
+            show: true,
+            position: 'inside',
+            formatter: (params: any) => {
+              const pcts = [
+                resolvedOpsPct,
+                inProgressOpsPct,
+                routedMisroutedPct,
+                cancelledOthersPct,
+              ];
+              const val = params.value;
+              const pct = Math.round(pcts[params.dataIndex]);
+              return val && pct > 15 ? `${val} (${pct}%)` : '';
+            },
+            fontSize: 10,
+            color: '#000',
+            fontWeight: 'bold',
           },
         },
         {
-          id: 'inlineLegend',
-          afterDraw: (chart) => {
-            const ctx = chart.ctx;
-            const chartArea = chart.chartArea;
-
-            const items = [
-              { label: agentLegendLabel, color: 'rgba(255, 206, 86, 0.7)' },
-              { label: opsLegendLabel, color: 'rgba(54, 162, 235, 0.7)' },
-            ];
-
-            const boxSize = 11;
-            const gap = 6;
-            const itemGap = 16;
-            const fontSize = 11;
-
-            ctx.save();
-            ctx.font = `${fontSize}px sans-serif`;
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
-
-            // Measure total width to center the legend
-            let totalWidth = 0;
-            items.forEach((item, i) => {
-              totalWidth += boxSize + gap + ctx.measureText(item.label).width;
-              if (i < items.length - 1) totalWidth += itemGap;
-            });
-
-            let x = (chartArea.left + chartArea.right) / 2 - totalWidth / 2;
-            const y = chart.height - 20;
-
-            items.forEach((item, i) => {
-              // Draw color box
-              ctx.fillStyle = item.color;
-              ctx.fillRect(x, y - boxSize / 2, boxSize, boxSize);
-
-              // Draw label
-              x += boxSize + gap;
-              ctx.fillStyle = '#333';
-              ctx.fillText(item.label, x, y);
-              x += ctx.measureText(item.label).width;
-
-              if (i < items.length - 1) x += itemGap;
-            });
-
-            ctx.restore();
+          name: agentLegendLabel,
+          type: 'bar',
+          stack: 'total',
+          data: [
+            serviceResolved,
+            inProgressAgent,
+            routedOutRecommended,
+            cancelledRecommended,
+          ],
+          itemStyle: { color: 'rgba(255, 206, 86, 0.7)' },
+          barMaxWidth: 60,
+          label: {
+            show: true,
+            position: 'inside',
+            formatter: (params: any) => {
+              const pcts = [
+                resolvedAgentPct,
+                inProgressAgentPct,
+                routedRecommendedPct,
+                cancelledRecommendedPct,
+              ];
+              const val = params.value;
+              const pct = Math.round(pcts[params.dataIndex]);
+              return val && pct > 15 ? `${val} (${pct}%)` : '';
+            },
+            fontSize: 10,
+            color: '#000',
+            fontWeight: 'bold',
           },
         },
       ],
-    });
-
-    this.charts.push(chart);
+    };
   }
 
   private getSectionMetrics(sectionName: string): any | null {
@@ -1033,7 +813,10 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         title: 'Case Analyzer Accuracy',
         color: 'accent',
         pillWidth: accuracyPct ?? 0,
-        pillText: accuracyCases != null ? `${accuracyCases.toLocaleString()} cases` : '--',
+        pillText:
+          accuracyCases != null
+            ? `${accuracyCases.toLocaleString()} cases`
+            : '--',
         pctText: accuracyPct != null ? `${accuracyPct.toFixed(1)}%` : '--',
       },
       {
@@ -1041,28 +824,40 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         color: 'cyan',
         pillWidth: fitRow?.inProgress?.agentPct ?? 0,
         pillText: `${fitRow ? this.valueDisplay(fitRow.inProgress.agent) : '--'} / ${this.getSumMetricTotal('inProgress').toLocaleString()}`,
-        pctText: fitRow?.inProgress?.agentPct != null ? `${Math.round(fitRow.inProgress.agentPct)}%` : '--',
+        pctText:
+          fitRow?.inProgress?.agentPct != null
+            ? `${Math.round(fitRow.inProgress.agentPct)}%`
+            : '--',
       },
       {
         title: 'Routed Out',
         color: 'purple',
         pillWidth: fitRow?.routed?.agentPct ?? 0,
         pillText: `${fitRow ? this.valueDisplay(fitRow.routed.agent) : '--'} / ${this.getSumMetricTotal('routed').toLocaleString()}`,
-        pctText: fitRow?.routed?.agentPct != null ? `${Math.round(fitRow.routed.agentPct)}%` : '--',
+        pctText:
+          fitRow?.routed?.agentPct != null
+            ? `${Math.round(fitRow.routed.agentPct)}%`
+            : '--',
       },
       {
         title: 'Canceled',
         color: 'amber',
         pillWidth: fitRow?.cancelled?.agentPct ?? 0,
         pillText: `${fitRow ? this.valueDisplay(fitRow.cancelled.agent) : '--'} / ${this.getSumMetricTotal('cancelled').toLocaleString()}`,
-        pctText: fitRow?.cancelled?.agentPct != null ? `${Math.round(fitRow.cancelled.agentPct)}%` : '--',
+        pctText:
+          fitRow?.cancelled?.agentPct != null
+            ? `${Math.round(fitRow.cancelled.agentPct)}%`
+            : '--',
       },
       {
         title: 'Service Requests',
         color: 'green',
         pillWidth: fitRow?.service?.agentPct ?? 0,
         pillText: `${fitRow ? this.valueDisplay(fitRow.service.agent) : '--'} / ${this.getSumMetricTotal('service').toLocaleString()}`,
-        pctText: fitRow?.service?.agentPct != null ? `${Math.round(fitRow.service.agentPct)}%` : '--',
+        pctText:
+          fitRow?.service?.agentPct != null
+            ? `${Math.round(fitRow.service.agentPct)}%`
+            : '--',
       },
       {
         title: 'Agent vs Ops %',
@@ -1075,7 +870,10 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         title: 'Service Incidents',
         color: 'accent',
         plain: true,
-        plainValue: fm?.SERVICE_INCIDENTS != null ? Number(fm.SERVICE_INCIDENTS).toLocaleString() : '--',
+        plainValue:
+          fm?.SERVICE_INCIDENTS != null
+            ? Number(fm.SERVICE_INCIDENTS).toLocaleString()
+            : '--',
       },
     ];
   }
@@ -1321,11 +1119,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     this.http.get(url, this.destroyManager).subscribe({
       next: (d: any) => {
-        if (this.teamChart) {
-          this.teamChart.destroy();
-          this.teamChart = null;
-        }
-
         if (!d || d.length === 0) {
           this.weeklyTeamNoData = true;
           this.weeklyVolumeByTeamData = [];
@@ -1347,10 +1140,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       next: (d: any) => {
         this.weeklyVolumeByStateData = d ?? [];
         if (this.hourlyCardFlipped) {
-          if (this.weeklyStateChart) {
-            this.weeklyStateChart.destroy();
-            this.weeklyStateChart = null;
-          }
           this.buildWeeklyVolumeByStateChart();
         }
       },
@@ -1359,21 +1148,10 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   private tryBuildAnalyticsCharts(): void {
     if (!this.analyticsDataReady || this.isLoading) return;
-    setTimeout(() => {
-      const testCanvas = document.getElementById('chart-weekly-team');
-      if (!testCanvas) {
-        // Canvases not in DOM yet — retry once more after a short delay
-        setTimeout(() => this.buildAnalyticsCharts(), 200);
-        return;
-      }
-      this.buildAnalyticsCharts();
-    }, 0);
+    this.buildAnalyticsCharts();
   }
 
   private buildAnalyticsCharts(): void {
-    this.analyticsCharts.forEach((c) => c.destroy());
-    this.analyticsCharts = [];
-
     this.buildWeeklyVolumeByTeamChart();
     if (!this.hourlyCardFlipped) {
       this.buildHourlyCasePatternChart();
@@ -1392,24 +1170,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     CAPITAL: '#e53935',
   };
 
-  private readonly stateColors: Record<string, string> = {
-    Closed: '#6ebe4a',
-    Resolved: '#0070d2',
-    Cancelled: '#e53935',
-    'Work In Progress': '#e6a800',
-    Pending: '#ff6600',
-    'Awaiting Assignment': '#9933ff',
-    Unknown: '#8899a6',
-    'Escalated to EOC': '#00bceb',
-  };
-
   private buildWeeklyVolumeByTeamChart(): void {
-    const canvas = document.getElementById(
-      'chart-weekly-team',
-    ) as HTMLCanvasElement;
-    if (!canvas) return;
-
-    // Pivot data: { weekNumber: { team: count } }
     const weekMap = new Map<number, Map<string, number>>();
     const teams = new Set<string>();
     for (const row of this.weeklyVolumeByTeamData) {
@@ -1421,107 +1182,72 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       weekMap.get(week)?.set(team, row.INCIDENT_COUNT ?? 0);
     }
 
-    // Always show all 13 weeks, padding missing ones with 0
     const weeks = Array.from({ length: 13 }, (_, i) => i + 1);
     const labels = weeks.map((w) => `Week ${w}`);
 
-    const teamColorHex = this.teamColors;
-    const datasets = Array.from(teams)
+    const series = Array.from(teams)
       .filter((t) => t !== 'UNKNOWN')
       .sort((a, b) => a.localeCompare(b))
       .map((team) => {
-        const hex = teamColorHex[team] ?? '#555555';
-        // Parse hex to RGB for gradient
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
+        const hex = this.teamColors[team] ?? '#555555';
+        const match = hex.match(/#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i)!;
+        const [r, g, b] = [
+          parseInt(match[1], 16),
+          parseInt(match[2], 16),
+          parseInt(match[3], 16),
+        ];
         return {
-          label: team,
+          name: team,
+          type: 'line' as const,
           data: weeks.map((w) => weekMap.get(w)?.get(team) ?? 0),
-          borderColor: hex,
-          backgroundColor: (ctx: any) => {
-            const chart = ctx.chart;
-            const { ctx: canvasCtx, chartArea } = chart;
-            if (!chartArea) return `rgba(${r}, ${g}, ${b}, 0.1)`;
-            const gradient = canvasCtx.createLinearGradient(
-              0,
-              chartArea.top,
-              0,
-              chartArea.bottom,
-            );
-            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.25)`);
-            gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
-            return gradient;
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: { width: 2.5, color: hex },
+          itemStyle: { color: hex },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: `rgba(${r},${g},${b},0.25)` },
+              { offset: 1, color: `rgba(${r},${g},${b},0)` },
+            ]),
           },
-          borderWidth: 2.5,
-          pointBackgroundColor: '#ffffff',
-          pointBorderColor: hex,
-          pointBorderWidth: 2,
-          pointRadius: 3,
-          pointHoverRadius: 5.5,
-          tension: 0.4,
-          fill: true,
         };
       });
 
-    const chart = new Chart(canvas, {
-      type: 'line',
-      data: { labels, datasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { intersect: false, mode: 'index' },
-        plugins: {
-          legend: {
-            display: true,
-            position: 'bottom',
-            labels: { boxWidth: 10, font: { size: 10 }, padding: 12 },
-          },
-          tooltip: {
-            backgroundColor: 'rgba(20, 30, 40, 0.9)',
-            titleFont: { size: 10 },
-            bodyFont: { size: 11 },
-            borderColor: 'rgba(0, 188, 235, 0.3)',
-            borderWidth: 1,
-            cornerRadius: 10,
-            padding: 8,
-          },
-        },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: {
-              font: { size: 9 },
-              maxRotation: 45,
-              autoSkip: true,
-              maxTicksLimit: 12,
-            },
-            border: { display: false },
-          },
-          y: {
-            grid: { color: 'rgba(0,0,0,0.04)' },
-            ticks: { font: { size: 10 }, maxTicksLimit: 5 },
-            border: { display: false },
-            beginAtZero: true,
-          },
-        },
+    this.chartOptionsMap['weeklyTeam'] = {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(20,30,40,0.9)',
+        textStyle: { color: '#fff', fontSize: 11 },
       },
-    });
-    this.teamChart = chart;
-    this.analyticsCharts.push(chart);
+      legend: {
+        bottom: 2,
+        textStyle: { fontSize: 10 },
+        itemWidth: 10,
+        itemGap: 14,
+      },
+      grid: { top: 10, left: 40, right: 20, bottom: 88 },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLabel: { fontSize: 9, rotate: 45, margin: 12 },
+        axisLine: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: { fontSize: 10 },
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } },
+      },
+      series,
+    };
   }
 
   flipTeamCard(): void {
     this.teamCardFlipped = !this.teamCardFlipped;
-    // Destroy current chart on the face being hidden
     setTimeout(() => {
       if (this.teamCardFlipped) {
         this.buildAccuracyOverTimeChart();
       } else {
-        if (this.accuracyTimeChart) {
-          this.accuracyTimeChart.destroy();
-          this.accuracyTimeChart = null;
-        }
         this.buildWeeklyVolumeByTeamChart();
       }
     }, 50);
@@ -1531,32 +1257,14 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     this.hourlyCardFlipped = !this.hourlyCardFlipped;
     setTimeout(() => {
       if (this.hourlyCardFlipped) {
-        if (this.hourlyChart) {
-          this.hourlyChart.destroy();
-          this.hourlyChart = null;
-        }
         this.buildWeeklyVolumeByStateChart();
       } else {
-        if (this.weeklyStateChart) {
-          this.weeklyStateChart.destroy();
-          this.weeklyStateChart = null;
-        }
         this.buildHourlyCasePatternChart();
       }
     }, 50);
   }
 
   private buildAccuracyOverTimeChart(): void {
-    const canvas = document.getElementById(
-      'chart-accuracy-time',
-    ) as HTMLCanvasElement;
-    if (!canvas) return;
-
-    if (this.teamChart) {
-      this.teamChart.destroy();
-      this.teamChart = null;
-    }
-
     const sorted = [...this.accuracyOverTimeData].sort((a: any, b: any) =>
       (a.WEEK_START ?? '').localeCompare(b.WEEK_START ?? ''),
     );
@@ -1567,134 +1275,71 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     const catAccuracy = sorted.map((r: any) => r.CATEGORY_ACCURACY ?? null);
     const coreAccuracy = sorted.map((r: any) => r.CORE_ISSUE_ACCURACY ?? null);
 
-    this.accuracyTimeChart = new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Category',
-            data: catAccuracy,
-            borderColor: '#00bceb',
-            borderWidth: 2.5,
-            pointBackgroundColor: '#ffffff',
-            pointBorderColor: '#00bceb',
-            pointBorderWidth: 2,
-            pointRadius: 3,
-            pointHoverRadius: 5.5,
-            tension: 0.4,
-            fill: true,
-            backgroundColor: (ctx: any) => {
-              const chart = ctx.chart;
-              const { ctx: canvasCtx, chartArea } = chart;
-              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
-              const gradient = canvasCtx.createLinearGradient(
-                0,
-                chartArea.top,
-                0,
-                chartArea.bottom,
-              );
-              gradient.addColorStop(0, 'rgba(0, 188, 235, 0.3)');
-              gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
-              return gradient;
-            },
-          },
-          {
-            label: 'Core Issue',
-            data: coreAccuracy,
-            borderColor: '#0070d2',
-            borderWidth: 2.5,
-            pointBackgroundColor: '#ffffff',
-            pointBorderColor: '#0070d2',
-            pointBorderWidth: 2,
-            pointRadius: 3,
-            pointHoverRadius: 5.5,
-            tension: 0.4,
-            fill: true,
-            backgroundColor: (ctx: any) => {
-              const chart = ctx.chart;
-              const { ctx: canvasCtx, chartArea } = chart;
-              if (!chartArea) return 'rgba(0, 112, 210, 0.1)';
-              const gradient = canvasCtx.createLinearGradient(
-                0,
-                chartArea.top,
-                0,
-                chartArea.bottom,
-              );
-              gradient.addColorStop(0, 'rgba(0, 112, 210, 0.25)');
-              gradient.addColorStop(1, 'rgba(0, 112, 210, 0)');
-              return gradient;
-            },
-          },
-        ],
+    this.chartOptionsMap['accuracyTime'] = {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(20,30,40,0.85)',
+        textStyle: { color: '#fff' },
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        layout: { padding: { top: 8 } },
-        interaction: { intersect: false, mode: 'index' },
-        plugins: {
-          legend: {
-            display: true,
-            position: 'bottom',
-            labels: {
-              boxWidth: 10,
-              font: { size: 10 },
-              padding: 12,
-              usePointStyle: true,
-            },
-          },
-          tooltip: {
-            backgroundColor: 'rgba(20, 30, 40, 0.85)',
-            titleFont: { size: 10, weight: 'normal' as const },
-            titleColor: '#8899a6',
-            bodyFont: { size: 12, weight: 'bold' as const },
-            borderColor: 'rgba(0, 188, 235, 0.3)',
-            borderWidth: 1,
-            cornerRadius: 10,
-            padding: { top: 6, bottom: 6, left: 10, right: 10 },
-            callbacks: {
-              label: (item) => `${item.dataset.label}: ${item.parsed.y}%`,
-            },
+      legend: {
+        bottom: 2,
+        textStyle: { fontSize: 10 },
+        itemWidth: 10,
+        itemGap: 14,
+      },
+      grid: { top: 10, left: 40, right: 20, bottom: 84 },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLabel: { fontSize: 9, rotate: 45, margin: 12 },
+        axisLine: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        max: 100,
+        axisLabel: { fontSize: 10, formatter: '{value}%' },
+        splitLine: { show: false },
+      },
+      series: [
+        {
+          name: 'Category',
+          type: 'line',
+          data: catAccuracy,
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: { width: 2.5, color: '#00bceb' },
+          itemStyle: { color: '#00bceb' },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(0,188,235,0.3)' },
+              { offset: 1, color: 'rgba(0,188,235,0)' },
+            ]),
           },
         },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: {
-              font: { size: 9 },
-              maxRotation: 45,
-              autoSkip: true,
-              maxTicksLimit: 12,
-            },
-            border: { display: false },
-          },
-          y: {
-            min: 0,
-            max: 100,
-            grid: { display: false },
-            ticks: {
-              font: { size: 10 },
-              callback: (v) => v + '%',
-              maxTicksLimit: 5,
-            },
-            border: { display: false },
+        {
+          name: 'Core Issue',
+          type: 'line',
+          data: coreAccuracy,
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: { width: 2.5, color: '#0070d2' },
+          itemStyle: { color: '#0070d2' },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(0,112,210,0.25)' },
+              { offset: 1, color: 'rgba(0,112,210,0)' },
+            ]),
           },
         },
-      },
-    });
-    this.analyticsCharts.push(this.accuracyTimeChart);
+      ],
+    };
   }
 
   private buildWeeklyVolumeByStateChart(): void {
-    const canvas = document.getElementById(
-      'chart-weekly-state',
-    ) as HTMLCanvasElement;
-    if (!canvas) return;
-
     const rows = this.weeklyVolumeByStateData;
-
-    // Build a map of week_number -> case_count
     const weekMap = new Map<number, number>();
     for (const row of rows) {
       const week = row.WEEK_NUMBER;
@@ -1702,97 +1347,49 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       weekMap.set(week, (weekMap.get(week) ?? 0) + (row.CASE_COUNT ?? 0));
     }
 
-    // Always show all 13 weeks, padding missing ones with 0
     const weeks = Array.from({ length: 13 }, (_, i) => i + 1);
     const labels = weeks.map((w) => `Week ${w}`);
     const values = weeks.map((w) => weekMap.get(w) ?? 0);
 
-    const chart = new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
-            data: values,
-            borderColor: '#00bceb',
-            borderWidth: 2.5,
-            pointBackgroundColor: '#ffffff',
-            pointBorderColor: '#00bceb',
-            pointBorderWidth: 2,
-            pointRadius: 3,
-            pointHoverRadius: 5.5,
-            tension: 0.4,
-            fill: true,
-            backgroundColor: (ctx: any) => {
-              const chart = ctx.chart;
-              const { ctx: canvasCtx, chartArea } = chart;
-              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
-              const gradient = canvasCtx.createLinearGradient(
-                0,
-                chartArea.top,
-                0,
-                chartArea.bottom,
-              );
-              gradient.addColorStop(0, 'rgba(0, 188, 235, 0.35)');
-              gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
-              return gradient;
-            },
-          },
-        ],
+    this.chartOptionsMap['weeklyState'] = {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(20,30,40,0.85)',
+        textStyle: { color: '#00bceb', fontSize: 14, fontWeight: 'bold' },
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { intersect: false, mode: 'index' },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: 'rgba(20, 30, 40, 0.85)',
-            titleFont: { size: 10, weight: 'normal' as const },
-            titleColor: '#8899a6',
-            bodyFont: { size: 14, weight: 'bold' as const },
-            bodyColor: '#00bceb',
-            borderColor: 'rgba(0, 188, 235, 0.3)',
-            borderWidth: 1,
-            cornerRadius: 10,
-            padding: { top: 6, bottom: 6, left: 10, right: 10 },
-            displayColors: false,
-            callbacks: {
-              label: (item) => item.parsed.y.toLocaleString() + ' cases',
-            },
+      grid: { top: 10, left: 40, right: 20, bottom: 20 },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLabel: { fontSize: 9, rotate: 45 },
+        axisLine: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: { fontSize: 10 },
+        splitLine: { show: false },
+      },
+      series: [
+        {
+          type: 'line',
+          data: values,
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: { width: 2.5, color: '#00bceb' },
+          itemStyle: { color: '#00bceb' },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(0,188,235,0.35)' },
+              { offset: 1, color: 'rgba(0,188,235,0)' },
+            ]),
           },
         },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: {
-              font: { size: 9 },
-              maxRotation: 45,
-              autoSkip: true,
-              maxTicksLimit: 13,
-            },
-            border: { display: false },
-          },
-          y: {
-            grid: { display: false },
-            ticks: { font: { size: 10 }, maxTicksLimit: 4 },
-            border: { display: false },
-            beginAtZero: true,
-          },
-        },
-      },
-    });
-    this.weeklyStateChart = chart;
-    this.analyticsCharts.push(chart);
+      ],
+    };
   }
 
   private buildHourlyCasePatternChart(): void {
-    const canvas = document.getElementById(
-      'chart-hourly-pattern',
-    ) as HTMLCanvasElement;
-    if (!canvas) return;
-
-    // Gap-fill and show only the last 12 hours
     const hourMap = new Map<number, number>();
     for (const row of this.hourlyCasePatternData) {
       hourMap.set(row.HOUR_OF_DAY, row.CASE_COUNT);
@@ -1810,87 +1407,42 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       return `${display}${suffix}`;
     });
 
-    const chart = new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
-            data: values,
-            borderColor: '#00bceb',
-            borderWidth: 2.5,
-            pointBackgroundColor: '#ffffff',
-            pointBorderColor: '#00bceb',
-            pointBorderWidth: 2,
-            pointRadius: 3,
-            pointHoverRadius: 5.5,
-            tension: 0.4,
-            fill: true,
-            backgroundColor: (ctx: any) => {
-              const chart = ctx.chart;
-              const { ctx: canvasCtx, chartArea } = chart;
-              if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
-              const gradient = canvasCtx.createLinearGradient(
-                0,
-                chartArea.top,
-                0,
-                chartArea.bottom,
-              );
-              gradient.addColorStop(0, 'rgba(0, 188, 235, 0.35)');
-              gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
-              return gradient;
-            },
-          },
-        ],
+    this.chartOptionsMap['hourlyPattern'] = {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(20,30,40,0.85)',
+        textStyle: { color: '#00bceb', fontSize: 14, fontWeight: 'bold' },
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { intersect: false, mode: 'index' },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: 'rgba(20, 30, 40, 0.85)',
-            titleFont: { size: 10, weight: 'normal' as const },
-            titleColor: '#8899a6',
-            bodyFont: { size: 14, weight: 'bold' as const },
-            bodyColor: '#00bceb',
-            borderColor: 'rgba(0, 188, 235, 0.3)',
-            borderWidth: 1,
-            cornerRadius: 10,
-            padding: { top: 6, bottom: 6, left: 10, right: 10 },
-            displayColors: false,
-            callbacks: {
-              title: (items) =>
-                items[0]?.label ? `${items[0].label} UTC` : '',
-              label: (item) => item.parsed.y.toLocaleString() + ' cases',
-            },
+      grid: { top: 10, left: 40, right: 20, bottom: 20 },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLabel: { fontSize: 9 },
+        axisLine: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: { fontSize: 10 },
+        splitLine: { show: false },
+      },
+      series: [
+        {
+          type: 'line',
+          data: values,
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: { width: 2.5, color: '#00bceb' },
+          itemStyle: { color: '#00bceb' },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(0,188,235,0.35)' },
+              { offset: 1, color: 'rgba(0,188,235,0)' },
+            ]),
           },
         },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: {
-              font: { size: 9 },
-              maxRotation: 0,
-              autoSkip: false,
-              callback: function (_value, index) {
-                return index % 3 === 0 ? labels[index] : '';
-              },
-            },
-            border: { display: false },
-          },
-          y: {
-            grid: { display: false },
-            ticks: { font: { size: 10 }, maxTicksLimit: 4 },
-            border: { display: false },
-            beginAtZero: true,
-          },
-        },
-      },
-    });
-    this.hourlyChart = chart;
-    this.analyticsCharts.push(chart);
+      ],
+    };
   }
 
   // ── Monitoring: Issues Breakdown + Error Incidents ──────────
@@ -1907,8 +1459,42 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   // Error Incidents table
   monitoringErrorData: AnomalyItem[] = [];
-  errorFilterTeam = '';
-  errorFilterIssue = '';
+
+  errorFilterValues: FilterValues = {
+    team: [],
+    issue: [],
+  };
+
+  errorFilterConfigs: FilterConfig[] = [
+    {
+      id: 'team',
+      label: 'Team',
+      type: 'multi-select',
+      placeholder: 'All Teams',
+      options: [],
+    },
+    {
+      id: 'issue',
+      label: 'Issue',
+      type: 'multi-select',
+      placeholder: 'All Issues',
+      options: [],
+    },
+  ];
+
+  get errorActionButtons(): ActionButtonConfig[] {
+    return [
+      {
+        id: 'download',
+        label: 'CSV',
+        variant: 'secondary',
+        icon: 'phosphorArrowLineDownBold',
+        visible: true,
+        disabled: this.csvDownloading || this.errorTotalCount === 0,
+      },
+    ];
+  }
+
   errorTeamOptions: string[] = [
     'OM',
     'SM',
@@ -1942,6 +1528,41 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   errorModalTab = '';
   errorModalContent = '';
 
+  private getSelectedSingleFilterValue(
+    filterId: 'team' | 'issue',
+  ): string | undefined {
+    const raw = this.errorFilterValues[filterId];
+    if (!Array.isArray(raw) || raw.length === 0) {
+      return undefined;
+    }
+    return raw[0] || undefined;
+  }
+
+  private rebuildErrorFilterConfigs(): void {
+    this.errorFilterConfigs = [
+      {
+        id: 'team',
+        label: 'Team',
+        type: 'multi-select',
+        placeholder: 'All Teams',
+        options: this.errorTeamOptions.map((team) => ({
+          label: team,
+          value: team,
+        })),
+      },
+      {
+        id: 'issue',
+        label: 'Issue',
+        type: 'multi-select',
+        placeholder: 'All Issues',
+        options: this.errorIssueOptions.map((issue) => ({
+          label: issue,
+          value: issue,
+        })),
+      },
+    ];
+  }
+
   get errorPageStart(): number {
     return this.errorTotalCount === 0
       ? 0
@@ -1956,6 +1577,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   /** Fetch monitoring data (Issues Breakdown + Error Incidents) using the current quarter */
   fetchMonitoringData(): void {
+    this.rebuildErrorFilterConfigs();
     this.monitoringLoading = true;
     const lb = 24; // default lookback when no quarter selected
     const fq = this.selectedQuarter || undefined;
@@ -2037,8 +1659,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     this.errorLoading = true;
     const lb = 24;
     const fq = this.selectedQuarter || undefined;
-    const team = this.errorFilterTeam || undefined;
-    const issue = this.errorFilterIssue || undefined;
+    const team = this.getSelectedSingleFilterValue('team');
+    const issue = this.getSelectedSingleFilterValue('issue');
 
     this.monitoringService
       .getErrorIncidentsPaged(
@@ -2071,6 +1693,46 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   applyErrorFilters(): void {
     this.errorCurrentPage = 1;
+    this.loadErrorIncidents();
+  }
+
+  onErrorFilterChange(values: FilterValues): void {
+    const selectedTeams = Array.isArray(values['team'])
+      ? (values['team'] as string[])
+      : [];
+    const selectedIssues = Array.isArray(values['issue'])
+      ? (values['issue'] as string[])
+      : [];
+
+    this.errorFilterValues = {
+      team: selectedTeams.length
+        ? [selectedTeams[selectedTeams.length - 1]]
+        : [],
+      issue: selectedIssues.length
+        ? [selectedIssues[selectedIssues.length - 1]]
+        : [],
+    };
+
+    this.applyErrorFilters();
+  }
+
+  onErrorFilterClear(): void {
+    this.errorFilterValues = {
+      team: [],
+      issue: [],
+    };
+    this.applyErrorFilters();
+  }
+
+  onErrorActionClick(actionId: string): void {
+    if (actionId === 'download') {
+      this.downloadErrorCsv();
+    }
+  }
+
+  onErrorPageChange(event: PageChangeEvent): void {
+    this.errorCurrentPage = event.pageIndex + 1;
+    this.errorPageSize = event.pageSize;
     this.loadErrorIncidents();
   }
 
@@ -2123,8 +1785,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     const lb = 24;
     const fq = this.selectedQuarter || undefined;
-    const team = this.errorFilterTeam || undefined;
-    const issue = this.errorFilterIssue || undefined;
+    const team = this.getSelectedSingleFilterValue('team');
+    const issue = this.getSelectedSingleFilterValue('issue');
     const total = this.errorTotalCount;
     if (total === 0) {
       this.csvDownloading = false;

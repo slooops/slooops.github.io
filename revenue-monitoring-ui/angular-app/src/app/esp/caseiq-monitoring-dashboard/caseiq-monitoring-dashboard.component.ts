@@ -4,8 +4,6 @@ import {
   OnDestroy,
   HostBinding,
   HostListener,
-  ViewChild,
-  ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,10 +17,14 @@ import {
 import { phosphorEmptyDuotone } from '@ng-icons/phosphor-icons/duotone';
 import { forkJoin, interval, of, Subscription } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Chart, ChartConfiguration, registerables } from 'chart.js';
-import { NgChartsModule } from 'ng2-charts';
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import * as echarts from 'echarts/core';
+import { LineChart } from 'echarts/charts';
+import { GridComponent, TooltipComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import type { EChartsOption } from 'echarts';
 
-Chart.register(...registerables);
+echarts.use([LineChart, GridComponent, TooltipComponent, CanvasRenderer]);
 
 import { DestroyManager } from '../../providers/destroy-manager.service';
 import { DataService, PeriodStatus } from '../../providers/data.service';
@@ -50,12 +52,13 @@ import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.comp
     CommonModule,
     FormsModule,
     NgIcon,
-    NgChartsModule,
+    NgxEchartsDirective,
     HealthRingComponent,
     LineChartComponent,
     LoadingSymbolComponent,
   ],
   providers: [
+    provideEchartsCore({ echarts }),
     DestroyManager,
     provideIcons({
       phosphorArrowClockwiseBold,
@@ -152,24 +155,10 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     displayText: string;
   }[] = [];
 
-  // Throughput line chart (Chart.js)
+  // Throughput line chart (ECharts)
   throughputIsWeekly = false;
   throughputPoints: { label: string; value: number }[] = [];
-  throughputChartData: ChartConfiguration<'line'>['data'] = {
-    labels: [],
-    datasets: [],
-  };
-  throughputChartOptions: ChartConfiguration<'line'>['options'] = {};
-  private throughputChart: Chart<'line'> | null = null;
-  private _throughputChartPending = false;
-
-  @ViewChild('throughputCanvas')
-  set throughputCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
-    if (ref && this._throughputChartPending) {
-      this._throughputChartPending = false;
-      this.createThroughputChart(ref.nativeElement);
-    }
-  }
+  throughputChartOptions: EChartsOption = {};
 
   // Tables
   teamTableData: TeamSummary[] = [];
@@ -271,22 +260,10 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.refreshSub?.unsubscribe();
-    this.throughputChart?.destroy();
   }
 
   toggleTheme(): void {
     this.themeService.toggle();
-    this.updateThroughputChartTheme();
-  }
-
-  private updateThroughputChartTheme(): void {
-    if (!this.throughputChart) return;
-    const tickColor = this.themeService.isDarkMode ? '#8899a6' : '#555';
-    const xScale = this.throughputChart.options.scales?.['x'];
-    const yScale = this.throughputChart.options.scales?.['y'];
-    if (xScale?.ticks) xScale.ticks.color = tickColor;
-    if (yScale?.ticks) yScale.ticks.color = tickColor;
-    this.throughputChart.update();
   }
 
   onFilterChange(): void {
@@ -313,10 +290,6 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   refreshAll(): void {
     if (this.initialLoad) {
       this.loading = true;
-      if (this.throughputChart) {
-        this.throughputChart.destroy();
-        this.throughputChart = null;
-      }
     }
     // Refetch period status on every refresh
     this.sharedDataService.loadPeriodStatus(this.dm);
@@ -579,116 +552,54 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     const labels = this.throughputPoints.map((p) => p.label);
     const values = this.throughputPoints.map((p) => p.value);
 
-    this.throughputChartData = {
-      labels,
-      datasets: [
+    this.throughputChartOptions = {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(20, 30, 40, 0.85)',
+        borderColor: 'rgba(0, 188, 235, 0.3)',
+        borderWidth: 1,
+        textStyle: { color: '#00bceb', fontSize: 14, fontWeight: 'bold' },
+      },
+      grid: { top: 10, right: 10, bottom: 24, left: 36, containLabel: false },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: {
+          fontSize: 10,
+          color: this.themeService.isDarkMode ? '#8899a6' : '#555',
+          interval: labels.length <= 6 ? 0 : 1,
+        },
+      },
+      yAxis: {
+        type: 'value',
+        splitLine: { show: false },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: {
+          fontSize: 10,
+          color: this.themeService.isDarkMode ? '#8899a6' : '#555',
+        },
+      },
+      series: [
         {
+          type: 'line',
           data: values,
-          borderColor: '#00bceb',
-          borderWidth: 2.5,
-          pointBackgroundColor: '#ffffff',
-          pointBorderColor: '#00bceb',
-          pointBorderWidth: 2,
-          pointRadius: 3.5,
-          pointHoverRadius: 5.5,
-          pointHoverBackgroundColor: '#ffffff',
-          pointHoverBorderColor: '#00bceb',
-          pointHoverBorderWidth: 2.5,
-          tension: 0.4,
-          fill: true,
-          backgroundColor: (ctx: any) => {
-            const chart = ctx.chart;
-            const { ctx: canvasCtx, chartArea } = chart;
-            if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
-            const gradient = canvasCtx.createLinearGradient(
-              0,
-              chartArea.top,
-              0,
-              chartArea.bottom,
-            );
-            gradient.addColorStop(0, 'rgba(0, 188, 235, 0.35)');
-            gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
-            return gradient;
+          smooth: 0.4,
+          symbol: 'circle',
+          symbolSize: 7,
+          itemStyle: { color: '#00bceb' },
+          lineStyle: { width: 2.5, color: '#00bceb' },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(0, 188, 235, 0.35)' },
+              { offset: 1, color: 'rgba(0, 188, 235, 0)' },
+            ]),
           },
         },
       ],
     };
-
-    this.throughputChartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: {
-        intersect: false,
-        mode: 'index',
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(20, 30, 40, 0.85)',
-          titleFont: { size: 10, weight: 'normal' },
-          titleColor: '#8899a6',
-          bodyFont: { size: 14, weight: 'bold' },
-          bodyColor: '#00bceb',
-          borderColor: 'rgba(0, 188, 235, 0.3)',
-          borderWidth: 1,
-          padding: { top: 6, bottom: 6, left: 10, right: 10 },
-          cornerRadius: 10,
-          displayColors: false,
-          callbacks: {
-            title: (items) => items[0]?.label || '',
-            label: (item) => item.parsed.y.toLocaleString(),
-          },
-        },
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: {
-            color: this.themeService.isDarkMode ? '#8899a6' : '#555',
-            font: { size: 10, weight: 500 as any },
-            maxRotation: 0,
-            autoSkip: false,
-            callback: function (_value, index) {
-              const totalLabels = labels.length;
-              if (totalLabels <= 6) return this.getLabelForValue(index);
-              return index % 2 === 0 ? this.getLabelForValue(index) : '';
-            },
-          },
-          border: { display: false },
-        },
-        y: {
-          grid: { display: false },
-          ticks: {
-            color: this.themeService.isDarkMode ? '#8899a6' : '#555',
-            font: { size: 10, weight: 500 as any },
-            maxTicksLimit: 4,
-          },
-          border: { display: false },
-          beginAtZero: true,
-        },
-      },
-    };
-
-    // Update existing chart in-place, or flag for creation if canvas isn't in DOM yet
-    if (this.throughputChart && this.throughputChart.canvas?.isConnected) {
-      this.throughputChart.data = this.throughputChartData;
-      this.throughputChart.options = this.throughputChartOptions!;
-      this.throughputChart.update();
-    } else {
-      if (this.throughputChart) {
-        this.throughputChart.destroy();
-        this.throughputChart = null;
-      }
-      this._throughputChartPending = true;
-    }
-  }
-
-  private createThroughputChart(canvas: HTMLCanvasElement): void {
-    this.throughputChart = new Chart(canvas, {
-      type: 'line',
-      data: this.throughputChartData,
-      options: this.throughputChartOptions,
-    });
   }
 
   // ─── Server-side paginated Error Incidents ────────────────────────────────

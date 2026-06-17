@@ -22,8 +22,11 @@ import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.comp
 import { PaginationComponent } from '../../ui/atoms/pagination/pagination.component';
 import { PageChangeEvent } from '../../ui';
 import { NgIcon, provideIcons } from '@ng-icons/core';
+import { SupervisorIncident } from '../../esp/esp-home/caseiq-incidents/caseiq-incidents.component';
 import {
   phosphorArrowLineDownBold,
+  phosphorCaretDownBold,
+  phosphorCaretUpBold,
   phosphorCloudArrowUpBold,
   phosphorInfoBold,
   phosphorFunnelSimpleBold,
@@ -53,6 +56,8 @@ interface FilterTag {
   providers: [
     provideIcons({
       phosphorArrowLineDownBold,
+      phosphorCaretDownBold,
+      phosphorCaretUpBold,
       phosphorCloudArrowUpBold,
       phosphorInfoBold,
       phosphorFunnelSimpleBold,
@@ -89,6 +94,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     value: any;
     row: any;
   }>();
+  @Output() timelineDetailOpen = new EventEmitter<SupervisorIncident>();
   @Input() clickableColumns: string[] = [];
   @Input() backendLoading: boolean = false; // Show loading overlay during backend fetch
 
@@ -105,6 +111,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   activeFilters: FilterTag[] = [];
   private originalData: any[] = []; // Preserve unfiltered data
   private fullData: any[] = []; // Complete dataset including (Y,Y) rows
+  private lastProcessedDataLength: number = 0; // Track when we last processed data to avoid re-processing
   // Local overlay trigger specifically after a successful upload while parent refresh is in progress
   showFetchingOverlay: boolean = false;
   // Internal multi-select dropdown state for Incident State inside filters popup
@@ -112,6 +119,12 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   showCancelPredictionInner: boolean = false;
   showImpactedServiceOfferingInner: boolean = false;
   incidentNumberSearch: string = '';
+
+  // I2C-only expandable agent processing timeline mockup
+  expandedRowId: string | null = null;
+  private expandedRowIdLocked: boolean = false; // Prevent clearing expansion during initial setup
+  readonly mockProcessedDate = 'Jun 12, 04:36 PM';
+  readonly mockOutcomes = ['Resolved', 'Routed Out', 'Cancelled'];
 
   // Dummy filter options (can be made dynamic based on data)
   filterOptions = [
@@ -160,6 +173,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     );
     // Filter out (Y,Y) rows on initial load
     if (this.dataSource?.data?.length > 0) {
+      this.lastProcessedDataLength = this.dataSource.data.length;
       this.fullData = [...this.dataSource.data];
 
       // Filter out (Y,Y) rows for default view
@@ -169,9 +183,8 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         return !(catMatch === 'Y' && coreMatch === 'Y');
       });
 
-      // Set filtered data
-      this.dataSource.data = [...this.originalData];
-      this.dataSource._updateChangeSubscription();
+      // Set filtered data and enforce filter state
+      this.enforceCurrentFilterState();
     }
   }
 
@@ -180,6 +193,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     if (this.dataSource?.data?.length > 0) {
       // Store full data if not already stored
       if (this.fullData.length === 0) {
+        this.lastProcessedDataLength = this.dataSource.data.length;
         this.fullData = [...this.dataSource.data];
 
         // Filter out (Y,Y) rows for default view
@@ -189,9 +203,8 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
           return !(catMatch === 'Y' && coreMatch === 'Y');
         });
 
-        // Set filtered data
-        this.dataSource.data = [...this.originalData];
-        this.dataSource._updateChangeSubscription();
+        // Enforce the current filter state
+        this.enforceCurrentFilterState();
       }
 
       this.setupPaginator();
@@ -199,71 +212,64 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // Check if we need to process data - either dataSource changed OR data length indicates new data
+    // Only reprocess fullData if the actual data length changed
     const hasData = this.dataSource?.data?.length > 0;
-    const shouldProcessData =
-      hasData &&
-      (changes['dataSource'] ||
-        changes['totalRecords'] ||
-        this.fullData.length === 0); // First time data arrives
+    const dataLengthChanged =
+      hasData && this.dataSource.data.length !== this.lastProcessedDataLength;
 
-    if (shouldProcessData) {
-      // Always process if we have data but no fullData stored yet
-      if (this.fullData.length === 0 || changes['dataSource']) {
-        // Store complete dataset including (Y,Y) rows
-        this.fullData = this.dataSource.data ? [...this.dataSource.data] : [];
+    if (dataLengthChanged || this.fullData.length === 0) {
+      // Update the tracked data length
+      this.lastProcessedDataLength = this.dataSource.data?.length || 0;
 
-        // Filter out (Y,Y) rows for the default view
-        this.originalData = this.fullData.filter((row) => {
-          const catMatch = (row['CATEGORY_MATCH'] ?? '').toString().trim();
-          const coreMatch = (row['CORE_ISSUE_MATCH'] ?? '').toString().trim();
-          // Exclude rows where both are 'Y'
-          return !(catMatch === 'Y' && coreMatch === 'Y');
+      // Store complete dataset including (Y,Y) rows
+      this.fullData = this.dataSource.data ? [...this.dataSource.data] : [];
+
+      // Filter out (Y,Y) rows for the default view
+      this.originalData = this.fullData.filter((row) => {
+        const catMatch = (row['CATEGORY_MATCH'] ?? '').toString().trim();
+        const coreMatch = (row['CORE_ISSUE_MATCH'] ?? '').toString().trim();
+        // Exclude rows where both are 'Y'
+        return !(catMatch === 'Y' && coreMatch === 'Y');
+      });
+
+      // Populate dynamic Incident State filter values from FULL data
+      const statesSet = new Set(
+        (this.fullData || [])
+          .map((r) => (r['INCIDENT_STATE'] ?? '').toString().trim())
+          .filter((v) => !!v),
+      );
+      const incidentStateOption = this.filterOptions.find(
+        (o) => o.id === 'incidentState',
+      );
+      if (incidentStateOption) {
+        // Keep the original configured order; include 'Cancelled' if either 'Cancelled' or 'Canceled' appears.
+        const hasCancelledVariant =
+          statesSet.has('Cancelled') || statesSet.has('Canceled');
+        incidentStateOption.values = incidentStateOption.values.filter((v) => {
+          if (v === 'Cancelled') return hasCancelledVariant;
+          return statesSet.has(v);
         });
-
-        // Set the dataSource to show originalData (without Y,Y) by default
-        this.dataSource.data = [...this.originalData];
-        this.dataSource._updateChangeSubscription();
-
-        // Populate dynamic Incident State filter values from FULL data
-        const statesSet = new Set(
-          (this.fullData || [])
-            .map((r) => (r['INCIDENT_STATE'] ?? '').toString().trim())
-            .filter((v) => !!v),
-        );
-        const incidentStateOption = this.filterOptions.find(
-          (o) => o.id === 'incidentState',
-        );
-        if (incidentStateOption) {
-          // Keep the original configured order; include 'Cancelled' if either 'Cancelled' or 'Canceled' appears.
-          const hasCancelledVariant =
-            statesSet.has('Cancelled') || statesSet.has('Canceled');
-          incidentStateOption.values = incidentStateOption.values.filter(
-            (v) => {
-              if (v === 'Cancelled') return hasCancelledVariant;
-              return statesSet.has(v);
-            },
-          );
-        }
-
-        // Populate dynamic Impacted Service Offering filter values from FULL data
-        const serviceOfferingsSet = new Set(
-          (this.fullData || [])
-            .map((r) =>
-              (r['IMPACTED_SERVICE_OFFERING'] ?? '').toString().trim(),
-            )
-            .filter((v) => !!v),
-        );
-        const impactedServiceOfferingOption = this.filterOptions.find(
-          (o) => o.id === 'impactedServiceOffering',
-        );
-        if (impactedServiceOfferingOption) {
-          // Sort alphabetically for consistent display
-          impactedServiceOfferingOption.values =
-            Array.from(serviceOfferingsSet).sort();
-        }
       }
-      // Use setTimeout to ensure the DOM has updated with the new data
+
+      // Populate dynamic Impacted Service Offering filter values from FULL data
+      const serviceOfferingsSet = new Set(
+        (this.fullData || [])
+          .map((r) => (r['IMPACTED_SERVICE_OFFERING'] ?? '').toString().trim())
+          .filter((v) => !!v),
+      );
+      const impactedServiceOfferingOption = this.filterOptions.find(
+        (o) => o.id === 'impactedServiceOffering',
+      );
+      if (impactedServiceOfferingOption) {
+        // Sort alphabetically for consistent display
+        impactedServiceOfferingOption.values =
+          Array.from(serviceOfferingsSet).sort();
+      }
+    }
+
+    // Always enforce filter state and setup paginator to ensure display is updated
+    if (hasData) {
+      this.enforceCurrentFilterState();
       setTimeout(() => {
         this.setupPaginator();
       }, 0);
@@ -294,6 +300,23 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   /**
+   * Enforce the current filter state on the dataSource.
+   * If no filters are active, shows originalData (without Y,Y rows).
+   * If filters are active, applies the filter logic via applyFilters().
+   * This method ensures the dataSource always shows the correct filtered view.
+   */
+  private enforceCurrentFilterState(): void {
+    if (this.activeFilters.length === 0) {
+      // No filters active: always show originalData (without Y,Y rows)
+      this.dataSource.data = [...this.originalData];
+      this.dataSource._updateChangeSubscription();
+    } else {
+      // Filters active: apply the filter logic
+      this.applyFilters();
+    }
+  }
+
+  /**
    * Helper method to properly update pagination when data changes
    * Resets to first page.
    */
@@ -313,6 +336,14 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   onPageChange(event: PageChangeEvent) {
     this.currentPage = event.pageIndex;
     this.pageSize = event.pageSize;
+    // Don't clear expansion state on pagination to preserve user interaction
+    // Only clear if the user explicitly navigates away from the page
+  }
+
+  trackByRowId(row: any): string {
+    // Use stable row identifier for tracking to prevent DOM recreation
+    // when data is refreshed but row content is identical
+    return this.getRowId(row);
   }
 
   removeUnderscores(key: string): string {
@@ -603,6 +634,154 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     );
   }
 
+  get isI2CSource(): boolean {
+    return (this.source ?? '').toString().trim().toLowerCase() === 'i2c';
+  }
+
+  get expandedColspan(): number {
+    return this.filteredColumns.length + (this.isI2CSource ? 1 : 0);
+  }
+
+  toggleRowExpansion(row: any, rowIndex: number): void {
+    const rowId = this.getRowId(row);
+    this.expandedRowId = this.expandedRowId === rowId ? null : rowId;
+
+    // Lock the expansion state briefly to prevent change detection cycles from interfering
+    // during the initial render and setup
+    this.expandedRowIdLocked = true;
+    setTimeout(() => {
+      this.expandedRowIdLocked = false;
+    }, 100); // 100ms should be enough for change detection cycles to settle
+  }
+
+  isRowExpanded(row: any, rowIndex: number): boolean {
+    return this.expandedRowId === this.getRowId(row);
+  }
+
+  getTimelineIncidentNumber(row: any): string {
+    return this.getFirstValue(row, [
+      'INCIDENT_NUMBER',
+      'incident_number',
+      'Incident Number',
+    ]);
+  }
+
+  getTimelineSharedState(row: any): string {
+    return (
+      this.getFirstValue(row, [
+        'SHARED_STATE',
+        'shared_state',
+        'Shared State',
+      ]) || 'ss-20260612203311-0ee99c92'
+    );
+  }
+
+  getTimelineTeam(row: any): string {
+    return (
+      this.getFirstValue(row, ['TEAM', 'TEAM_NAME', 'team_name']) || 'BRIM/BRM'
+    );
+  }
+
+  getTimelineCategory(row: any): string {
+    return this.getFirstValue(row, ['CATEGORY', 'category']) || 'NA';
+  }
+
+  getTimelineCoreIssue(row: any): string {
+    return this.getFirstValue(row, ['CORE_ISSUE', 'core_issue']) || 'NA';
+  }
+
+  getTimelineResolutionPath(row: any): string {
+    return (
+      this.getFirstValue(row, [
+        'RESOLUTION_PATH',
+        'resolution_path',
+        'Resolution Path',
+      ]) || 'A2A: I2C Agent'
+    );
+  }
+
+  getTimelineDuration(row: any): string {
+    const value = this.getFirstValue(row, ['DURATION', 'duration', 'Duration']);
+    return value || '3.6m';
+  }
+
+  getTimelineOutcome(row: any, rowIndex: number): string {
+    const seed = this.getRowId(row);
+    const hash = seed
+      .split('')
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return this.mockOutcomes[hash % this.mockOutcomes.length];
+  }
+
+  openIncidentDetailFromTimeline(
+    row: any,
+    rowIndex: number,
+    event?: Event,
+  ): void {
+    event?.stopPropagation();
+
+    const outcome = this.getTimelineOutcome(row, rowIndex);
+    const normalizedOutcome: SupervisorIncident['outcome'] =
+      outcome === 'Resolved' ||
+      outcome === 'Routed Out' ||
+      outcome === 'Cancelled' ||
+      outcome === 'Failed' ||
+      outcome === 'Bot Handoff' ||
+      outcome === 'In Progress'
+        ? outcome
+        : 'Resolved';
+
+    this.timelineDetailOpen.emit({
+      incidentNumber: this.getTimelineIncidentNumber(row) || 'INC00000000',
+      team: this.getTimelineTeam(row) === 'I2C' ? 'I2C' : 'BRIM/BRM',
+      category: this.getTimelineCategory(row),
+      coreIssue: this.getTimelineCoreIssue(row),
+      outcome: normalizedOutcome,
+      resolutionPath: this.getTimelineResolutionPath(row),
+      processedAt: this.mockProcessedDate,
+      processedEpoch: Date.now(),
+      pipelineStages: 4,
+    });
+  }
+
+  private getRowId(row: any): string {
+    // Use incident number as primary stable identifier
+    const incident = this.getTimelineIncidentNumber(row);
+    if (incident) {
+      return incident;
+    }
+    // Fallback: generate stable hash from row data (incident + shared state)
+    // to ensure consistent ID across re-renders, avoiding rowIndex dependency
+    const sharedState = this.getTimelineSharedState(row);
+    const stableKey = `${incident || 'unknown'}-${sharedState}`;
+    return this.simpleHash(stableKey);
+  }
+
+  private simpleHash(str: string): string {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return `row-${Math.abs(hash)}`;
+  }
+
+  private getFirstValue(row: any, keys: string[]): string {
+    if (!row) return '';
+    for (const key of keys) {
+      const value = row[key];
+      if (
+        value !== null &&
+        value !== undefined &&
+        String(value).trim() !== ''
+      ) {
+        return String(value).trim();
+      }
+    }
+    return '';
+  }
+
   /**
    * Apply combination-based filtering across all active filters.
    *
@@ -634,13 +813,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
 
     // When no filters are active: restore originalData (excludes Y,Y rows)
     if (this.activeFilters.length === 0) {
-      this.dataSource.data = [...this.originalData];
-      this.dataSource._updateChangeSubscription();
-
-      // Update pagination after data sync
-      setTimeout(() => {
-        this.updatePagination(this.dataSource.data.length);
-      }, 0);
+      this.enforceCurrentFilterState();
       return;
     }
 
@@ -830,6 +1003,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   public setExternalData(data: any[], replaceOriginal: boolean = false) {
     if (replaceOriginal || this.fullData.length === 0) {
       // Store complete dataset
+      this.lastProcessedDataLength = data?.length || 0;
       this.fullData = [...data];
 
       // Filter out (Y,Y) rows for originalData
@@ -840,10 +1014,11 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       });
     }
 
-    this.dataSource.data = data ? [...data] : [];
-
     // Data arrived: clear local fetching overlay
     this.showFetchingOverlay = false;
+
+    // Enforce the current filter state to ensure we show the correct view
+    this.enforceCurrentFilterState();
 
     // Update pagination with proper reset
     this.updatePagination(this.dataSource.data.length);

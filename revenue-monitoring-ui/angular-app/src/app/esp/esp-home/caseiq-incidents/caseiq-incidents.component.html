@@ -1,98 +1,178 @@
-<div class="ci-container">
-  <!-- Header -->
-  <div class="ci-header">
-    <h2 class="ci-title">CaseIQ Incidents</h2>
-    <div class="ci-header-actions">
-      <input
-        class="ci-search"
-        type="text"
-        placeholder="Search incidents..."
-        [(ngModel)]="searchTerm"
-        (input)="applyFilter()"
-      />
-      <button
-        class="ci-refresh-btn"
-        (click)="loadIncidents()"
-        [disabled]="isLoading"
-      >
-        Refresh
-      </button>
-    </div>
-  </div>
+<div class="orc">
+  <section class="orc__kpi-row">
+    @for (kpi of kpiConfig; track kpi.label) {
+      <article class="orc__kpi-card">
+        <span class="orc__kpi-value">{{ getKpiValue(kpi.key) }}</span>
+        <span class="orc__kpi-label">{{ kpi.label }}</span>
+      </article>
+    }
+  </section>
 
-  <!-- Loading state -->
-  @if (isLoading) {
-    <div class="ci-loading">
-      <div class="ci-spinner"></div>
-      <span>Loading incidents...</span>
-    </div>
-  }
+  <section class="orc__filters-row">
+    <input
+      class="orc__search"
+      type="text"
+      placeholder="Search by incident #, category, core issue..."
+      [(ngModel)]="searchTerm"
+      (input)="applyFilter()"
+    />
 
-  <!-- Error state -->
-  @if (errorMessage && !isLoading) {
-    <div class="ci-error">
-      <span>{{ errorMessage }}</span>
-      <button class="ci-retry-btn" (click)="loadIncidents()">Retry</button>
-    </div>
-  }
+    <select
+      class="orc__select"
+      [(ngModel)]="selectedOutcome"
+      (change)="applyFilter()"
+    >
+      @for (outcome of outcomes; track outcome) {
+        <option [value]="outcome">{{ outcome }}</option>
+      }
+    </select>
 
-  <!-- Table -->
-  @if (!isLoading && !errorMessage && filteredIncidents.length > 0) {
-    <div class="ci-table-container">
-      <table class="ci-table">
+    <select
+      class="orc__select"
+      [(ngModel)]="selectedTeam"
+      (change)="applyFilter()"
+    >
+      @for (team of teams; track team) {
+        <option [value]="team">{{ team }}</option>
+      }
+    </select>
+
+    <select class="orc__select" [(ngModel)]="selectedRange">
+      @for (range of timeRanges; track range) {
+        <option [value]="range">{{ range }}</option>
+      }
+    </select>
+  </section>
+
+  <section class="orc__table-section">
+    <div class="orc__result-count">
+      Showing <strong>{{ filteredIncidents.length }}</strong> of
+      <strong>{{ incidents.length }}</strong> incidents
+    </div>
+
+    <div class="orc__table-card">
+      <table class="orc__table">
         <thead>
           <tr>
-            @for (col of displayedColumns; track col) {
-              <th class="ci-th">{{ formatHeader(col) }}</th>
-            }
+            <th>INCIDENT</th>
+            <th>TEAM</th>
+            <th>CATEGORY</th>
+            <th>CORE ISSUE</th>
+            <th>OUTCOME</th>
+            <th>RESOLUTION PATH</th>
+            <th>PIPELINE</th>
+            <th>PROCESSED</th>
           </tr>
         </thead>
         <tbody>
-          @for (row of paginatedIncidents; track $index) {
-            <tr class="ci-row">
-              @for (col of displayedColumns; track col) {
-                <td class="ci-td">{{ row[col] ?? "—" }}</td>
-              }
+          @for (
+            row of filteredIncidents;
+            track getIncidentKey(row, $index);
+            let rowIndex = $index
+          ) {
+            <tr>
+              <td>
+                <button
+                  type="button"
+                  class="orc__incident-link"
+                  (click)="toggleIncidentTimeline(row, rowIndex)"
+                >
+                  <span
+                    class="orc__incident-caret"
+                    [class.expanded]="isTimelineExpanded(row, rowIndex)"
+                    aria-hidden="true"
+                    >▾</span
+                  >
+                  {{ row.incidentNumber }}
+                </button>
+              </td>
+              <td>
+                <span class="orc__team-pill">{{ row.team }}</span>
+              </td>
+              <td>{{ row.category }}</td>
+              <td>{{ row.coreIssue }}</td>
+              <td>
+                <span
+                  class="orc__outcome-pill"
+                  [class]="'orc__outcome-pill ' + getOutcomeClass(row.outcome)"
+                >
+                  {{ row.outcome }}
+                </span>
+              </td>
+              <td>{{ row.resolutionPath }}</td>
+              <td>
+                <span class="orc__pipeline-dots" aria-hidden="true">
+                  @for (
+                    dot of getPipelineSlots(row.pipelineStages);
+                    track dot
+                  ) {
+                    <span class="orc__pipeline-dot"></span>
+                  }
+                </span>
+              </td>
+              <td>{{ row.processedAt }}</td>
             </tr>
+
+            @if (isTimelineExpanded(row, rowIndex)) {
+              <tr class="orc__timeline-row">
+                <td colspan="8" class="orc__timeline-cell">
+                  <div class="orc__timeline">
+                    <h4 class="orc__timeline-title">
+                      Agent Processing Timeline
+                    </h4>
+
+                    <div class="orc__timeline-card">
+                      <div class="orc__timeline-item">
+                        <span class="orc__timeline-label">SHARED STATE</span>
+                        <button
+                          type="button"
+                          class="orc__timeline-link"
+                          (click)="openSharedStateDetails(row)"
+                        >
+                          {{ getSharedStateId(row, rowIndex) }}
+                        </button>
+                      </div>
+
+                      <div class="orc__timeline-item">
+                        <span class="orc__timeline-label">OUTCOME</span>
+                        <span
+                          class="orc__outcome-pill"
+                          [class]="
+                            'orc__outcome-pill ' + getOutcomeClass(row.outcome)
+                          "
+                        >
+                          {{ row.outcome }}
+                        </span>
+                      </div>
+
+                      <div class="orc__timeline-item">
+                        <span class="orc__timeline-label">RESOLUTION PATH</span>
+                        <span class="orc__timeline-value">{{
+                          row.resolutionPath
+                        }}</span>
+                      </div>
+
+                      <div class="orc__timeline-item">
+                        <span class="orc__timeline-label">DURATION</span>
+                        <span class="orc__timeline-value">{{
+                          getDuration(row)
+                        }}</span>
+                      </div>
+
+                      <div class="orc__timeline-item">
+                        <span class="orc__timeline-label">PROCESSED DATE</span>
+                        <span class="orc__timeline-value">{{
+                          row.processedAt
+                        }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
           }
         </tbody>
       </table>
     </div>
-
-    <!-- Pagination -->
-    <div class="ci-pagination">
-      <span class="ci-page-info">
-        Showing {{ (currentPage - 1) * pageSize + 1 }}–{{
-          currentPage * pageSize > filteredIncidents.length
-            ? filteredIncidents.length
-            : currentPage * pageSize
-        }}
-        of {{ filteredIncidents.length }}
-      </span>
-      <div class="ci-page-controls">
-        <button
-          class="ci-page-btn"
-          (click)="prevPage()"
-          [disabled]="currentPage === 1"
-        >
-          ‹ Prev
-        </button>
-        <span class="ci-page-num">{{ currentPage }} / {{ totalPages }}</span>
-        <button
-          class="ci-page-btn"
-          (click)="nextPage()"
-          [disabled]="currentPage === totalPages"
-        >
-          Next ›
-        </button>
-      </div>
-    </div>
-  }
-
-  <!-- Empty state -->
-  @if (!isLoading && !errorMessage && filteredIncidents.length === 0) {
-    <div class="ci-empty">
-      <span>No incidents found.</span>
-    </div>
-  }
+  </section>
 </div>

@@ -432,6 +432,13 @@ export class MenuComponent {
               route: '/case-iq',
               queryParams: { tab: 'capital' },
             },
+            {
+              label: 'Orchestrator',
+              icon: 'phosphorBrainBold',
+              route: '/case-iq',
+              queryParams: { tab: 'orchestrator' },
+              roles: ['ADMIN'],
+            },
           ],
         },
         {

@@ -225,6 +225,11 @@
   position: relative;
 }
 
+.ctx2-chart-wrapper .ctx2-echart {
+  width: 100%;
+  height: 100%;
+}
+
 .ctx2-chart-wrapper canvas {
   width: 100% !important;
   height: 100% !important;

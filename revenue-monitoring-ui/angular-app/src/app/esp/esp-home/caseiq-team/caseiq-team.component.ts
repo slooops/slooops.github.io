@@ -28,6 +28,7 @@ import { CaseiqIncidentDetailComponent } from '../caseiq-incident-detail/caseiq-
 import { BarChartComponent } from '../../../components/bar-chart/bar-chart.component';
 import { ThemeService } from '../../../providers/theme.service';
 import { HttpClient } from '@angular/common/http';
+import { SupervisorIncident } from '../caseiq-incidents/caseiq-incidents.component';
 
 export interface TeamConfig {
   /** Display name: 'OM', 'SM', 'Capital', etc. */
@@ -84,8 +85,9 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
 
   /* ── View switching (0 = Classification Summary, 1 = Incidents) ── */
   activeViewIndex = 0;
-  viewLabels = ['Classification Summary', 'CaseIQ Incidents'];
+  viewLabels = ['Classification Summary'];
   selectedIncidentNumber: string | null = null;
+  selectedTimelineIncident: SupervisorIncident | null = null;
 
   onIncidentCellClick(event: { column: string; value: any; row: any }): void {
     if (
@@ -98,6 +100,14 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
 
   closeIncidentDetail(): void {
     this.selectedIncidentNumber = null;
+  }
+
+  onTimelineDetailOpen(incident: SupervisorIncident): void {
+    this.selectedTimelineIncident = incident;
+  }
+
+  closeTimelineDetail(): void {
+    this.selectedTimelineIncident = null;
   }
 
   nextView(): void {

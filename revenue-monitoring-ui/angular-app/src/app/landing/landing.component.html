@@ -175,8 +175,8 @@
               }}</span>
             </span>
             <div class="ctx2-chart-wrapper">
-              @if (ctx2WeeklyTeamData().length > 0) {
-                <canvas #ctx2WeeklyTeamCanvas></canvas>
+              @if (ctx2WeeklyTeamOption(); as weeklyOption) {
+                <div echarts [options]="weeklyOption" class="ctx2-echart"></div>
               } @else {
                 <div class="ctx2-no-data">No data available</div>
               }
@@ -187,8 +187,8 @@
           <div class="ctx2-chart-card">
             <span class="ctx2-chart-title">Hourly Processing Load</span>
             <div class="ctx2-chart-wrapper">
-              @if (ctx2HourlyData().length > 0) {
-                <canvas #ctx2HourlyCanvas></canvas>
+              @if (ctx2HourlyOption(); as hourlyOption) {
+                <div echarts [options]="hourlyOption" class="ctx2-echart"></div>
               } @else {
                 <div class="ctx2-no-data">No data available</div>
               }
@@ -199,8 +199,14 @@
           <div class="ctx2-chart-card">
             <span class="ctx2-chart-title">Transaction Failures</span>
             <div class="ctx2-chart-wrapper">
-              @if (!ctx2TxnFailuresLoading()) {
-                <canvas #ctx2TxnFailuresCanvas></canvas>
+              @if (ctx2TxnFailuresOption(); as txnFailuresOption) {
+                <div
+                  echarts
+                  [options]="txnFailuresOption"
+                  class="ctx2-echart"
+                ></div>
+              } @else if (!ctx2TxnFailuresLoading()) {
+                <div class="ctx2-no-data">No data available</div>
               } @else {
                 <div class="ctx2-no-data">Loading...</div>
               }
@@ -211,8 +217,14 @@
           <div class="ctx2-chart-card">
             <span class="ctx2-chart-title">ESP Cases</span>
             <div class="ctx2-chart-wrapper">
-              @if (!ctx2EspCasesLoading()) {
-                <canvas #ctx2EspCasesCanvas></canvas>
+              @if (ctx2EspCasesOption(); as espCasesOption) {
+                <div
+                  echarts
+                  [options]="espCasesOption"
+                  class="ctx2-echart"
+                ></div>
+              } @else if (!ctx2EspCasesLoading()) {
+                <div class="ctx2-no-data">No data available</div>
               } @else {
                 <div class="ctx2-no-data">Loading...</div>
               }
@@ -287,13 +299,29 @@
           <div class="ctx3-chart-card">
             <span class="ctx3-chart-title">Orders by Account &amp; Status</span>
             <div class="ctx3-chart-wrapper">
-              <canvas #ctx3AccountChart></canvas>
+              @if (ctx3AccountOption(); as accountOption) {
+                <div
+                  echarts
+                  [options]="accountOption"
+                  class="ctx3-echart"
+                ></div>
+              } @else {
+                <div class="ctx2-no-data">No data available</div>
+              }
             </div>
           </div>
           <div class="ctx3-chart-card">
             <span class="ctx3-chart-title">Order Value by Account ($M)</span>
             <div class="ctx3-chart-wrapper">
-              <canvas #ctx3RevenueChart></canvas>
+              @if (ctx3RevenueOption(); as revenueOption) {
+                <div
+                  echarts
+                  [options]="revenueOption"
+                  class="ctx3-echart"
+                ></div>
+              } @else {
+                <div class="ctx2-no-data">No data available</div>
+              }
             </div>
           </div>
         </div>

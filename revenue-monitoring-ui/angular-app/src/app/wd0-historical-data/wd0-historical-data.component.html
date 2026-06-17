@@ -39,7 +39,11 @@
         @if (!productActualsLoading) {
           <div class="chart-legend-wrapper">
             <div class="chart-container">
-              <canvas id="productPieChart"></canvas>
+              <div
+                echarts
+                [options]="chartOptionsMap['productPieChart']"
+                style="height: 100%; width: 100%"
+              ></div>
             </div>
             <div class="custom-legend">
               @for (item of customLegend; track item) {
@@ -179,7 +183,11 @@
         @if (!serviceActualsLoading) {
           <div class="chart-legend-wrapper">
             <div class="chart-container">
-              <canvas id="servicePieChart"></canvas>
+              <div
+                echarts
+                [options]="chartOptionsMap['servicePieChart']"
+                style="height: 100%; width: 100%"
+              ></div>
             </div>
             <div class="custom-legend">
               @for (item of customLegend; track item) {
@@ -308,11 +316,11 @@
     padding: 0.7rem 1rem 0rem 1rem;
     align-items: stretch;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 1rem;
   "
 >
-  <div style="width: 33%; flex: 1 1 20%" class="card">
+  <div style="flex: 1 1 33%; min-width: 0" class="card">
     @if (serviceLoading) {
       <div style="text-align: center; height: 4vh">
         <app-loading-symbol></app-loading-symbol>
@@ -320,8 +328,12 @@
     }
 
     <div style="position: relative">
-      <!-- Canvas element for the graph -->
-      <canvas id="q3ServiceLinePredictiveModel"></canvas>
+      <!-- ECharts element for the graph -->
+      <div
+        echarts
+        [options]="chartOptionsMap['q3ServiceLinePredictiveModel']"
+        style="height: 300px; width: 100%"
+      ></div>
 
       <!-- <div *ngIf="isOutdated" class="data-outdated-overlay">
       <p>
@@ -353,7 +365,7 @@
     </div>
   </div>
 
-  <div style="width: 33%" class="card">
+  <div style="flex: 1 1 33%; min-width: 0" class="card">
     @if (productLoading) {
       <div style="text-align: center; height: 4vh">
         <app-loading-symbol></app-loading-symbol>
@@ -361,8 +373,12 @@
     }
 
     <div style="position: relative">
-      <!-- Canvas element for the graph -->
-      <canvas id="productLinePredictiveModel"></canvas>
+      <!-- ECharts element for the graph -->
+      <div
+        echarts
+        [options]="chartOptionsMap['productLinePredictiveModel']"
+        style="height: 300px; width: 100%"
+      ></div>
 
       <!-- <div *ngIf="isOutdated" class="data-outdated-overlay">
     <p>
@@ -393,7 +409,7 @@
     </div>
   </div>
 
-  <div style="width: 33%" class="card">
+  <div style="flex: 1 1 33%; min-width: 0" class="card">
     @if (loading) {
       <div style="text-align: center; height: 5vh">
         <app-loading-symbol></app-loading-symbol>
@@ -411,7 +427,11 @@
   </div>
 </ng-container> -->
     <ng-container>
-      <canvas id="lineChartCanvas"></canvas>
+      <div
+        echarts
+        [options]="chartOptionsMap['lineChartCanvas']"
+        style="height: 300px; width: 100%"
+      ></div>
     </ng-container>
     <p class="chart-description">
       Projection of Period close completion based on predicted volume
@@ -419,24 +439,15 @@
   </div>
 </div>
 
-<div class="container grid-1" style="max-width: 100%; padding-top: 0px">
-  <div
-    style="
-      margin-top: 1vh;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    "
-  >
-    <p style="margin: 0 0 -6px 0; font-size: 20px" class="page-title">
-      &nbsp;All Entities (Historical)
-    </p>
+<div class="container grid-1 hotfix" style="max-width: 100%; padding-top: 0px">
+  <div class="wd0-table-header-row">
+    <p class="page-title wd0-table-title">&nbsp;All Entities (Historical)</p>
 
-    <div style="display: flex; justify-content: flex-end">
+    <div class="wd0-table-actions">
       <ng-icon
         name="phosphorArrowLineDownBold"
         size="16"
-        style="color: rgb(47, 47, 47); cursor: pointer"
+        class="wd0-export-icon"
         aria-hidden="true"
         (click)="
           refreshExportData();
@@ -447,100 +458,103 @@
           )
         "
       ></ng-icon>
+      &nbsp; Download
     </div>
   </div>
 
-  <div class="wd0-table-scroll">
-    <table class="wd0-table" aria-label="WD+0 Mid Close Volumes Table">
-      <thead>
-        <tr>
-          @for (column of displayedColumns; track column) {
-            <th>
-              @if (column === "trend") {
-                QoQ Trend
-              } @else {
-                {{ formatColumnHeader(column) | uppercase }}
-              }
-            </th>
-          }
-        </tr>
-      </thead>
-      <tbody>
-        @for (row of dataSource?.data; track row; let i = $index) {
-          <tr [class.product-total-row]="isProductTotalRow(row)">
-            @for (column of displayedColumns; track column; let ci = $index) {
-              <td [class.product-total-border]="isProductTotalRow(row)">
-                @if (column !== "trend") {
-                  @if (column === "ENTITY" || column === "LINE_TYPE") {
-                    <strong>{{ row[column] }}</strong>
-                  } @else {
-                    {{ row[column] | formatNumber }}
-                  }
+  <div class="wd0-table-shell">
+    <div class="wd0-table-scroll">
+      <table class="wd0-table" aria-label="WD+0 Mid Close Volumes Table">
+        <thead>
+          <tr>
+            @for (column of displayedColumns; track column) {
+              <th>
+                @if (column === "trend") {
+                  QoQ Trend
                 } @else {
-                  @if (
-                    getTrend(
-                      row,
-                      displayedColumns[ci - 2],
-                      displayedColumns[ci - 1]
-                    ).trend === "up"
-                  ) {
-                    <span class="trend-up">
-                      <ng-icon name="phosphorCaretUpBold" size="14" />
-                      {{
-                        getTrend(
-                          row,
-                          displayedColumns[ci - 2],
-                          displayedColumns[ci - 1]
-                        ).change === "—"
-                          ? "—"
-                          : (getTrend(
-                              row,
-                              displayedColumns[ci - 2],
-                              displayedColumns[ci - 1]
-                            ).change | number: "1.0-0") + "%"
-                      }}
-                    </span>
-                  }
-                  @if (
-                    getTrend(
-                      row,
-                      displayedColumns[ci - 2],
-                      displayedColumns[ci - 1]
-                    ).trend === "down"
-                  ) {
-                    <span class="trend-down">
-                      <ng-icon name="phosphorCaretDownBold" size="14" />
-                      {{
-                        getTrend(
-                          row,
-                          displayedColumns[ci - 2],
-                          displayedColumns[ci - 1]
-                        ).change === "—"
-                          ? "—"
-                          : (getTrend(
-                              row,
-                              displayedColumns[ci - 2],
-                              displayedColumns[ci - 1]
-                            ).change | number: "1.0-0") + "%"
-                      }}
-                    </span>
-                  }
-                  @if (
-                    getTrend(
-                      row,
-                      displayedColumns[ci - 2],
-                      displayedColumns[ci - 1]
-                    ).trend === "same"
-                  ) {
-                    <span> — </span>
-                  }
+                  {{ formatColumnHeader(column) | uppercase }}
                 }
-              </td>
+              </th>
             }
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (row of dataSource?.data; track row; let i = $index) {
+            <tr [class.product-total-row]="isProductTotalRow(row)">
+              @for (column of displayedColumns; track column; let ci = $index) {
+                <td [class.product-total-border]="isProductTotalRow(row)">
+                  @if (column !== "trend") {
+                    @if (column === "ENTITY" || column === "LINE_TYPE") {
+                      <strong>{{ row[column] }}</strong>
+                    } @else {
+                      {{ row[column] | formatNumber }}
+                    }
+                  } @else {
+                    @if (
+                      getTrend(
+                        row,
+                        displayedColumns[ci - 2],
+                        displayedColumns[ci - 1]
+                      ).trend === "up"
+                    ) {
+                      <span class="trend-up">
+                        <ng-icon name="phosphorCaretUpBold" size="14" />
+                        {{
+                          getTrend(
+                            row,
+                            displayedColumns[ci - 2],
+                            displayedColumns[ci - 1]
+                          ).change === "—"
+                            ? "—"
+                            : (getTrend(
+                                row,
+                                displayedColumns[ci - 2],
+                                displayedColumns[ci - 1]
+                              ).change | number: "1.0-0") + "%"
+                        }}
+                      </span>
+                    }
+                    @if (
+                      getTrend(
+                        row,
+                        displayedColumns[ci - 2],
+                        displayedColumns[ci - 1]
+                      ).trend === "down"
+                    ) {
+                      <span class="trend-down">
+                        <ng-icon name="phosphorCaretDownBold" size="14" />
+                        {{
+                          getTrend(
+                            row,
+                            displayedColumns[ci - 2],
+                            displayedColumns[ci - 1]
+                          ).change === "—"
+                            ? "—"
+                            : (getTrend(
+                                row,
+                                displayedColumns[ci - 2],
+                                displayedColumns[ci - 1]
+                              ).change | number: "1.0-0") + "%"
+                        }}
+                      </span>
+                    }
+                    @if (
+                      getTrend(
+                        row,
+                        displayedColumns[ci - 2],
+                        displayedColumns[ci - 1]
+                      ).trend === "same"
+                    ) {
+                      <span> — </span>
+                    }
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div style="display: flex; justify-content: center">

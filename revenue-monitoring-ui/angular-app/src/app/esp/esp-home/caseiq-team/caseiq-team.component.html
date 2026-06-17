@@ -515,33 +515,40 @@
   </div>
 </div>
 
+<app-caseiq-incident-detail
+  [incident]="selectedTimelineIncident"
+  backLabel="Back to Incidents"
+  (back)="closeTimelineDetail()"
+  [style.display]="
+    activeViewIndex === 0 && selectedTimelineIncident ? 'block' : 'none'
+  "
+></app-caseiq-incident-detail>
+
 @if (activeViewIndex === 0) {
-  <app-caseiq-table
-    #teamTable
-    [dataSource]="tableData"
-    [displayedColumns]="tableColumns"
-    [exportFileName]="teamConfig.exportFileName"
-    [tableTitle]="tableTitle"
-    [tableTitleTooltip]="
-      'Use the Upload button to submit and validate the data for accuracy. Default filter applied to display for category match or core issue match is N or NULL.'
-    "
-    [extraWideColumns]="['Case Summary - Description']"
-    [enablePagination]="true"
-    [pageSize]="10"
-    [totalRecords]="totalRecords"
-    [source]="teamConfig.tableSource"
-    [backendLoading]="refreshingData"
-    [showNavArrows]="true"
-    [navPrevDisabled]="true"
-    [navNextDisabled]="false"
-    (navNext)="nextView()"
-    (navPrev)="prevView()"
-    (uploadResult)="handleUploadResult($event)"
-  >
-  </app-caseiq-table>
+  @if (!selectedTimelineIncident) {
+    <app-caseiq-table
+      #teamTable
+      [dataSource]="tableData"
+      [displayedColumns]="tableColumns"
+      [exportFileName]="teamConfig.exportFileName"
+      [tableTitle]="tableTitle"
+      [tableTitleTooltip]="
+        'Use the Upload button to submit and validate the data for accuracy. Default filter applied to display for category match or core issue match is N or NULL.'
+      "
+      [extraWideColumns]="['Case Summary - Description']"
+      [enablePagination]="true"
+      [pageSize]="10"
+      [totalRecords]="totalRecords"
+      [source]="teamConfig.tableSource"
+      [backendLoading]="refreshingData"
+      (uploadResult)="handleUploadResult($event)"
+      (timelineDetailOpen)="onTimelineDetailOpen($event)"
+    >
+    </app-caseiq-table>
+  }
 }
 
-@if (activeViewIndex === 1) {
+<!-- @if (activeViewIndex === 1) {
   @if (selectedIncidentNumber) {
     <app-caseiq-incident-detail
       [incidentNumber]="selectedIncidentNumber"
@@ -568,7 +575,7 @@
     >
     </app-caseiq-table>
   }
-}
+} -->
 
 @if (expandedChart) {
   <app-caseiq-expand-modal

@@ -1,111 +1,37 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { Chart, ChartConfiguration, ChartType } from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { NgChartsModule } from 'ng2-charts';
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import * as echarts from 'echarts/core';
+import { BarChart, LineChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import type { EChartsOption } from 'echarts';
 
-Chart.register(ChartDataLabels);
-// Default datalabels OFF globally — charts opt-in via their own config
-Chart.defaults.set('plugins.datalabels', { display: false });
+echarts.use([
+  BarChart,
+  LineChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  CanvasRenderer,
+]);
 
 @Component({
   selector: 'app-atmf-bar-line-chart',
   templateUrl: './atmf-bar-line-chart.component.html',
   styleUrl: './atmf-bar-line-chart.component.css',
-  imports: [NgChartsModule],
+  imports: [NgxEchartsDirective],
+  providers: [provideEchartsCore({ echarts })],
   standalone: true,
 })
 export class AtmfBarLineChartComponent implements OnChanges {
   @Input() chartData: any;
   @Input() title: string = '';
 
-  public barChartType: ChartType = 'bar';
-  public barChartData: any = {
-    labels: [],
-    datasets: [],
-  };
-
-  public barChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false, // Hide legend/table
-        position: 'bottom',
-      },
-      title: {
-        display: false, // Hide chart title
-      },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const label = context.dataset.label || '';
-            const value = context.parsed.y;
-
-            // Format any percentage change labels with % symbol
-            if (label.includes('%')) {
-              return `${label}: ${value.toFixed(1)}%`;
-            }
-            // Format numbers with commas
-            return `${label}: ${value.toLocaleString()}`;
-          },
-        },
-      },
-      datalabels: {
-        display: (context: any) => context.dataset.type !== 'line',
-        color: 'white',
-        font: {
-          size: 9,
-        },
-        backgroundColor: null,
-        formatter: (value: any) => value.toLocaleString(),
-      },
-    },
-    scales: {
-      x: {
-        stacked: true,
-        grid: {
-          display: false,
-        },
-      },
-      y: {
-        stacked: true,
-        position: 'left',
-        display: true,
-        title: {
-          display: false,
-          text: 'Volume',
-        },
-        grid: {
-          drawOnChartArea: false,
-          color: 'rgba(0, 0, 0, 0.1)',
-          lineWidth: 1,
-        },
-        ticks: {
-          callback: (value) => {
-            return value.toLocaleString();
-          },
-        },
-      },
-      y1: {
-        type: 'linear',
-        position: 'right',
-        display: true, // Show y1 axis visually
-        title: {
-          display: true,
-          text: '% Change',
-        },
-        grid: {
-          drawOnChartArea: true,
-        },
-        ticks: {
-          display: true,
-          callback: (value) => {
-            return value + '%';
-          },
-        },
-      },
-    },
-  };
+  echartsOptions: EChartsOption = {};
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['chartData'] && this.chartData) {
@@ -115,7 +41,6 @@ export class AtmfBarLineChartComponent implements OnChanges {
 
   updateChart(): void {
     if (!this.chartData) return;
-
     const {
       labels,
       productValues,
@@ -124,61 +49,69 @@ export class AtmfBarLineChartComponent implements OnChanges {
       servicePercentChanges,
     } = this.chartData;
 
-    this.barChartData = {
-      labels: labels || [],
-      datasets: [
+    this.echartsOptions = {
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      legend: { show: false },
+      grid: { top: 30, right: 60, bottom: 20, left: 60, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: labels || [],
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      yAxis: [
         {
-          type: 'line',
-          label: 'Product % Change',
-          data: productPercentChanges || [],
-          borderColor: '#e69710ff', // Product line warning color
-          backgroundColor: '#e69710ff',
-          borderWidth: 3,
-          borderDash: [5, 5],
-          fill: false,
-          yAxisID: 'y1',
-          pointRadius: 3,
-          pointHoverRadius: 6,
-          pointBackgroundColor: '#e69710ff',
-          pointBorderColor: '#e69710ff',
-          order: 0, // Draw last (in front)
-          tension: 0.3,
+          type: 'value',
+          position: 'left',
+          splitLine: { show: false },
+          axisLabel: { formatter: (v: number) => v.toLocaleString() },
         },
         {
-          type: 'line',
-          label: 'Service % Change',
-          data: servicePercentChanges || [],
-          borderColor: '#7D8AFF', // Service line color
-          backgroundColor: '#7D8AFF',
-          borderWidth: 3,
-          fill: false,
-          yAxisID: 'y1',
-          pointRadius: 3,
-          pointHoverRadius: 6,
-          pointBackgroundColor: '#7D8AFF',
-          pointBorderColor: '#7D8AFF',
-          order: 0, // Draw last (in front)
-          tension: 0.3,
+          type: 'value',
+          position: 'right',
+          name: '% Change',
+          splitLine: { lineStyle: { type: 'dashed' } },
+          axisLabel: { formatter: (v: number) => v + '%' },
         },
+      ],
+      series: [
         {
+          name: 'Service',
           type: 'bar',
-          label: 'Service',
+          stack: 'total',
           data: serviceValues || [],
-          backgroundColor: '#7d8affe4', // Service color
-          borderColor: '#7D8AFF',
-          borderWidth: 1,
-          yAxisID: 'y',
-          order: 2, // Draw first (behind)
+          itemStyle: { color: '#7d8affe4' },
+          yAxisIndex: 0,
         },
         {
+          name: 'Product',
           type: 'bar',
-          label: 'Product',
+          stack: 'total',
           data: productValues || [],
-          backgroundColor: '#b02863ff', // Product color
-          borderColor: '#B02863',
-          borderWidth: 1,
-          yAxisID: 'y',
-          order: 1, // Draw second (on top in stack)
+          itemStyle: { color: '#b02863ff' },
+          yAxisIndex: 0,
+        },
+        {
+          name: 'Product % Change',
+          type: 'line',
+          data: productPercentChanges || [],
+          lineStyle: { color: '#e69710ff', width: 3, type: 'dashed' },
+          itemStyle: { color: '#e69710ff' },
+          symbol: 'circle',
+          symbolSize: 6,
+          smooth: true,
+          yAxisIndex: 1,
+        },
+        {
+          name: 'Service % Change',
+          type: 'line',
+          data: servicePercentChanges || [],
+          lineStyle: { color: '#7D8AFF', width: 3 },
+          itemStyle: { color: '#7D8AFF' },
+          symbol: 'circle',
+          symbolSize: 6,
+          smooth: true,
+          yAxisIndex: 1,
         },
       ],
     };

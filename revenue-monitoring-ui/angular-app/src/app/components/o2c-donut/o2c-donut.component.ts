@@ -1,23 +1,26 @@
 import {
   Component,
   Input,
-  OnInit,
   OnChanges,
   SimpleChanges,
   OnDestroy,
 } from '@angular/core';
-import { Chart } from 'chart.js';
 import { CommonModule } from '@angular/common';
-import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import * as echarts from 'echarts/core';
+import { PieChart } from 'echarts/charts';
+import { TooltipComponent, LegendComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import type { EChartsOption } from 'echarts';
+
+echarts.use([PieChart, TooltipComponent, LegendComponent, CanvasRenderer]);
 
 @Component({
   selector: 'app-o2c-donut',
   templateUrl: './o2c-donut.component.html',
   styleUrl: './o2c-donut.component.css',
-  imports: [
-    CommonModule,
-    // LoadingSymbolComponent
-  ],
+  imports: [CommonModule, NgxEchartsDirective],
+  providers: [provideEchartsCore({ echarts })],
   standalone: true,
 })
 export class O2cDonutComponent implements OnChanges, OnDestroy {
@@ -28,7 +31,7 @@ export class O2cDonutComponent implements OnChanges, OnDestroy {
   }[] = [];
 
   @Input() canvasId: string = 'donutCanvas';
-  @Input() isLoading?: boolean = false; // Add explicit loading state
+  @Input() isLoading?: boolean = false;
   @Input() showCircleBackground?: boolean = true;
   @Input() showLegend?: boolean = true;
   @Input() chartSize?: string = '125px';
@@ -51,66 +54,43 @@ export class O2cDonutComponent implements OnChanges, OnDestroy {
   } = {};
 
   hasReceivedData: boolean = false;
+  chartOptions: EChartsOption = {};
 
-  private chart: any = null;
-  private animationFrame: number | null = null;
+  private readonly pieColors = [
+    '#399E20',
+    '#FBAB2C',
+    '#1990FA',
+    '#00509E',
+    'rgba(255, 99, 132, 0.6)',
+    'rgba(54, 162, 235, 0.6)',
+    'rgba(100, 255, 218, 0.6)',
+    'rgba(255, 159, 64, 0.6)',
+    'rgba(153, 102, 255, 0.6)',
+    'rgba(75, 192, 192, 0.6)',
+    'rgba(235, 154, 229, 0.6)',
+    'rgba(201, 203, 207, 0.6)',
+    'rgba(0, 255, 157, 0.6)',
+    'rgba(255, 205, 86, 0.6)',
+  ];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data'] || changes['isLoading']) {
-      // Use the explicit loading state from parent
       if (this.isLoading) {
-        // Still loading - show loading state
         this.hasReceivedData = false;
         return;
       }
-
-      // Not loading anymore - we have final data (empty or populated)
       this.hasReceivedData = true;
-
       if (this.data && this.data.length > 0) {
-        setTimeout(() => {
-          this.renderPieChart(this.data, this.canvasId);
-        }, 0);
+        this.renderPieChart(this.data, this.canvasId);
       } else {
         this.legendItems = [];
-        this.clearCanvas();
+        this.chartOptions = {};
       }
     }
   }
 
-  ngOnDestroy(): void {
-    this.destroyChart();
-  }
+  ngOnDestroy(): void {}
 
-  private destroyChart(): void {
-    // Cancel any pending animation frames
-    if (this.animationFrame) {
-      cancelAnimationFrame(this.animationFrame);
-      this.animationFrame = null;
-    }
-
-    // Properly destroy Chart.js instance
-    if (this.chart) {
-      this.chart.destroy();
-      this.chart = null;
-    }
-
-    // Clear canvas context
-    this.clearCanvas();
-  }
-
-  // Helper method to clear canvas
-  private clearCanvas(): void {
-    const canvas = document.getElementById(this.canvasId) as HTMLCanvasElement;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
-    }
-  }
-
-  // Getter for template logic
   get showLoadingState(): boolean {
     return this.isLoading;
   }
@@ -192,38 +172,11 @@ export class O2cDonutComponent implements OnChanges, OnDestroy {
       INCIDENT_COUNT: number;
       INCIDENT_VALUE: number;
     }[],
-    canvasId: string
+    canvasId: string,
   ): void {
-    // Destroy existing chart first
-    this.destroyChart();
-
-    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const pieColors = [
-      '#399E20',
-      '#FBAB2C',
-      '#1990FA',
-      '#00509E',
-      'rgba(255, 99, 132, 0.6)',
-      'rgba(54, 162, 235, 0.6)',
-      'rgba(100, 255, 218, 0.6)',
-      'rgba(255, 159, 64, 0.6)',
-      'rgba(153, 102, 255, 0.6)',
-      'rgba(75, 192, 192, 0.6)',
-      'rgba(235, 154, 229, 0.6)',
-      'rgba(201, 203, 207, 0.6)',
-      'rgba(0, 255, 157, 0.6)',
-      'rgba(255, 205, 86, 0.6)',
-    ];
-
-    const counts = data.map((entry) => entry.INCIDENT_VALUE);
+    const pieColors = this.pieColors;
     const colors = data.map((_, index) => pieColors[index % pieColors.length]);
 
-    // Compute totals
     const totalCount = data.reduce((sum, e) => {
       const count = e.INCIDENT_COUNT;
       return sum + (count !== undefined && count !== null ? count : 0);
@@ -231,84 +184,68 @@ export class O2cDonutComponent implements OnChanges, OnDestroy {
 
     const totalValue = data.reduce(
       (sum, e) => sum + (e.INCIDENT_VALUE || 0),
-      0
+      0,
     );
 
     const formattedTotalValue = this.formatValueForDonutCenter(totalValue);
     const formattedTotalCount = totalCount ? `#${totalCount}` : '';
 
-    if (ctx) {
-      this.chart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          datasets: [
-            {
-              data: counts,
-              backgroundColor: colors,
-              borderWidth: 0,
-              hoverOffset: 0,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: { enabled: false },
-            datalabels: { display: false },
-          },
-          hover: { mode: null },
+    this.chartOptions = {
+      tooltip: { show: false },
+      series: [
+        {
+          type: 'pie',
+          radius: ['70%', '100%'],
+          avoidLabelOverlap: false,
+          silent: true,
           animation: false,
-          cutout: '70%',
-        },
-        plugins: [
-          {
-            id: 'centerText',
-            beforeDraw(chart) {
-              const { width, height, ctx } = chart;
-
-              ctx.save();
-
-              // Main center text (e.g., $4.2M)
-              ctx.font = '600 16px Inter, sans-serif';
-              ctx.fillStyle = '#333';
-              ctx.textAlign = 'center';
-              ctx.textBaseline = 'middle';
-              const mainTextY = height / 2 - 2;
-              ctx.fillText(formattedTotalValue, width / 2, mainTextY);
-
-              // Subtitle (e.g., #12)
-              ctx.font = '12px Inter, sans-serif';
-              ctx.fillStyle = '#666';
-              ctx.fillText(formattedTotalCount, width / 2, height / 2 + 12);
-
-              ctx.restore();
+          label: {
+            show: true,
+            position: 'center',
+            formatter: `{value|${formattedTotalValue}}\n{count|${formattedTotalCount}}`,
+            rich: {
+              value: {
+                fontSize: 16,
+                fontWeight: 600 as any,
+                fontFamily: 'Inter, sans-serif',
+                color: '#333',
+                lineHeight: 20,
+              },
+              count: {
+                fontSize: 12,
+                fontFamily: 'Inter, sans-serif',
+                color: '#666',
+                lineHeight: 18,
+              },
             },
           },
-        ],
-      });
+          labelLine: { show: false },
+          itemStyle: { borderWidth: 0 },
+          data: data.map((entry, i) => ({
+            value: entry.INCIDENT_VALUE,
+            name: entry.INCIDENT_TYPE,
+            itemStyle: { color: colors[i] },
+          })),
+        },
+      ],
+    };
 
-      // Set custom legend
-      const legendEntries = data.map((entry, i) => ({
-        type: entry.INCIDENT_TYPE,
-        count: entry.INCIDENT_COUNT,
-        value: entry.INCIDENT_VALUE,
-        color: colors[i],
-      }));
+    // Set custom legend
+    const legendEntries = data.map((entry, i) => ({
+      type: entry.INCIDENT_TYPE,
+      count: entry.INCIDENT_COUNT,
+      value: entry.INCIDENT_VALUE,
+      color: colors[i],
+    }));
 
-      legendEntries.push({
-        type: 'Total Exceptions',
-        count: totalCount,
-        value: totalValue,
-        color: 'transparent',
-      });
+    legendEntries.push({
+      type: 'Total Exceptions',
+      count: totalCount,
+      value: totalValue,
+      color: 'transparent',
+    });
 
-      this.legendItems = this.showLegend ? legendEntries : [];
-
-      this.legendMap[canvasId] = legendEntries;
-      // console.log(`Legend for ${canvasId}:`, this.legendMap[canvasId]);
-    } else {
-      console.error(`Canvas with id ${canvasId} not found`);
-    }
+    this.legendItems = this.showLegend ? legendEntries : [];
+    this.legendMap[canvasId] = legendEntries;
   }
 }

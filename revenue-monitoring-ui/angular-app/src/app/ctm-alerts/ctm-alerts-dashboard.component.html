@@ -102,7 +102,11 @@
         </div>
         <div class="ctm-donut-wrapper">
           <div class="ctm-donut-canvas-wrap">
-            <canvas id="alertTypeCanvas"></canvas>
+            <div
+              echarts
+              [options]="alertTypeChartOptions"
+              style="height: 100%; width: 100%"
+            ></div>
           </div>
           @if (alertTypeData.labels.length > 0) {
             <div class="ctm-donut-legend">
@@ -168,7 +172,11 @@
         </div>
         <div class="ctm-donut-wrapper">
           <div class="ctm-donut-canvas-wrap">
-            <canvas id="priorityCanvas"></canvas>
+            <div
+              echarts
+              [options]="priorityChartOptions"
+              style="height: 100%; width: 100%"
+            ></div>
           </div>
           @if (priorityData.labels.length > 0) {
             <div class="ctm-donut-legend">
@@ -202,7 +210,11 @@
           <span>Hourly Alert Volume</span>
         </div>
         <div class="ctm-throughput-chart-wrapper">
-          <canvas id="throughputCanvas" #throughputCanvas></canvas>
+          <div
+            echarts
+            [options]="throughputChartOptions"
+            style="height: 100%; width: 100%"
+          ></div>
           @if (throughputPoints.length < 2) {
             <div class="ctm-no-data ctm-no-data--overlay">
               Hourly data in progress

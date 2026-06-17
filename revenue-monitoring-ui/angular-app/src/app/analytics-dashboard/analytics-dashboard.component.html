@@ -88,7 +88,11 @@
           <span>Continuous Monitoring Overview</span>
         </div>
         <div class="chart-wrapper">
-          <canvas id="continuousMonitoringChart"></canvas>
+          <div
+            echarts
+            [options]="continuousMonitoringChartOptions"
+            style="height: 100%; width: 100%"
+          ></div>
         </div>
       </div>
       <div class="chart-card">
@@ -99,7 +103,11 @@
           <span>Case IQ Teams</span>
         </div>
         <div class="chart-wrapper">
-          <canvas id="caseIqChart"></canvas>
+          <div
+            echarts
+            [options]="caseIqChartOptions"
+            style="height: 100%; width: 100%"
+          ></div>
         </div>
       </div>
       <div class="chart-card">
@@ -110,7 +118,11 @@
           <span>Business Insights</span>
         </div>
         <div class="chart-wrapper">
-          <canvas id="businessInsightsChart"></canvas>
+          <div
+            echarts
+            [options]="businessInsightsChartOptions"
+            style="height: 100%; width: 100%"
+          ></div>
         </div>
       </div>
     </div>
@@ -127,7 +139,11 @@
           <span>Top 10 Most Visited Pages</span>
         </div>
         <div class="chart-wrapper tall">
-          <canvas id="topPagesChart"></canvas>
+          <div
+            echarts
+            [options]="topPagesChartOptions"
+            style="height: 100%; width: 100%"
+          ></div>
         </div>
       </div>
 
@@ -139,7 +155,11 @@
           <span>Pages by Unique Users</span>
         </div>
         <div class="chart-wrapper">
-          <canvas id="uniqueUsersChart"></canvas>
+          <div
+            echarts
+            [options]="uniqueUsersChartOptions"
+            style="height: 100%; width: 100%"
+          ></div>
         </div>
       </div>
     </div>

@@ -1,13 +1,4 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  AfterViewInit,
-  HostBinding,
-  ViewChild,
-  ElementRef,
-  ChangeDetectorRef,
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -36,7 +27,16 @@ import {
   phosphorClockDuotone,
 } from '@ng-icons/phosphor-icons/duotone';
 import { forkJoin, interval, Subscription } from 'rxjs';
-import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import * as echarts from 'echarts/core';
+import { PieChart, LineChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import type { EChartsOption } from 'echarts';
 
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { DataService, PeriodStatus } from '../providers/data.service';
@@ -50,13 +50,21 @@ import {
 } from './ctm-alerts-data.service';
 import { ThemeService } from '../providers/theme.service';
 
-Chart.register(...registerables);
+echarts.use([
+  PieChart,
+  LineChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  CanvasRenderer,
+]);
 
 @Component({
   selector: 'app-ctm-alerts-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgIcon],
+  imports: [CommonModule, FormsModule, NgIcon, NgxEchartsDirective],
   providers: [
+    provideEchartsCore({ echarts }),
     DestroyManager,
     provideIcons({
       phosphorArrowClockwiseBold,
@@ -84,9 +92,7 @@ Chart.register(...registerables);
   templateUrl: './ctm-alerts-dashboard.component.html',
   styleUrls: ['./ctm-alerts-dashboard.component.css'],
 })
-export class CtmAlertsDashboardComponent
-  implements OnInit, OnDestroy, AfterViewInit
-{
+export class CtmAlertsDashboardComponent implements OnInit, OnDestroy {
   @HostBinding('class.dark-theme') get darkThemeClass() {
     return this.themeService.isDarkMode;
   }
@@ -96,7 +102,6 @@ export class CtmAlertsDashboardComponent
   lastUpdated = '';
   guideOpen = false;
   periodStatus: PeriodStatus | null = null;
-  private chartsReady = false;
 
   // KPIs
   kpiTotal = 0;
@@ -121,8 +126,8 @@ export class CtmAlertsDashboardComponent
     colors: [],
   };
   priorityTotal = 0;
-  private alertTypeChart?: Chart<'doughnut'>;
-  private priorityChart?: Chart<'doughnut'>;
+  alertTypeChartOptions: EChartsOption = {};
+  priorityChartOptions: EChartsOption = {};
 
   // Bar chart
   downstreamBars: {
@@ -132,23 +137,9 @@ export class CtmAlertsDashboardComponent
     color: string;
   }[] = [];
 
-  // Throughput line chart (Chart.js)
+  // Throughput line chart
   throughputPoints: { label: string; value: number }[] = [];
-  throughputChartData: ChartConfiguration<'line'>['data'] = {
-    labels: [],
-    datasets: [],
-  };
-  throughputChartOptions: ChartConfiguration<'line'>['options'] = {};
-  private throughputChart: Chart<'line'> | null = null;
-  private _throughputChartPending = false;
-
-  @ViewChild('throughputCanvas')
-  set throughputCanvasRef(ref: ElementRef<HTMLCanvasElement> | undefined) {
-    if (ref && this._throughputChartPending) {
-      this._throughputChartPending = false;
-      this.createThroughputChart(ref.nativeElement);
-    }
-  }
+  throughputChartOptions: EChartsOption = {};
 
   // Table data
   allAlerts: CtmAlertRow[] = [];
@@ -204,7 +195,6 @@ export class CtmAlertsDashboardComponent
     private readonly dataService: CtmAlertsDataService,
     private readonly sharedDataService: DataService,
     private readonly dm: DestroyManager,
-    private readonly cdr: ChangeDetectorRef,
     public themeService: ThemeService,
   ) {}
 
@@ -220,18 +210,10 @@ export class CtmAlertsDashboardComponent
     });
     this.refreshAll(true);
     this.refreshSub = interval(60000).subscribe(() => this.refreshAll(false));
-    this.themeService.isDarkMode$.subscribe(() => this.updateDonutTheme());
-  }
-
-  ngAfterViewInit(): void {
-    this.chartsReady = true;
   }
 
   ngOnDestroy(): void {
     this.refreshSub?.unsubscribe();
-    this.alertTypeChart?.destroy();
-    this.priorityChart?.destroy();
-    this.throughputChart?.destroy();
   }
 
   toggleTheme(): void {
@@ -258,10 +240,6 @@ export class CtmAlertsDashboardComponent
         this.processAlerts(data.alerts);
         this.loading = false;
         this.lastUpdated = new Date().toLocaleString();
-        // Force Angular to render the @if(!loading) block NOW so canvas is in the DOM
-        this.cdr.detectChanges();
-        // Render charts after DOM is ready
-        setTimeout(() => this.renderAllCharts());
       },
       error: () => {
         this.loading = false;
@@ -295,6 +273,11 @@ export class CtmAlertsDashboardComponent
         this.alertStatusColors['Resolved'],
       ],
     };
+    this.alertTypeChartOptions = this.buildDonutOptions(
+      this.alertTypeData,
+      this.alertTypeTotal,
+      'alerts',
+    );
   }
 
   private processPriorityDonut(data: CtmDistribution[]): void {
@@ -306,132 +289,60 @@ export class CtmAlertsDashboardComponent
         (d) => this.priorityColors[d.PRIORITY_LEVEL || 'None'] || '#888',
       ),
     };
-  }
-
-  private renderAllCharts(): void {
-    this.renderDonut(
-      'alertTypeCanvas',
-      this.alertTypeData,
-      this.alertTypeTotal,
-      'alerts',
-      'alertType',
-    );
-    this.renderDonut(
-      'priorityCanvas',
+    this.priorityChartOptions = this.buildDonutOptions(
       this.priorityData,
       this.priorityTotal,
       'total',
-      'priority',
     );
-    // Rebuild throughput line chart
-    this.throughputChart?.destroy();
-    this.throughputChart = null;
-    const canvas = document.getElementById(
-      'throughputCanvas',
-    ) as HTMLCanvasElement;
-    if (canvas) {
-      this.createThroughputChart(canvas);
-    }
   }
 
-  private renderDonut(
-    canvasId: string,
+  private buildDonutOptions(
     data: { labels: string[]; values: number[]; colors: string[] },
     total: number,
     subtitle: string,
-    type: 'alertType' | 'priority',
-  ): void {
-    // Destroy existing chart
-    if (type === 'alertType') {
-      this.alertTypeChart?.destroy();
-      this.alertTypeChart = undefined;
-    } else {
-      this.priorityChart?.destroy();
-      this.priorityChart = undefined;
-    }
-
-    // Wait for DOM
-    setTimeout(() => {
-      const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      const themeRef = this.themeService;
-
-      const chart = new Chart<'doughnut'>(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: data.labels,
-          datasets: [
-            {
-              data: data.values,
-              backgroundColor: data.colors,
-              borderWidth: 2,
-              borderColor: themeRef.isDarkMode ? '#1a2733' : '#ffffff',
-              hoverOffset: 6,
-            },
-          ],
+  ): EChartsOption {
+    return {
+      tooltip: {
+        trigger: 'item',
+        formatter: (params: any) => {
+          const pct =
+            total > 0 ? ((params.value / total) * 100).toFixed(1) : '0';
+          return `${params.name}: ${params.value} (${pct}%)`;
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '68%',
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: (c) => {
-                  const pct =
-                    total > 0
-                      ? (((c.raw as number) / total) * 100).toFixed(1)
-                      : '0';
-                  return `${c.label}: ${c.raw} (${pct}%)`;
-                },
+      },
+      series: [
+        {
+          type: 'pie',
+          radius: ['68%', '100%'],
+          avoidLabelOverlap: false,
+          label: {
+            show: true,
+            position: 'center',
+            formatter: `{val|${total}}\n{sub|${subtitle.toUpperCase()}}`,
+            rich: {
+              val: {
+                fontSize: 22,
+                fontWeight: 700,
+                color: this.themeService.isDarkMode ? '#e0e6ed' : '#1b1c1d',
+                lineHeight: 30,
+              },
+              sub: {
+                fontSize: 10,
+                fontWeight: 600,
+                color: this.themeService.isDarkMode ? '#8899a6' : '#555',
+                lineHeight: 18,
               },
             },
           },
+          labelLine: { show: false },
+          data: data.labels.map((label, i) => ({
+            name: label,
+            value: data.values[i],
+            itemStyle: { color: data.colors[i] },
+          })),
         },
-        plugins: [
-          {
-            id: 'centerText',
-            beforeDraw(chart) {
-              const { width, height, ctx: c } = chart;
-              if (!c) return;
-              const dark = themeRef.isDarkMode;
-              c.save();
-              c.textAlign = 'center';
-              c.textBaseline = 'middle';
-              const cx = width / 2;
-              const cy = height / 2;
-              c.font = `700 ${Math.min(width, height) * 0.16}px Inter, system-ui, sans-serif`;
-              c.fillStyle = dark ? '#e0e6ed' : '#1b1c1d';
-              c.fillText(String(total), cx, cy - 6);
-              c.font = `600 ${Math.min(width, height) * 0.065}px Inter, system-ui, sans-serif`;
-              c.fillStyle = dark ? '#8899a6' : '#555';
-              c.fillText(subtitle.toUpperCase(), cx, cy + 14);
-              c.restore();
-            },
-          },
-        ],
-      });
-
-      if (type === 'alertType') {
-        this.alertTypeChart = chart;
-      } else {
-        this.priorityChart = chart;
-      }
-    });
-  }
-
-  private updateDonutTheme(): void {
-    const isDark = this.themeService.isDarkMode;
-    const borderColor = isDark ? '#1a2733' : '#ffffff';
-    for (const chart of [this.alertTypeChart, this.priorityChart]) {
-      if (!chart) continue;
-      chart.data.datasets.forEach((ds) => (ds.borderColor = borderColor));
-      chart.update();
-    }
+      ],
+    };
   }
 
   private processDownstream(data: CtmDownstreamBlocked[]): void {
@@ -463,99 +374,54 @@ export class CtmAlertsDashboardComponent
     const labels = this.throughputPoints.map((p) => p.label);
     const values = this.throughputPoints.map((p) => p.value);
 
-    this.throughputChartData = {
-      labels,
-      datasets: [
+    this.throughputChartOptions = {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(20, 30, 40, 0.85)',
+        borderColor: 'rgba(0, 188, 235, 0.3)',
+        borderWidth: 1,
+        textStyle: { color: '#00bceb', fontSize: 14, fontWeight: 'bold' },
+      },
+      grid: { top: 10, right: 10, bottom: 24, left: 36, containLabel: false },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: {
+          fontSize: 10,
+          color: this.themeService.isDarkMode ? '#8899a6' : '#555',
+          interval: 1,
+        },
+      },
+      yAxis: {
+        type: 'value',
+        splitLine: { show: false },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: {
+          fontSize: 10,
+          color: this.themeService.isDarkMode ? '#8899a6' : '#555',
+        },
+      },
+      series: [
         {
+          type: 'line',
           data: values,
-          borderColor: '#00bceb',
-          borderWidth: 2.5,
-          pointBackgroundColor: '#ffffff',
-          pointBorderColor: '#00bceb',
-          pointBorderWidth: 2,
-          pointRadius: 3.5,
-          pointHoverRadius: 5.5,
-          pointHoverBackgroundColor: '#ffffff',
-          pointHoverBorderColor: '#00bceb',
-          pointHoverBorderWidth: 2.5,
-          tension: 0.4,
-          fill: true,
-          backgroundColor: (ctx: any) => {
-            const chart = ctx.chart;
-            const { ctx: canvasCtx, chartArea } = chart;
-            if (!chartArea) return 'rgba(0, 188, 235, 0.1)';
-            const gradient = canvasCtx.createLinearGradient(
-              0,
-              chartArea.top,
-              0,
-              chartArea.bottom,
-            );
-            gradient.addColorStop(0, 'rgba(0, 188, 235, 0.35)');
-            gradient.addColorStop(1, 'rgba(0, 188, 235, 0)');
-            return gradient;
+          smooth: 0.4,
+          symbol: 'circle',
+          symbolSize: 7,
+          itemStyle: { color: '#00bceb' },
+          lineStyle: { width: 2.5, color: '#00bceb' },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(0, 188, 235, 0.35)' },
+              { offset: 1, color: 'rgba(0, 188, 235, 0)' },
+            ]),
           },
         },
       ],
     };
-
-    this.throughputChartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { intersect: false, mode: 'index' },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(20, 30, 40, 0.85)',
-          titleFont: { size: 10, weight: 'normal' },
-          titleColor: '#8899a6',
-          bodyFont: { size: 14, weight: 'bold' },
-          bodyColor: '#00bceb',
-          borderColor: 'rgba(0, 188, 235, 0.3)',
-          borderWidth: 1,
-          padding: { top: 6, bottom: 6, left: 10, right: 10 },
-          cornerRadius: 10,
-          displayColors: false,
-          callbacks: {
-            title: (items) => items[0]?.label || '',
-            label: (item) => String(item.parsed.y),
-          },
-        },
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: {
-            color: this.themeService.isDarkMode ? '#8899a6' : '#555',
-            font: { size: 10, weight: 500 as any },
-            maxRotation: 0,
-            callback: function (_value, index) {
-              return index % 2 === 0 ? this.getLabelForValue(index) : '';
-            },
-          },
-          border: { display: false },
-        },
-        y: {
-          grid: { display: false },
-          ticks: {
-            color: this.themeService.isDarkMode ? '#8899a6' : '#555',
-            font: { size: 10, weight: 500 as any },
-            maxTicksLimit: 4,
-          },
-          border: { display: false },
-          beginAtZero: true,
-        },
-      },
-    };
-
-    // Don't render here — renderAllCharts() handles it after DOM is ready
-  }
-
-  private createThroughputChart(canvas: HTMLCanvasElement): void {
-    this.throughputChart = new Chart(canvas, {
-      type: 'line',
-      data: this.throughputChartData,
-      options: this.throughputChartOptions,
-    });
   }
 
   private processAlerts(data: CtmAlertRow[]): void {

@@ -1,7 +1,5 @@
 import {
   Component,
-  ViewChild,
-  ElementRef,
   HostBinding,
   HostListener,
   OnDestroy,
@@ -18,7 +16,25 @@ import { HomeDataService } from './home-data.service';
 import { ExportService } from '../monitoring-dashboard/providers/export.service';
 import { ThemeService } from '../providers/theme.service';
 import { MatTableDataSource } from '@angular/material/table';
-import { Chart, ChartConfiguration } from 'chart.js/auto';
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import * as echarts from 'echarts/core';
+import { BarChart, LineChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import type { EChartsOption } from 'echarts';
+
+echarts.use([
+  BarChart,
+  LineChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  CanvasRenderer,
+]);
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -30,25 +46,18 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import { LoadingSymbolSmallComponent } from '../loading-symbol-small/loading-symbol-small.component';
-import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  phosphorSparkleBold,
-  phosphorFunnelSimpleBold,
-  phosphorCloudArrowDownBold,
-} from '@ng-icons/phosphor-icons/bold';
+  ActionButtonConfig,
+  FilterButtonBarComponent,
+  FilterConfig,
+  FilterValues,
+} from '../components/filter-button-bar/filter-button-bar.component';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  providers: [
-    DestroyManager,
-    provideIcons({
-      phosphorSparkleBold,
-      phosphorFunnelSimpleBold,
-      phosphorCloudArrowDownBold,
-    }),
-  ],
+  providers: [provideEchartsCore({ echarts }), DestroyManager],
   imports: [
     CommonModule,
     FormsModule,
@@ -60,7 +69,8 @@ import {
     LoadingSymbolComponent,
     LoadingSymbolSmallComponent,
     PaginationComponent,
-    NgIcon,
+    FilterButtonBarComponent,
+    NgxEchartsDirective,
   ],
   standalone: true,
 })
@@ -84,7 +94,9 @@ export class HomeComponent implements OnDestroy {
     this.username.set(this.authService.getUserName());
 
     // Re-render charts when theme changes
-    this.themeService.isDarkMode$.subscribe(() => this.updateChartTheme());
+    this.themeService.isDarkMode$.subscribe(() => {
+      this.rebuildChartsForTheme();
+    });
 
     // Load dashboard data
     this.loadDashboardData();
@@ -105,13 +117,10 @@ export class HomeComponent implements OnDestroy {
   searchTerm = signal<string>('');
   currentPage = 0;
   pageSize = 10;
-  @ViewChild('transactionFailuresCanvas')
-  transactionFailuresCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('espCasesCanvas') espCasesCanvas!: ElementRef<HTMLCanvasElement>;
 
-  // Chart instances
-  private transactionFailuresChart?: Chart;
-  private espCasesChart?: Chart;
+  // Chart options (ECharts)
+  transactionFailuresChartOptions: EChartsOption = {};
+  espCasesChartOptions: EChartsOption = {};
 
   // SVG Donut state
   donutSlices = signal<
@@ -134,17 +143,40 @@ export class HomeComponent implements OnDestroy {
   hasActiveFilters = computed(() => this.activeFilters().length > 0);
   resultCount = signal(0);
 
-  // Simple filters (extendable)
-  showFiltersDropdown = signal<boolean>(false);
+  // Reusable filter bar state
   activeFilters = signal<{ key: string; value: string }[]>([]);
-  isTableVisible = signal<boolean>(true);
-  filterOptions = signal<{ id: string; label: string; values: string[] }[]>([
+  filterConfigs: FilterConfig[] = [
+    {
+      id: 'search',
+      label: 'Search',
+      type: 'text',
+      placeholder: 'Search this table',
+    },
     {
       id: 'status',
       label: 'Status',
-      values: ['Open', 'In Progress', 'Unassigned'],
+      type: 'multi-select',
+      placeholder: 'Select Status',
+      options: [],
     },
-  ]);
+  ];
+  filterValues: FilterValues = {
+    search: '',
+    status: [],
+  };
+
+  get actionButtons(): ActionButtonConfig[] {
+    return [
+      {
+        id: 'download',
+        label: 'Download',
+        variant: 'secondary',
+        icon: 'phosphorArrowLineDownBold',
+        visible: true,
+        disabled: this.resultCount() === 0,
+      },
+    ];
+  }
 
   // Loading states
   homeLoading = signal<boolean>(true);
@@ -199,36 +231,6 @@ export class HomeComponent implements OnDestroy {
     this.applyIssuesQuarterFilter();
     this.applyIssuesDistributionQuarterFilter();
     this.applyIssuesListQuarterFilter();
-  }
-  /**
-   * Build chart when canvas elements are ready (with retry logic)
-   */
-  private buildChartWhenReady(
-    buildFn: () => void,
-    chart: 'transactionFailures' | 'espCases',
-    attempt = 0,
-  ): void {
-    let canvasEl: HTMLCanvasElement | null | undefined;
-
-    if (chart === 'transactionFailures') {
-      canvasEl = this.transactionFailuresCanvas?.nativeElement;
-    } else {
-      canvasEl = this.espCasesCanvas?.nativeElement;
-    }
-
-    if (canvasEl) {
-      buildFn();
-      return;
-    }
-
-    if (attempt < 50) {
-      setTimeout(
-        () => this.buildChartWhenReady(buildFn, chart, attempt + 1),
-        100,
-      );
-    } else {
-      console.warn('Chart canvas not ready, skipping render for', chart);
-    }
   }
 
   /**
@@ -449,10 +451,7 @@ export class HomeComponent implements OnDestroy {
     console.log('Parsed ESP Cases chart data:', chartData);
     // Show canvas instead of loader, then build chart when canvas is ready
     this.espCasesLoading.set(false);
-    this.buildChartWhenReady(
-      () => this.buildEspCasesChart(chartData),
-      'espCases',
-    );
+    this.buildEspCasesChart(chartData);
   }
 
   /**
@@ -566,10 +565,7 @@ export class HomeComponent implements OnDestroy {
 
     console.log('Parsed Transaction Failures chart data:', chartData);
     this.transactionFailuresLoading.set(false);
-    this.buildChartWhenReady(
-      () => this.buildTransactionFailuresChart(chartData),
-      'transactionFailures',
-    );
+    this.buildTransactionFailuresChart(chartData);
   }
 
   /**
@@ -679,6 +675,7 @@ export class HomeComponent implements OnDestroy {
     }
 
     this.dataSource = new MatTableDataSource<any>(filtered);
+    this.rebuildFilterConfigs(filtered);
     this.updateTableFilter();
     this.currentPage = 0;
     this.paginateTable();
@@ -791,38 +788,60 @@ export class HomeComponent implements OnDestroy {
 
   // ------------ Table filters & search ------------
 
-  toggleFiltersDropdown(event: Event) {
-    event.stopPropagation();
-    this.showFiltersDropdown.update((v) => !v);
-  }
+  onFilterChange(values: FilterValues): void {
+    this.filterValues = values;
+    const statusValues = Array.isArray(values['status'])
+      ? (values['status'] as string[])
+      : [];
+    const searchValue = (values['search'] as string) || '';
 
-  isFilterActive(key: string, value: string): boolean {
-    return this.activeFilters().some((f) => f.key === key && f.value === value);
-  }
-
-  addFilter(key: string, label: string, value: string) {
-    const filters = this.activeFilters();
-    const idx = filters.findIndex((f) => f.key === key && f.value === value);
-    if (idx > -1) {
-      const updated = [...filters];
-      updated.splice(idx, 1); // toggle off
-      this.activeFilters.set(updated);
-    } else {
-      this.activeFilters.update((f) => [...f, { key, value }]);
-    }
-    this.updateTableFilter();
-  }
-
-  removeFilter(key: string, value: string) {
-    this.activeFilters.update((filters) =>
-      filters.filter((f) => !(f.key === key && f.value === value)),
+    this.activeFilters.set(
+      statusValues.map((status) => ({ key: 'status', value: status })),
     );
+    this.searchTerm.set(searchValue);
     this.updateTableFilter();
   }
 
-  clearAllFilters() {
+  onFilterClear(): void {
+    this.filterValues = {
+      search: '',
+      status: [],
+    };
     this.activeFilters.set([]);
+    this.searchTerm.set('');
     this.updateTableFilter();
+  }
+
+  onActionButtonClick(actionId: string): void {
+    if (actionId === 'download') {
+      this.exportIssuesToExcel();
+    }
+  }
+
+  private rebuildFilterConfigs(rows: any[]): void {
+    const statusValues = Array.from(
+      new Set(
+        (rows || [])
+          .map((row) => this.getRowFieldValue(row, 'status'))
+          .filter((value) => !!value),
+      ),
+    );
+
+    this.filterConfigs = [
+      {
+        id: 'search',
+        label: 'Search',
+        type: 'text',
+        placeholder: 'Search this table',
+      },
+      {
+        id: 'status',
+        label: 'Status',
+        type: 'multi-select',
+        placeholder: 'Select Status',
+        options: statusValues.map((value) => ({ label: value, value })),
+      },
+    ];
   }
 
   /**
@@ -831,20 +850,6 @@ export class HomeComponent implements OnDestroy {
   filterByAssignee(category: string): void {
     this.activeFilters.set([{ key: 'assignedTo', value: category }]);
     this.updateTableFilter();
-  }
-
-  /**
-   * Apply search filter across all columns
-   */
-  applySearch(): void {
-    if (!this.dataSource) {
-      return;
-    }
-    this.updateTableFilter();
-  }
-
-  toggleTableVisibility(): void {
-    this.isTableVisible.update((v) => !v);
   }
 
   /**
@@ -1029,239 +1034,204 @@ export class HomeComponent implements OnDestroy {
   }
 
   private buildTransactionFailuresChart(chartData: any): void {
-    const canvas = this.transactionFailuresCanvas?.nativeElement;
-    const ctx = canvas?.getContext('2d');
-    if (!ctx || !canvas) {
-      return;
-    }
-
     const totalIssuesSum = (chartData.totalIssues || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
       0,
     );
-    const totalIssuesLabel = `Total Issues (${totalIssuesSum.toLocaleString(
-      'en-US',
-    )})`;
+    const totalIssuesLabel = `Total Issues (${totalIssuesSum.toLocaleString('en-US')})`;
 
     const inProgressSum = (chartData.inProgress || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
       0,
     );
-    const inProgressLabel = `In Progress (${inProgressSum.toLocaleString(
-      'en-US',
-    )})`;
+    const inProgressLabel = `In Progress (${inProgressSum.toLocaleString('en-US')})`;
 
     const resolvedOpsSum = (chartData.resolvedOps || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
       0,
     );
-    const resolvedOpsLabel = `Resolved (Ops) (${resolvedOpsSum.toLocaleString(
-      'en-US',
-    )})`;
+    const resolvedOpsLabel = `Resolved (Ops) (${resolvedOpsSum.toLocaleString('en-US')})`;
 
     const resolvedAgentSum = (chartData.resolvedAgent || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
       0,
     );
-    const resolvedAgentLabel = `Resolved (Agent) (${resolvedAgentSum.toLocaleString(
-      'en-US',
-    )})`;
+    const resolvedAgentLabel = `Resolved (Agent) (${resolvedAgentSum.toLocaleString('en-US')})`;
 
-    // Gradient fills for line datasets
-    const purpleGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    purpleGrad.addColorStop(0, 'rgba(153, 51, 255, 0.5)');
-    purpleGrad.addColorStop(1, 'rgba(153, 51, 255, 0)');
+    const weeks = (chartData.weeks || []).map(
+      (_: any, i: number) => `Week ${i + 1}`,
+    );
 
-    const greenGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    greenGrad.addColorStop(0, 'rgba(110, 190, 74, 0.5)');
-    greenGrad.addColorStop(1, 'rgba(110, 190, 74, 0)');
-
-    this.transactionFailuresChart?.destroy();
-    this.transactionFailuresChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: chartData.weeks,
-        datasets: [
-          {
-            type: 'bar',
-            label: totalIssuesLabel,
-            data: chartData.totalIssues,
-            backgroundColor: '#909ca8ef',
-            borderColor: '#d3d6d966',
-            borderWidth: 1,
-            barPercentage: 0.7,
-            categoryPercentage: 0.8,
-            order: 2,
-          },
-          {
-            type: 'bar',
-            label: inProgressLabel,
-            data: chartData.inProgress,
-            backgroundColor: '#f39c12',
-            borderColor: '#f39c12',
-            borderWidth: 1,
-            barPercentage: 0.7,
-            categoryPercentage: 0.8,
-            order: 2,
-          },
-          {
-            type: 'line',
-            label: resolvedOpsLabel,
-            data: chartData.resolvedOps,
-            borderColor: '#9933ff',
-            backgroundColor: purpleGrad,
-            pointBackgroundColor: this.themeService.isDarkMode
-              ? '#2a3f50'
-              : '#fff',
-            pointBorderColor: '#9933ff',
-            pointBorderWidth: 2,
-            tension: 0.25,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            fill: 'origin',
-            order: 1,
-          },
-          {
-            type: 'line',
-            label: resolvedAgentLabel,
-            data: chartData.resolvedAgent,
-            borderColor: '#6ebe4a',
-            backgroundColor: greenGrad,
-            pointBackgroundColor: this.themeService.isDarkMode
-              ? '#2a3f50'
-              : '#fff',
-            pointBorderColor: '#6ebe4a',
-            pointBorderWidth: 2,
-            tension: 0.25,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            fill: 'origin',
-            order: 1,
-          },
-        ],
-      },
-      options: this.mixedChartOptions('Transaction Failures'),
-    });
+    this.transactionFailuresChartOptions = this.buildMixedChartOptions(
+      weeks,
+      chartData.totalIssues,
+      chartData.inProgress,
+      chartData.resolvedOps,
+      chartData.resolvedAgent,
+      totalIssuesLabel,
+      inProgressLabel,
+      resolvedOpsLabel,
+      resolvedAgentLabel,
+    );
   }
 
   private buildEspCasesChart(chartData: any): void {
-    const canvas = this.espCasesCanvas?.nativeElement;
-    const ctx = canvas?.getContext('2d');
-    if (!ctx || !canvas) {
-      return;
-    }
-
     const totalCasesSum = (chartData.totalCases || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
       0,
     );
-    const totalCasesLabel = `Total Cases (${totalCasesSum.toLocaleString(
-      'en-US',
-    )})`;
+    const totalCasesLabel = `Total Cases (${totalCasesSum.toLocaleString('en-US')})`;
 
-    const inProgressSumEsp = (chartData.inProgress || []).reduce(
+    const inProgressSum = (chartData.inProgress || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
       0,
     );
-    const inProgressLabelEsp = `In Progress (${inProgressSumEsp.toLocaleString(
-      'en-US',
-    )})`;
+    const inProgressLabel = `In Progress (${inProgressSum.toLocaleString('en-US')})`;
 
     const resolvedOpsSum = (chartData.resolvedOps || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
       0,
     );
-    const resolvedOpsLabel = `Resolved (Ops) (${resolvedOpsSum.toLocaleString(
-      'en-US',
-    )})`;
+    const resolvedOpsLabel = `Resolved (Ops) (${resolvedOpsSum.toLocaleString('en-US')})`;
 
     const resolvedAgentSum = (chartData.resolvedAgent || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
       0,
     );
-    const resolvedAgentLabel = `Resolved (Agent) (${resolvedAgentSum.toLocaleString(
-      'en-US',
-    )})`;
+    const resolvedAgentLabel = `Resolved (Agent) (${resolvedAgentSum.toLocaleString('en-US')})`;
 
-    // Gradient fills for line datasets
-    const purpleGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    purpleGrad.addColorStop(0, 'rgba(153, 51, 255, 0.55)');
-    purpleGrad.addColorStop(1, 'rgba(153, 51, 255, 0)');
+    const weeks = (chartData.weeks || []).map(
+      (_: any, i: number) => `Week ${i + 1}`,
+    );
 
-    const greenGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    greenGrad.addColorStop(0, 'rgba(110, 190, 74, 0.55)');
-    greenGrad.addColorStop(1, 'rgba(110, 190, 74, 0)');
+    this.espCasesChartOptions = this.buildMixedChartOptions(
+      weeks,
+      chartData.totalCases,
+      chartData.inProgress,
+      chartData.resolvedOps,
+      chartData.resolvedAgent,
+      totalCasesLabel,
+      inProgressLabel,
+      resolvedOpsLabel,
+      resolvedAgentLabel,
+    );
+  }
 
-    this.espCasesChart?.destroy();
-    this.espCasesChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: chartData.weeks,
-        datasets: [
-          {
-            type: 'bar',
-            label: totalCasesLabel,
-            data: chartData.totalCases,
-            borderColor: '#9baab8',
-            backgroundColor: '#9baab8',
-            borderWidth: 1,
-            barPercentage: 0.7,
-            categoryPercentage: 0.8,
-            order: 2,
-          },
-          {
-            type: 'bar',
-            label: inProgressLabelEsp,
-            data: chartData.inProgress,
-            borderColor: '#f39c12',
-            backgroundColor: '#f39c12',
-            borderWidth: 1,
-            barPercentage: 0.7,
-            categoryPercentage: 0.8,
-            order: 2,
-          },
-          {
-            type: 'line',
-            label: resolvedOpsLabel,
-            data: chartData.resolvedOps,
-            borderColor: '#9933ff',
-            backgroundColor: purpleGrad,
-            pointBackgroundColor: this.themeService.isDarkMode
-              ? '#2a3f50'
-              : '#fff',
-            pointBorderColor: '#9933ff',
-            pointBorderWidth: 2,
-            tension: 0.25,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            fill: 'origin',
-            order: 1,
-          },
-          {
-            type: 'line',
-            label: resolvedAgentLabel,
-            data: chartData.resolvedAgent,
-            borderColor: '#6ebe4a',
-            backgroundColor: greenGrad,
-            pointBackgroundColor: this.themeService.isDarkMode
-              ? '#2a3f50'
-              : '#fff',
-            pointBorderColor: '#6ebe4a',
-            pointBorderWidth: 2,
-            tension: 0.25,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            fill: 'origin',
-            order: 1,
-          },
-        ],
+  private buildMixedChartOptions(
+    weeks: string[],
+    barData1: number[],
+    barData2: number[],
+    lineData1: number[],
+    lineData2: number[],
+    barLabel1: string,
+    barLabel2: string,
+    lineLabel1: string,
+    lineLabel2: string,
+  ): EChartsOption {
+    const isDark = this.themeService.isDarkMode;
+    const legendColor = isDark ? '#e0e6ed' : '#4f4f4f';
+    const tickColor = isDark ? '#8899a6' : '#666';
+    const gridColor = isDark ? 'rgba(136,153,166,0.18)' : '#f0f0f0';
+
+    return {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
+        backgroundColor: '#222',
+        textStyle: { color: '#fff' },
       },
-      options: this.mixedChartOptions('ESP Cases'),
-    });
+      legend: {
+        top: 0,
+        textStyle: { color: legendColor, fontSize: 12 },
+        icon: 'circle',
+        itemWidth: 8,
+        itemHeight: 8,
+      },
+      grid: { top: 34, right: 8, bottom: 10, left: 8, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: weeks,
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: { color: tickColor, fontSize: 11, margin: 6 },
+      },
+      yAxis: {
+        type: 'value',
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: { lineStyle: { color: gridColor } },
+        axisLabel: {
+          color: isDark ? '#8899a6' : '#999',
+          fontSize: 11,
+          margin: 6,
+        },
+      },
+      series: [
+        {
+          name: barLabel1,
+          type: 'bar',
+          data: barData1,
+          itemStyle: { color: '#909ca8', borderRadius: [2, 2, 0, 0] },
+          barMaxWidth: 20,
+        },
+        {
+          name: barLabel2,
+          type: 'bar',
+          data: barData2,
+          itemStyle: { color: '#f39c12', borderRadius: [2, 2, 0, 0] },
+          barMaxWidth: 20,
+        },
+        {
+          name: lineLabel1,
+          type: 'line',
+          data: lineData1,
+          smooth: 0.25,
+          symbol: 'circle',
+          symbolSize: 6,
+          itemStyle: { color: '#9933ff' },
+          lineStyle: { width: 2, color: '#9933ff' },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(153, 51, 255, 0.5)' },
+              { offset: 1, color: 'rgba(153, 51, 255, 0)' },
+            ]),
+          },
+        },
+        {
+          name: lineLabel2,
+          type: 'line',
+          data: lineData2,
+          smooth: 0.25,
+          symbol: 'circle',
+          symbolSize: 6,
+          itemStyle: { color: '#6ebe4a' },
+          lineStyle: { width: 2, color: '#6ebe4a' },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(110, 190, 74, 0.5)' },
+              { offset: 1, color: 'rgba(110, 190, 74, 0)' },
+            ]),
+          },
+        },
+      ],
+    };
+  }
+
+  private rebuildChartsForTheme(): void {
+    if (
+      this.transactionFailuresChartOptions &&
+      Object.keys(this.transactionFailuresChartOptions).length
+    ) {
+      this.transactionFailuresChartOptions = {
+        ...this.transactionFailuresChartOptions,
+      };
+    }
+    if (
+      this.espCasesChartOptions &&
+      Object.keys(this.espCasesChartOptions).length
+    ) {
+      this.espCasesChartOptions = { ...this.espCasesChartOptions };
+    }
   }
 
   private buildIssueDistributionChart(
@@ -1310,221 +1280,5 @@ export class HomeComponent implements OnDestroy {
     ]);
   }
 
-  private mixedChartOptions(title: string): ChartConfiguration['options'] {
-    const isDark = this.themeService.isDarkMode;
-    const legendColor = isDark ? '#e0e6ed' : '#4f4f4f';
-    const tickColor = isDark ? '#8899a6' : '#666';
-    const gridColor = isDark ? 'rgba(136,153,166,0.18)' : '#f0f0f0';
-
-    return {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'nearest', intersect: false },
-      plugins: {
-        legend: {
-          display: true,
-          position: 'top',
-          align: 'center',
-          labels: {
-            usePointStyle: true,
-            pointStyle: 'circle',
-            boxWidth: 8,
-            boxHeight: 8,
-            padding: 15,
-            font: { family: 'Inter, sans-serif', size: 12, weight: 'normal' },
-            color: legendColor,
-          },
-        },
-        title: { display: false },
-        tooltip: {
-          enabled: true,
-          displayColors: true,
-          backgroundColor: '#222',
-          titleColor: '#fff',
-          bodyColor: '#fff',
-          padding: 10,
-          cornerRadius: 4,
-          mode: 'index',
-          intersect: false,
-          callbacks: {
-            label: function (context: any) {
-              let label = context.dataset.label || '';
-              label = label.replace(/\s*\([\d,]+\)\s*$/, '');
-              return label + ': ' + (context.parsed.y ?? context.raw);
-            },
-          },
-        },
-        datalabels: {
-          display: false,
-        },
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          border: { display: false },
-          ticks: {
-            font: { family: 'Inter, sans-serif', size: 11, weight: 'normal' },
-            color: tickColor,
-            maxRotation: 45,
-            minRotation: 45,
-            autoSkip: false,
-            callback: function (value, index) {
-              return 'Week ' + (index + 1);
-            },
-          },
-        },
-        y: {
-          beginAtZero: true,
-          border: { display: false },
-          grid: { color: gridColor, lineWidth: 1 },
-          ticks: {
-            font: { family: 'Inter, sans-serif', size: 11 },
-            color: isDark ? '#8899a6' : '#999',
-            stepSize: 10,
-          },
-        },
-      },
-    };
-  }
-
-  private mixedChartWithSecondaryAxis(
-    title: string,
-  ): ChartConfiguration['options'] {
-    const isDark = this.themeService.isDarkMode;
-    const legendColor = isDark ? '#e0e6ed' : '#4f4f4f';
-    const tickColor = isDark ? '#8899a6' : '#666';
-    const gridColor = isDark ? 'rgba(136,153,166,0.18)' : '#f0f0f0';
-
-    return {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'nearest', intersect: false },
-      plugins: {
-        legend: {
-          display: true,
-          position: 'top',
-          align: 'center',
-          labels: {
-            usePointStyle: true,
-            pointStyle: 'circle',
-            boxWidth: 8,
-            boxHeight: 8,
-            padding: 15,
-            font: { family: 'Inter, sans-serif', size: 12, weight: 'normal' },
-            color: legendColor,
-          },
-        },
-        title: { display: false },
-        tooltip: {
-          enabled: true,
-          displayColors: true,
-          backgroundColor: '#222',
-          titleColor: '#fff',
-          bodyColor: '#fff',
-          padding: 10,
-          cornerRadius: 4,
-          mode: 'index',
-          intersect: false,
-          callbacks: {
-            label: function (context: any) {
-              let label = context.dataset.label || '';
-              label = label.replace(/\s*\([\d,]+\)\s*$/, '');
-              return label + ': ' + (context.parsed.y ?? context.raw);
-            },
-          },
-        },
-        datalabels: {
-          display: false,
-        },
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          border: { display: false },
-          ticks: {
-            font: { family: 'Inter, sans-serif', size: 11, weight: 'normal' },
-            color: tickColor,
-            maxRotation: 0,
-            minRotation: 0,
-            callback: function (value, index) {
-              return 'Week ' + (index + 1);
-            },
-          },
-        },
-        y: {
-          type: 'linear',
-          display: true,
-          position: 'left',
-          beginAtZero: true,
-          border: { display: false },
-          grid: { color: gridColor, lineWidth: 1 },
-          ticks: {
-            font: { family: 'Inter, sans-serif', size: 11 },
-            color: isDark ? '#8899a6' : '#999',
-          },
-        },
-        y1: {
-          type: 'linear',
-          display: true,
-          position: 'right',
-          beginAtZero: true,
-          border: { display: false },
-          grid: {
-            drawOnChartArea: false,
-          },
-          ticks: {
-            font: { family: 'Inter, sans-serif', size: 11 },
-            color: '#5B8FD7',
-          },
-        },
-      },
-    };
-  }
-
-  ngOnDestroy(): void {
-    this.transactionFailuresChart?.destroy();
-    this.espCasesChart?.destroy();
-  }
-
-  /** Re-apply theme colors to all live Chart.js instances */
-  private updateChartTheme(): void {
-    const isDark = this.themeService.isDarkMode;
-    const legendColor = isDark ? '#e0e6ed' : '#4f4f4f';
-    const tickColor = isDark ? '#8899a6' : '#666';
-    const yTickColor = isDark ? '#8899a6' : '#999';
-    const gridColor = isDark ? 'rgba(136,153,166,0.18)' : '#f0f0f0';
-    const pointFill = isDark ? '#2a3f50' : '#fff';
-
-    const charts = [this.transactionFailuresChart, this.espCasesChart];
-    for (const chart of charts) {
-      if (!chart) continue;
-
-      // Update legend
-      if (chart.options.plugins?.legend?.labels) {
-        (chart.options.plugins.legend.labels as any).color = legendColor;
-      }
-
-      // Update scales
-      const xScale = chart.options.scales?.['x'] as any;
-      const yScale = chart.options.scales?.['y'] as any;
-      if (xScale) {
-        if (xScale.ticks) xScale.ticks.color = tickColor;
-        if (xScale.border) xScale.border.display = false;
-      }
-      if (yScale) {
-        if (yScale.ticks) yScale.ticks.color = yTickColor;
-        if (yScale.grid) yScale.grid.color = gridColor;
-        if (yScale.border) yScale.border.display = false;
-      }
-
-      // Update point fill colors on line datasets
-      chart.data.datasets.forEach((ds: any) => {
-        if (ds.type === 'line' && ds.pointBackgroundColor) {
-          ds.pointBackgroundColor = pointFill;
-        }
-      });
-
-      chart.update();
-    }
-  }
+  ngOnDestroy(): void {}
 }

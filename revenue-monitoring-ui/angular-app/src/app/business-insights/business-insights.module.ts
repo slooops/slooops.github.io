@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgIcon } from '@ng-icons/core';
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import * as echarts from 'echarts/core';
 
 // Material Modules
 import { MatTableModule } from '@angular/material/table';
@@ -72,6 +74,7 @@ import { PaginationComponent } from '../ui/atoms/pagination/pagination.component
     DialogBox,
     StatusDialog,
     SummaryDialog,
+    NgxEchartsDirective,
   ],
   exports: [
     OrderLifecycleComponent,
@@ -79,6 +82,6 @@ import { PaginationComponent } from '../ui/atoms/pagination/pagination.component
     Wd0HistoricalDataComponent,
     IssueReportingComponent,
   ],
-  providers: [provideNativeDateAdapter()],
+  providers: [provideNativeDateAdapter(), provideEchartsCore({ echarts })],
 })
 export class BusinessInsightsModule {}

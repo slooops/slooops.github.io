@@ -1,15 +1,29 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { Chart, ChartConfiguration, ChartType } from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { NgChartsModule } from 'ng2-charts';
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
+import * as echarts from 'echarts/core';
+import { BarChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import type { EChartsOption } from 'echarts';
 
-Chart.register(ChartDataLabels);
+echarts.use([
+  BarChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  CanvasRenderer,
+]);
 
 @Component({
   selector: 'app-atmf-stacked-chart',
   templateUrl: './atmf-stacked-chart.component.html',
   styleUrl: './atmf-stacked-chart.component.css',
-  imports: [NgChartsModule],
+  imports: [NgxEchartsDirective],
+  providers: [provideEchartsCore({ echarts })],
   standalone: true,
 })
 export class AtmfStackedChartComponent implements OnChanges {
@@ -21,10 +35,7 @@ export class AtmfStackedChartComponent implements OnChanges {
   @Input() stacked: boolean = true;
   @Input() currencyFormat: boolean = false;
 
-  public chartType: ChartType = 'bar';
-  public chartData: any = { labels: [], datasets: [] };
-
-  public chartOptions: ChartConfiguration['options'] = {};
+  echartsOptions: EChartsOption = {};
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.labels?.length && this.datasets?.length) {
@@ -33,80 +44,60 @@ export class AtmfStackedChartComponent implements OnChanges {
   }
 
   private updateChart(): void {
-    this.chartData = {
-      labels: this.labels,
-      datasets: this.datasets,
-    };
+    const series = this.datasets.map((ds: any) => ({
+      name: ds.label || '',
+      type: 'bar' as const,
+      stack: this.stacked ? 'total' : undefined,
+      data: ds.data || [],
+      itemStyle: { color: ds.backgroundColor || '#ccc' },
+    }));
 
-    this.chartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        title: { display: false },
-        tooltip: {
-          callbacks: {
-            label: (context) => {
-              const label = context.dataset.label || '';
-              const value = context.parsed.y;
-              if (label.includes('Count')) {
-                return `${label}: ${value.toLocaleString()}`;
-              }
-              if (this.currencyFormat) {
-                return `${label}: $${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-              }
-              return `${label}: ${value.toLocaleString()}`;
-            },
-          },
-        },
-        datalabels: {
-          display: false,
+    this.echartsOptions = {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
+        formatter: (params: any) => {
+          let result = params[0]?.axisValueLabel + '<br/>';
+          params.forEach((p: any) => {
+            const val = this.currencyFormat
+              ? '$' +
+                p.value.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })
+              : p.value.toLocaleString();
+            result += `${p.marker} ${p.seriesName}: ${val}<br/>`;
+          });
+          return result;
         },
       },
-      scales: {
-        x: {
-          stacked: this.stacked,
-          grid: { display: false },
-        },
-        y: {
-          stacked: this.stacked,
-          position: 'left',
-          display: true,
-          title: {
-            display: !!this.yAxisLabel,
-            text: this.yAxisLabel,
-          },
-          grid: {
-            drawOnChartArea: true,
-            color: 'rgba(0, 0, 0, 0.1)',
-            lineWidth: 1,
-          },
-          ticks: {
-            callback: (value: any) => {
-              if (this.currencyFormat) {
-                if (value >= 1_000_000_000)
-                  return '$' + (value / 1_000_000_000).toFixed(1) + 'B';
-                if (value >= 1_000_000)
-                  return '$' + (value / 1_000_000).toFixed(0) + 'M';
-                if (value >= 1_000)
-                  return '$' + (value / 1_000).toFixed(0) + 'K';
-                return '$' + value;
-              }
-              return value.toLocaleString();
-            },
-          },
-        },
-        ...(this.showY1Axis
-          ? {
-              y1: {
-                type: 'linear' as const,
-                position: 'right' as const,
-                display: false,
-                grid: { drawOnChartArea: false },
-              },
+      legend: { show: false },
+      grid: { top: 20, right: 10, bottom: 20, left: 60, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: this.labels,
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        name: this.yAxisLabel || undefined,
+        splitLine: { lineStyle: { color: 'rgba(0,0,0,0.1)' } },
+        axisLabel: {
+          formatter: (value: number) => {
+            if (this.currencyFormat) {
+              if (value >= 1_000_000_000)
+                return '$' + (value / 1_000_000_000).toFixed(1) + 'B';
+              if (value >= 1_000_000)
+                return '$' + (value / 1_000_000).toFixed(0) + 'M';
+              if (value >= 1_000) return '$' + (value / 1_000).toFixed(0) + 'K';
+              return '$' + value;
             }
-          : {}),
+            return value.toLocaleString();
+          },
+        },
       },
+      series,
     };
   }
 }

@@ -369,6 +369,9 @@
           <table class="ciq-table">
             <thead>
               <tr>
+                @if (isI2CSource) {
+                  <th class="ciq-expand-col"></th>
+                }
                 @for (column of filteredColumns; track column) {
                   <th
                     [class.extra-wide-column]="
@@ -381,8 +384,32 @@
               </tr>
             </thead>
             <tbody>
-              @for (row of paginatedData; track row) {
+              @for (
+                row of paginatedData;
+                track trackByRowId(row);
+                let rowIndex = $index
+              ) {
                 <tr>
+                  @if (isI2CSource) {
+                    <td class="ciq-expand-col">
+                      <button
+                        type="button"
+                        class="ciq-expand-btn"
+                        (click)="toggleRowExpansion(row, rowIndex)"
+                        [attr.aria-expanded]="isRowExpanded(row, rowIndex)"
+                        aria-label="Toggle agent processing timeline"
+                      >
+                        <ng-icon
+                          [name]="
+                            isRowExpanded(row, rowIndex)
+                              ? 'phosphorCaretUpBold'
+                              : 'phosphorCaretDownBold'
+                          "
+                          size="14"
+                        ></ng-icon>
+                      </button>
+                    </td>
+                  }
                   @for (column of filteredColumns; track column) {
                     <td
                       [class.extra-wide-column]="
@@ -420,6 +447,71 @@
                     </td>
                   }
                 </tr>
+
+                @if (isI2CSource && isRowExpanded(row, rowIndex)) {
+                  <tr class="timeline-row">
+                    <td [attr.colspan]="expandedColspan" class="timeline-cell">
+                      <div class="timeline-header-outer">
+                        <h4 class="timeline-title">
+                          Agent Processing Timeline
+                        </h4>
+                        <span class="timeline-incident-pill">
+                          {{ getTimelineIncidentNumber(row) || "--" }}
+                        </span>
+                      </div>
+                      <div class="timeline-card-wrapper">
+                        <div class="timeline-circle"></div>
+                        <div class="timeline-card">
+                          <div class="timeline-grid">
+                            <div class="timeline-item">
+                              <span class="timeline-label">Shared State</span>
+                              <button
+                                type="button"
+                                class="timeline-shared-state-link"
+                                (click)="
+                                  openIncidentDetailFromTimeline(
+                                    row,
+                                    rowIndex,
+                                    $event
+                                  )
+                                "
+                                title="Shared state"
+                              >
+                                {{ getTimelineSharedState(row) }}
+                              </button>
+                            </div>
+                            <div class="timeline-item">
+                              <span class="timeline-label">Outcome</span>
+                              <span class="timeline-outcome-pill">{{
+                                getTimelineOutcome(row, rowIndex)
+                              }}</span>
+                            </div>
+                            <div class="timeline-item">
+                              <span class="timeline-label"
+                                >Resolution Path</span
+                              >
+                              <span class="timeline-value">{{
+                                getTimelineResolutionPath(row)
+                              }}</span>
+                            </div>
+                            <div class="timeline-item">
+                              <span class="timeline-label">Duration</span>
+                              <span class="timeline-value">{{
+                                getTimelineDuration(row)
+                              }}</span>
+                            </div>
+                            <div class="timeline-item">
+                              <span class="timeline-label">Processed Date</span>
+                              <span class="timeline-value">{{
+                                mockProcessedDate
+                              }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                }
               }
             </tbody>
           </table>

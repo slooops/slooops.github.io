@@ -207,7 +207,11 @@
         </div>
         <div class="ciq-throughput-chart-wrapper">
           @if (throughputPoints.length >= 2) {
-            <canvas #throughputCanvas></canvas>
+            <div
+              echarts
+              [options]="throughputChartOptions"
+              style="height: 100%; width: 100%"
+            ></div>
           } @else {
             <div class="ciq-no-data">
               <span class="ciq-no-data-icon"

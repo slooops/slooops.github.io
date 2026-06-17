@@ -10,6 +10,7 @@ import {
   CaseiqTeamComponent,
   TeamConfig,
 } from './caseiq-team/caseiq-team.component';
+import { CaseiqSupervisorComponent } from './caseiq-supervisor/caseiq-supervisor.component';
 import { HomeDataService } from 'src/app/home/home-data.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
@@ -56,6 +57,7 @@ interface AccuracyData {
   imports: [
     CommonModule,
     CaseiqComponent,
+    CaseiqSupervisorComponent,
     CaseiqTeamComponent,
     MatTooltipModule,
     MatIconModule,
@@ -261,6 +263,7 @@ export class EspHomeComponent implements OnInit {
 
   // Base metric tiles structure - preserving all tile names
   private readonly baseMetricTiles: MetricTile[] = [
+    { name: 'Orchestrator', percentage: '-' },
     { name: 'Finance IT', percentage: '-' },
     { name: 'OM', percentage: '-' },
     { name: 'SM', percentage: '-' },
@@ -296,8 +299,8 @@ export class EspHomeComponent implements OnInit {
     this.roles = this.authService.getUserAccessRoles();
     this.userName = this.authService.getUserName();
 
-    // On /caseiq route, force Finance IT tab (no hamburger menu available)
-    if (this.router.url.includes('/caseiq')) {
+    // On /case-iq route, force Finance IT tab by default
+    if (this.router.url.includes('/case-iq')) {
       this.activeTab = 'Finance IT';
     } else {
       this.setDefaultActiveTab();
@@ -316,6 +319,7 @@ export class EspHomeComponent implements OnInit {
           fpp: 'FPP',
           p2p: 'P2P',
           capital: 'Capital',
+          orchestrator: 'Orchestrator',
         };
         if (tabMap[tabSlug]) {
           this.activeTab = tabMap[tabSlug];
@@ -688,6 +692,10 @@ export class EspHomeComponent implements OnInit {
    * @returns true if the user has access to this tile
    */
   isTileAccessible(tileName: string): boolean {
+    if (tileName === 'Orchestrator') {
+      return this.roles.includes('ADMIN');
+    }
+
     // Overall tile is always accessible
     if (tileName === 'Finance IT') {
       if (

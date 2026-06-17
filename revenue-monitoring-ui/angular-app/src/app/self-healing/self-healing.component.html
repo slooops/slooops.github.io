@@ -78,14 +78,15 @@
               Not enough data.
             </div>
           }
-          <div
-            class="sh__chart-container"
-            [style.display]="
-              !trendLoading && trendData.length >= 2 ? 'block' : 'none'
-            "
-          >
-            <canvas #trendCanvas></canvas>
-          </div>
+          @if (!trendLoading && trendData.length >= 2) {
+            <div class="sh__chart-container">
+              <div
+                echarts
+                [options]="trendChartOptions"
+                style="width: 100%; height: 100%"
+              ></div>
+            </div>
+          }
         </div>
 
         <!-- Exceptions by Category × Analysis Mode (stacked bar) -->
@@ -96,7 +97,11 @@
             >
           </div>
           <div class="sh__chart-container">
-            <canvas #categoryCanvas></canvas>
+            <div
+              echarts
+              [options]="categoryChartOptions"
+              style="width: 100%; height: 100%"
+            ></div>
           </div>
         </div>
       </section>

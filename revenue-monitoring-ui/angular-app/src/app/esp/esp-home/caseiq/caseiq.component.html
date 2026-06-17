@@ -32,9 +32,9 @@
     </div>
 
     <!-- Components Table -->
-    <div class="ciq-card" style="margin: 1rem 0">
+    <div class="ciq-card ciq-components-card" style="margin: 1rem 0">
       <div class="ciq-table-scroll">
-        <table class="ciq-table">
+        <table class="ciq-table ciq-components-table">
           <thead>
             <tr>
               <th>Component</th>
@@ -214,7 +214,11 @@
                   No data available for this time period
                 </div>
               } @else {
-                <canvas id="chart-weekly-team"></canvas>
+                <div
+                  echarts
+                  [options]="chartOptionsMap['weeklyTeam']"
+                  style="height: 100%; width: 100%"
+                ></div>
               }
             </div>
           } @else {
@@ -232,7 +236,11 @@
               </button>
             </div>
             <div class="analytics-chart-wrapper">
-              <canvas id="chart-accuracy-time"></canvas>
+              <div
+                echarts
+                [options]="chartOptionsMap['accuracyTime']"
+                style="height: 100%; width: 100%"
+              ></div>
             </div>
           }
         </div>
@@ -310,7 +318,11 @@
               </button>
             </div>
             <div class="analytics-chart-wrapper">
-              <canvas id="chart-hourly-pattern"></canvas>
+              <div
+                echarts
+                [options]="chartOptionsMap['hourlyPattern']"
+                style="height: 100%; width: 100%"
+              ></div>
             </div>
           } @else {
             <div class="ciq-card-header">
@@ -327,7 +339,11 @@
               </button>
             </div>
             <div class="analytics-chart-wrapper">
-              <canvas id="chart-weekly-state"></canvas>
+              <div
+                echarts
+                [options]="chartOptionsMap['weeklyState']"
+                style="height: 100%; width: 100%"
+              ></div>
             </div>
           }
         </div>
@@ -336,51 +352,45 @@
 
     <!-- ═══ Monitoring: Error Incidents ═══ -->
     <div class="monitoring-section">
-      <div class="ciq-card ciq-swap-card">
-        <div class="ciq-card-header">
-          <span class="ciq-card-title-text">Error Incidents</span>
-          <div class="ciq-header-filters">
-            <select
-              [(ngModel)]="errorFilterTeam"
-              (ngModelChange)="applyErrorFilters()"
-              class="ciq-filter-select"
-            >
-              <option value="">All Teams</option>
-              @for (t of errorTeamOptions; track t) {
-                <option [value]="t">{{ t }}</option>
-              }
-            </select>
-            <select
-              [(ngModel)]="errorFilterIssue"
-              (ngModelChange)="applyErrorFilters()"
-              class="ciq-filter-select"
-            >
-              <option value="">All Issues</option>
-              @for (i of errorIssueOptions; track i) {
-                <option [value]="i">{{ i }}</option>
-              }
-            </select>
-            <button
-              class="ciq-download-btn"
-              [class.ciq-download-btn--downloading]="csvDownloading"
-              [class.ciq-download-btn--done]="csvDownloadDone"
-              (click)="downloadErrorCsv()"
-              title="Download CSV"
-            >
-              <span
-                class="ciq-download-btn__fill"
-                [style.width.%]="csvDownloadProgress"
-              ></span>
-              <span class="ciq-download-btn__content">
-                @if (csvDownloading) {
-                  {{ csvDownloadProgress }}%
-                } @else {
-                  <ng-icon name="phosphorArrowLineDownBold" size="13" /> CSV
-                }
-              </span>
-            </button>
-          </div>
+      <!-- Title + filter bar outside the card -->
+      <div class="ciq-error-table-header">
+        <span class="ciq-error-table-title">Error Incidents</span>
+
+        <div class="ciq-error-table-toolbar">
+          <app-filter-button-bar
+            class="ciq-error-table-filters"
+            [filters]="errorFilterConfigs"
+            [filterValues]="errorFilterValues"
+            [actions]="[]"
+            [totalCount]="errorTotalCount"
+            [filteredCount]="errorTotalCount"
+            [showFilterToggle]="true"
+            countLabel="incidents"
+            (filterChange)="onErrorFilterChange($event)"
+            (filterClear)="onErrorFilterClear()"
+          ></app-filter-button-bar>
+
+          <button
+            class="ciq-download-btn"
+            [class.ciq-download-btn--downloading]="csvDownloading"
+            [class.ciq-download-btn--done]="csvDownloadDone"
+            [disabled]="csvDownloading || errorTotalCount === 0"
+            (click)="downloadErrorCsv()"
+            title="Download CSV"
+          >
+            <span
+              class="ciq-download-btn__fill"
+              [style.width.%]="csvDownloadProgress"
+            ></span>
+            <span class="ciq-download-btn__content">
+              <ng-icon name="phosphorArrowLineDownBold" size="14"></ng-icon>
+              CSV
+            </span>
+          </button>
         </div>
+      </div>
+
+      <div class="ciq-card ciq-components-card">
         <div class="ciq-table-scroll ciq-table-scroll--no-max">
           <table class="ciq-table ciq-error-table">
             <thead>
@@ -465,41 +475,15 @@
             </tbody>
           </table>
         </div>
-        <!-- Pagination -->
-        <div class="ciq-pagination">
-          <span
-            >{{ errorPageStart }}–{{ errorPageEnd }} of
-            {{ errorTotalCount }} incidents</span
-          >
-          <div class="ciq-pagination-controls">
-            <select
-              [ngModel]="errorPageSize"
-              (ngModelChange)="errorChangePageSize($event)"
-              class="ciq-filter-select"
-            >
-              <option [ngValue]="10">10</option>
-              <option [ngValue]="25">25</option>
-              <option [ngValue]="50">50</option>
-              <option [ngValue]="100">100</option>
-            </select>
-            <button
-              class="ciq-pg-btn"
-              (click)="errorChangePage(-1)"
-              [disabled]="errorCurrentPage <= 1"
-            >
-              Previous
-            </button>
-            <span>Page {{ errorCurrentPage }} of {{ errorTotalPages }}</span>
-            <button
-              class="ciq-pg-btn"
-              (click)="errorChangePage(1)"
-              [disabled]="errorCurrentPage >= errorTotalPages"
-            >
-              Next
-            </button>
-          </div>
-        </div>
       </div>
+      <!-- Pagination outside the card -->
+      <app-pagination
+        [pageIndex]="errorCurrentPage - 1"
+        [pageSize]="errorPageSize"
+        [totalItems]="errorTotalCount"
+        [pageSizeOptions]="[10, 25, 50, 100]"
+        (pageChange)="onErrorPageChange($event)"
+      ></app-pagination>
     </div>
 
     <br />

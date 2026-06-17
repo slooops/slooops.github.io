@@ -3,7 +3,7 @@
 /* ═══════ KPI VALUE (no pill, just large number) ═══════ */
 .caseiq-kpi-value-plain {
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--ciq-text);
   line-height: 1.2;
 }
@@ -30,7 +30,7 @@
 
 .ra-strip-title {
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--ciq-text);
@@ -94,8 +94,8 @@
 }
 
 .ciq-card-title {
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--ciq-text);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -319,6 +319,71 @@
   margin-left: 3px;
 }
 
+/* ── WD0-like table look for Components Table only ── */
+.ciq-components-card {
+  border-radius: 0.875rem;
+  border: 1px solid var(--ciq-border);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.ciq-components-table thead th {
+  background: var(--ciq-kpi-bg);
+  color: var(--ciq-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.03em;
+  text-align: center;
+  border-bottom: 1px solid var(--ciq-border);
+  padding: 0.75rem;
+}
+
+.ciq-components-table tbody td {
+  background: var(--ciq-surface);
+  color: var(--ciq-text);
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid var(--ciq-border);
+}
+
+.ciq-components-table tbody tr:hover td {
+  background: var(--ciq-hover-bg);
+}
+
+.component-name-link {
+  display: inline-block;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ciq-text);
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.component-name-link:hover {
+  color: var(--fit-color-primary, #0070d2);
+  text-decoration: underline;
+}
+
+.ciq-accuracy-text {
+  font-weight: 600;
+  color: #1c8c4c;
+}
+
+.ciq-accuracy-text--clickable {
+  cursor: pointer;
+}
+
+.ciq-accuracy-text--clickable:hover {
+  text-decoration: underline;
+}
+
+.ciq-agent-ratio-text {
+  font-weight: 600;
+}
+
 /* ── Legend (kept from old design) ── */
 .summary-table-legend {
   display: flex;
@@ -374,11 +439,8 @@
 }
 
 /* ═══════════════════════════════════════════════════════
-   ANALYTICS CHARTS SECTION
-   ═══════════════════════════════════════════════════════ */
-.analytics-section {
-  /* margin-top: 1.5rem; */
-}
+  ANALYTICS CHARTS SECTION
+  ═══════════════════════════════════════════════════════ */
 
 .analytics-section-note {
   font-size: 0.7rem;
@@ -438,6 +500,7 @@
 
 .ciq-card--chart .ciq-card-title {
   display: inline;
+  text-transform: capitalize;
 }
 
 .analytics-date-range {
@@ -515,7 +578,6 @@
 .monitoring-section {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
   margin-top: 1.25rem;
 }
 
@@ -551,8 +613,8 @@
 
 .ciq-card-title-text {
   font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-weight: 600;
+  text-transform: capitalize;
   letter-spacing: 0.04em;
 }
 
@@ -561,6 +623,35 @@
   align-items: center;
   gap: 8px;
   margin-left: auto;
+}
+
+.ciq-error-table-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.ciq-error-table-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.ciq-error-table-filters {
+  flex: 1;
+  min-width: 0;
+}
+
+.ciq-error-table-title {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: capitalize;
+  letter-spacing: 0.04em;
+  color: var(--ciq-text);
+  white-space: nowrap;
 }
 
 /* ── Anomaly list ── */
@@ -590,7 +681,7 @@
 }
 
 .ciq-anomaly-count {
-  font-weight: 700;
+  font-weight: 600;
   min-width: 40px;
   text-align: right;
 }
@@ -672,7 +763,7 @@
 }
 
 .ciq-team-chip strong {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .ciq-team-chip--critical {
@@ -750,9 +841,9 @@
   font-size: 11px;
   font-weight: 600;
   border: 1px solid var(--ciq-border);
-  border-radius: 6px;
+  border-radius: 999px;
   background: transparent;
-  color: var(--ciq-text);
+  color: dodgerblue;
   cursor: pointer;
   white-space: nowrap;
   transition:
@@ -850,37 +941,36 @@
 .ciq-error-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 0.7rem;
 }
 
 .ciq-error-table th {
   text-align: left;
   padding: 10px 12px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  background: linear-gradient(
-    to bottom,
-    #ffffff 0%,
-    #ffffff 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  color: var(--ciq-text);
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.7rem;
+  background: var(--ciq-kpi-bg);
+  text-transform: capitalize;
   letter-spacing: 0.5px;
   position: sticky;
   top: 0;
   z-index: 1;
+  border-bottom: 1px solid var(--ciq-border);
+  white-space: nowrap;
+  color: var(--ciq-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
 }
 
 :host(.dark-theme) .ciq-error-table th {
-  background: transparent;
+  background: var(--ciq-kpi-bg);
 }
 
 .ciq-error-table td {
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--ciq-border);
+  color: var(--ciq-text);
+  line-height: 1.25;
+  white-space: nowrap;
+  font-size: 0.75rem;
 }
 
 .ciq-error-table tr:last-child td {
@@ -892,12 +982,13 @@
 }
 
 .ciq-mono {
-  font-family: "Cascadia Code", "Fira Code", monospace;
-  font-size: 11px;
+  font-family: var(--fit-font-family-base, "Inter", system-ui, sans-serif);
+  font-size: 0.7rem;
+  font-weight: 600;
 }
 
 .ciq-text-sm {
-  font-size: 11px;
+  font-size: 0.7rem;
 }
 
 .ciq-no-data {
