@@ -263,7 +263,6 @@ export class EspHomeComponent implements OnInit {
 
   // Base metric tiles structure - preserving all tile names
   private readonly baseMetricTiles: MetricTile[] = [
-    { name: 'Orchestrator', percentage: '-' },
     { name: 'Finance IT', percentage: '-' },
     { name: 'OM', percentage: '-' },
     { name: 'SM', percentage: '-' },
@@ -272,6 +271,7 @@ export class EspHomeComponent implements OnInit {
     { name: 'FPP', percentage: '-' },
     { name: 'P2P', percentage: '-' },
     { name: 'Capital', percentage: '-' },
+    { name: 'Orchestrator', percentage: '-' },
   ];
 
   // Public metricTiles that will be updated with API data
