@@ -217,7 +217,7 @@ export class AuthenticationService {
       return ['ADMIN'];
     }
 
-    return [...this.userAccessRoles, ...this.adminRoles];
+    return ['ADMIN'];
   }
 
   ssoLogout() {
