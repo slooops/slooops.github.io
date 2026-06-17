@@ -1,88 +1,146 @@
-<div class="ciq-table-card">
-  <div class="table-header">
-    @if (showNavArrows) {
-      <button
-        class="ciq-nav-arrow"
-        [disabled]="navPrevDisabled"
-        (click)="navPrev.emit()"
-        title="Previous"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-        </svg>
-      </button>
+<div class="table-header">
+  @if (showNavArrows) {
+    <button
+      class="ciq-nav-arrow"
+      [disabled]="navPrevDisabled"
+      (click)="navPrev.emit()"
+      title="Previous"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+      </svg>
+    </button>
+  }
+  @if (tableTitle) {
+    <h3 class="table-title">{{ tableTitle }}</h3>
+    @if (tableTitleTooltip) {
+      <ng-icon
+        name="phosphorInfoBold"
+        size="16"
+        class="table-title-info"
+        [matTooltip]="tableTitleTooltip"
+      ></ng-icon>
     }
-    @if (tableTitle) {
-      <h3 class="table-title">{{ tableTitle }}</h3>
-      @if (tableTitleTooltip) {
-        <ng-icon
-          name="phosphorInfoBold"
-          size="16"
-          class="table-title-info"
-          [matTooltip]="tableTitleTooltip"
-        ></ng-icon>
-      }
-    }
-    @if (showNavArrows) {
-      <button
-        class="ciq-nav-arrow"
-        [disabled]="navNextDisabled"
-        (click)="navNext.emit()"
-        title="Next"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" />
-        </svg>
-      </button>
-    }
-    @if (showToolbar) {
-      <div class="search-and-filters">
-        <div class="filters-container">
-          <button class="filters-btn" (click)="toggleFiltersDropdown($event)">
-            <ng-icon name="phosphorFunnelSimpleBold" size="13"></ng-icon>
-            Filters
-            @if (activeFilters.length > 0) {
-              <span class="filter-count">{{ activeFilters.length }}</span>
-            }
-          </button>
+  }
+  @if (showNavArrows) {
+    <button
+      class="ciq-nav-arrow"
+      [disabled]="navNextDisabled"
+      (click)="navNext.emit()"
+      title="Next"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" />
+      </svg>
+    </button>
+  }
+  @if (showToolbar) {
+    <div class="search-and-filters">
+      <div class="filters-container">
+        <button class="filters-btn" (click)="toggleFiltersDropdown($event)">
+          <ng-icon name="phosphorFunnelSimpleBold" size="15"></ng-icon>
+          Filters
+          @if (activeFilters.length > 0) {
+            <span class="filter-count">{{ activeFilters.length }}</span>
+          }
+        </button>
 
-          <!-- Filter Dropdown -->
-          @if (showFiltersDropdown) {
-            <div
-              class="filters-dropdown"
-              (click)="$event.stopPropagation()"
-              (keydown)="onDropdownKeydown($event)"
-              (keyup)="noop()"
-              (keypress)="noop()"
-              onkeydown="return true;"
-              onKeyDown="return true;"
-              onKeyUp="return true;"
-              onKeyPress="return true;"
-              tabindex="0"
-              aria-label="Active filters menu"
-            >
-              <div class="filter-sections">
-                @for (filterOption of filterOptions; track filterOption) {
-                  <div class="filter-section">
-                    <div class="filter-section-title">
-                      {{ filterOption.label }}
+        <!-- Filter Dropdown -->
+        @if (showFiltersDropdown) {
+          <div
+            class="filters-dropdown"
+            (click)="$event.stopPropagation()"
+            (keydown)="onDropdownKeydown($event)"
+            (keyup)="noop()"
+            (keypress)="noop()"
+            onkeydown="return true;"
+            onKeyDown="return true;"
+            onKeyUp="return true;"
+            onKeyPress="return true;"
+            tabindex="0"
+            aria-label="Active filters menu"
+          >
+            <div class="filter-sections">
+              @for (filterOption of filterOptions; track filterOption) {
+                <div class="filter-section">
+                  <div class="filter-section-title">
+                    {{ filterOption.label }}
+                  </div>
+                  <!-- Incident State custom multi-select dropdown inside popup -->
+                  @if (filterOption.id === "incidentState") {
+                    <div class="multi-select-wrapper in-popup">
+                      <button
+                        type="button"
+                        class="multi-select-trigger"
+                        (click)="toggleIncidentStateInner($event)"
+                      >
+                        Select
+                        <span
+                          class="chevron"
+                          [class.open]="showIncidentStateInner"
+                          >▾</span
+                        >
+                      </button>
+                      @if (showIncidentStateInner) {
+                        <div
+                          class="multi-select-dropdown inner"
+                          (click)="$event.stopPropagation()"
+                        >
+                          <div class="multi-select-options">
+                            @for (value of filterOption.values; track value) {
+                              <div
+                                class="multi-option"
+                                [class.selected]="
+                                  isFilterActive('incidentState', value)
+                                "
+                                (click)="
+                                  toggleIncidentStateValue(
+                                    value,
+                                    filterOption.label
+                                  )
+                                "
+                              >
+                                <input
+                                  type="checkbox"
+                                  [checked]="
+                                    isFilterActive('incidentState', value)
+                                  "
+                                />
+                                <span class="option-label">{{ value }}</span>
+                              </div>
+                            }
+                          </div>
+                          <div class="multi-select-actions">
+                            <button
+                              type="button"
+                              class="clear-btn"
+                              (click)="clearFiltersFor('incidentState')"
+                              [disabled]="
+                                getSelectedCount('incidentState') === 0
+                              "
+                            >
+                              Clear
+                            </button>
+                          </div>
+                        </div>
+                      }
                     </div>
-                    <!-- Incident State custom multi-select dropdown inside popup -->
-                    @if (filterOption.id === "incidentState") {
+                  } @else {
+                    @if (filterOption.id === "cancelPrediction") {
                       <div class="multi-select-wrapper in-popup">
                         <button
                           type="button"
                           class="multi-select-trigger"
-                          (click)="toggleIncidentStateInner($event)"
+                          (click)="toggleCancelPredictionInner($event)"
                         >
                           Select
                           <span
                             class="chevron"
-                            [class.open]="showIncidentStateInner"
+                            [class.open]="showCancelPredictionInner"
                             >▾</span
                           >
                         </button>
-                        @if (showIncidentStateInner) {
+                        @if (showCancelPredictionInner) {
                           <div
                             class="multi-select-dropdown inner"
                             (click)="$event.stopPropagation()"
@@ -92,10 +150,10 @@
                                 <div
                                   class="multi-option"
                                   [class.selected]="
-                                    isFilterActive('incidentState', value)
+                                    isFilterActive('cancelPrediction', value)
                                   "
                                   (click)="
-                                    toggleIncidentStateValue(
+                                    toggleCancelPredictionValue(
                                       value,
                                       filterOption.label
                                     )
@@ -104,7 +162,7 @@
                                   <input
                                     type="checkbox"
                                     [checked]="
-                                      isFilterActive('incidentState', value)
+                                      isFilterActive('cancelPrediction', value)
                                     "
                                   />
                                   <span class="option-label">{{ value }}</span>
@@ -115,9 +173,9 @@
                               <button
                                 type="button"
                                 class="clear-btn"
-                                (click)="clearFiltersFor('incidentState')"
+                                (click)="clearFiltersFor('cancelPrediction')"
                                 [disabled]="
-                                  getSelectedCount('incidentState') === 0
+                                  getSelectedCount('cancelPrediction') === 0
                                 "
                               >
                                 Clear
@@ -127,21 +185,21 @@
                         }
                       </div>
                     } @else {
-                      @if (filterOption.id === "cancelPrediction") {
+                      @if (filterOption.id === "impactedServiceOffering") {
                         <div class="multi-select-wrapper in-popup">
                           <button
                             type="button"
                             class="multi-select-trigger"
-                            (click)="toggleCancelPredictionInner($event)"
+                            (click)="toggleImpactedServiceOfferingInner($event)"
                           >
                             Select
                             <span
                               class="chevron"
-                              [class.open]="showCancelPredictionInner"
+                              [class.open]="showImpactedServiceOfferingInner"
                               >▾</span
                             >
                           </button>
-                          @if (showCancelPredictionInner) {
+                          @if (showImpactedServiceOfferingInner) {
                             <div
                               class="multi-select-dropdown inner"
                               (click)="$event.stopPropagation()"
@@ -154,10 +212,13 @@
                                   <div
                                     class="multi-option"
                                     [class.selected]="
-                                      isFilterActive('cancelPrediction', value)
+                                      isFilterActive(
+                                        'impactedServiceOffering',
+                                        value
+                                      )
                                     "
                                     (click)="
-                                      toggleCancelPredictionValue(
+                                      toggleImpactedServiceOfferingValue(
                                         value,
                                         filterOption.label
                                       )
@@ -167,7 +228,7 @@
                                       type="checkbox"
                                       [checked]="
                                         isFilterActive(
-                                          'cancelPrediction',
+                                          'impactedServiceOffering',
                                           value
                                         )
                                       "
@@ -182,9 +243,13 @@
                                 <button
                                   type="button"
                                   class="clear-btn"
-                                  (click)="clearFiltersFor('cancelPrediction')"
+                                  (click)="
+                                    clearFiltersFor('impactedServiceOffering')
+                                  "
                                   [disabled]="
-                                    getSelectedCount('cancelPrediction') === 0
+                                    getSelectedCount(
+                                      'impactedServiceOffering'
+                                    ) === 0
                                   "
                                 >
                                   Clear
@@ -194,369 +259,288 @@
                           }
                         </div>
                       } @else {
-                        @if (filterOption.id === "impactedServiceOffering") {
-                          <div class="multi-select-wrapper in-popup">
-                            <button
-                              type="button"
-                              class="multi-select-trigger"
-                              (click)="
-                                toggleImpactedServiceOfferingInner($event)
+                        @if (filterOption.id === "incidentNumber") {
+                          <div class="incident-number-search">
+                            <input
+                              type="text"
+                              class="incident-number-input"
+                              placeholder="e.g., INC10364124"
+                              [(ngModel)]="incidentNumberSearch"
+                              (input)="
+                                onIncidentNumberSearch(incidentNumberSearch)
                               "
-                            >
-                              Select
-                              <span
-                                class="chevron"
-                                [class.open]="showImpactedServiceOfferingInner"
-                                >▾</span
-                              >
-                            </button>
-                            @if (showImpactedServiceOfferingInner) {
-                              <div
-                                class="multi-select-dropdown inner"
-                                (click)="$event.stopPropagation()"
-                              >
-                                <div class="multi-select-options">
-                                  @for (
-                                    value of filterOption.values;
-                                    track value
-                                  ) {
-                                    <div
-                                      class="multi-option"
-                                      [class.selected]="
-                                        isFilterActive(
-                                          'impactedServiceOffering',
-                                          value
-                                        )
-                                      "
-                                      (click)="
-                                        toggleImpactedServiceOfferingValue(
-                                          value,
-                                          filterOption.label
-                                        )
-                                      "
-                                    >
-                                      <input
-                                        type="checkbox"
-                                        [checked]="
-                                          isFilterActive(
-                                            'impactedServiceOffering',
-                                            value
-                                          )
-                                        "
-                                      />
-                                      <span class="option-label">{{
-                                        value
-                                      }}</span>
-                                    </div>
-                                  }
-                                </div>
-                                <div class="multi-select-actions">
-                                  <button
-                                    type="button"
-                                    class="clear-btn"
-                                    (click)="
-                                      clearFiltersFor('impactedServiceOffering')
-                                    "
-                                    [disabled]="
-                                      getSelectedCount(
-                                        'impactedServiceOffering'
-                                      ) === 0
-                                    "
-                                  >
-                                    Clear
-                                  </button>
-                                </div>
-                              </div>
-                            }
+                              (click)="$event.stopPropagation()"
+                            />
                           </div>
                         } @else {
-                          @if (filterOption.id === "incidentNumber") {
-                            <div class="incident-number-search">
-                              <input
-                                type="text"
-                                class="incident-number-input"
-                                placeholder="e.g., INC10364124"
-                                [(ngModel)]="incidentNumberSearch"
-                                (input)="
-                                  onIncidentNumberSearch(incidentNumberSearch)
-                                "
-                                (click)="$event.stopPropagation()"
-                              />
-                            </div>
-                          } @else {
-                            <div class="filter-options">
-                              @for (value of filterOption.values; track value) {
-                                <label class="filter-option">
-                                  <input
-                                    type="checkbox"
-                                    (change)="
-                                      addFilter(
-                                        filterOption.id,
-                                        filterOption.label,
-                                        value
-                                      )
-                                    "
-                                    [checked]="
-                                      isFilterActive(filterOption.id, value)
-                                    "
-                                    [disabled]="
-                                      isFilterDisabled(filterOption.id, value)
-                                    "
-                                  />
-                                  <span class="checkmark"></span>
-                                  {{ value }}
-                                </label>
-                              }
-                            </div>
-                          }
+                          <div class="filter-options">
+                            @for (value of filterOption.values; track value) {
+                              <label class="filter-option">
+                                <input
+                                  type="checkbox"
+                                  (change)="
+                                    addFilter(
+                                      filterOption.id,
+                                      filterOption.label,
+                                      value
+                                    )
+                                  "
+                                  [checked]="
+                                    isFilterActive(filterOption.id, value)
+                                  "
+                                  [disabled]="
+                                    isFilterDisabled(filterOption.id, value)
+                                  "
+                                />
+                                <span class="checkmark"></span>
+                                {{ value }}
+                              </label>
+                            }
+                          </div>
                         }
                       }
                     }
-                  </div>
-                }
-              </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <span class="results-count"
+        >{{ dataSource?.data?.length || 0 }} /
+        {{ totalRecords || 0 }} results</span
+      >
+
+      <button
+        class="reset-btn"
+        [class.disabled]="activeFilters.length === 0"
+        [class.active]="activeFilters.length > 0"
+        (click)="clearAllFilters()"
+        [disabled]="activeFilters.length === 0"
+      >
+        Reset filters
+      </button>
+
+      @if (activeFilters.length > 0) {
+        <div class="filter-tags">
+          @for (filter of activeFilters; track filter; let i = $index) {
+            <div class="filter-tag">
+              <span class="filter-label">{{ filter.label }}</span>
+              <span class="filter-value">{{ filter.value }}</span>
+              <button class="remove-filter" (click)="removeFilter(filter.id)">
+                ✕
+              </button>
             </div>
           }
         </div>
+      }
+    </div>
+  }
 
-        <span class="results-count"
-          >{{ dataSource?.data?.length || 0 }} /
-          {{ totalRecords || 0 }} results</span
-        >
+  @if (showToolbar) {
+    <div class="table-links">
+      <button class="btn-base" (click)="openUploadDialog()">
+        <ng-icon name="phosphorCloudArrowUpBold" size="14"></ng-icon>
+        Upload
+      </button>
+      <button class="btn-base" (click)="exportTableToExcel()">
+        <ng-icon name="phosphorArrowLineDownBold" size="14"></ng-icon>
+        Download
+      </button>
+    </div>
+  }
+</div>
 
-        <button
-          class="reset-btn"
-          [class.disabled]="activeFilters.length === 0"
-          [class.active]="activeFilters.length > 0"
-          (click)="clearAllFilters()"
-          [disabled]="activeFilters.length === 0"
-        >
-          Reset filters
-        </button>
-
-        @if (activeFilters.length > 0) {
-          <div class="filter-tags">
-            @for (filter of activeFilters; track filter; let i = $index) {
-              <div class="filter-tag">
-                <span class="filter-label">{{ filter.label }}</span>
-                <span class="filter-value">{{ filter.value }}</span>
-                <button class="remove-filter" (click)="removeFilter(filter.id)">
-                  ✕
-                </button>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    }
-
-    @if (showToolbar) {
-      <div class="table-links">
-        <button class="btn-base" (click)="openUploadDialog()">
-          <ng-icon name="phosphorCloudArrowUpBold" size="14"></ng-icon>
-          Upload
-        </button>
-        <button class="btn-base" (click)="exportTableToExcel()">
-          <ng-icon name="phosphorArrowLineDownBold" size="14"></ng-icon>
-          Download
-        </button>
-      </div>
-    }
-
-    <div class="table-body">
-      @if (dataSource?.data?.length > 0) {
-        <div class="ciq-table-scroll">
-          <table class="ciq-table">
-            <thead>
+<div class="ciq-table-card">
+  <div class="table-body">
+    @if (dataSource?.data?.length > 0) {
+      <div class="ciq-table-scroll">
+        <table class="ciq-table">
+          <thead>
+            <tr>
+              @if (isI2CSource) {
+                <th class="ciq-expand-col"></th>
+              }
+              @for (column of filteredColumns; track column) {
+                <th
+                  [class.extra-wide-column]="extraWideColumns.includes(column)"
+                >
+                  {{ removeUnderscores(column) }}
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (
+              row of paginatedData;
+              track trackByRowId(row);
+              let rowIndex = $index
+            ) {
               <tr>
                 @if (isI2CSource) {
-                  <th class="ciq-expand-col"></th>
+                  <td class="ciq-expand-col">
+                    <button
+                      type="button"
+                      class="ciq-expand-btn"
+                      (click)="toggleRowExpansion(row, rowIndex)"
+                      [attr.aria-expanded]="isRowExpanded(row, rowIndex)"
+                      aria-label="Toggle agent processing timeline"
+                    >
+                      <ng-icon
+                        [name]="
+                          isRowExpanded(row, rowIndex)
+                            ? 'phosphorCaretUpBold'
+                            : 'phosphorCaretDownBold'
+                        "
+                        size="14"
+                      ></ng-icon>
+                    </button>
+                  </td>
                 }
                 @for (column of filteredColumns; track column) {
-                  <th
+                  <td
                     [class.extra-wide-column]="
                       extraWideColumns.includes(column)
                     "
+                    [class.clickable-cell]="clickableColumns.includes(column)"
+                    (click)="
+                      clickableColumns.includes(column)
+                        ? cellClick.emit({
+                            column: column,
+                            value: row[column],
+                            row: row,
+                          })
+                        : null
+                    "
                   >
-                    {{ removeUnderscores(column) }}
-                  </th>
+                    @if (column.includes("TIME") || column.includes("DATE")) {
+                      {{ row[column] | date: "MM/dd/yy" }}
+                    } @else if (
+                      column === "CATEGORY" || column === "CORE_ISSUE"
+                    ) {
+                      <div class="status-cell">
+                        <span
+                          class="status-circle"
+                          [ngClass]="{
+                            active: getMatchStatus(row, column) === 'Y',
+                            inactive: getMatchStatus(row, column) !== 'Y',
+                          }"
+                        ></span>
+                        {{ row[column] }}
+                      </div>
+                    } @else {
+                      {{ row[column] }}
+                    }
+                  </td>
                 }
               </tr>
-            </thead>
-            <tbody>
-              @for (
-                row of paginatedData;
-                track trackByRowId(row);
-                let rowIndex = $index
-              ) {
-                <tr>
-                  @if (isI2CSource) {
-                    <td class="ciq-expand-col">
-                      <button
-                        type="button"
-                        class="ciq-expand-btn"
-                        (click)="toggleRowExpansion(row, rowIndex)"
-                        [attr.aria-expanded]="isRowExpanded(row, rowIndex)"
-                        aria-label="Toggle agent processing timeline"
-                      >
-                        <ng-icon
-                          [name]="
-                            isRowExpanded(row, rowIndex)
-                              ? 'phosphorCaretUpBold'
-                              : 'phosphorCaretDownBold'
-                          "
-                          size="14"
-                        ></ng-icon>
-                      </button>
-                    </td>
-                  }
-                  @for (column of filteredColumns; track column) {
-                    <td
-                      [class.extra-wide-column]="
-                        extraWideColumns.includes(column)
-                      "
-                      [class.clickable-cell]="clickableColumns.includes(column)"
-                      (click)="
-                        clickableColumns.includes(column)
-                          ? cellClick.emit({
-                              column: column,
-                              value: row[column],
-                              row: row,
-                            })
-                          : null
-                      "
-                    >
-                      @if (column.includes("TIME") || column.includes("DATE")) {
-                        {{ row[column] | date: "MM/dd/yy" }}
-                      } @else if (
-                        column === "CATEGORY" || column === "CORE_ISSUE"
-                      ) {
-                        <div class="status-cell">
-                          <span
-                            class="status-circle"
-                            [ngClass]="{
-                              active: getMatchStatus(row, column) === 'Y',
-                              inactive: getMatchStatus(row, column) !== 'Y',
-                            }"
-                          ></span>
-                          {{ row[column] }}
-                        </div>
-                      } @else {
-                        {{ row[column] }}
-                      }
-                    </td>
-                  }
-                </tr>
 
-                @if (isI2CSource && isRowExpanded(row, rowIndex)) {
-                  <tr class="timeline-row">
-                    <td [attr.colspan]="expandedColspan" class="timeline-cell">
-                      <div class="timeline-header-outer">
-                        <h4 class="timeline-title">
-                          Agent Processing Timeline
-                        </h4>
-                        <span class="timeline-incident-pill">
-                          {{ getTimelineIncidentNumber(row) || "--" }}
-                        </span>
-                      </div>
-                      <div class="timeline-card-wrapper">
-                        <div class="timeline-circle"></div>
-                        <div class="timeline-card">
-                          <div class="timeline-grid">
-                            <div class="timeline-item">
-                              <span class="timeline-label">Shared State</span>
-                              <button
-                                type="button"
-                                class="timeline-shared-state-link"
-                                (click)="
-                                  openIncidentDetailFromTimeline(
-                                    row,
-                                    rowIndex,
-                                    $event
-                                  )
-                                "
-                                title="Shared state"
-                              >
-                                {{ getTimelineSharedState(row) }}
-                              </button>
-                            </div>
-                            <div class="timeline-item">
-                              <span class="timeline-label">Outcome</span>
-                              <span class="timeline-outcome-pill">{{
-                                getTimelineOutcome(row, rowIndex)
-                              }}</span>
-                            </div>
-                            <div class="timeline-item">
-                              <span class="timeline-label"
-                                >Resolution Path</span
-                              >
-                              <span class="timeline-value">{{
-                                getTimelineResolutionPath(row)
-                              }}</span>
-                            </div>
-                            <div class="timeline-item">
-                              <span class="timeline-label">Duration</span>
-                              <span class="timeline-value">{{
-                                getTimelineDuration(row)
-                              }}</span>
-                            </div>
-                            <div class="timeline-item">
-                              <span class="timeline-label">Processed Date</span>
-                              <span class="timeline-value">{{
-                                mockProcessedDate
-                              }}</span>
-                            </div>
+              @if (isI2CSource && isRowExpanded(row, rowIndex)) {
+                <tr class="timeline-row">
+                  <td [attr.colspan]="expandedColspan" class="timeline-cell">
+                    <div class="timeline-header-outer">
+                      <h4 class="timeline-title">Agent Processing Timeline</h4>
+                      <span class="timeline-incident-pill">
+                        {{ getTimelineIncidentNumber(row) || "--" }}
+                      </span>
+                    </div>
+                    <div class="timeline-card-wrapper">
+                      <div class="timeline-circle"></div>
+                      <div class="timeline-card">
+                        <div class="timeline-grid">
+                          <div class="timeline-item">
+                            <span class="timeline-label">Shared State</span>
+                            <button
+                              type="button"
+                              class="timeline-shared-state-link"
+                              (click)="
+                                openIncidentDetailFromTimeline(
+                                  row,
+                                  rowIndex,
+                                  $event
+                                )
+                              "
+                              title="Shared state"
+                            >
+                              {{ getTimelineSharedState(row) }}
+                            </button>
+                          </div>
+                          <div class="timeline-item">
+                            <span class="timeline-label">Outcome</span>
+                            <span class="timeline-outcome-pill">{{
+                              getTimelineOutcome(row, rowIndex)
+                            }}</span>
+                          </div>
+                          <div class="timeline-item">
+                            <span class="timeline-label">Resolution Path</span>
+                            <span class="timeline-value">{{
+                              getTimelineResolutionPath(row)
+                            }}</span>
+                          </div>
+                          <div class="timeline-item">
+                            <span class="timeline-label">Duration</span>
+                            <span class="timeline-value">{{
+                              getTimelineDuration(row)
+                            }}</span>
+                          </div>
+                          <div class="timeline-item">
+                            <span class="timeline-label">Processed Date</span>
+                            <span class="timeline-value">{{
+                              mockProcessedDate
+                            }}</span>
                           </div>
                         </div>
                       </div>
-                    </td>
-                  </tr>
-                }
+                    </div>
+                  </td>
+                </tr>
               }
-            </tbody>
-          </table>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (enablePagination) {
+        <app-pagination
+          [pageIndex]="currentPage"
+          [pageSize]="pageSize"
+          [totalItems]="dataSource?.data?.length || 0"
+          [pageSizeOptions]="[10, 25, 50, 100]"
+          (pageChange)="onPageChange($event)"
+        ></app-pagination>
+      }
+    }
+    @if (!dataSource?.data?.length) {
+      @if (backendLoading || showFetchingOverlay) {
+        <div class="loading-container">
+          <app-loading-symbol></app-loading-symbol>
         </div>
-        @if (enablePagination) {
-          <app-pagination
-            [pageIndex]="currentPage"
-            [pageSize]="pageSize"
-            [totalItems]="dataSource?.data?.length || 0"
-            [pageSizeOptions]="[10, 25, 50, 100]"
-            (pageChange)="onPageChange($event)"
-          ></app-pagination>
-        }
+      } @else if (activeFilters.length > 0) {
+        <div class="empty-state-container">
+          <ng-icon
+            name="phosphorMagnifyingGlassBold"
+            class="empty-state-icon"
+            size="3rem"
+          ></ng-icon>
+          <div class="empty-state-text">No data found</div>
+          <div class="empty-state-subtext">
+            Try adjusting or clearing filters to see more results.
+          </div>
+        </div>
+      } @else {
+        <div class="empty-state-container">
+          <ng-icon
+            name="phosphorMagnifyingGlassBold"
+            class="empty-state-icon"
+            size="3rem"
+          ></ng-icon>
+          <div class="empty-state-text">No data found</div>
+          <div class="empty-state-subtext">
+            No records are available to display.
+          </div>
+        </div>
       }
-      @if (!dataSource?.data?.length) {
-        @if (backendLoading || showFetchingOverlay) {
-          <div class="loading-container">
-            <app-loading-symbol></app-loading-symbol>
-          </div>
-        } @else if (activeFilters.length > 0) {
-          <div class="empty-state-container">
-            <ng-icon
-              name="phosphorMagnifyingGlassBold"
-              class="empty-state-icon"
-              size="3rem"
-            ></ng-icon>
-            <div class="empty-state-text">No data found</div>
-            <div class="empty-state-subtext">
-              Try adjusting or clearing filters to see more results.
-            </div>
-          </div>
-        } @else {
-          <div class="empty-state-container">
-            <ng-icon
-              name="phosphorMagnifyingGlassBold"
-              class="empty-state-icon"
-              size="3rem"
-            ></ng-icon>
-            <div class="empty-state-text">No data found</div>
-            <div class="empty-state-subtext">
-              No records are available to display.
-            </div>
-          </div>
-        }
-      }
-    </div>
+    }
   </div>
 </div>
