@@ -47,6 +47,7 @@ export class MenuComponent {
   activeFlyout: string | null = null;
   private pendingDrawer: string | null = null;
 
+  //all menu items
   navItems: NavItem[] = [
     {
       label: 'Access & Analytics',
