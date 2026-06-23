@@ -20,6 +20,7 @@ import { CaseiqMonitoringDashboardComponent } from './esp/caseiq-monitoring-dash
 import { CtmAlertsDashboardComponent } from './ctm-alerts/ctm-alerts-dashboard.component';
 import { SelfHealingComponent } from './self-healing/self-healing.component';
 import { ExceptionDetailsComponent } from './self-healing/exception-details/exception-details.component';
+import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 
 export const routes: Routes = [
   {
@@ -278,15 +279,15 @@ export const routes: Routes = [
   //     header: 'CMS SFTP Details',
   //   },
   // },
-  // {
-  //   path: 'operations-controls',
-  //   component: OperationsControlsComponent,
-  //   data: {
-  //     title: 'Finance-IT Control Tower',
-  //     header: 'Finance-IT Control Tower',
-  //     subHeader: 'Continuous Monitoring > Operations Controls',
-  //   },
-  // },
+  {
+    path: 'operations-controls',
+    component: OperationsControlsComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Continuous Monitoring > Operations Controls',
+    },
+  },
   {
     path: 'access-management-and-analytics',
     component: AdminComponent,

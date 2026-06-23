@@ -297,6 +297,32 @@ export class MenuComponent {
             },
           ],
         },
+        {
+          label: 'Operations Controls',
+          icon: 'phosphorPackageBold',
+          route: '/operations-controls',
+          roles: ['ADMIN'],
+          children: [
+            {
+              label: 'Invoice to Cash',
+              icon: 'phosphorPackageBold',
+              route: '/operations-controls',
+              queryParams: { tab: 'invoice-to-cash' },
+            },
+            {
+              label: 'Revenue Accounting',
+              icon: 'phosphorPackageBold',
+              route: '/operations-controls',
+              queryParams: { tab: 'revenue-accounting' },
+            },
+            {
+              label: 'Tax & Customa',
+              icon: 'phosphorPackageBold',
+              route: '/operations-controls',
+              queryParams: { tab: 'tax-and-customs' },
+            },
+          ],
+        },
       ],
     },
     {
