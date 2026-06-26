@@ -439,24 +439,26 @@
   </div>
 </div>
 
-<div class="container grid-1 hotfix" style="max-width: 100%; padding-top: 0px">
+<div class="grid-1 hotfix" style="max-width: 100%; padding-top: 0px">
   <div class="wd0-table-header-row">
     <p class="page-title wd0-table-title">&nbsp;All Entities (Historical)</p>
 
-    <div class="wd0-table-actions">
+    <div
+      class="wd0-table-actions"
+      (click)="
+        refreshExportData();
+        exportTableToExcel(
+          exportData,
+          'HistoricalData',
+          'WD0 Mid Close Volumes Historical Data Report'
+        )
+      "
+    >
       <ng-icon
         name="phosphorArrowLineDownBold"
         size="16"
         class="wd0-export-icon"
         aria-hidden="true"
-        (click)="
-          refreshExportData();
-          exportTableToExcel(
-            exportData,
-            'HistoricalData',
-            'WD0 Mid Close Volumes Historical Data Report'
-          )
-        "
       ></ng-icon>
       &nbsp; Download
     </div>

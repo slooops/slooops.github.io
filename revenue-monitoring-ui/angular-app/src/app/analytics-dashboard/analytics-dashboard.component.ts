@@ -298,11 +298,6 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     const textColor = this.chartTextColor;
 
     return {
-      title: {
-        text: title,
-        left: 'center',
-        textStyle: { color: textColor, fontSize: 14, fontWeight: 'bold' },
-      },
       tooltip: {
         trigger: 'item',
         formatter: (params: any) => {
@@ -321,8 +316,8 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
       series: [
         {
           type: 'pie',
-          radius: ['60%', '90%'],
-          center: ['50%', '50%'],
+          radius: ['50%', '80%'],
+          center: ['50%', '45%'],
           avoidLabelOverlap: false,
           label: { show: false },
           labelLine: { show: false },
@@ -369,11 +364,6 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     const textColor = this.chartTextColor;
 
     this.continuousMonitoringChartOptions = {
-      title: {
-        text: 'Continuous Monitoring Usage',
-        left: 'center',
-        textStyle: { color: textColor, fontSize: 14, fontWeight: 'bold' },
-      },
       tooltip: {
         trigger: 'item',
         formatter: (params: any) => {
@@ -391,7 +381,8 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
       series: [
         {
           type: 'pie',
-          radius: ['60%', '90%'],
+          radius: ['50%', '80%'],
+          center: ['50%', '45%'],
           label: { show: false },
           labelLine: { show: false },
           data: aggregated.map((item, i) => ({
@@ -441,13 +432,8 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     const mutedColor = this.chartMutedColor;
 
     this.topPagesChartOptions = {
-      title: {
-        text: 'Top 10 Most Visited Pages',
-        left: 'center',
-        textStyle: { color: textColor, fontSize: 14, fontWeight: 'bold' },
-      },
       tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-      grid: { left: 120, right: 20, top: 40, bottom: 20, containLabel: false },
+      grid: { left: 120, right: 20, top: 10, bottom: 20, containLabel: false },
       xAxis: {
         type: 'value',
         axisLabel: { color: mutedColor },
@@ -492,13 +478,8 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     const mutedColor = this.chartMutedColor;
 
     this.uniqueUsersChartOptions = {
-      title: {
-        text: 'Pages by Unique Users',
-        left: 'center',
-        textStyle: { color: textColor, fontSize: 14, fontWeight: 'bold' },
-      },
       tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-      grid: { left: 10, right: 10, top: 40, bottom: 30, containLabel: true },
+      grid: { left: 10, right: 10, top: 10, bottom: 30, containLabel: true },
       xAxis: {
         type: 'category',
         data: byUsers.map((i) => i.label),

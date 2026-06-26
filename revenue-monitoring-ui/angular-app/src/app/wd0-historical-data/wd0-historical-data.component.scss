@@ -8,9 +8,9 @@
   --wd0-muted: #555;
   --wd0-border: #e1e4e8;
   --wd0-hover-bg: rgba(0, 112, 210, 0.04);
-  --wd0-header-bg: #f6f8fa;
+  --wd0-header-bg: #ffffff;
   --wd0-table-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  --wd0-radius: 12px;
+  --wd0-radius: 16px;
   display: block;
   background: var(--wd0-bg);
   min-height: 100%;
@@ -45,8 +45,7 @@
 }
 
 .wd0-table-title {
-  margin: 0 0 0.5rem;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   color: var(--wd0-text);
 }
 
@@ -54,26 +53,28 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  border: 1px solid #d0d5dd;
+  // border: 1px solid #d0d5dd;
+  box-shadow: 0 4px 20px 3px rgba(0, 0, 0, 0.06);
   border-radius: 999px;
-  color: dodgerblue;
+  color: var(--wd0-text);
   padding: 0.25rem 0.875rem;
   font-size: 12px;
+  cursor: pointer;
 }
 
 .wd0-export-icon {
-  color: dodgerblue;
-  cursor: pointer;
+  color: var(--wd0-text);
   transition: color var(--fit-transition-fast, 150ms) ease;
 }
 
-.wd0-export-icon:hover {
+.wd0-export-icon:hover,
+.wd0-table-actions:hover {
   color: var(--fit-color-primary, #0070d2);
 }
 
 .wd0-table-shell {
   margin-top: 0.75rem;
-  border: 1px solid var(--wd0-border);
+  // border: 1px solid var(--wd0-border);
   border-radius: var(--wd0-radius);
   background: var(--wd0-surface);
   box-shadow: var(--wd0-table-shadow);
@@ -89,7 +90,7 @@
 .wd0-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   background: var(--wd0-surface);
 }
 
@@ -114,7 +115,7 @@
   background: var(--wd0-surface);
   border-bottom: 1px solid var(--wd0-border);
   text-align: center;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--wd0-text);
   white-space: nowrap;
 }

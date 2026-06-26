@@ -1,6 +1,6 @@
 @if (isLoading) {
   <div class="overall-loading">
-    <app-loading-symbol></app-loading-symbol>
+    <app-loading-symbol animationStyle="origins" />
   </div>
 }
 
@@ -187,7 +187,7 @@
     <div class="analytics-section">
       @if (analyticsChartsLoading) {
         <div class="analytics-loading">
-          <app-loading-symbol></app-loading-symbol>
+          <app-loading-symbol animationStyle="origins" />
         </div>
       }
 
@@ -253,7 +253,7 @@
           <div class="ciq-anomaly-list">
             @if (monitoringLoading) {
               <div class="ciq-table-loading">
-                <app-loading-symbol></app-loading-symbol>
+                <app-loading-symbol animationStyle="origins" />
               </div>
             }
             @for (a of anomalyBreakdown; track a.name) {
@@ -411,7 +411,7 @@
                 <tr>
                   <td colspan="9">
                     <div class="ciq-table-loading">
-                      <app-loading-symbol></app-loading-symbol>
+                      <app-loading-symbol animationStyle="origins" />
                     </div>
                   </td>
                 </tr>
@@ -494,7 +494,7 @@
   @if (caseiqView === "executive") {
     @if (espSummaryLoading) {
       <div class="overall-loading">
-        <app-loading-symbol></app-loading-symbol>
+        <app-loading-symbol animationStyle="origins" />
       </div>
     } @else {
       <!-- Executive KPI Strip -->
@@ -521,7 +521,10 @@
       </div>
 
       <!-- Charts Row: MTTR | Weekly+Hourly stacked | Sankey -->
-      <div class="analytics-row analytics-row-exec" style="margin: 1rem 0">
+      <div
+        class="analytics-row analytics-row-exec"
+        style="margin: 1rem 0; height: 60vh"
+      >
         <!-- MTTR by Service Offering Chart -->
         <div class="ciq-card ciq-card--chart ciq-card--tall">
           <div class="ciq-card-header">

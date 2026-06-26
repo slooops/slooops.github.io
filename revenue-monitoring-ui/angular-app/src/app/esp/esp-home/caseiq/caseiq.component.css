@@ -321,15 +321,14 @@
 
 /* ── WD0-like table look for Components Table only ── */
 .ciq-components-card {
-  border-radius: 0.875rem;
-  border: 1px solid var(--ciq-border);
-  box-shadow: none;
+  /* border: 1px solid var(--ciq-border); */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
 
 .ciq-components-table thead th {
-  background: var(--ciq-kpi-bg);
+  background: var(--ciq-bg);
   color: var(--ciq-muted);
   font-size: 0.6875rem;
   font-weight: 600;
@@ -994,7 +993,7 @@
 .ciq-error-table th {
   text-align: left;
   padding: 10px 12px;
-  background: var(--ciq-kpi-bg);
+  background: var(--ciq-bg);
   text-transform: capitalize;
   letter-spacing: 0.5px;
   position: sticky;

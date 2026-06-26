@@ -1218,8 +1218,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   private readonly teamColors: Record<string, string> = {
-    OM: '#0070d2',
-    SM: '#00bceb',
+    OM: '#00bceb',
+    SM: '#0070d2',
     I2C: '#6ebe4a',
     AIT: '#e6a800',
     FPP: '#9933ff',
@@ -1259,9 +1259,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           data: weeks.map((w) => weekMap.get(w)?.get(team) ?? 0),
           smooth: true,
           symbol: 'circle',
-          symbolSize: 6,
+          symbolSize: 7,
           lineStyle: { width: 2.5, color: hex },
-          itemStyle: { color: hex },
+          itemStyle: { color: '#ffffff', borderColor: hex, borderWidth: 2.5 },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               { offset: 0, color: `rgba(${r},${g},${b},0.25)` },
@@ -1365,9 +1365,13 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           data: catAccuracy,
           smooth: true,
           symbol: 'circle',
-          symbolSize: 6,
+          symbolSize: 7,
           lineStyle: { width: 2.5, color: '#00bceb' },
-          itemStyle: { color: '#00bceb' },
+          itemStyle: {
+            color: '#ffffff',
+            borderColor: '#00bceb',
+            borderWidth: 2.5,
+          },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               { offset: 0, color: 'rgba(0,188,235,0.3)' },
@@ -1381,9 +1385,13 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           data: coreAccuracy,
           smooth: true,
           symbol: 'circle',
-          symbolSize: 6,
+          symbolSize: 7,
           lineStyle: { width: 2.5, color: '#0070d2' },
-          itemStyle: { color: '#0070d2' },
+          itemStyle: {
+            color: '#ffffff',
+            borderColor: '#0070d2',
+            borderWidth: 2.5,
+          },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               { offset: 0, color: 'rgba(0,112,210,0.25)' },
@@ -1432,9 +1440,13 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           data: values,
           smooth: true,
           symbol: 'circle',
-          symbolSize: 6,
+          symbolSize: 7,
           lineStyle: { width: 2.5, color: '#00bceb' },
-          itemStyle: { color: '#00bceb' },
+          itemStyle: {
+            color: '#ffffff',
+            borderColor: '#00bceb',
+            borderWidth: 2.5,
+          },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               { offset: 0, color: 'rgba(0,188,235,0.35)' },
@@ -1488,9 +1500,13 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           data: values,
           smooth: true,
           symbol: 'circle',
-          symbolSize: 6,
+          symbolSize: 7,
           lineStyle: { width: 2.5, color: '#00bceb' },
-          itemStyle: { color: '#00bceb' },
+          itemStyle: {
+            color: '#ffffff',
+            borderColor: '#00bceb',
+            borderWidth: 2.5,
+          },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               { offset: 0, color: 'rgba(0,188,235,0.35)' },
@@ -2336,9 +2352,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           data: weeks.map((w) => weekMap.get(w)?.get(team) ?? 0),
           smooth: true,
           symbol: 'circle',
-          symbolSize: 6,
+          symbolSize: 7,
           lineStyle: { width: 2.5, color: hex },
-          itemStyle: { color: hex },
+          itemStyle: { color: '#ffffff', borderColor: hex, borderWidth: 2.5 },
           areaStyle: { color: `rgba(${r}, ${g}, ${b}, 0.1)` },
         };
       });
@@ -2357,9 +2373,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         textStyle: { color: textColor, fontSize: 10 },
         itemWidth: 10,
         itemHeight: 10,
-        padding: [0, 0, 0, 0],
+        padding: [4, 0, 0, 0],
       },
-      grid: { top: 10, left: 40, right: 20, bottom: 40 },
+      grid: { top: 10, left: 40, right: 20, bottom: 50 },
       xAxis: {
         type: 'category',
         data: labels,
@@ -2427,9 +2443,13 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           data: values,
           smooth: true,
           symbol: 'circle',
-          symbolSize: 6,
+          symbolSize: 7,
           lineStyle: { width: 3, color: '#00bceb' },
-          itemStyle: { color: '#00bceb' },
+          itemStyle: {
+            color: '#ffffff',
+            borderColor: '#00bceb',
+            borderWidth: 2.5,
+          },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               { offset: 0, color: 'rgba(0,188,235,0.35)' },
