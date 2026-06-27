@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ThemeService } from 'src/app/providers/theme.service';
 import {
   CaseiqIncidentsComponent,
+  SharedStateOpenEvent,
   SupervisorIncident,
 } from '../caseiq-incidents/caseiq-incidents.component';
 import { CaseiqIncidentDetailComponent } from '../caseiq-incident-detail/caseiq-incident-detail.component';
@@ -25,6 +26,7 @@ export class CaseiqSupervisorComponent {
   }
 
   selectedIncident: SupervisorIncident | null = null;
+  selectedIncidentDetailData: Record<string, unknown> | null = null;
 
   periodStatus = {
     periodName: 'JUN-26',
@@ -34,11 +36,13 @@ export class CaseiqSupervisorComponent {
 
   constructor(public themeService: ThemeService) {}
 
-  onSharedStateOpen(incident: SupervisorIncident): void {
-    this.selectedIncident = incident;
+  onSharedStateOpen(event: SharedStateOpenEvent): void {
+    this.selectedIncident = event.incident;
+    this.selectedIncidentDetailData = event.incidentDetailData;
   }
 
   onBackFromDetail(): void {
     this.selectedIncident = null;
+    this.selectedIncidentDetailData = null;
   }
 }

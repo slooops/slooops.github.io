@@ -93,7 +93,7 @@
     </header>
 
     <!-- Tabs -->
-    <div class="id__tabs">
+    <!-- <div class="id__tabs">
       <button
         class="id__tab"
         [class.id__tab--active]="activeTab === 'pipeline'"
@@ -101,138 +101,157 @@
       >
         Pipeline Execution
       </button>
-      <button
-        class="id__tab"
-        [class.id__tab--active]="activeTab === 'notifications'"
-        (click)="activeTab = 'notifications'"
-      >
-        Notifications &amp; Actions
-        @if (notifications.length > 0) {
-          <span class="id__tab-count">({{ notifications.length }})</span>
-        }
-      </button>
-    </div>
+    </div> -->
 
     <!-- Pipeline Tab -->
-    @if (activeTab === "pipeline") {
-      <div class="id__pipeline">
-        <div class="id__pipeline-header">
-          <h3 class="id__section-title">Agentic Pipeline</h3>
-          <button
-            class="id__expand-all-btn"
-            (click)="pipelineSteps[0]?.expanded ? collapseAll() : expandAll()"
-          >
-            {{ pipelineSteps[0]?.expanded ? "Collapse All" : "Expand All" }}
-          </button>
-        </div>
+    <div class="id__pipeline">
+      <div class="id__pipeline-header">
+        <h3 class="id__section-title">Agentic Pipeline</h3>
+        <button
+          class="id__expand-all-btn"
+          (click)="pipelineSteps[0]?.expanded ? collapseAll() : expandAll()"
+        >
+          {{ pipelineSteps[0]?.expanded ? "Collapse All" : "Expand All" }}
+        </button>
+      </div>
 
-        @if (pipelineSteps.length === 0) {
-          <div class="id__empty">No pipeline data available.</div>
-        }
+      @if (pipelineSteps.length === 0) {
+        <div class="id__empty">No pipeline data available.</div>
+      }
 
-        @for (step of pipelineSteps; track step.name; let i = $index) {
-          <div class="id__step" [class.id__step--expanded]="step.expanded">
-            <div class="id__step-header" (click)="toggleStep(i)">
-              <div class="id__step-left">
-                <div
-                  class="id__step-icon"
-                  [ngClass]="getStatusClass(step.status)"
-                >
-                  @if (
-                    step.status === "completed" || step.status === "resolved"
-                  ) {
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="3"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  } @else {
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <circle cx="12" cy="12" r="10" />
-                    </svg>
-                  }
-                </div>
-                <h4 class="id__step-name">{{ step.name }}</h4>
+      @for (step of pipelineSteps; track step.name; let i = $index) {
+        <div class="id__step" [class.id__step--expanded]="step.expanded">
+          <div class="id__step-header" (click)="toggleStep(i)">
+            <div class="id__step-left">
+              <div
+                class="id__step-icon"
+                [ngClass]="getStatusClass(step.status)"
+              >
+                @if (
+                  step.status === "completed" || step.status === "resolved"
+                ) {
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                } @else {
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                  </svg>
+                }
               </div>
-              <div class="id__step-right">
-                <span
-                  class="id__step-status"
-                  [ngClass]="getStatusClass(step.status)"
-                  >{{ step.status }}</span
-                >
-                <span class="id__step-toggle">{{
-                  step.expanded ? "—" : "+"
-                }}</span>
-              </div>
+              <h4 class="id__step-name">{{ step.name }}</h4>
             </div>
+            <div class="id__step-right">
+              <span
+                class="id__step-status"
+                [ngClass]="getStatusClass(step.status)"
+                >{{ step.status }}</span
+              >
+              <span class="id__step-toggle">{{
+                step.expanded ? "—" : "+"
+              }}</span>
+            </div>
+          </div>
 
-            @if (step.expanded) {
-              <div class="id__step-body">
-                <div class="id__step-fields">
-                  @for (field of getStepFields(step); track field.key) {
-                    <div class="id__field">
-                      <span class="id__field-key">{{ field.key }}</span>
-                      @if (isObject(field.value) || isArray(field.value)) {
-                        <details class="id__field-details">
-                          <summary>▶ {{ field.key }}</summary>
-                          <pre class="id__field-json">{{
-                            field.value | json
-                          }}</pre>
-                        </details>
-                      } @else {
-                        <span class="id__field-value">{{ field.value }}</span>
-                      }
-                    </div>
-                  }
-                </div>
-
-                @if (step.subAgentCalls && step.subAgentCalls.length > 0) {
-                  <div class="id__sub-agents">
-                    <h5 class="id__sub-agents-title">
-                      Sub-Agent Calls ({{ step.subAgentCalls.length }})
-                    </h5>
-                    @for (agent of step.subAgentCalls; track agent.name) {
-                      <div class="id__sub-agent-row">
-                        <span class="id__sub-agent-name">{{ agent.name }}</span>
-                        @if (agent.team) {
-                          <span class="id__sub-agent-team">{{
-                            agent.team
-                          }}</span>
-                        }
-                        <span
-                          class="id__sub-agent-status"
-                          [ngClass]="getStatusClass(agent.status)"
-                          >{{ agent.status }}</span
-                        >
-                      </div>
+          @if (step.expanded) {
+            <div class="id__step-body">
+              <div class="id__step-fields">
+                @for (field of getStepFields(step); track field.key) {
+                  <div class="id__field">
+                    <span class="id__field-key">{{ field.key }}</span>
+                    @if (isObject(field.value) || isArray(field.value)) {
+                      <details class="id__field-details">
+                        <summary>▶ {{ field.key }}</summary>
+                        <pre class="id__field-json">{{
+                          field.value | json
+                        }}</pre>
+                      </details>
+                    } @else {
+                      <span class="id__field-value">{{ field.value }}</span>
                     }
                   </div>
                 }
               </div>
-            }
-          </div>
-        }
-      </div>
-    }
+
+              @if (step.subAgentCalls && step.subAgentCalls.length > 0) {
+                <div class="id__sub-agents">
+                  <h5 class="id__sub-agents-title">
+                    Sub-Agent Calls ({{ step.subAgentCalls.length }})
+                  </h5>
+                  @for (agent of step.subAgentCalls; track agent.name) {
+                    <details class="id__sub-agent-item" #agentItem>
+                      <summary class="id__sub-agent-row">
+                        <div class="id__sub-agent-left">
+                          <span class="id__sub-agent-name">{{
+                            agent.name
+                          }}</span>
+                          @if (agent.team) {
+                            <span class="id__sub-agent-team">{{
+                              agent.team
+                            }}</span>
+                          }
+                        </div>
+                        <div class="id__sub-agent-right">
+                          <span
+                            class="id__sub-agent-status"
+                            [ngClass]="getStatusClass(agent.status)"
+                            >{{ agent.status }}</span
+                          >
+                          <span class="id__sub-agent-toggle" aria-hidden="true">
+                            {{ agentItem.open ? "—" : "+" }}
+                          </span>
+                        </div>
+                      </summary>
+
+                      <div class="id__sub-agent-body">
+                        @if (agent.details?.request_payload) {
+                          <details class="id__field-details">
+                            <summary>▶ Request Payload</summary>
+                            <pre class="id__field-json">{{
+                              agent.details.request_payload | json
+                            }}</pre>
+                          </details>
+                        }
+
+                        @if (agent.details?.response_payload) {
+                          <details class="id__field-details">
+                            <summary>▶ Response Payload</summary>
+                            <pre class="id__field-json">{{
+                              agent.details.response_payload | json
+                            }}</pre>
+                          </details>
+                        }
+                      </div>
+                    </details>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
 
     <!-- Notifications Tab -->
-    @if (activeTab === "notifications") {
+    <!-- @if (activeTab === "notifications") {
       <div class="id__notifications">
         @if (notifications.length === 0) {
           <div class="id__empty">No notifications available.</div>
@@ -264,6 +283,6 @@
           }
         }
       </div>
-    }
+    } -->
   }
 </div>

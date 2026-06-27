@@ -471,18 +471,56 @@
   color: var(--id-text);
 }
 
+.id__sub-agent-item {
+  margin-bottom: 0.75rem;
+}
+
+.id__sub-agent-item:last-child {
+  margin-bottom: 0;
+}
+
+.id__sub-agent-item > summary {
+  list-style: none;
+}
+
+.id__sub-agent-item > summary::-webkit-details-marker {
+  display: none;
+}
+
 .id__sub-agent-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
   padding: 0.6rem 1rem;
   background: rgba(0, 0, 0, 0.02);
   border-radius: 8px;
-  margin-bottom: 0.5rem;
+  cursor: pointer;
 }
 
 :host(.dark-theme) .id__sub-agent-row {
   background: rgba(255, 255, 255, 0.04);
+}
+
+.id__sub-agent-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.id__sub-agent-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.id__sub-agent-toggle {
+  color: var(--id-muted);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1;
 }
 
 .id__sub-agent-name {
@@ -501,10 +539,9 @@
 }
 
 .id__sub-agent-status {
-  margin-left: auto;
   font-size: 0.75rem;
   font-weight: 600;
-  text-transform: uppercase;
+  text-transform: lowercase;
 }
 
 .id__sub-agent-status.status--success {
@@ -515,6 +552,14 @@
 }
 .id__sub-agent-status.status--error {
   color: var(--id-error);
+}
+
+.id__sub-agent-body {
+  padding: 0.6rem 0 0 1.75rem;
+}
+
+.id__sub-agent-body .id__field-details {
+  margin-top: 0.35rem;
 }
 
 /* ── Notifications ── */

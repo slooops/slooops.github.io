@@ -31,7 +31,7 @@
         </div>
       }
 
-      @if (selected.length > 0) {
+      @if (!singleSelect && selected.length > 0) {
         <button
           class="fit-multiselect__clear"
           (click)="clearAll(); $event.stopPropagation()"
@@ -45,13 +45,22 @@
           <li
             class="fit-multiselect__item"
             [class.fit-multiselect__item--selected]="isSelected(option.value)"
+            [class.fit-multiselect__item--single]="singleSelect"
             (click)="toggleOption(option.value); $event.stopPropagation()"
           >
-            <span class="fit-multiselect__checkbox">
-              @if (isSelected(option.value)) {
-                <span class="fit-multiselect__check">✓</span>
-              }
-            </span>
+            @if (singleSelect) {
+              <span class="fit-multiselect__radio">
+                @if (isSelected(option.value)) {
+                  <span class="fit-multiselect__radio-dot"></span>
+                }
+              </span>
+            } @else {
+              <span class="fit-multiselect__checkbox">
+                @if (isSelected(option.value)) {
+                  <span class="fit-multiselect__check">✓</span>
+                }
+              </span>
+            }
             <span class="fit-multiselect__item-label">{{ option.label }}</span>
           </li>
         }

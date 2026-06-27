@@ -1,72 +1,74 @@
 <div class="orc">
+  <section class="orc__top-toolbar">
+    <div class="orc__top-toolbar-left">
+      <app-filter-button-bar
+        [filters]="topFilterConfigs"
+        [filterValues]="topFilterValues"
+        [actions]="[]"
+        [totalCount]="incidents.length"
+        [filteredCount]="filteredIncidents.length"
+        [showFilterToggle]="true"
+        countLabel="results"
+        (filterChange)="onTopFilterChange($event)"
+        (filterClear)="onTopFilterClear()"
+      ></app-filter-button-bar>
+    </div>
+
+    <div class="orc__top-toolbar-right">
+      <div class="orc__search-combo">
+        <select
+          class="orc__search-field-select"
+          [(ngModel)]="selectedSearchField"
+          (ngModelChange)="onSearchFieldChange()"
+        >
+          @for (option of searchFieldOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+
+        <input
+          class="orc__search"
+          type="text"
+          [placeholder]="
+            selectedSearchField === 'incidentNumber'
+              ? 'Enter incident #...'
+              : selectedSearchField === 'category'
+                ? 'Enter category...'
+                : 'Enter core issue...'
+          "
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchTermChange()"
+        />
+      </div>
+    </div>
+  </section>
+
   <section class="orc__kpi-row">
     @for (kpi of kpiConfig; track kpi.label) {
       <article class="orc__kpi-card">
+        <span class="orc__kpi-label">{{ kpi.label.toLowerCase() }}</span>
         <span class="orc__kpi-value">{{ getKpiValue(kpi.key) }}</span>
-        <span class="orc__kpi-label">{{ kpi.label }}</span>
       </article>
     }
   </section>
 
-  <section class="orc__filters-row">
-    <input
-      class="orc__search"
-      type="text"
-      placeholder="Search by incident #, category, core issue..."
-      [(ngModel)]="searchTerm"
-      (input)="applyFilter()"
-    />
-
-    <select
-      class="orc__select"
-      [(ngModel)]="selectedOutcome"
-      (change)="applyFilter()"
-    >
-      @for (outcome of outcomes; track outcome) {
-        <option [value]="outcome">{{ outcome }}</option>
-      }
-    </select>
-
-    <select
-      class="orc__select"
-      [(ngModel)]="selectedTeam"
-      (change)="applyFilter()"
-    >
-      @for (team of teams; track team) {
-        <option [value]="team">{{ team }}</option>
-      }
-    </select>
-
-    <select class="orc__select" [(ngModel)]="selectedRange">
-      @for (range of timeRanges; track range) {
-        <option [value]="range">{{ range }}</option>
-      }
-    </select>
-  </section>
-
   <section class="orc__table-section">
-    <div class="orc__result-count">
-      Showing <strong>{{ filteredIncidents.length }}</strong> of
-      <strong>{{ incidents.length }}</strong> incidents
-    </div>
-
     <div class="orc__table-card">
       <table class="orc__table">
         <thead>
           <tr>
-            <th>INCIDENT</th>
-            <th>TEAM</th>
-            <th>CATEGORY</th>
-            <th>CORE ISSUE</th>
-            <th>OUTCOME</th>
-            <th>RESOLUTION PATH</th>
-            <th>PIPELINE</th>
-            <th>PROCESSED</th>
+            <th>Incident</th>
+            <th>Team</th>
+            <th>Category</th>
+            <th>Core Issue</th>
+            <th>Outcome</th>
+            <th>Runs</th>
+            <th>Last Processed</th>
           </tr>
         </thead>
         <tbody>
           @for (
-            row of filteredIncidents;
+            row of paginatedIncidents;
             track getIncidentKey(row, $index);
             let rowIndex = $index
           ) {
@@ -99,74 +101,226 @@
                   {{ row.outcome }}
                 </span>
               </td>
-              <td>{{ row.resolutionPath }}</td>
               <td>
-                <span class="orc__pipeline-dots" aria-hidden="true">
-                  @for (
-                    dot of getPipelineSlots(row.pipelineStages);
-                    track dot
-                  ) {
-                    <span class="orc__pipeline-dot"></span>
-                  }
-                </span>
+                <span class="orc__runs-pill">{{ row.runs }} runs</span>
               </td>
               <td>{{ row.processedAt }}</td>
             </tr>
 
             @if (isTimelineExpanded(row, rowIndex)) {
               <tr class="orc__timeline-row">
-                <td colspan="8" class="orc__timeline-cell">
-                  <div class="orc__timeline">
-                    <h4 class="orc__timeline-title">
-                      Agent Processing Timeline
-                    </h4>
-
-                    <div class="orc__timeline-card">
-                      <div class="orc__timeline-item">
-                        <span class="orc__timeline-label">SHARED STATE</span>
-                        <button
-                          type="button"
-                          class="orc__timeline-link"
-                          (click)="openSharedStateDetails(row)"
-                        >
-                          {{ getSharedStateId(row, rowIndex) }}
-                        </button>
-                      </div>
-
-                      <div class="orc__timeline-item">
-                        <span class="orc__timeline-label">OUTCOME</span>
-                        <span
-                          class="orc__outcome-pill"
-                          [class]="
-                            'orc__outcome-pill ' + getOutcomeClass(row.outcome)
-                          "
-                        >
-                          {{ row.outcome }}
-                        </span>
-                      </div>
-
-                      <div class="orc__timeline-item">
-                        <span class="orc__timeline-label">RESOLUTION PATH</span>
-                        <span class="orc__timeline-value">{{
-                          row.resolutionPath
-                        }}</span>
-                      </div>
-
-                      <div class="orc__timeline-item">
-                        <span class="orc__timeline-label">DURATION</span>
-                        <span class="orc__timeline-value">{{
-                          getDuration(row)
-                        }}</span>
-                      </div>
-
-                      <div class="orc__timeline-item">
-                        <span class="orc__timeline-label">PROCESSED DATE</span>
-                        <span class="orc__timeline-value">{{
-                          row.processedAt
-                        }}</span>
-                      </div>
-                    </div>
+                <td colspan="7" class="orc__timeline-cell">
+                  <div class="orc__history-card">
+                    <h6 class="orc__history-title">
+                      Execution History — {{ row.incidentNumber }}
+                    </h6>
+                    <table class="orc__history-table">
+                      <thead>
+                        <tr>
+                          <th>Run ID</th>
+                          <th>Outcome</th>
+                          <th>Category</th>
+                          <th>Core Issue</th>
+                          <th>Resolved By</th>
+                          <!-- <th>Pipeline</th> -->
+                          <th>Processed</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (
+                          execution of row.history;
+                          track execution.sharedStateId
+                        ) {
+                          <tr>
+                            <td>
+                              <button
+                                type="button"
+                                class="orc__run-link"
+                                (click)="openExecutionPipeline(row, execution)"
+                              >
+                                {{ execution.sharedStateId }}
+                              </button>
+                            </td>
+                            <td>
+                              <span
+                                class="orc__outcome-pill"
+                                [class]="
+                                  'orc__outcome-pill ' +
+                                  getOutcomeClass(execution.outcome)
+                                "
+                              >
+                                {{ execution.outcome }}
+                              </span>
+                            </td>
+                            <td>{{ execution.category }}</td>
+                            <td>{{ execution.coreIssue }}</td>
+                            <td>
+                              <span class="orc__resolved-by-pill">
+                                {{ execution.resolvedBy }}
+                              </span>
+                            </td>
+                            <!-- <td>
+                              <span
+                                class="orc__pipeline-dots"
+                                aria-hidden="true"
+                              >
+                                @for (
+                                  dot of getPipelineSlots(
+                                    execution.pipelineStages
+                                  );
+                                  track dot
+                                ) {
+                                  <span class="orc__pipeline-dot"></span>
+                                }
+                              </span>
+                            </td> -->
+                            <td>{{ execution.processedAt }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
                   </div>
+
+                  @if (
+                    pipelineDetailIncident?.incidentNumber ===
+                      row.incidentNumber && openPipelineSharedStateId
+                  ) {
+                    <div class="orc__pipeline-detail">
+                      <div class="orc__pd-header">
+                        <span class="orc__pd-title">Pipeline Detail —</span>
+                        <code class="orc__pd-header-id">{{
+                          openPipelineSharedStateId
+                        }}</code>
+                        <div class="orc__pd-header-meta">
+                          @if (pipelineDetail) {
+                            <span class="orc__pd-incident">{{
+                              pipelineDetail.incidentNumber
+                            }}</span>
+                            <span
+                              class="orc__outcome-pill orc__pd-outcome-pill"
+                              [class]="
+                                'orc__outcome-pill orc__pd-outcome-pill ' +
+                                getOutcomeClass(pipelineDetail.outcome)
+                              "
+                            >
+                              {{ pipelineDetail.outcome }}
+                            </span>
+                            <span class="orc__pd-hops-count">
+                              | {{ pipelineDetail.totalHops }} hop{{
+                                pipelineDetail.totalHops !== 1 ? "s" : ""
+                              }}
+                            </span>
+                          }
+                          <button
+                            type="button"
+                            class="orc__pd-close"
+                            (click)="closePipelineDetail()"
+                          >
+                            &#x2715;
+                          </button>
+                        </div>
+                      </div>
+
+                      @if (pipelineDetailLoading) {
+                        <div class="orc__pd-loading">
+                          Loading pipeline detail…
+                        </div>
+                      } @else if (pipelineDetailError) {
+                        <div class="orc__pd-error">
+                          {{ pipelineDetailError }}
+                        </div>
+                      } @else if (pipelineDetail) {
+                        <div class="orc__pd-body">
+                          @for (
+                            group of pipelineDetail.groups;
+                            track group.label
+                          ) {
+                            <p class="orc__pd-group-label">{{ group.label }}</p>
+                            <table class="orc__pd-table">
+                              <thead>
+                                <tr>
+                                  <th>Hop</th>
+                                  <th>Team</th>
+                                  <th>Agent</th>
+                                  <th>Category</th>
+                                  <th>Core Issue</th>
+                                  <th>Outcome</th>
+                                  <th>Duration</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                @for (hop of group.hops; track hop.hopNumber) {
+                                  <tr>
+                                    <td>
+                                      <span class="orc__pd-hop-badge">{{
+                                        hop.hopNumber
+                                      }}</span>
+                                    </td>
+                                    <td class="orc__pd-team-cell">
+                                      {{ hop.team }}
+                                    </td>
+                                    <td>{{ hop.agent }}</td>
+                                    <td>{{ hop.category }}</td>
+                                    <td>{{ hop.coreIssue }}</td>
+                                    <td>
+                                      <span
+                                        class="orc__outcome-pill"
+                                        [class]="
+                                          'orc__outcome-pill ' +
+                                          getOutcomeClass(hop.outcome)
+                                        "
+                                      >
+                                        {{ hop.outcome }}
+                                      </span>
+                                    </td>
+                                    <td class="orc__pd-duration">
+                                      {{ formatDuration(hop.durationMs) }}
+                                    </td>
+                                  </tr>
+                                }
+                                @if (group.hops.length === 0) {
+                                  <tr>
+                                    <td colspan="7" class="orc__pd-empty">
+                                      No hop data available
+                                    </td>
+                                  </tr>
+                                }
+                              </tbody>
+                            </table>
+                          }
+                        </div>
+                        <div class="orc__pd-footer">
+                          <button
+                            type="button"
+                            class="orc__pd-full-link"
+                            (click)="
+                              openSharedStateDetails(pipelineDetailIncident!)
+                            "
+                          >
+                            View full pipeline detail &#x2192;
+                          </button>
+                        </div>
+
+                        @if (
+                          inlineDetailIncidentNumber === row.incidentNumber
+                        ) {
+                          <div class="orc__inline-detail-wrap">
+                            @if (inlineDetailLoading) {
+                              <div class="orc__inline-detail-message">
+                                Loading incident details…
+                              </div>
+                            }
+
+                            @if (inlineDetailError && !inlineDetailLoading) {
+                              <div class="orc__inline-detail-error">
+                                {{ inlineDetailError }}
+                              </div>
+                            }
+                          </div>
+                        }
+                      }
+                    </div>
+                  }
                 </td>
               </tr>
             }
@@ -174,5 +328,15 @@
         </tbody>
       </table>
     </div>
+
+    @if (filteredIncidents.length > 0) {
+      <app-pagination
+        [pageIndex]="currentPage"
+        [pageSize]="pageSize"
+        [totalItems]="filteredIncidents.length"
+        [pageSizeOptions]="[10, 25, 50]"
+        (pageChange)="onPageChange($event)"
+      ></app-pagination>
+    }
   </section>
 </div>

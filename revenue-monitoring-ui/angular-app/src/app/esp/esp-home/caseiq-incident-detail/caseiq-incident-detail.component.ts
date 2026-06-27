@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from '../../../providers/theme.service';
-import { SupervisorIncident } from '../caseiq-incidents/caseiq-incidents.component';
 
 interface PipelineStep {
   name: string;
@@ -32,6 +31,20 @@ interface NotificationEvent {
   expanded: boolean;
 }
 
+interface IncidentSummary {
+  incidentNumber: string;
+  team: string;
+  category: string;
+  coreIssue: string;
+  outcome: string;
+  resolutionPath: string;
+  processedAt: string;
+  processedEpoch: number;
+  pipelineStages: number;
+  runs: number;
+  history: Array<{ sharedStateId: string }>;
+}
+
 @Component({
   selector: 'app-caseiq-incident-detail',
   standalone: true,
@@ -44,7 +57,8 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
     return this.themeService.isDarkMode;
   }
 
-  @Input() incident: SupervisorIncident | null = null;
+  @Input() incident: IncidentSummary | null = null;
+  @Input() incidentDetailData: Record<string, any> | null = null;
   @Input() backLabel: string = 'Back to Incidents';
   @Output() back = new EventEmitter<void>();
 
@@ -60,7 +74,7 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
   constructor(public themeService: ThemeService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['incident']) {
+    if (changes['incident'] || changes['incidentDetailData']) {
       this.hydrateDetail();
     }
   }
@@ -74,6 +88,11 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
   }
 
   private hydrateDetail(): void {
+    if (this.incidentDetailData) {
+      this.hydrateFromApiDetail(this.incidentDetailData);
+      return;
+    }
+
     if (!this.incident) {
       this.incidentNumber = '';
       this.incidentViewModel = null;
@@ -163,6 +182,181 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
 
     this.parsePipeline(this.incidentViewModel);
     this.parseNotifications(this.incidentViewModel);
+  }
+
+  private hydrateFromApiDetail(data: Record<string, any>): void {
+    const stages = this.isObject(data['stages']) ? data['stages'] : {};
+    const supervisor = stages['supervisor'] || {};
+    const analyzer = stages['case_analyser_agent'] || {};
+    const resolutionAgent = stages['resolution_agent'] || {};
+    const responderAgent = stages['responder_agent'] || {};
+
+    this.incidentNumber =
+      data['incident_number'] || this.incident?.incidentNumber || '';
+
+    this.incidentViewModel = {
+      status: data['outcome'] || this.incident?.outcome || 'Unknown',
+      team_name:
+        data['team_name'] ||
+        supervisor['team_name'] ||
+        this.incident?.team ||
+        '--',
+      category: analyzer['category'] || this.incident?.category || '--',
+      core_issue: analyzer['core_issue'] || this.incident?.coreIssue || '--',
+      resolution_path:
+        data['resolution_path'] || this.incident?.resolutionPath || '--',
+      duration: data['duration'] || '--',
+      shared_state_id:
+        data['shared_state_id'] || this.incident?.history?.[0]?.sharedStateId,
+      pipeline: [
+        {
+          name: 'Intake',
+          status: supervisor['status'] || 'completed',
+          details: {
+            incident: supervisor['incident_number'] || data['incident_number'],
+            team: supervisor['team_name'] || data['team_name'],
+            flow_type: supervisor['flow_type'] || '--',
+            status: supervisor['status'] || '--',
+            shared_state_id:
+              supervisor['shared_state_id'] || data['shared_state_id'],
+          },
+        },
+        {
+          name: 'Analyzer',
+          status: analyzer['status'] || 'completed',
+          details: {
+            category: analyzer['category'],
+            core_issue: analyzer['core_issue'],
+            llm_summary: analyzer['llm_summary'],
+            context_extracted: analyzer['context_extracted'],
+          },
+        },
+        {
+          name: 'Resolution',
+          status: resolutionAgent['status'] || 'completed',
+          details: {
+            resolution_payload: resolutionAgent['resolution'],
+          },
+          sub_agent_calls:
+            this.normalizeResolutionSubAgentCalls(resolutionAgent),
+        },
+        {
+          name: 'Responder',
+          status: responderAgent['status'] || 'completed',
+          details: {
+            status: responderAgent['status'],
+            responder_state:
+              responderAgent['Responder_state'] ||
+              responderAgent['responder_state'],
+            bot_handoff: responderAgent['bot_handoff_required'],
+            final_response: responderAgent['final_response'],
+            actions: responderAgent['responder'],
+          },
+        },
+      ],
+      notifications: Array.isArray(data['notifications'])
+        ? data['notifications']
+        : [],
+    };
+
+    const knownStages = new Set([
+      'intake',
+      'case_analyser_agent',
+      'resolution_agent',
+      'responder_agent',
+      'i2c_agent',
+      'i2c_agent:lifecycle',
+      'supervisor',
+    ]);
+    Object.entries(stages)
+      .filter(([key]) => !knownStages.has(key))
+      .forEach(([key, value]) => {
+        this.incidentViewModel.pipeline.push({
+          name: this.normalizeStageLabel(key),
+          status:
+            (this.isObject(value) &&
+              (value as Record<string, any>)['status']) ||
+            'completed',
+          details: value,
+        });
+      });
+
+    this.parsePipeline(this.incidentViewModel);
+    this.parseNotifications(this.incidentViewModel);
+  }
+
+  private normalizeResolutionSubAgentCalls(
+    resolutionAgent: Record<string, any>,
+  ): Array<{ name: string; team: string; status: string; details?: any }> {
+    const fromList = Array.isArray(resolutionAgent['sub_agent_calls'])
+      ? resolutionAgent['sub_agent_calls']
+      : [];
+
+    if (fromList.length > 0) {
+      return fromList.map((call: any) => {
+        const responseStatus =
+          call?.response?.status ||
+          call?.response?.result?.task?.status?.state ||
+          resolutionAgent['task_result']?.status ||
+          resolutionAgent['status'] ||
+          'completed';
+        return {
+          name:
+            call?.agent_name ||
+            call?.team ||
+            call?.request?.params?.message?.metadata?.teamName ||
+            'Sub Agent',
+          team:
+            call?.team ||
+            call?.request?.params?.message?.metadata?.teamName ||
+            resolutionAgent['team_name'] ||
+            '',
+          status: responseStatus,
+          details: {
+            request_payload: call?.request,
+            response_payload: call?.response,
+          },
+        };
+      });
+    }
+
+    const single = resolutionAgent['task_result']?.['sub_agent_call'];
+    if (single && typeof single === 'object') {
+      const responseStatus =
+        single?.response?.status ||
+        single?.response?.result?.task?.status?.state ||
+        resolutionAgent['task_result']?.status ||
+        resolutionAgent['status'] ||
+        'completed';
+      return [
+        {
+          name:
+            single?.agent_name ||
+            single?.team ||
+            single?.request?.params?.message?.metadata?.teamName ||
+            'Sub Agent',
+          team:
+            single?.team ||
+            single?.request?.params?.message?.metadata?.teamName ||
+            resolutionAgent['team_name'] ||
+            '',
+          status: responseStatus,
+          details: {
+            request_payload: single?.request,
+            response_payload: single?.response,
+          },
+        },
+      ];
+    }
+
+    return [];
+  }
+
+  private normalizeStageLabel(key: string): string {
+    return key
+      .replace(/_/g, ' ')
+      .replace(/:/g, ' - ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
   }
 
   private parsePipeline(data: any): void {

@@ -22,6 +22,7 @@ export interface FilterConfig {
   type: 'multi-select' | 'text';
   placeholder?: string;
   options?: SelectOption[];
+  singleSelect?: boolean;
 }
 
 export interface ActionButtonConfig {

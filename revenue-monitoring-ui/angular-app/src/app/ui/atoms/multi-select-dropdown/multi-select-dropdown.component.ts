@@ -23,6 +23,7 @@ export class MultiSelectDropdownComponent {
   @Input() label?: string;
   @Input() isDisabled: boolean = false;
   @Input() showSearch: boolean = true;
+  @Input() singleSelect: boolean = false;
 
   @Output() selectionChange = new EventEmitter<string[]>();
 
@@ -69,9 +70,16 @@ export class MultiSelectDropdownComponent {
   toggleOption(value: string): void {
     const updated = this.isSelected(value)
       ? this.selected.filter((v) => v !== value)
-      : [...this.selected, value];
+      : this.singleSelect
+        ? [value]
+        : [...this.selected, value];
     this.selected = updated;
     this.selectionChange.emit(updated);
+
+    if (this.singleSelect) {
+      this.isOpen = false;
+      this.searchTerm = '';
+    }
   }
 
   clearAll(): void {

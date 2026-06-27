@@ -741,6 +741,8 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       processedAt: this.mockProcessedDate,
       processedEpoch: Date.now(),
       pipelineStages: 4,
+      runs: 1,
+      history: [],
     });
   }
 

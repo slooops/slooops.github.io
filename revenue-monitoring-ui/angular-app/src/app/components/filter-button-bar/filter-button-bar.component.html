@@ -109,6 +109,7 @@
             [selected]="getSelectedValues(filter.id)"
             [placeholder]="filter.placeholder || 'Select...'"
             [showSearch]="true"
+            [singleSelect]="!!filter.singleSelect"
             (selectionChange)="onSelectChange(filter.id, $event)"
           ></app-multi-select-dropdown>
         </div>
