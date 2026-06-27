@@ -158,17 +158,37 @@ if (o2cRedirectTarget) {
 // Proxy for CaseIQ Supervisor Agent API (avoids CORS)
 const CASEIQ_SUPERVISOR_API_URL =
   process.env.CASEIQ_SUPERVISOR_API_URL ||
-  "https://caseiq-supervisor-agent-dev.cloudapps.cisco.com";
+  "https://caseiq-supervisor-agent.cloudapps.cisco.com";
 const CASEIQ_SUPERVISOR_API_KEY =
   process.env.CASEIQ_SUPERVISOR_API_KEY ||
-  "X0dWEsVGsPGDFqHhuncUjFhb95PX9TkP_bwf1cKhg4Q";
+  "X0dWEsVGsPGDFqHhuncUjFhb95PX9TkP_cab1cKri1T";
 
 app.use(
   "/api/caseiq-supervisor",
   createProxyMiddleware({
     target: CASEIQ_SUPERVISOR_API_URL,
     changeOrigin: true,
-    pathRewrite: { "^/api/caseiq-supervisor": "/api/v1" },
+    pathRewrite: (path) => {
+      const strippedPath = path.replace(/^\/api\/caseiq-supervisor/, "");
+
+      // Metrics APIs are served under /api/v2/*
+      // Example:
+      // /api/caseiq-supervisor/metrics/executions/{ssid}
+      //   -> /api/v2/metrics/executions/{ssid}
+      if (strippedPath.startsWith("/metrics/")) {
+        return `/api/v2${strippedPath}`;
+      }
+
+      // Explicit API v1 passthrough
+      // /api/caseiq-supervisor/api/v1/incidents/{incidentId}?ssid=...
+      //   -> /api/v1/incidents/{incidentId}?ssid=...
+      if (strippedPath.startsWith("/api/v1/")) {
+        return strippedPath;
+      }
+
+      // Default: pass through as-is (no prefix added)
+      return strippedPath;
+    },
     onProxyReq: (proxyReq) => {
       proxyReq.setHeader(
         "Authorization",
