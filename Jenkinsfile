@@ -18,7 +18,10 @@ pipeline {
             }
             steps {
                 dir("revenue-monitoring-server") {
-                    withDockerContainer(image: 'maven:3-eclipse-temurin-25') {
+                    withDockerContainer(
+                        image: 'maven:3-eclipse-temurin-25',
+                        args: '-e HOME=/tmp -e MAVEN_CONFIG=/tmp/.m2'
+                    ) {
                         sh "mvn -Dmaven.repo.local=.m2/repository -DskipTests clean package"
                     }
                     dockerBuild()
@@ -103,7 +106,10 @@ pipeline {
             steps {
                 dir("revenue-monitoring-server") {
                 // Run your unit tests and prepare SonarQube output
-                    withDockerContainer(image: 'maven:3-eclipse-temurin-25') {
+                    withDockerContainer(
+                        image: 'maven:3-eclipse-temurin-25',
+                        args: '-e HOME=/tmp -e MAVEN_CONFIG=/tmp/.m2'
+                    ) {
                         sh "mvn -Dmaven.repo.local=.m2/repository test"
                     }
                     sonarScan('Sonar')
