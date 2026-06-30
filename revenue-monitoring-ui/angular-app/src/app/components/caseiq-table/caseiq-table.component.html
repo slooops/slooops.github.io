@@ -360,9 +360,9 @@
         <table class="ciq-table">
           <thead>
             <tr>
-              @if (isI2CSource) {
+              <!-- @if (isI2CSource) {
                 <th class="ciq-expand-col"></th>
-              }
+              } -->
               @for (column of filteredColumns; track column) {
                 <th
                   [class.extra-wide-column]="extraWideColumns.includes(column)"
@@ -379,7 +379,7 @@
               let rowIndex = $index
             ) {
               <tr>
-                @if (isI2CSource) {
+                <!-- @if (isI2CSource) {
                   <td class="ciq-expand-col">
                     <button
                       type="button"
@@ -398,7 +398,7 @@
                       ></ng-icon>
                     </button>
                   </td>
-                }
+                } -->
                 @for (column of filteredColumns; track column) {
                   <td
                     [class.extra-wide-column]="

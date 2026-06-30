@@ -44,6 +44,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .orc__top-toolbar-left {
@@ -56,12 +58,15 @@
   align-items: center;
   gap: 0.5rem;
   margin-left: auto;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .orc__search-combo {
   display: inline-flex;
   align-items: center;
-  min-width: 20rem;
+  flex: 1;
+  min-width: 12rem;
   height: 2rem;
   border: 1px solid var(--orc-border);
   border-radius: 999px;
@@ -687,37 +692,34 @@
 }
 
 @media (max-width: 96rem) {
-  .orc__top-toolbar {
-    flex-wrap: wrap;
-  }
-
-  .orc__top-toolbar-right {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
   .orc__search-combo {
-    min-width: 26rem;
+    min-width: 16rem;
   }
 }
 
 @media (max-width: 72rem) {
-  .orc__top-toolbar-right {
-    flex-wrap: wrap;
-    justify-content: stretch;
+  .orc__top-toolbar {
+    gap: 0.5rem;
   }
 
   .orc__search-combo {
-    width: 100%;
-    min-width: 100%;
+    min-width: 12rem;
   }
 
   .orc__search-field-select {
-    min-width: 10rem;
+    min-width: 7rem;
+    padding: 0 0.5rem;
+    font-size: 11px;
   }
 
   .orc__search {
     min-width: 0;
+    padding: 0 0.5rem;
+    font-size: 11px;
+  }
+
+  .orc__kpi-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .orc__timeline-card {

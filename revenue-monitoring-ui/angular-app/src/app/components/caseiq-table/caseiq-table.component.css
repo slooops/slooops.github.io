@@ -54,7 +54,7 @@
 .ciq-table th {
   text-align: left;
   padding: 10px 12px;
-  background: rgba(240, 244, 248, 0.9);
+  background: #f4f5f6;
   color: #555555;
   font-weight: 600;
   text-transform: capitalize;
