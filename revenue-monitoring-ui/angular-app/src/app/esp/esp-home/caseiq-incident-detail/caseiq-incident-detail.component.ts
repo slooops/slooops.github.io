@@ -228,7 +228,11 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
             category: analyzer['category'],
             core_issue: analyzer['core_issue'],
             llm_summary: analyzer['llm_summary'],
-            context_extracted: analyzer['context_extracted'],
+            context_extracted: Object.fromEntries(
+              Object.entries(analyzer['context_extracted']).filter(
+                ([_, value]) => value !== '',
+              ),
+            ),
           },
         },
         {
@@ -270,6 +274,10 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
     ]);
     Object.entries(stages)
       .filter(([key]) => !knownStages.has(key))
+      .filter(([key]) => {
+        const normalizedKey = key.toLowerCase();
+        return !/(_agent|agent:lifecycle)$/.test(normalizedKey);
+      })
       .forEach(([key, value]) => {
         this.incidentViewModel.pipeline.push({
           name: this.normalizeStageLabel(key),

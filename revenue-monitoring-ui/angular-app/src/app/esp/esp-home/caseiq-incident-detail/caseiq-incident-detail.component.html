@@ -178,8 +178,10 @@
                   <div class="id__field">
                     <span class="id__field-key">{{ field.key }}</span>
                     @if (isObject(field.value) || isArray(field.value)) {
-                      <details class="id__field-details">
-                        <summary>▶ {{ field.key }}</summary>
+                      <details class="id__field-details" #fieldDetails>
+                        <summary>
+                          {{ fieldDetails.open ? "▼" : "▶" }} {{ field.key }}
+                        </summary>
                         <pre class="id__field-json">{{
                           field.value | json
                         }}</pre>
@@ -223,8 +225,11 @@
 
                       <div class="id__sub-agent-body">
                         @if (agent.details?.request_payload) {
-                          <details class="id__field-details">
-                            <summary>▶ Request Payload</summary>
+                          <details class="id__field-details" #requestDetails>
+                            <summary>
+                              {{ requestDetails.open ? "▼" : "▶" }} Request
+                              Payload
+                            </summary>
                             <pre class="id__field-json">{{
                               agent.details.request_payload | json
                             }}</pre>
@@ -232,8 +237,11 @@
                         }
 
                         @if (agent.details?.response_payload) {
-                          <details class="id__field-details">
-                            <summary>▶ Response Payload</summary>
+                          <details class="id__field-details" #responseDetails>
+                            <summary>
+                              {{ responseDetails.open ? "▼" : "▶" }} Response
+                              Payload
+                            </summary>
                             <pre class="id__field-json">{{
                               agent.details.response_payload | json
                             }}</pre>

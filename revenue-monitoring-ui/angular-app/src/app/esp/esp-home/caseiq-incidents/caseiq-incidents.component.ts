@@ -19,16 +19,10 @@ import { PageChangeEvent } from 'src/app/ui/types/common.types';
 
 export interface SupervisorIncident {
   incidentNumber: string;
-  team: 'BRIM/BRM' | 'I2C';
+  team: string;
   category: string;
   coreIssue: string;
-  outcome:
-    | 'Resolved'
-    | 'Routed Out'
-    | 'Cancelled'
-    | 'Failed'
-    | 'Bot Handoff'
-    | 'In Progress';
+  outcome: string;
   resolutionPath: string;
   processedAt: string;
   processedEpoch: number;
@@ -39,7 +33,7 @@ export interface SupervisorIncident {
 
 interface SupervisorExecution {
   sharedStateId: string;
-  outcome: SupervisorIncident['outcome'];
+  outcome: string;
   category: string;
   coreIssue: string;
   resolvedBy: string;
@@ -61,7 +55,7 @@ interface PipelineHop {
   agent: string;
   category: string;
   coreIssue: string;
-  outcome: SupervisorIncident['outcome'];
+  outcome: string;
   durationMs: number;
 }
 
@@ -73,9 +67,14 @@ interface PipelineGroup {
 interface PipelineDetail {
   sharedStateId: string;
   incidentNumber: string;
-  outcome: SupervisorIncident['outcome'];
+  outcome: string;
   totalHops: number;
   groups: PipelineGroup[];
+}
+
+interface DynamicKpi {
+  label: string;
+  key: string;
 }
 
 interface SupervisorMetricsSummary {
@@ -83,16 +82,6 @@ interface SupervisorMetricsSummary {
   unique_incidents: number;
   outcomes?: Record<string, number>;
 }
-
-type KpiKey =
-  | 'TOTAL_RUNS'
-  | 'INCIDENTS'
-  | 'RESOLVED'
-  | 'ROUTED_OUT'
-  | 'CANCELLED'
-  | 'FAILED'
-  | 'BOT_HANDOFF'
-  | 'IN_PROGRESS';
 
 @Component({
   selector: 'app-caseiq-incidents',
@@ -135,30 +124,11 @@ export class CaseiqIncidentsComponent implements OnInit {
   searchTerm = '';
   selectedSearchField: 'incidentNumber' | 'category' | 'coreIssue' =
     'incidentNumber';
-  selectedRange = 'All time';
+  selectedRange = '';
 
   // Pagination
   currentPage = 0;
   pageSize = 10;
-
-  readonly outcomes = [
-    'Resolved',
-    'Routed Out',
-    'Cancelled',
-    'Failed',
-    'Bot Handoff',
-    'In Progress',
-  ];
-
-  readonly teams = ['BRIM/BRM', 'I2C'];
-
-  readonly timeRanges = [
-    'Last 24 hours',
-    'Last 3 days',
-    'Last 7 days',
-    'Last 30 days',
-    'All time',
-  ];
 
   readonly searchFieldOptions: Array<{
     label: string;
@@ -169,30 +139,27 @@ export class CaseiqIncidentsComponent implements OnInit {
     { label: 'Core Issue', value: 'coreIssue' },
   ];
 
+  readonly timeRanges = [
+    'Last 24 hours',
+    'Last 3 days',
+    'Last 7 days',
+    'Last 30 days',
+  ];
+
   readonly topFilterConfigs: FilterConfig[] = [
     {
       id: 'outcome',
       label: 'Outcome',
       type: 'multi-select',
       placeholder: 'All outcomes',
-      options: [
-        { label: 'Resolved', value: 'Resolved' },
-        { label: 'Routed Out', value: 'Routed Out' },
-        { label: 'Cancelled', value: 'Cancelled' },
-        { label: 'Failed', value: 'Failed' },
-        { label: 'Bot Handoff', value: 'Bot Handoff' },
-        { label: 'In Progress', value: 'In Progress' },
-      ],
+      options: [],
     },
     {
       id: 'team',
       label: 'Team',
       type: 'multi-select',
       placeholder: 'All teams',
-      options: [
-        { label: 'BRIM/BRM', value: 'BRIM/BRM' },
-        { label: 'I2C', value: 'I2C' },
-      ],
+      options: [],
     },
     {
       id: 'date',
@@ -200,41 +167,17 @@ export class CaseiqIncidentsComponent implements OnInit {
       type: 'multi-select',
       placeholder: 'All time',
       singleSelect: true,
-      options: [
-        { label: 'Last 24 hours', value: 'Last 24 hours' },
-        { label: 'Last 3 days', value: 'Last 3 days' },
-        { label: 'Last 7 days', value: 'Last 7 days' },
-        { label: 'Last 30 days', value: 'Last 30 days' },
-      ],
+      options: this.timeRanges.map((range) => ({
+        label: range,
+        value: range,
+      })),
     },
   ];
 
   topFilterValues: FilterValues = {};
 
-  metricsSummary: Record<KpiKey, number> = {
-    TOTAL_RUNS: 0,
-    INCIDENTS: 0,
-    RESOLVED: 0,
-    ROUTED_OUT: 0,
-    CANCELLED: 0,
-    FAILED: 0,
-    BOT_HANDOFF: 0,
-    IN_PROGRESS: 0,
-  };
-
-  readonly kpiConfig: Array<{
-    label: string;
-    key: KpiKey;
-  }> = [
-    { label: 'TOTAL RUNS', key: 'TOTAL_RUNS' },
-    { label: 'INCIDENTS', key: 'INCIDENTS' },
-    { label: 'RESOLVED', key: 'RESOLVED' },
-    { label: 'ROUTED OUT', key: 'ROUTED_OUT' },
-    { label: 'CANCELLED', key: 'CANCELLED' },
-    { label: 'FAILED', key: 'FAILED' },
-    { label: 'BOT HANDOFF', key: 'BOT_HANDOFF' },
-    { label: 'IN PROGRESS', key: 'IN_PROGRESS' },
-  ];
+  metricsSummary: Record<string, number> = {};
+  kpiConfig: DynamicKpi[] = [];
 
   constructor(
     public themeService: ThemeService,
@@ -248,16 +191,16 @@ export class CaseiqIncidentsComponent implements OnInit {
   }
 
   private loadIncidents(): void {
-    const params = this.buildIncidentQueryParams();
-
-    this.http.get<unknown>(this.metricsIncidentsUrl, { params }).subscribe({
+    this.http.get<unknown>(this.metricsIncidentsUrl).subscribe({
       next: (response) => {
         const apiIncidents = this.extractIncidentRows(response);
         this.incidents = this.groupIncidents(apiIncidents);
+        this.updateDynamicFilterOptionsFromIncidents();
         this.applyFilter();
       },
       error: () => {
         this.incidents = [];
+        this.updateDynamicFilterOptionsFromIncidents();
         this.applyFilter();
       },
     });
@@ -300,14 +243,9 @@ export class CaseiqIncidentsComponent implements OnInit {
         'incidentNumber',
         'incident',
         'id',
-      ]) || `INC-${index + 1}`;
+      ]) || '';
 
-    const teamRaw = this.pickString(item, ['team', 'team_name', 'owner_team']);
-    const team: SupervisorIncident['team'] =
-      teamRaw?.toUpperCase().includes('BRIM') ||
-      teamRaw?.toUpperCase().includes('BRM')
-        ? 'BRIM/BRM'
-        : 'I2C';
+    const team = this.pickString(item, ['team', 'team_name', 'owner_team']);
 
     const outcome = this.normalizeOutcome(
       this.pickString(item, ['outcome', 'status', 'final_outcome']),
@@ -329,21 +267,21 @@ export class CaseiqIncidentsComponent implements OnInit {
     ]);
 
     const processedEpoch =
-      rawEpoch ?? (rawDate ? new Date(rawDate).getTime() : Date.now() - index);
+      rawEpoch ?? (rawDate ? new Date(rawDate).getTime() : 0);
 
     const processedAt = this.formatProcessedDate(processedEpoch, rawDate);
 
     return {
       incidentNumber,
-      team,
-      category: this.pickString(item, ['category']) || 'NA',
+      team: team || '--',
+      category: this.pickString(item, ['category']) || '--',
       coreIssue:
         this.pickString(item, [
           'core_issue',
           'coreIssue',
           'issue',
           'issue_type',
-        ]) || 'NA',
+        ]) || '--',
       outcome,
       resolutionPath:
         this.pickString(item, [
@@ -351,15 +289,16 @@ export class CaseiqIncidentsComponent implements OnInit {
           'resolutionPath',
           'route',
           'agent_path',
-        ]) || 'A2A: I2C Agent',
+        ]) || '--',
       processedAt,
       processedEpoch,
       pipelineStages:
         this.pickNumber(item, [
+          'hop_sequence',
           'pipeline_stages',
           'pipelineStages',
           'stage_count',
-        ]) || 4,
+        ]) ?? 0,
       runs: 1,
       history: [],
     };
@@ -390,21 +329,20 @@ export class CaseiqIncidentsComponent implements OnInit {
     ]);
 
     const processedEpoch =
-      rawEpoch ?? (rawDate ? new Date(rawDate).getTime() : Date.now() - index);
+      rawEpoch ?? (rawDate ? new Date(rawDate).getTime() : 0);
 
     return {
       sharedStateId:
-        this.pickString(item, ['shared_state_id', 'sharedStateId']) ||
-        `ss-${processedEpoch}-${index}`,
+        this.pickString(item, ['shared_state_id', 'sharedStateId']) || '',
       outcome,
-      category: this.pickString(item, ['category']) || 'NA',
+      category: this.pickString(item, ['category']) || '--',
       coreIssue:
         this.pickString(item, [
           'core_issue',
           'coreIssue',
           'issue',
           'issue_type',
-        ]) || 'NA',
+        ]) || '--',
       resolvedBy: this.formatResolvedBy(
         this.pickString(item, ['resolved_by', 'resolvedBy']),
       ),
@@ -416,7 +354,7 @@ export class CaseiqIncidentsComponent implements OnInit {
           'pipelineStages',
           'hop_sequence',
           'stage_count',
-        ]) || 4,
+        ]) ?? 0,
       executionMs: this.pickNumber(item, ['execution_ms', 'executionMs']) || 0,
     };
   }
@@ -428,6 +366,9 @@ export class CaseiqIncidentsComponent implements OnInit {
 
     rows.forEach((item, index) => {
       const mapped = this.mapApiIncident(item, index);
+      if (!mapped.incidentNumber) {
+        return;
+      }
       const execution = this.toExecution(item, index);
 
       const existing = grouped.get(mapped.incidentNumber);
@@ -498,28 +439,10 @@ export class CaseiqIncidentsComponent implements OnInit {
   private normalizeOutcome(
     value: string | null,
   ): SupervisorIncident['outcome'] {
-    const normalized = (value || '').trim().toUpperCase().replace(/\s+/g, '_');
-    switch (normalized) {
-      case 'RESOLVED':
-        return 'Resolved';
-      case 'ROUTED_OUT':
-      case 'ROUTED':
-        return 'Routed Out';
-      case 'CANCELLED':
-      case 'CANCELED':
-        return 'Cancelled';
-      case 'FAILED':
-        return 'Failed';
-      case 'BOT_HANDOFF':
-      case 'HANDOFF':
-        return 'Bot Handoff';
-      case 'IN_PROGRESS':
-      case 'NEED_INFO':
-      case 'PENDING':
-        return 'In Progress';
-      default:
-        return 'In Progress';
+    if (!value) {
+      return '--';
     }
+    return value.trim();
   }
 
   private formatResolvedBy(value: string | null): string {
@@ -549,30 +472,53 @@ export class CaseiqIncidentsComponent implements OnInit {
   private loadMetricsSummary(): void {
     this.http.get<SupervisorMetricsSummary>(this.metricsSummaryUrl).subscribe({
       next: (response) => {
-        this.metricsSummary = {
-          TOTAL_RUNS: response?.total_involvements ?? 0,
-          INCIDENTS: response?.unique_incidents ?? 0,
-          RESOLVED: response?.outcomes?.['RESOLVED'] ?? 0,
-          ROUTED_OUT: 0,
-          CANCELLED: 0,
-          FAILED: 0,
-          BOT_HANDOFF: 0,
-          IN_PROGRESS: response?.outcomes?.['NEED_INFO'] ?? 0,
-        };
+        this.metricsSummary = this.buildMetricsSummary(response);
+        this.kpiConfig = this.buildKpiConfig(this.metricsSummary);
       },
       error: () => {
-        this.metricsSummary = {
-          TOTAL_RUNS: 0,
-          INCIDENTS: 0,
-          RESOLVED: 0,
-          ROUTED_OUT: 0,
-          CANCELLED: 0,
-          FAILED: 0,
-          BOT_HANDOFF: 0,
-          IN_PROGRESS: 0,
-        };
+        this.metricsSummary = {};
+        this.kpiConfig = [];
       },
     });
+  }
+
+  private buildMetricsSummary(
+    response: SupervisorMetricsSummary,
+  ): Record<string, number> {
+    const result: Record<string, number> = {};
+
+    if (typeof response?.total_involvements === 'number') {
+      result['total_involvements'] = response.total_involvements;
+    }
+
+    if (typeof response?.unique_incidents === 'number') {
+      result['unique_incidents'] = response.unique_incidents;
+    }
+
+    if (response?.outcomes && typeof response.outcomes === 'object') {
+      for (const [key, value] of Object.entries(response.outcomes)) {
+        if (typeof value === 'number') {
+          result[`outcome_${key}`] = value;
+        }
+      }
+    }
+
+    return result;
+  }
+
+  private buildKpiConfig(summary: Record<string, number>): DynamicKpi[] {
+    return Object.keys(summary).map((key) => ({
+      key,
+      label: this.toKpiLabel(key),
+    }));
+  }
+
+  private toKpiLabel(value: string): string {
+    return value
+      .replace(/^outcome_/, '')
+      .replace(/[_-]+/g, ' ')
+      .trim()
+      .toUpperCase();
   }
 
   applyFilter(): void {
@@ -580,6 +526,23 @@ export class CaseiqIncidentsComponent implements OnInit {
     this.currentPage = 0;
 
     let result = [...this.incidents];
+
+    const selectedOutcomes = this.getSelectedFilterValues('outcome');
+    if (selectedOutcomes.length > 0) {
+      result = result.filter((row) => selectedOutcomes.includes(row.outcome));
+    }
+
+    const selectedTeams = this.getSelectedFilterValues('team');
+    if (selectedTeams.length > 0) {
+      result = result.filter((row) => selectedTeams.includes(row.team));
+    }
+
+    const selectedDateRange = this.getSelectedDateRange(this.topFilterValues);
+    if (selectedDateRange) {
+      result = result.filter((row) =>
+        this.isInSelectedTimeRange(row.processedEpoch, selectedDateRange),
+      );
+    }
 
     const term = this.searchTerm.toLowerCase().trim();
     if (term) {
@@ -605,28 +568,34 @@ export class CaseiqIncidentsComponent implements OnInit {
     return this.filteredIncidents.length;
   }
 
-  countByOutcome(outcome: SupervisorIncident['outcome']): number {
+  countByOutcome(outcome: string): number {
     return this.filteredIncidents.filter((item) => item.outcome === outcome)
       .length;
   }
 
-  getKpiValue(key: KpiKey): number {
+  getKpiValue(key: string): number {
     return this.metricsSummary[key] ?? 0;
   }
 
-  getOutcomeClass(outcome: SupervisorIncident['outcome']): string {
-    switch (outcome) {
-      case 'Resolved':
+  getOutcomeClass(outcome: string): string {
+    const normalized = outcome.trim().toUpperCase().replace(/\s+/g, '_');
+    switch (normalized) {
+      case 'RESOLVED':
         return 'outcome--resolved';
-      case 'Routed Out':
+      case 'ROUTED':
+      case 'ROUTED_OUT':
         return 'outcome--routed';
-      case 'Cancelled':
+      case 'CANCELLED':
+      case 'CANCELED':
         return 'outcome--cancelled';
-      case 'Failed':
+      case 'FAILED':
         return 'outcome--failed';
-      case 'Bot Handoff':
+      case 'BOT_HANDOFF':
+      case 'HANDOFF':
         return 'outcome--bot-handoff';
-      case 'In Progress':
+      case 'IN_PROGRESS':
+      case 'PENDING':
+      case 'NEED_INFO':
         return 'outcome--in-progress';
       default:
         return '';
@@ -681,10 +650,6 @@ export class CaseiqIncidentsComponent implements OnInit {
 
   getSharedStateId(incident: SupervisorIncident, index: number): string {
     return `ss-${incident.processedEpoch}-${index.toString().padStart(2, '0')}`;
-  }
-
-  getDuration(_incident: SupervisorIncident): string {
-    return '3.6m';
   }
 
   openSharedStateDetails(incident: SupervisorIncident): void {
@@ -869,13 +834,13 @@ export class CaseiqIncidentsComponent implements OnInit {
     const normalizedValues = this.normalizeTopFilterValues(values);
     this.topFilterValues = normalizedValues;
     this.selectedRange = this.getSelectedDateRange(normalizedValues);
-    this.loadIncidents();
+    this.applyFilter();
   }
 
   onTopFilterClear(): void {
     this.topFilterValues = { outcome: [], team: [], date: [] };
-    this.selectedRange = 'All time';
-    this.loadIncidents();
+    this.selectedRange = '';
+    this.applyFilter();
   }
 
   onSearchFieldChange(): void {
@@ -920,93 +885,12 @@ export class CaseiqIncidentsComponent implements OnInit {
     const dateValues = values['date'];
     return Array.isArray(dateValues) && dateValues.length > 0
       ? dateValues[0]
-      : 'All time';
-  }
-
-  private buildIncidentQueryParams(): HttpParams {
-    let params = new HttpParams();
-
-    const teamValues = this.getSelectedFilterValues('team');
-    for (const team of teamValues) {
-      params = params.append('team', team);
-    }
-
-    const outcomeValues = this.getSelectedFilterValues('outcome');
-    for (const outcome of outcomeValues) {
-      params = params.append('outcome', this.mapOutcomeToApiValue(outcome));
-    }
-
-    const dateRange = this.getDateRangeQueryValues(this.selectedRange);
-    if (dateRange) {
-      params = params.set('from_date', dateRange.fromDate);
-      params = params.set('to_date', dateRange.toDate);
-    }
-
-    return params;
+      : '';
   }
 
   private getSelectedFilterValues(filterId: string): string[] {
     const value = this.topFilterValues[filterId];
     return Array.isArray(value) ? value : [];
-  }
-
-  private mapOutcomeToApiValue(outcome: string): string {
-    switch (outcome) {
-      case 'Resolved':
-        return 'RESOLVED';
-      case 'Routed Out':
-        return 'ROUTED_OUT';
-      case 'Cancelled':
-        return 'CANCELLED';
-      case 'Failed':
-        return 'FAILED';
-      case 'Bot Handoff':
-        return 'BOT_HANDOFF';
-      case 'In Progress':
-        return 'IN_PROGRESS';
-      default:
-        return outcome.toUpperCase().replace(/\s+/g, '_');
-    }
-  }
-
-  private getDateRangeQueryValues(
-    selectedRange: string,
-  ): { fromDate: string; toDate: string } | null {
-    if (selectedRange === 'All time') {
-      return null;
-    }
-
-    const today = new Date();
-    const startDate = new Date(today);
-
-    switch (selectedRange) {
-      case 'Last 24 hours':
-        startDate.setDate(today.getDate() - 1);
-        break;
-      case 'Last 3 days':
-        startDate.setDate(today.getDate() - 3);
-        break;
-      case 'Last 7 days':
-        startDate.setDate(today.getDate() - 7);
-        break;
-      case 'Last 30 days':
-        startDate.setDate(today.getDate() - 30);
-        break;
-      default:
-        return null;
-    }
-
-    return {
-      fromDate: this.formatDateForApi(startDate),
-      toDate: this.formatDateForApi(today),
-    };
-  }
-
-  private formatDateForApi(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
   }
 
   private matchesSearch(row: SupervisorIncident, term: string): boolean {
@@ -1024,5 +908,82 @@ export class CaseiqIncidentsComponent implements OnInit {
       default:
         return '';
     }
+  }
+
+  private updateDynamicFilterOptionsFromIncidents(): void {
+    const uniqueOutcomes = Array.from(
+      new Set(
+        this.incidents
+          .map((incident) => incident.outcome)
+          .filter((outcome) => !!outcome && outcome !== '--'),
+      ),
+    ).sort((a, b) => a.localeCompare(b));
+
+    const uniqueTeams = Array.from(
+      new Set(
+        this.incidents
+          .map((incident) => incident.team)
+          .filter((team) => !!team && team !== '--'),
+      ),
+    ).sort((a, b) => a.localeCompare(b));
+
+    this.patchFilterOptions(
+      'outcome',
+      uniqueOutcomes.map((value) => ({
+        value,
+        label: this.formatFilterLabel(value),
+      })),
+    );
+
+    this.patchFilterOptions(
+      'team',
+      uniqueTeams.map((value) => ({
+        value,
+        label: value,
+      })),
+    );
+  }
+
+  private patchFilterOptions(
+    filterId: string,
+    options: FilterConfig['options'],
+  ): void {
+    const target = this.topFilterConfigs.find(
+      (config) => config.id === filterId,
+    );
+    if (!target) {
+      return;
+    }
+    target.options = options;
+  }
+
+  private isInSelectedTimeRange(epoch: number, selectedRange: string): boolean {
+    if (!Number.isFinite(epoch) || epoch <= 0) {
+      return false;
+    }
+
+    const normalized = selectedRange.trim().toLowerCase();
+    const dayMatch = normalized.match(/(\d+)\s*day/);
+    const hourMatch = normalized.match(/(\d+)\s*hour/);
+
+    let durationMs = 0;
+    if (dayMatch) {
+      durationMs = Number(dayMatch[1]) * 24 * 60 * 60 * 1000;
+    } else if (hourMatch) {
+      durationMs = Number(hourMatch[1]) * 60 * 60 * 1000;
+    } else {
+      return true;
+    }
+
+    const now = Date.now();
+    return epoch >= now - durationMs;
+  }
+
+  private formatFilterLabel(value: string): string {
+    return value
+      .replace(/[_-]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
   }
 }
