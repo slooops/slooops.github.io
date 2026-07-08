@@ -696,7 +696,10 @@ export class EspHomeComponent implements OnInit {
    */
   isTileAccessible(tileName: string): boolean {
     if (tileName === 'Orchestrator') {
-      return this.roles.includes('ADMIN');
+      return (
+        this.roles.includes('ADMIN') ||
+        this.roles.includes('CASE_IQ_ORCHESTRATOR')
+      );
     }
 
     // Overall tile is always accessible
