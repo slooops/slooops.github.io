@@ -491,7 +491,7 @@ export class MenuComponent {
     {
       label: 'Control M',
       icon: 'phosphorSirenBold',
-      route: '/ctm-alerts',
+      route: '/control-m',
       roles: ['ADMIN'],
     },
   ];

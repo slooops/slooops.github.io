@@ -1,0 +1,574 @@
+<div class="cm-lv-backdrop" (click)="onBackdropClick()" role="presentation">
+  <div
+    class="cm-lv-modal"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="'Logs for ' + job.job_name"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- ── Header ── -->
+    <header class="cm-lv-header">
+      <div class="cm-lv-header-titles">
+        <h2 class="cm-lv-title" [title]="job.job_name">{{ job.job_name }}</h2>
+        <p class="cm-lv-subtitle">
+          {{ job.application }} / {{ job.sub_application || "—" }} •
+          {{ job.server || "—" }} • Job ID: {{ job.job_id }}
+        </p>
+      </div>
+      <button
+        type="button"
+        class="cm-lv-icon-btn"
+        (click)="close()"
+        aria-label="Close"
+      >
+        <ng-icon name="phosphorXBold" size="16" />
+      </button>
+    </header>
+
+    <!-- ── Tabs bar ── -->
+    <nav class="cm-lv-tabs" role="tablist">
+      @for (tab of tabs; track trackByTab($index, tab)) {
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="activeTab === tab.value"
+          class="cm-lv-tab"
+          [class.active]="activeTab === tab.value"
+          (click)="selectTab(tab.value)"
+        >
+          {{ tab.label }}
+        </button>
+      }
+    </nav>
+
+    <!-- ── Tab content ── -->
+    <div class="cm-lv-content">
+      <!-- Text tabs: log / output / host-log / host-output -->
+      @if (
+        activeTab === "log" ||
+        activeTab === "output" ||
+        activeTab === "host-log" ||
+        activeTab === "host-output"
+      ) {
+        @if (textStates[activeTab]?.loading) {
+          <div class="cm-lv-loading">
+            <ng-icon
+              name="phosphorArrowClockwiseBold"
+              size="16"
+              class="cm-lv-spin"
+            />
+            Loading…
+          </div>
+        } @else if (textStates[activeTab]?.error; as err) {
+          <div class="cm-lv-error-block">
+            <div class="cm-lv-error-msg">Error: {{ err }}</div>
+            <button
+              type="button"
+              class="cm-lv-btn cm-lv-btn-ghost"
+              (click)="retryTextTab(activeTab)"
+            >
+              Retry
+            </button>
+          </div>
+        } @else {
+          <pre class="cm-lv-pre">{{
+            textStates[activeTab]?.content || "(No content)"
+          }}</pre>
+        }
+      }
+
+      <!-- Waiting Info -->
+      @if (activeTab === "waiting-info") {
+        @if (waitingState.loading) {
+          <div class="cm-lv-loading">
+            <ng-icon
+              name="phosphorArrowClockwiseBold"
+              size="16"
+              class="cm-lv-spin"
+            />
+            Loading…
+          </div>
+        } @else if (waitingState.error) {
+          <div class="cm-lv-error-block">
+            <div class="cm-lv-error-msg">Error: {{ waitingState.error }}</div>
+          </div>
+        } @else {
+          <div class="cm-lv-body cm-lv-body-scroll">
+            <div class="cm-lv-grid-2">
+              <div class="cm-lv-fact">
+                <div class="cm-lv-fact-label">Waiting On</div>
+                <div class="cm-lv-fact-value cm-lv-mono">
+                  {{ waitingState.info?.waiting_on || "—" }}
+                </div>
+              </div>
+              <div class="cm-lv-fact">
+                <div class="cm-lv-fact-label">Estimated Start Time</div>
+                <div class="cm-lv-fact-value cm-lv-mono cm-lv-accent">
+                  {{ waitingState.info?.estimated_start_time || "—" }}
+                </div>
+              </div>
+            </div>
+
+            <div class="cm-lv-fact">
+              <div class="cm-lv-fact-label">Raw Waiting Info</div>
+              <pre class="cm-lv-pre-inline">{{
+                waitingState.info?.lines?.length
+                  ? waitingState.info!.lines.join("\n")
+                  : "No waiting info."
+              }}</pre>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Statistic Info -->
+      @if (activeTab === "statistic-info") {
+        @if (statsState.loading) {
+          <div class="cm-lv-loading">
+            <ng-icon
+              name="phosphorArrowClockwiseBold"
+              size="16"
+              class="cm-lv-spin"
+            />
+            Loading…
+          </div>
+        } @else if (statsState.error) {
+          <div class="cm-lv-error-block">
+            <div class="cm-lv-error-msg">Error: {{ statsState.error }}</div>
+          </div>
+        } @else {
+          <div class="cm-lv-body cm-lv-body-scroll">
+            @if (
+              !statsState.data?.periods ||
+              statsState.data!.periods!.length === 0
+            ) {
+              <div class="cm-lv-italic">
+                No statistics available for this job.
+              </div>
+            }
+
+            @for (
+              period of statsState.data?.periods || [];
+              track $index;
+              let idx = $index
+            ) {
+              <div class="cm-lv-period">
+                <div class="cm-lv-period-head">
+                  <span class="cm-lv-period-title">{{
+                    period.description || "Period " + (idx + 1)
+                  }}</span>
+                  <span class="cm-lv-period-meta">
+                    Average:
+                    <span class="cm-lv-mono cm-lv-accent">{{
+                      period.runInfo?.averageInfo?.runTime || "—"
+                    }}</span>
+                  </span>
+                  <span class="cm-lv-period-meta">
+                    Runs:
+                    <span class="cm-lv-mono">{{
+                      period.runInfo?.averageInfo?.numberOfRuns || 0
+                    }}</span>
+                  </span>
+                </div>
+                @if (period.runInfo?.runs && period.runInfo!.runs!.length > 0) {
+                  <div class="cm-lv-table-scroll">
+                    <table class="cm-lv-table">
+                      <thead>
+                        <tr>
+                          <th>Order Date</th>
+                          <th>Start</th>
+                          <th>End</th>
+                          <th>Runtime</th>
+                          <th>Status</th>
+                          <th>Run #</th>
+                          <th>Run As</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (r of period.runInfo!.runs; track $index) {
+                          <tr>
+                            <td class="cm-lv-mono">{{ r.orderDate || "—" }}</td>
+                            <td class="cm-lv-mono">{{ r.startTime || "—" }}</td>
+                            <td class="cm-lv-mono">{{ r.endTime || "—" }}</td>
+                            <td class="cm-lv-mono cm-lv-accent">
+                              {{ r.runTime || "—" }}
+                            </td>
+                            <td [class]="statusRunClass(r.status)">
+                              {{ r.status || "—" }}
+                            </td>
+                            <td class="cm-lv-mono">{{ r.runNo ?? "—" }}</td>
+                            <td class="cm-lv-mono">{{ r.runAs || "—" }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                } @else {
+                  <div class="cm-lv-italic cm-lv-pad-sm">
+                    No individual runs returned.
+                  </div>
+                }
+              </div>
+            }
+
+            <details class="cm-lv-details">
+              <summary>
+                <ng-icon
+                  name="phosphorCaretDownBold"
+                  size="10"
+                  class="cm-lv-details-caret"
+                />
+                Raw JSON
+              </summary>
+              <pre class="cm-lv-pre-inline">{{
+                formatJson(statsState.data)
+              }}</pre>
+            </details>
+          </div>
+        }
+      }
+
+      <!-- SQL Info -->
+      @if (activeTab === "sql-info") {
+        @if (sqlState.loading) {
+          <div class="cm-lv-loading">
+            <ng-icon
+              name="phosphorArrowClockwiseBold"
+              size="16"
+              class="cm-lv-spin"
+            />
+            Loading…
+          </div>
+        } @else if (sqlState.error) {
+          <div class="cm-lv-error-block">
+            <div class="cm-lv-error-msg">Error: {{ sqlState.error }}</div>
+          </div>
+        } @else if (sqlState.info) {
+          @if (!isRunning(sqlState.info)) {
+            <!-- Not-running compact card -->
+            <div class="cm-lv-body cm-lv-body-center">
+              <div
+                class="cm-lv-status-card"
+                [class]="sqlStatusCardClass(sqlState.info)"
+              >
+                {{ sqlStatusHeadline(sqlState.info) }}
+              </div>
+              @if (sqlState.info.request_id) {
+                <div class="cm-lv-grid-2 cm-lv-full">
+                  <div class="cm-lv-fact">
+                    <div class="cm-lv-fact-label">Request ID</div>
+                    <div class="cm-lv-fact-value cm-lv-mono">
+                      {{ sqlState.info.request_id }}
+                    </div>
+                  </div>
+                  @if (sqlState.info.started || sqlState.info.completed) {
+                    <div class="cm-lv-fact">
+                      <div class="cm-lv-fact-label">
+                        {{ sqlState.info.completed ? "Completed" : "Started" }}
+                      </div>
+                      <div class="cm-lv-fact-value cm-lv-mono">
+                        {{ sqlState.info.completed || sqlState.info.started }}
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+              <p class="cm-lv-hint">
+                SQL Info is only available while the job is actively running.
+              </p>
+            </div>
+          } @else {
+            <!-- Running full panel -->
+            <div class="cm-lv-body cm-lv-body-scroll">
+              <div class="cm-lv-sql-header-row">
+                <div class="cm-lv-grid-2 cm-lv-flex-1">
+                  <div class="cm-lv-fact">
+                    <div class="cm-lv-fact-label">Request ID</div>
+                    <div class="cm-lv-fact-value cm-lv-mono">
+                      {{ sqlState.info.request_id }}
+                    </div>
+                  </div>
+                  <div class="cm-lv-fact">
+                    <div class="cm-lv-fact-label">SQL ID</div>
+                    <div class="cm-lv-fact-value cm-lv-mono cm-lv-accent">
+                      {{ sqlState.info.sql_id || "—" }}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="cm-lv-btn cm-lv-btn-ghost"
+                  (click)="refreshSql()"
+                >
+                  <ng-icon name="phosphorArrowClockwiseBold" size="12" />
+                  Refresh
+                </button>
+              </div>
+
+              @if (
+                sqlState.info.inst_id != null ||
+                sqlState.info.sid != null ||
+                sqlState.info.wait_event
+              ) {
+                <div class="cm-lv-grid-3">
+                  @if (sqlState.info.inst_id != null) {
+                    <div class="cm-lv-fact">
+                      <div class="cm-lv-fact-label">Instance</div>
+                      <div class="cm-lv-fact-value cm-lv-mono">
+                        {{ sqlState.info.inst_id }}
+                      </div>
+                    </div>
+                  }
+                  @if (sqlState.info.sid != null) {
+                    <div class="cm-lv-fact">
+                      <div class="cm-lv-fact-label">Session (SID)</div>
+                      <div class="cm-lv-fact-value cm-lv-mono">
+                        {{ sqlState.info.sid }}
+                      </div>
+                    </div>
+                  }
+                  @if (sqlState.info.wait_event) {
+                    <div class="cm-lv-fact">
+                      <div class="cm-lv-fact-label">Wait Event</div>
+                      <div
+                        class="cm-lv-fact-value cm-lv-mono cm-lv-truncate"
+                        [title]="sqlState.info.wait_event"
+                      >
+                        {{ sqlState.info.wait_event }}
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+              @if (sqlState.info.sql_text) {
+                <div class="cm-lv-fact">
+                  <div class="cm-lv-fact-label">Current Running SQL</div>
+                  <pre class="cm-lv-pre-inline">{{
+                    sqlState.info.sql_text
+                  }}</pre>
+                </div>
+              } @else {
+                <div class="cm-lv-callout cm-lv-callout-warn">
+                  Session is active but no SQL is currently executing (may be
+                  waiting or between statements).
+                </div>
+              }
+
+              @if (
+                sqlState.info.bind_variables &&
+                sqlState.info.bind_variables.length > 0
+              ) {
+                <div class="cm-lv-fact">
+                  <div class="cm-lv-fact-label">
+                    Bind Variables ({{ sqlState.info.bind_variables.length }})
+                  </div>
+                  <div class="cm-lv-table-scroll">
+                    <table class="cm-lv-table">
+                      <thead>
+                        <tr>
+                          <th>Pos</th>
+                          <th>Name</th>
+                          <th>Type</th>
+                          <th>Value</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (b of sqlState.info.bind_variables; track $index) {
+                          <tr>
+                            <td class="cm-lv-mono">{{ b.position }}</td>
+                            <td class="cm-lv-mono">{{ b.name }}</td>
+                            <td class="cm-lv-mono cm-lv-muted">
+                              {{ b.datatype }}
+                            </td>
+                            <td
+                              class="cm-lv-mono cm-lv-accent cm-lv-truncate"
+                              [title]="bindVarValue(b.value)"
+                            >
+                              {{ bindVarValue(b.value) }}
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              }
+
+              <div class="cm-lv-action-row">
+                <button
+                  type="button"
+                  class="cm-lv-btn cm-lv-btn-secondary"
+                  (click)="openPrefill()"
+                >
+                  <ng-icon name="phosphorArrowSquareOutBold" size="12" />
+                  Open Perf Case
+                </button>
+                <button
+                  type="button"
+                  class="cm-lv-btn cm-lv-btn-primary"
+                  (click)="toggleChat()"
+                >
+                  <ng-icon name="phosphorChatCenteredTextBold" size="12" />
+                  {{ showChat ? "Hide AI Chat" : "Chat with AI" }}
+                </button>
+              </div>
+
+              <!-- AI chat panel -->
+              @if (showChat) {
+                <div class="cm-lv-chat">
+                  <div class="cm-lv-chat-head">
+                    <ng-icon
+                      name="phosphorSparkleBold"
+                      size="12"
+                      class="cm-lv-chat-icon"
+                    />
+                    <span class="cm-lv-chat-title"
+                      >AI Performance Assistant</span
+                    >
+                    <span class="cm-lv-chat-context">
+                      Context: {{ job.job_name }} · Req
+                      {{ sqlState.info.request_id }}
+                    </span>
+                  </div>
+
+                  <div class="cm-lv-chat-body">
+                    @if (chatMessages.length === 0) {
+                      <div class="cm-lv-chat-empty">
+                        Ask anything about this running job. Suggested:
+                      </div>
+                    }
+                    @for (msg of chatMessages; track trackByMsg($index)) {
+                      <div
+                        class="cm-lv-chat-row"
+                        [class.is-user]="msg.role === 'user'"
+                      >
+                        <div
+                          class="cm-lv-chat-bubble"
+                          [class.cm-lv-chat-user]="msg.role === 'user'"
+                        >
+                          {{ msg.content }}
+                        </div>
+                      </div>
+                    }
+                    @if (chatBusy) {
+                      <div class="cm-lv-chat-row">
+                        <div class="cm-lv-chat-bubble">
+                          <ng-icon
+                            name="phosphorArrowClockwiseBold"
+                            size="12"
+                            class="cm-lv-spin cm-lv-chat-icon"
+                          />
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  @if (chatMessages.length === 0) {
+                    <div class="cm-lv-chat-suggestions">
+                      @for (s of suggestedPrompts; track s) {
+                        <button
+                          type="button"
+                          class="cm-lv-chat-chip"
+                          (click)="sendChat(s)"
+                        >
+                          {{ s }}
+                        </button>
+                      }
+                    </div>
+                  }
+
+                  <div class="cm-lv-chat-input-row">
+                    <input
+                      type="text"
+                      class="cm-lv-chat-input"
+                      [(ngModel)]="chatInput"
+                      (keydown)="onChatKeydown($event)"
+                      placeholder="Ask about this job…"
+                      [disabled]="chatBusy"
+                    />
+                    <button
+                      type="button"
+                      class="cm-lv-chat-send"
+                      [disabled]="chatBusy || !chatInput.trim()"
+                      (click)="sendChat(chatInput)"
+                      aria-label="Send"
+                    >
+                      <ng-icon name="phosphorPaperPlaneRightBold" size="12" />
+                    </button>
+                  </div>
+                </div>
+              }
+
+              <!-- Prefill nested modal -->
+              @if (showPrefill && sqlState.info) {
+                <div
+                  class="cm-lv-nested-backdrop"
+                  (click)="closePrefill()"
+                  role="presentation"
+                >
+                  <div
+                    class="cm-lv-nested"
+                    role="dialog"
+                    aria-modal="true"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <div class="cm-lv-nested-head">
+                      <div>
+                        <div class="cm-lv-nested-title">
+                          Raise Performance Case
+                        </div>
+                        <div class="cm-lv-nested-sub">
+                          Copy the details below and paste into the
+                          <b>Description</b> field in ServiceNow
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        class="cm-lv-icon-btn"
+                        (click)="closePrefill()"
+                        aria-label="Close"
+                      >
+                        <ng-icon name="phosphorXBold" size="14" />
+                      </button>
+                    </div>
+                    <div class="cm-lv-nested-body">
+                      <pre class="cm-lv-pre-inline cm-lv-selectable">{{
+                        buildDescription(sqlState.info)
+                      }}</pre>
+                    </div>
+                    <div class="cm-lv-nested-footer">
+                      <p class="cm-lv-hint cm-lv-hint-inline">
+                        Click <kbd>⌘C</kbd> or use the button to copy, then
+                        paste in ServiceNow
+                      </p>
+                      <div class="cm-lv-nested-actions">
+                        @if (copied) {
+                          <span class="cm-lv-copied">
+                            <ng-icon name="phosphorCheckBold" size="12" />
+                            Copied
+                          </span>
+                        }
+                        <button
+                          type="button"
+                          class="cm-lv-btn cm-lv-btn-secondary"
+                          (click)="copyAndOpen(sqlState.info)"
+                        >
+                          <ng-icon
+                            name="phosphorArrowSquareOutBold"
+                            size="12"
+                          />
+                          Copy &amp; Open ServiceNow
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        }
+      }
+    </div>
+  </div>
+</div>

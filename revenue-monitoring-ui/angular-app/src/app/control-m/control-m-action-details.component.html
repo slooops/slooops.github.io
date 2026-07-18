@@ -1,0 +1,148 @@
+<div class="cm-ad-backdrop" (click)="onBackdropClick()">
+  <div
+    class="cm-ad-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Job action"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <header class="cm-ad-header">
+      <h2 class="cm-ad-title">Job Action</h2>
+      <button
+        type="button"
+        class="cm-ad-icon-btn"
+        (click)="close()"
+        aria-label="Close"
+      >
+        <ng-icon name="phosphorXBold" size="16" />
+      </button>
+    </header>
+
+    <!-- Body -->
+    <div class="cm-ad-body">
+      <div class="cm-ad-field">
+        <p class="cm-ad-label">Job Name</p>
+        <p class="cm-ad-mono cm-ad-value">{{ job.job_name }}</p>
+      </div>
+
+      <div class="cm-ad-field">
+        <div class="cm-ad-label-row">
+          <p class="cm-ad-label">Job ID</p>
+          @if (statusLoading) {
+            <ng-icon
+              name="phosphorArrowClockwiseBold"
+              size="10"
+              class="cm-ad-spin cm-ad-muted-icon"
+            />
+          }
+        </div>
+        <p class="cm-ad-mono cm-ad-id-pill">{{ currentJobId }}</p>
+      </div>
+
+      <div class="cm-ad-field">
+        <div class="cm-ad-label-row">
+          <p class="cm-ad-label">Current Status</p>
+          <button
+            type="button"
+            class="cm-ad-refresh-btn"
+            [disabled]="statusLoading"
+            (click)="fetchStatus()"
+            aria-label="Refresh status"
+            title="Refresh status"
+          >
+            <ng-icon
+              name="phosphorArrowClockwiseBold"
+              size="12"
+              [class.cm-ad-spin]="statusLoading"
+            />
+          </button>
+        </div>
+        <span
+          class="cm-ad-status-chip"
+          [attr.data-tone]="statusChipClass(displayStatus)"
+        >
+          {{ displayStatus || "Unknown" }}
+        </span>
+      </div>
+
+      <div class="cm-ad-field">
+        <p class="cm-ad-label">Action</p>
+        <div class="cm-ad-dropdown">
+          <button
+            type="button"
+            class="cm-ad-dropdown-trigger"
+            (click)="toggleDropdown()"
+            [attr.aria-expanded]="actionDropdownOpen"
+          >
+            <span>{{
+              selectedAction
+                ? actionLabels[selectedAction]
+                : "Select an action…"
+            }}</span>
+            <ng-icon
+              name="phosphorCaretDownBold"
+              size="12"
+              class="cm-ad-dropdown-caret"
+              [class.cm-ad-caret-open]="actionDropdownOpen"
+            />
+          </button>
+          @if (actionDropdownOpen) {
+            <div class="cm-ad-dropdown-menu" role="menu">
+              @for (key of actionKeys; track key) {
+                <button
+                  type="button"
+                  role="menuitem"
+                  class="cm-ad-dropdown-item"
+                  (click)="chooseAction(key)"
+                >
+                  {{ actionLabels[key] }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        @if (actionResult) {
+          <div
+            class="cm-ad-result"
+            [class.cm-ad-result-ok]="actionResult.ok"
+            [class.cm-ad-result-err]="!actionResult.ok"
+          >
+            <ng-icon
+              [name]="
+                actionResult.ok ? 'phosphorCheckBold' : 'phosphorWarningBold'
+              "
+              size="12"
+            />
+            <span>{{ actionResult.message }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="cm-ad-footer">
+      <button type="button" class="cm-ad-btn cm-ad-btn-ghost" (click)="close()">
+        Close
+      </button>
+      <button
+        type="button"
+        class="cm-ad-btn cm-ad-btn-primary"
+        [disabled]="!selectedAction || actionRunning"
+        (click)="runAction()"
+      >
+        @if (actionRunning) {
+          <ng-icon
+            name="phosphorArrowClockwiseBold"
+            size="12"
+            class="cm-ad-spin"
+          />
+        }
+        {{
+          selectedAction ? "Run: " + actionLabels[selectedAction] : "Run Action"
+        }}
+      </button>
+    </footer>
+  </div>
+</div>

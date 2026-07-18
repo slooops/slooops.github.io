@@ -1,0 +1,220 @@
+<div class="cm-tree-card">
+  <div class="cm-tree-header">
+    <div>
+      <h3 class="cm-tree-title">Job Hierarchy Tree</h3>
+      <p class="cm-tree-sub">
+        @if (useFolderView) {
+          {{ flatJobCount | number }} job{{
+            flatJobCount === 1 ? "" : "s"
+          }}
+          across {{ folderCount }} folder{{ folderCount === 1 ? "" : "s" }}
+        } @else {
+          {{ flatJobCount | number }} job{{
+            flatJobCount === 1 ? "" : "s"
+          }}
+          across {{ subAppTree.length }} sub-application{{
+            subAppTree.length === 1 ? "" : "s"
+          }}
+        }
+      </p>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="cm-tree-empty">Loading…</div>
+  } @else if (error) {
+    <div class="cm-tree-error">Failed to load jobs: {{ error }}</div>
+  } @else if (useFolderView && folderTree.length === 0) {
+    <div class="cm-tree-empty">No jobs to display</div>
+  } @else if (!useFolderView && subAppTree.length === 0) {
+    <div class="cm-tree-empty">No jobs to display</div>
+  } @else {
+    <div class="cm-tree-body">
+      @if (useFolderView) {
+        <ul class="cm-tree-list">
+          @for (node of folderTree; track trackByFolder($index, node)) {
+            <ng-container
+              [ngTemplateOutlet]="folderNode"
+              [ngTemplateOutletContext]="{ node: node, depth: 0 }"
+            />
+          }
+        </ul>
+      } @else {
+        <ul class="cm-tree-list">
+          @for (group of subAppTree; track trackBySubApp($index, group)) {
+            <li class="cm-tree-item">
+              <button
+                type="button"
+                class="cm-subapp-row"
+                (click)="toggleApp(group.subApp)"
+              >
+                <span class="cm-caret">
+                  <ng-icon
+                    [name]="
+                      expandedApps.has(group.subApp)
+                        ? 'phosphorCaretDownBold'
+                        : 'phosphorCaretRightBold'
+                    "
+                    size="12"
+                  />
+                </span>
+                <span class="cm-subapp-name" [title]="group.subApp">{{
+                  group.subApp
+                }}</span>
+                <span class="cm-count-pill cm-count-cyan">
+                  {{ group.jobs.length | number }} job{{
+                    group.jobs.length === 1 ? "" : "s"
+                  }}
+                </span>
+              </button>
+              @if (expandedApps.has(group.subApp)) {
+                <div class="cm-jobs-scroll">
+                  <ng-container
+                    [ngTemplateOutlet]="jobsTable"
+                    [ngTemplateOutletContext]="{ jobs: group.jobs }"
+                  />
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  }
+</div>
+
+<!-- ── Recursive folder node template ── -->
+<ng-template #folderNode let-node="node" let-depth="depth">
+  <li class="cm-tree-item">
+    <button
+      type="button"
+      class="cm-folder-row"
+      [class.expanded]="expandedFolders.has(node.path)"
+      [ngStyle]="folderIndent(depth)"
+      (click)="toggleFolder(node.path)"
+    >
+      <span class="cm-caret">
+        @if (node.children.length > 0 || node.jobs.length > 0) {
+          <ng-icon
+            [name]="
+              expandedFolders.has(node.path)
+                ? 'phosphorCaretDownBold'
+                : 'phosphorCaretRightBold'
+            "
+            size="12"
+          />
+        }
+      </span>
+      <span class="cm-folder-icon">
+        <ng-icon
+          [name]="
+            expandedFolders.has(node.path)
+              ? 'phosphorFolderOpenBold'
+              : 'phosphorFolderBold'
+          "
+          size="14"
+        />
+      </span>
+      <span class="cm-folder-name" [title]="node.path">{{ node.name }}</span>
+      <span class="cm-count-pill cm-count-blue">
+        {{ node.totalJobs | number }} job{{ node.totalJobs === 1 ? "" : "s" }}
+      </span>
+    </button>
+
+    @if (expandedFolders.has(node.path)) {
+      @if (node.jobs.length > 0) {
+        <div class="cm-jobs-scroll">
+          <ng-container
+            [ngTemplateOutlet]="jobsTable"
+            [ngTemplateOutletContext]="{ jobs: node.jobs }"
+          />
+        </div>
+      }
+      @if (node.children.length > 0) {
+        <ul class="cm-child-list">
+          @for (child of node.children; track trackByFolder($index, child)) {
+            <ng-container
+              [ngTemplateOutlet]="folderNode"
+              [ngTemplateOutletContext]="{ node: child, depth: depth + 1 }"
+            />
+          }
+        </ul>
+      }
+    }
+  </li>
+</ng-template>
+
+<!-- ── Jobs table template ── -->
+<ng-template #jobsTable let-jobs="jobs">
+  <table class="cm-jobs-table">
+    <thead>
+      <tr>
+        <th>Job Name</th>
+        <th>Status</th>
+        <th class="cm-th-desc">Description</th>
+        <th>Avg</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Runtime</th>
+        <th>Est. Start</th>
+        <th class="cm-th-center">Log</th>
+        <th class="cm-th-center">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (job of jobs; track trackByJob($index, job)) {
+        <tr>
+          <td class="cm-td-mono cm-td-name" [title]="job.job_name">
+            {{ job.job_name }}
+          </td>
+          <td>
+            <span [class]="statusBadgeClass(job)">
+              @if (statusIcon(job); as si) {
+                <ng-icon
+                  [name]="si.name"
+                  size="10"
+                  [class]="si.cls"
+                  [class.cm-spin]="si.spin"
+                  [attr.aria-label]="si.label"
+                />
+              }
+              {{ job.status || job.category }}
+            </span>
+          </td>
+          <td class="cm-td-desc" [title]="job.description || ''">
+            {{ job.description || "—" }}
+          </td>
+          <td class="cm-td-mono">{{ formatDuration(job.avg_run_sec) }}</td>
+          <td class="cm-td-mono cm-td-nowrap">
+            {{ formatDateTime(job.start_time) }}
+          </td>
+          <td class="cm-td-mono cm-td-nowrap">
+            {{ formatDateTime(job.end_time) }}
+          </td>
+          <td class="cm-td-mono">{{ formatDuration(job.elapsed_sec) }}</td>
+          <td class="cm-td-mono">{{ job.estimated_start_time || "—" }}</td>
+          <td class="cm-td-center">
+            <button
+              type="button"
+              class="cm-icon-action"
+              (click)="onViewLogs(job, $event)"
+              title="View job logs and output"
+            >
+              <ng-icon name="phosphorFileTextBold" size="13" />
+            </button>
+          </td>
+          <td class="cm-td-center">
+            <button
+              type="button"
+              class="cm-icon-action"
+              (click)="onJobSelect(job, $event)"
+              title="View action details"
+            >
+              <ng-icon name="phosphorEyeBold" size="13" />
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</ng-template>

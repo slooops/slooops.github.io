@@ -1,0 +1,418 @@
+/* ── Light-mode tokens ── */
+:host {
+  --cmt-bg: rgba(255, 255, 255, 0.72);
+  --cmt-border: rgba(255, 255, 255, 0.6);
+  --cmt-text: #1b1c1d;
+  --cmt-muted: #555;
+  --cmt-divider: #e1e4e8;
+  --cmt-hover-bg: rgba(0, 112, 210, 0.04);
+  --cmt-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  --cmt-header-bg: #f7f9fc;
+  --cmt-subheader-bg: #f0f4fa;
+  --cmt-folder-icon: #0070d2;
+  --cmt-caret: #6b7482;
+  --cmt-child-guide: rgba(0, 112, 210, 0.28);
+
+  --cmt-ok: #1c8c4c;
+  --cmt-err: #e53935;
+  --cmt-warn: #f39c12;
+  --cmt-info: #0070d2;
+  --cmt-accent: #00bceb;
+  --cmt-long: #ff6600;
+  --cmt-neutral: #6b7482;
+
+  --cmt-ok-bg: rgba(28, 140, 76, 0.14);
+  --cmt-err-bg: rgba(229, 57, 53, 0.14);
+  --cmt-warn-bg: rgba(243, 156, 18, 0.16);
+  --cmt-info-bg: rgba(0, 112, 210, 0.14);
+  --cmt-long-bg: rgba(255, 102, 0, 0.14);
+  --cmt-neutral-bg: rgba(0, 0, 0, 0.06);
+
+  display: block;
+}
+
+/* ── Dark mode ── */
+:host(.dark-theme) {
+  --cmt-bg: rgba(28, 44, 58, 0.85);
+  --cmt-border: rgba(42, 63, 80, 0.6);
+  --cmt-text: #e0e6ed;
+  --cmt-muted: #8899a6;
+  --cmt-divider: #2a3f50;
+  --cmt-hover-bg: rgba(0, 188, 235, 0.08);
+  --cmt-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  --cmt-header-bg: rgba(26, 39, 51, 0.9);
+  --cmt-subheader-bg: rgba(22, 33, 44, 0.85);
+  --cmt-folder-icon: #00bceb;
+  --cmt-caret: #8899a6;
+  --cmt-child-guide: rgba(0, 188, 235, 0.28);
+
+  --cmt-ok-bg: rgba(28, 140, 76, 0.22);
+  --cmt-err-bg: rgba(229, 57, 53, 0.22);
+  --cmt-warn-bg: rgba(243, 156, 18, 0.22);
+  --cmt-info-bg: rgba(0, 188, 235, 0.16);
+  --cmt-long-bg: rgba(255, 102, 0, 0.2);
+  --cmt-neutral-bg: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Card wrapper ── */
+.cm-tree-card {
+  background: var(--cmt-bg);
+  border: 1px solid var(--cmt-border);
+  border-radius: 16px;
+  box-shadow: var(--cmt-shadow);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+  color: var(--cmt-text);
+}
+
+.cm-tree-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 10px 16px;
+  background: var(--cmt-header-bg);
+  border-bottom: 1px solid var(--cmt-divider);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.cm-tree-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cmt-text);
+}
+
+.cm-tree-sub {
+  margin: 3px 0 0;
+  font-size: 11px;
+  color: var(--cmt-muted);
+}
+
+.cm-tree-empty,
+.cm-tree-error {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--cmt-muted);
+}
+
+.cm-tree-error {
+  color: var(--cmt-err);
+  background: var(--cmt-err-bg);
+  border-top: 1px solid var(--cmt-divider);
+}
+
+.cm-tree-body {
+  max-height: 720px;
+  overflow: auto;
+}
+
+/* ── Tree lists ── */
+.cm-tree-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cm-tree-item {
+  border-bottom: 1px solid var(--cmt-divider);
+}
+
+.cm-tree-item:last-child {
+  border-bottom: none;
+}
+
+.cm-child-list {
+  list-style: none;
+  margin: 0 0 0 16px;
+  padding: 0;
+  border-left: 2px solid var(--cmt-child-guide);
+}
+
+/* ── Sub-app row ── */
+.cm-subapp-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--cmt-subheader-bg);
+  border: none;
+  border-bottom: 1px solid var(--cmt-divider);
+  color: var(--cmt-text);
+  cursor: pointer;
+  text-align: left;
+  transition: background 150ms ease;
+}
+
+.cm-subapp-row:hover {
+  background: var(--cmt-hover-bg);
+}
+
+.cm-subapp-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cmt-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Folder row ── */
+.cm-folder-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  color: var(--cmt-text);
+  cursor: pointer;
+  text-align: left;
+  transition: background 150ms ease;
+}
+
+.cm-folder-row:hover {
+  background: var(--cmt-hover-bg);
+}
+
+.cm-folder-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--cmt-folder-icon);
+}
+
+.cm-folder-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cmt-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cm-caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  color: var(--cmt-caret);
+  flex-shrink: 0;
+}
+
+/* ── Count pill ── */
+.cm-count-pill {
+  padding: 2px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.cm-count-blue {
+  background: rgba(0, 112, 210, 0.14);
+  color: #0070d2;
+}
+:host(.dark-theme) .cm-count-blue {
+  background: rgba(0, 188, 235, 0.16);
+  color: #00bceb;
+}
+
+.cm-count-cyan {
+  background: rgba(0, 188, 235, 0.16);
+  color: #0088b0;
+}
+:host(.dark-theme) .cm-count-cyan {
+  color: #00bceb;
+}
+
+/* ── Jobs table ── */
+.cm-jobs-scroll {
+  overflow-x: auto;
+  border-top: 1px solid var(--cmt-divider);
+}
+
+.cm-jobs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.cm-jobs-table thead th {
+  padding: 6px 10px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--cmt-muted);
+  background: var(--cmt-header-bg);
+  border-bottom: 1px solid var(--cmt-divider);
+  white-space: nowrap;
+}
+
+.cm-th-desc {
+  min-width: 200px;
+}
+
+.cm-th-center,
+.cm-td-center {
+  text-align: center;
+}
+
+.cm-jobs-table tbody td {
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--cmt-divider);
+  color: var(--cmt-text);
+  vertical-align: middle;
+}
+
+.cm-jobs-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cm-jobs-table tbody tr:hover td {
+  background: var(--cmt-hover-bg);
+}
+
+.cm-td-mono {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10.5px;
+}
+
+.cm-td-nowrap {
+  white-space: nowrap;
+}
+
+.cm-td-name {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.cm-td-desc {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--cmt-muted);
+}
+
+/* ── Status badge with icon ── */
+.cm-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.cm-status-ok {
+  color: var(--cmt-ok);
+  background: var(--cmt-ok-bg);
+}
+.cm-status-error {
+  color: var(--cmt-err);
+  background: var(--cmt-err-bg);
+}
+.cm-status-warn {
+  color: var(--cmt-warn);
+  background: var(--cmt-warn-bg);
+}
+.cm-status-info {
+  color: var(--cmt-info);
+  background: var(--cmt-info-bg);
+}
+.cm-status-long {
+  color: var(--cmt-long);
+  background: var(--cmt-long-bg);
+}
+.cm-status-neutral {
+  color: var(--cmt-neutral);
+  background: var(--cmt-neutral-bg);
+}
+
+:host(.dark-theme) .cm-status-info {
+  color: var(--cmt-accent);
+}
+
+.cm-si-ok {
+  color: var(--cmt-ok);
+}
+.cm-si-error {
+  color: var(--cmt-err);
+}
+.cm-si-warn {
+  color: var(--cmt-warn);
+}
+.cm-si-info {
+  color: var(--cmt-info);
+}
+.cm-si-long {
+  color: var(--cmt-long);
+}
+.cm-si-neutral {
+  color: var(--cmt-neutral);
+}
+
+:host(.dark-theme) .cm-si-info {
+  color: var(--cmt-accent);
+}
+
+/* ── Row action buttons ── */
+.cm-icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--cmt-info);
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
+}
+
+.cm-icon-action:hover {
+  background: var(--cmt-info-bg);
+  color: var(--cmt-accent);
+}
+
+:host(.dark-theme) .cm-icon-action {
+  color: var(--cmt-accent);
+}
+
+/* ── Spinner ── */
+.cm-spin {
+  animation: cmt-spin 1s linear infinite;
+}
+
+@keyframes cmt-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-spin {
+    animation: none;
+  }
+}
