@@ -492,14 +492,205 @@
 
   <!-- ═══ Executive View ═══ -->
   @if (caseiqView === "executive") {
-    @if (espSummaryLoading) {
-      <div class="overall-loading">
-        <app-loading-symbol animationStyle="origins" />
+    <!-- Executive KPI Strip -->
+    <div class="caseiq-kpi-strip">
+      @for (kpi of executiveKpis(); track kpi.title) {
+        <div class="caseiq-kpi {{ kpi.color }}">
+          <span class="caseiq-kpi-title">{{ kpi.title }}</span>
+          <div class="caseiq-kpi-body">
+            @if (kpi.plain) {
+              <span class="caseiq-kpi-value-plain">{{ kpi.plainValue }}</span>
+            } @else {
+              <div class="caseiq-pill">
+                <div
+                  class="caseiq-pill-fill {{ kpi.color }}"
+                  [style.width.%]="kpi.pillWidth"
+                ></div>
+                <span class="caseiq-pill-text">{{ kpi.pillText }}</span>
+              </div>
+              <span class="caseiq-kpi-pct">{{ kpi.pctText }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Charts Row: P80/P90 Dumbbell | Resolution + Weekly/Hourly | Sankey -->
+    <div
+      class="analytics-row analytics-row-exec"
+      style="margin: 1rem 0; height: 60vh"
+    >
+      <!-- P80 → P90 Dumbbell (Import + CaseIQ Execution) -->
+      <div class="ciq-card ciq-card--chart ciq-card--tall">
+        <div class="ciq-card-header">
+          <span class="ciq-card-title">P80 → P90 Response Time</span>
+          <span class="analytics-date-range"
+            >Import + CaseIQ Execution by Component</span
+          >
+        </div>
+        <div class="analytics-chart-wrapper" style="flex: 1">
+          <div
+            echarts
+            [options]="chartOptionsMap['mttrSO']"
+            style="height: 100%; width: 100%"
+          ></div>
+        </div>
       </div>
-    } @else {
-      <!-- Executive KPI Strip -->
-      <div class="caseiq-kpi-strip caseiq-kpi-strip--6">
-        @for (kpi of executiveKpis(); track kpi.title) {
+
+      <!-- Middle: Stacked cards -->
+      <div class="exec-stacked-col">
+        <!-- Resolution Time (MTTR) ↔ Case Churn (flip card) -->
+        <div class="ciq-card ciq-card--chart flip-card-container">
+          @if (!execMttrCardFlipped) {
+            <div class="ciq-card-header">
+              <span class="ciq-card-title">MTTR by Component</span>
+              <span class="analytics-date-range">Hours · from P90 view</span>
+              <button
+                class="flip-btn"
+                (click)="flipExecMttrCard()"
+                title="Show Case Churn by Component"
+              >
+                <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
+              </button>
+            </div>
+            <div class="analytics-chart-wrapper" style="flex: 1">
+              <div
+                echarts
+                [options]="chartOptionsMap['resolutionByTeam']"
+                style="height: 100%; width: 100%"
+              ></div>
+            </div>
+          } @else {
+            <div class="ciq-card-header">
+              <span class="ciq-card-title">Case Churn by Component</span>
+              <span class="analytics-date-range"
+                >Cases stacked by worknote-update bucket</span
+              >
+              <button
+                class="flip-btn"
+                (click)="flipExecMttrCard()"
+                title="Show Resolution Time (MTTR)"
+              >
+                <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
+              </button>
+            </div>
+            <div class="analytics-chart-wrapper" style="flex: 1">
+              <div
+                echarts
+                [options]="chartOptionsMap['churnByTeam']"
+                style="height: 100%; width: 100%"
+              ></div>
+            </div>
+          }
+        </div>
+
+        <!-- Weekly Case Volume ↔ Hourly Processing Load (flip card) -->
+        <div class="ciq-card ciq-card--chart flip-card-container">
+          @if (!execBottomCardFlipped) {
+            <div class="ciq-card-header">
+              <span class="ciq-card-title">Weekly Case Volume by Team</span>
+              <span class="analytics-date-range">{{
+                weeklyTeamChartLabel
+              }}</span>
+              <button
+                class="flip-btn"
+                (click)="flipExecBottomCard()"
+                title="Show Hourly Processing Load"
+              >
+                <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
+              </button>
+            </div>
+            <div class="analytics-chart-wrapper" style="flex: 1">
+              @if (weeklyTeamNoData) {
+                <div class="ciq-no-data">
+                  No data available for this time period
+                </div>
+              } @else {
+                <div
+                  echarts
+                  [options]="chartOptionsMap['execWeekly']"
+                  style="height: 100%; width: 100%"
+                ></div>
+              }
+            </div>
+          } @else {
+            <div class="ciq-card-header">
+              <span class="ciq-card-title">Hourly Processing Load</span>
+              <span class="analytics-date-range">Last 24 hours · UTC</span>
+              <button
+                class="flip-btn"
+                (click)="flipExecBottomCard()"
+                title="Show Weekly Case Volume by Team"
+              >
+                <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
+              </button>
+            </div>
+            <div class="analytics-chart-wrapper" style="flex: 1">
+              <div
+                echarts
+                [options]="chartOptionsMap['execHourly']"
+                style="height: 100%; width: 100%"
+              ></div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Case Flow Sankey (flip card: 3-step / 2-step) -->
+      <div class="ciq-card ciq-card--chart ciq-card--tall flip-card-container">
+        @if (!sankeyCardFlipped) {
+          <div class="ciq-card-header">
+            <span class="ciq-card-title">Case Flow</span>
+            <span class="analytics-date-range"
+              >{{ selectedQuarter || "All Quarters" }} · Components → Agent/Ops
+              → Outcomes</span
+            >
+            <button
+              class="flip-btn"
+              (click)="flipSankeyCard()"
+              title="Show direct Component → Outcome view"
+            >
+              <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
+            </button>
+          </div>
+          <div class="analytics-chart-wrapper" style="flex: 1">
+            <div
+              echarts
+              [options]="chartOptionsMap['sankey3Step']"
+              style="height: 100%; width: 100%"
+            ></div>
+          </div>
+        } @else {
+          <div class="ciq-card-header">
+            <span class="ciq-card-title">Case Flow</span>
+            <span class="analytics-date-range"
+              >{{ selectedQuarter || "All Quarters" }} · Components →
+              Outcomes</span
+            >
+            <button
+              class="flip-btn"
+              (click)="flipSankeyCard()"
+              title="Show Agent vs Ops breakdown"
+            >
+              <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
+            </button>
+          </div>
+          <div class="analytics-chart-wrapper" style="flex: 1">
+            <div
+              echarts
+              [options]="chartOptionsMap['sankey2Step']"
+              style="height: 100%; width: 100%"
+            ></div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Component Performance Table (from Operations view) -->
+    @if (summaryRows.length) {
+      <!-- Operations KPI Strip (mirrored from ops view) -->
+      <div class="caseiq-kpi-strip" style="margin-top: 1rem">
+        @for (kpi of caseiqKpis(); track kpi.title) {
           <div class="caseiq-kpi {{ kpi.color }}">
             <span class="caseiq-kpi-title">{{ kpi.title }}</span>
             <div class="caseiq-kpi-body">
@@ -520,283 +711,161 @@
         }
       </div>
 
-      <!-- Charts Row: MTTR | Weekly+Hourly stacked | Sankey -->
-      <div
-        class="analytics-row analytics-row-exec"
-        style="margin: 1rem 0; height: 60vh"
-      >
-        <!-- MTTR by Service Offering Chart -->
-        <div class="ciq-card ciq-card--chart ciq-card--tall">
-          <div class="ciq-card-header">
-            <span class="ciq-card-title">MTTR by Service Offering</span>
-            <span class="analytics-date-range"
-              >{{ selectedQuarter || "All Quarters" }} · Biz vs Cal Days</span
-            >
-          </div>
-          <div class="analytics-chart-wrapper" style="flex: 1">
-            <div
-              echarts
-              [options]="chartOptionsMap['mttrSO']"
-              style="height: 100%; width: 100%"
-            ></div>
-          </div>
-        </div>
-
-        <!-- Middle: Stacked cards -->
-        <div class="exec-stacked-col">
-          <!-- Weekly Case Volume by Team -->
-          <div class="ciq-card ciq-card--chart">
-            <div class="ciq-card-header">
-              <span class="ciq-card-title">Weekly Case Volume by Team</span>
-              <span class="analytics-date-range">{{
-                weeklyTeamChartLabel
-              }}</span>
-            </div>
-            <div class="analytics-chart-wrapper" style="flex: 1">
-              @if (weeklyTeamNoData) {
-                <div class="ciq-no-data">
-                  No data available for this time period
-                </div>
-              } @else {
-                <div
-                  echarts
-                  [options]="chartOptionsMap['execWeekly']"
-                  style="height: 100%; width: 100%"
-                ></div>
-              }
-            </div>
-          </div>
-
-          <!-- Hourly Processing Load -->
-          <div class="ciq-card ciq-card--chart">
-            <div class="ciq-card-header">
-              <span class="ciq-card-title">Hourly Processing Load</span>
-              <span class="analytics-date-range">Last 24 hours · UTC</span>
-            </div>
-            <div class="analytics-chart-wrapper" style="flex: 1">
-              <div
-                echarts
-                [options]="chartOptionsMap['execHourly']"
-                style="height: 100%; width: 100%"
-              ></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Case Flow Sankey (flip card: 3-step / 2-step) -->
-        <div
-          class="ciq-card ciq-card--chart ciq-card--tall flip-card-container"
-        >
-          @if (!sankeyCardFlipped) {
-            <div class="ciq-card-header">
-              <span class="ciq-card-title">Case Flow</span>
-              <span class="analytics-date-range"
-                >{{ selectedQuarter || "All Quarters" }} · Components →
-                Agent/Ops → Outcomes</span
-              >
-              <button
-                class="flip-btn"
-                (click)="flipSankeyCard()"
-                title="Show direct Component → Outcome view"
-              >
-                <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
-              </button>
-            </div>
-            <div class="analytics-chart-wrapper" style="flex: 1">
-              <div
-                echarts
-                [options]="chartOptionsMap['sankey3Step']"
-                style="height: 100%; width: 100%"
-              ></div>
-            </div>
-          } @else {
-            <div class="ciq-card-header">
-              <span class="ciq-card-title">Case Flow</span>
-              <span class="analytics-date-range"
-                >{{ selectedQuarter || "All Quarters" }} · Components →
-                Outcomes</span
-              >
-              <button
-                class="flip-btn"
-                (click)="flipSankeyCard()"
-                title="Show Agent vs Ops breakdown"
-              >
-                <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
-              </button>
-            </div>
-            <div class="analytics-chart-wrapper" style="flex: 1">
-              <div
-                echarts
-                [options]="chartOptionsMap['sankey2Step']"
-                style="height: 100%; width: 100%"
-              ></div>
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- Component Performance Table (from Operations view) -->
-      @if (summaryRows.length) {
-        <div class="ciq-card" style="margin: 1rem 0">
-          <div class="ciq-table-scroll">
-            <table class="ciq-table">
-              <thead>
+      <div class="ciq-card" style="margin: 1rem 0">
+        <div class="ciq-table-scroll">
+          <table class="ciq-table">
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Total Cases</th>
+                <th>Accuracy</th>
+                <th>In Progress</th>
+                <th>Routed Out</th>
+                <th>Canceled</th>
+                <th>Service Requests</th>
+                <th>Total (Agent)</th>
+                <th>Agent vs Ops %</th>
+                <th>Active Agents</th>
+                <th>Service Incidents</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of summaryRows; track row.sectionName) {
                 <tr>
-                  <th>Component</th>
-                  <th>Total Cases</th>
-                  <th>Accuracy</th>
-                  <th>In Progress</th>
-                  <th>Routed Out</th>
-                  <th>Canceled</th>
-                  <th>Service Requests</th>
-                  <th>Total (Agent)</th>
-                  <th>Agent vs Ops %</th>
-                  <th>Active Agents</th>
-                  <th>Service Incidents</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (row of summaryRows; track row.sectionName) {
-                  <tr>
-                    <td class="summary-component">
-                      <span
-                        class="component-badge badge-{{
-                          getValidationColor(row.sectionName)
-                        }}"
-                        (click)="navigateToTeam(row.sectionName)"
-                        >{{ row.sectionName }}</span
-                      >
-                    </td>
-                    <td>
-                      @if (getTotalCasesFromAccuracy(row.sectionName) != null) {
-                        <span class="summary-total-cases">{{
-                          getTotalCasesFromAccuracy(row.sectionName) | number
-                        }}</span>
-                      } @else {
-                        <span class="summary-empty">--</span>
-                      }
-                    </td>
-                    <td>
-                      @if (getValidationForSection(row.sectionName) != null) {
-                        <div
-                          class="caseiq-pill accuracy-pill"
-                          [class.clickable]="row.sectionName !== 'Finance IT'"
-                          (click)="openAccuracyModal(row.sectionName)"
-                        >
-                          <div
-                            class="caseiq-pill-fill {{
-                              getValidationColor(row.sectionName)
-                            }}"
-                            [style.width.%]="
-                              getValidationForSection(row.sectionName)
-                            "
-                          ></div>
-                          <span class="caseiq-pill-text"
-                            >{{
-                              getValidationForSection(row.sectionName)
-                                | number: "1.1-1"
-                            }}%</span
-                          >
-                        </div>
-                      } @else {
-                        <span class="summary-empty">--</span>
-                      }
-                    </td>
-                    <td>
-                      {{ valueDisplay(row.inProgress.agent)
-                      }}<span class="td-sub">
-                        / {{ row.inProgress.total || 0 | number }}</span
-                      >
-                      @if (row.inProgress.agentPct != null) {
-                        <span class="summary-pct"
-                          >({{
-                            row.inProgress.agentPct | number: "1.0-0"
-                          }}%)</span
-                        >
-                      }
-                    </td>
-                    <td>
-                      {{ valueDisplay(row.routed.agent)
-                      }}<span class="td-sub">
-                        / {{ row.routed.total || 0 | number }}</span
-                      >
-                      @if (row.routed.agentPct != null) {
-                        <span class="summary-pct"
-                          >({{ row.routed.agentPct | number: "1.0-0" }}%)</span
-                        >
-                      }
-                    </td>
-                    <td>
-                      {{ valueDisplay(row.cancelled.agent)
-                      }}<span class="td-sub">
-                        / {{ row.cancelled.total || 0 | number }}</span
-                      >
-                      @if (row.cancelled.agentPct != null) {
-                        <span class="summary-pct"
-                          >({{
-                            row.cancelled.agentPct | number: "1.0-0"
-                          }}%)</span
-                        >
-                      }
-                    </td>
-                    <td>
-                      {{ valueDisplay(row.service.agent)
-                      }}<span class="td-sub">
-                        / {{ row.service.total || 0 | number }}</span
-                      >
-                      @if (row.service.agentPct != null) {
-                        <span class="summary-pct"
-                          >({{ row.service.agentPct | number: "1.0-0" }}%)</span
-                        >
-                      }
-                    </td>
-                    <td>
+                  <td class="summary-component">
+                    <span
+                      class="component-badge badge-{{
+                        getValidationColor(row.sectionName)
+                      }}"
+                      (click)="navigateToTeam(row.sectionName)"
+                      >{{ row.sectionName }}</span
+                    >
+                  </td>
+                  <td>
+                    @if (getTotalCasesFromAccuracy(row.sectionName) != null) {
                       <span class="summary-total-cases">{{
-                        getAgentTotalCases(row) | number
-                      }}</span
-                      ><span class="td-sub">
-                        /
-                        {{
-                          row.totalCases - row.serviceIncidents | number
-                        }}</span
+                        getTotalCasesFromAccuracy(row.sectionName) | number
+                      }}</span>
+                    } @else {
+                      <span class="summary-empty">--</span>
+                    }
+                  </td>
+                  <td>
+                    @if (getValidationForSection(row.sectionName) != null) {
+                      <div
+                        class="caseiq-pill accuracy-pill"
+                        [class.clickable]="row.sectionName !== 'Finance IT'"
+                        (click)="openAccuracyModal(row.sectionName)"
                       >
-                    </td>
-                    <td>
-                      <div class="caseiq-pill table-pill">
                         <div
-                          class="caseiq-pill-fill cyan"
-                          [style.width.%]="getAgentRatio(row)"
+                          class="caseiq-pill-fill {{
+                            getValidationColor(row.sectionName)
+                          }}"
+                          [style.width.%]="
+                            getValidationForSection(row.sectionName)
+                          "
                         ></div>
                         <span class="caseiq-pill-text"
-                          >{{ getAgentRatio(row) }}%</span
+                          >{{
+                            getValidationForSection(row.sectionName)
+                              | number: "1.1-1"
+                          }}%</span
                         >
                       </div>
-                    </td>
-                    <td>
-                      <a
-                        class="active-agents-link"
-                        (click)="openResolutionAgents($event)"
-                        >{{ getAgentForRow(row).deployed }} /
-                        {{ getAgentForRow(row).total }}</a
+                    } @else {
+                      <span class="summary-empty">--</span>
+                    }
+                  </td>
+                  <td>
+                    {{ valueDisplay(row.inProgress.agent)
+                    }}<span class="td-sub">
+                      / {{ row.inProgress.total || 0 | number }}</span
+                    >
+                    @if (row.inProgress.agentPct != null) {
+                      <span class="summary-pct"
+                        >({{
+                          row.inProgress.agentPct | number: "1.0-0"
+                        }}%)</span
                       >
-                    </td>
-                    <td>
-                      @if (row.serviceIncidents != null) {
-                        {{ row.serviceIncidents | number }}
-                      } @else {
-                        <span class="summary-empty">--</span>
-                      }
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+                    }
+                  </td>
+                  <td>
+                    {{ valueDisplay(row.routed.agent)
+                    }}<span class="td-sub">
+                      / {{ row.routed.total || 0 | number }}</span
+                    >
+                    @if (row.routed.agentPct != null) {
+                      <span class="summary-pct"
+                        >({{ row.routed.agentPct | number: "1.0-0" }}%)</span
+                      >
+                    }
+                  </td>
+                  <td>
+                    {{ valueDisplay(row.cancelled.agent)
+                    }}<span class="td-sub">
+                      / {{ row.cancelled.total || 0 | number }}</span
+                    >
+                    @if (row.cancelled.agentPct != null) {
+                      <span class="summary-pct"
+                        >({{ row.cancelled.agentPct | number: "1.0-0" }}%)</span
+                      >
+                    }
+                  </td>
+                  <td>
+                    {{ valueDisplay(row.service.agent)
+                    }}<span class="td-sub">
+                      / {{ row.service.total || 0 | number }}</span
+                    >
+                    @if (row.service.agentPct != null) {
+                      <span class="summary-pct"
+                        >({{ row.service.agentPct | number: "1.0-0" }}%)</span
+                      >
+                    }
+                  </td>
+                  <td>
+                    <span class="summary-total-cases">{{
+                      getAgentTotalCases(row) | number
+                    }}</span
+                    ><span class="td-sub">
+                      /
+                      {{ row.totalCases - row.serviceIncidents | number }}</span
+                    >
+                  </td>
+                  <td>
+                    <div class="caseiq-pill table-pill">
+                      <div
+                        class="caseiq-pill-fill cyan"
+                        [style.width.%]="getAgentRatio(row)"
+                      ></div>
+                      <span class="caseiq-pill-text"
+                        >{{ getAgentRatio(row) }}%</span
+                      >
+                    </div>
+                  </td>
+                  <td>
+                    <a
+                      class="active-agents-link"
+                      (click)="openResolutionAgents($event)"
+                      >{{ getAgentForRow(row).deployed }} /
+                      {{ getAgentForRow(row).total }}</a
+                    >
+                  </td>
+                  <td>
+                    @if (row.serviceIncidents != null) {
+                      {{ row.serviceIncidents | number }}
+                    } @else {
+                      <span class="summary-empty">--</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
-      }
-
-      <br /><br />
+      </div>
     }
+
+    <br /><br />
   }
 }
 

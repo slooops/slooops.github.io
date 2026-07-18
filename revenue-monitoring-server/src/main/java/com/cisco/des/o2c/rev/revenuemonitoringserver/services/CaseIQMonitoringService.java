@@ -507,6 +507,25 @@ public class CaseIQMonitoringService {
             "GROUP BY team_name, fisc_qtr " +
             "ORDER BY team_name, fisc_qtr";
 
+    // ─── Executive Dashboard: p80/p90 metrics, worknotes churn, coverage gap ───
+    // NOTE: Both P80 and P90 views currently expose columns literally named
+    // IMPORT_TIME_P90 and CASE_IQ_EXECUTION_TIME_P90 (the P80 view's names are
+    // mislabeled). The Angular layer reads these by column-name prefix
+    // (IMPORT_TIME*, CASE_IQ_EXECUTION_TIME*) so the UI keeps working if the
+    // DB owner renames later. SELECT * preserves whatever names Oracle exposes.
+
+    private static final String EXEC_METRICS_P80 = "SELECT * FROM ARFINRO.ASK_CASEIQ_METRICS_DSH_80_V";
+
+    private static final String EXEC_METRICS_P90 = "SELECT * FROM ARFINRO.ASK_CASEIQ_METRICS_DSH_90_V";
+
+    private static final String EXEC_WORKNOTES_CHURN = "SELECT team_name, work_notes_count, incident_count " +
+            "FROM ARFINRO.ASK_CASEIQ_WORKNOTES_DATA_V " +
+            "ORDER BY team_name, work_notes_count";
+
+    private static final String EXEC_COVERAGE_GAP = "SELECT team_name, incident_count " +
+            "FROM ARFINRO.ASK_CASEIQ_NOT_EXISTS_INC_V " +
+            "ORDER BY team_name";
+
     // ─── Fiscal quarter injection ───────────────────────────────────────────────
 
     private static final Pattern FISC_QTR_INJECT_PATTERN = Pattern.compile("\\s+(GROUP BY|ORDER BY|FETCH)",
@@ -1208,5 +1227,36 @@ public class CaseIQMonitoringService {
 
     public List<Map<String, Object>> getTeamValidationAccuracySummary(int lookbackDays, String fiscQtr) {
         return runQuery(TEAM_VALIDATION_ACCURACY_SUMMARY, buildParams("lookback_days", lookbackDays), fiscQtr);
+    }
+
+    // ─── Executive Dashboard Service Methods ────────────────────────────────────
+
+    /**
+     * p80 percentile metrics per team: import time, execution time (min) +
+     * resolution time + count.
+     */
+    public List<Map<String, Object>> getExecMetricsP80() {
+        return jdbcManager.queryForList(EXEC_METRICS_P80);
+    }
+
+    /**
+     * p90 percentile metrics per team: import time, execution time (min) +
+     * resolution time + count.
+     */
+    public List<Map<String, Object>> getExecMetricsP90() {
+        return jdbcManager.queryForList(EXEC_METRICS_P90);
+    }
+
+    /**
+     * Case churn buckets per team: how many times cases are touched after CaseIQ
+     * recommendation.
+     */
+    public List<Map<String, Object>> getExecWorknotesChurn() {
+        return jdbcManager.queryForList(EXEC_WORKNOTES_CHURN);
+    }
+
+    /** Cases in ESP but not picked up by CaseIQ (coverage gap). */
+    public List<Map<String, Object>> getExecCoverageGap() {
+        return jdbcManager.queryForList(EXEC_COVERAGE_GAP);
     }
 }

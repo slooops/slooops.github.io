@@ -1421,8 +1421,16 @@ p {
   margin: 1rem 0 0 0;
 }
 
+.caseiq-kpi-strip--5 {
+  grid-template-columns: repeat(5, 1fr);
+}
+
 .caseiq-kpi-strip--6 {
   grid-template-columns: repeat(6, 1fr);
+}
+
+.caseiq-kpi-strip--8 {
+  grid-template-columns: repeat(8, 1fr);
 }
 
 /* ── Individual KPI card ─────────────────────────────── */
@@ -1589,30 +1597,6 @@ p {
   white-space: nowrap;
   min-width: 2.5rem;
   text-align: right;
-}
-
-/* ── Dual pill modifier (Agent vs Ops) ─────────────────── */
-.caseiq-pill.caseiq-pill-dual {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.caseiq-pill-dual .caseiq-pill-fill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  border-radius: 999px;
-}
-
-.caseiq-pill-dual .caseiq-pill-text {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  text-align: center;
-  text-shadow: none;
-  line-height: normal;
 }
 
 /* ── KPI strip responsive ─────────────────────────────── */

@@ -253,4 +253,26 @@ public class CaseIQMonitoringController {
             @RequestParam(required = false) String fiscQtr) {
         return new ResponseEntity<>(service.getTeamValidationAccuracySummary(lookbackDays, fiscQtr), HttpStatus.OK);
     }
+
+    // ─── Executive Dashboard endpoints ─────────────────────────────────────────
+
+    @GetMapping("/exec/metrics-p80")
+    public ResponseEntity<List<Map<String, Object>>> execMetricsP80() {
+        return new ResponseEntity<>(service.getExecMetricsP80(), HttpStatus.OK);
+    }
+
+    @GetMapping("/exec/metrics-p90")
+    public ResponseEntity<List<Map<String, Object>>> execMetricsP90() {
+        return new ResponseEntity<>(service.getExecMetricsP90(), HttpStatus.OK);
+    }
+
+    @GetMapping("/exec/worknotes-churn")
+    public ResponseEntity<List<Map<String, Object>>> execWorknotesChurn() {
+        return new ResponseEntity<>(service.getExecWorknotesChurn(), HttpStatus.OK);
+    }
+
+    @GetMapping("/exec/coverage-gap")
+    public ResponseEntity<List<Map<String, Object>>> execCoverageGap() {
+        return new ResponseEntity<>(service.getExecCoverageGap(), HttpStatus.OK);
+    }
 }

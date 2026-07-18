@@ -25,7 +25,13 @@ import {
 } from '@ng-icons/phosphor-icons/bold';
 import { phosphorEmptyDuotone } from '@ng-icons/phosphor-icons/duotone';
 import * as echarts from 'echarts/core';
-import { BarChart, LineChart, SankeyChart } from 'echarts/charts';
+import {
+  BarChart,
+  LineChart,
+  SankeyChart,
+  ScatterChart,
+  CustomChart,
+} from 'echarts/charts';
 import {
   GridComponent,
   TooltipComponent,
@@ -40,6 +46,8 @@ echarts.use([
   BarChart,
   LineChart,
   SankeyChart,
+  ScatterChart,
+  CustomChart,
   GridComponent,
   TooltipComponent,
   LegendComponent,
@@ -198,9 +206,19 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   // ── Context Switcher: "Operations" vs "Executive" ──────────
   @Input() caseiqView: 'ops' | 'executive' = 'ops';
 
-  // ── Business/Executive view data ──────────────────────────
-  espSummaryData: any[] = [];
-  espSummaryLoading = true;
+  // ── Executive view data (all from new p80/p90/worknotes/coverage-gap views) ──
+  /** p80 metrics per team from ASK_CASEIQ_METRICS_DSH_80_V */
+  execP80Data: any[] = [];
+  /** p90 metrics per team from ASK_CASEIQ_METRICS_DSH_90_V */
+  execP90Data: any[] = [];
+  /** Case-churn buckets per team from ASK_CASEIQ_WORKNOTES_DATA_V */
+  execWorknotesData: any[] = [];
+  /** Coverage gap (ESP cases not in CaseIQ) from ASK_CASEIQ_NOT_EXISTS_INC_V */
+  execCoverageGapData: any[] = [];
+  /** Flip state for middle-top card (Resolution Time ↔ Case Churn) */
+  execMttrCardFlipped = false;
+  /** Flip state for middle-bottom card (Weekly Case Volume ↔ Hourly Processing Load) */
+  execBottomCardFlipped = false;
   private themeSub?: Subscription;
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -230,6 +248,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         if (this.caseiqView === 'executive') {
           setTimeout(() => {
             this.buildMttrChart();
+            this.buildChurnChart();
             this.buildExecWeeklyChart();
             this.buildExecHourlyChart();
             this.buildSankeyChart();
@@ -242,6 +261,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       if (this.caseiqView === 'executive') {
         setTimeout(() => {
           this.buildMttrChart();
+          this.buildChurnChart();
           this.buildExecWeeklyChart();
           this.buildExecHourlyChart();
           this.buildSankeyChart();
@@ -264,6 +284,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       if (this.caseiqView === 'executive') {
         setTimeout(() => {
           this.buildMttrChart();
+          this.buildChurnChart();
           this.buildExecWeeklyChart();
           this.buildExecHourlyChart();
           if (this.sankeyCardFlipped) {
@@ -290,8 +311,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     // Always fetch analytics chart data on init
     this.fetchAnalyticsCharts();
 
-    // Fetch business view data
-    this.fetchEspSummaryData();
+    // Fetch executive-view datasets (p80, p90, worknotes churn, coverage gap)
+    this.fetchExecViewData();
 
     // Initial build of sections/charts once view is ready
     this.buildSectionsFromMetrics();
@@ -918,10 +939,10 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       },
       {
         title: 'Agent vs Ops %',
-        color: 'dual',
+        color: 'cyan',
         pillWidth: opsRate,
-        pillText: `${opsRate.toFixed(1)}%`,
-        pctText: `${agentTotal.toLocaleString()} / ${(agentTotal + opsTotal).toLocaleString()}`,
+        pillText: `${agentTotal.toLocaleString()} / ${(agentTotal + opsTotal).toLocaleString()}`,
+        pctText: `${opsRate.toFixed(1)}%`,
       },
       {
         title: 'Service Incidents',
@@ -2060,263 +2081,745 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ── Executive / Business View ─────────────────────────────────────────────
+  // ── Executive View ────────────────────────────────────────────────────────
   // ═══════════════════════════════════════════════════════════════════════════
 
   // switchView is no longer needed — caseiqView is an @Input from parent
 
-  private fetchEspSummaryData(): void {
-    this.espSummaryLoading = true;
+  /**
+   * Fetch the four executive-view datasets from the new backend endpoints
+   * (p80, p90, worknotes churn, coverage gap). Column names in the p80 view
+   * are currently mislabeled `_P90` so we read them by prefix in {@link execCol}.
+   */
+  private fetchExecViewData(): void {
+    const rebuild = () => {
+      if (this.caseiqView === 'executive') {
+        setTimeout(() => {
+          this.buildMttrChart();
+        }, 0);
+      }
+    };
+    const rebuildChurn = () => {
+      if (this.caseiqView === 'executive') {
+        setTimeout(() => {
+          this.buildChurnChart();
+        }, 0);
+      }
+    };
+    this.http.get('caseiq/exec/metrics-p80', this.destroyManager).subscribe({
+      next: (d: any) => {
+        this.execP80Data = Array.isArray(d) ? d : [];
+        rebuild();
+      },
+      error: () => {},
+    });
+    this.http.get('caseiq/exec/metrics-p90', this.destroyManager).subscribe({
+      next: (d: any) => {
+        this.execP90Data = Array.isArray(d) ? d : [];
+        rebuild();
+      },
+      error: () => {},
+    });
     this.http
-      .get('esp-case-service-metric-summary', this.destroyManager)
+      .get('caseiq/exec/worknotes-churn', this.destroyManager)
       .subscribe({
-        next: (data: any) => {
-          this.espSummaryData = Array.isArray(data) ? data : [];
-          this.espSummaryLoading = false;
-          if (this.caseiqView === 'executive') {
-            setTimeout(() => {
-              this.buildMttrChart();
-              this.buildExecWeeklyChart();
-              this.buildExecHourlyChart();
-              this.buildSankeyChart();
-            }, 0);
-          }
+        next: (d: any) => {
+          this.execWorknotesData = Array.isArray(d) ? d : [];
+          rebuildChurn();
         },
-        error: () => {
-          this.espSummaryLoading = false;
-        },
+        error: () => {},
       });
+    this.http.get('caseiq/exec/coverage-gap', this.destroyManager).subscribe({
+      next: (d: any) => {
+        this.execCoverageGapData = Array.isArray(d) ? d : [];
+      },
+      error: () => {},
+    });
   }
 
-  /** Get ESP summary rows filtered by the currently selected quarter */
-  getEspForQuarter(): any[] {
-    const qtr = this.selectedQuarter || '';
-    if (!qtr) return this.espSummaryData;
-    return this.espSummaryData.filter((r: any) => r.FISC_QTR === qtr);
-  }
-
-  /** Grand Total row for the selected quarter */
-  getEspGrandTotal(): any | null {
-    return (
-      this.getEspForQuarter().find(
-        (r: any) => r.SERVICE_OFFERING === 'Grand Total',
-      ) || null
-    );
-  }
-
-  /** Non-total service offering rows for selected quarter, sorted by inflow desc */
-  getEspServiceOfferings(): any[] {
-    return this.getEspForQuarter()
-      .filter((r: any) => r.SERVICE_OFFERING !== 'Grand Total')
-      .sort((a: any, b: any) => (b.INFLOW || 0) - (a.INFLOW || 0));
-  }
-
-  /** Aggregate ESP metrics by CaseIQ team */
-  getEspByTeam(): {
-    team: string;
-    inflow: number;
-    resolved: number;
-    cancelled: number;
-    routedOut: number;
-    backlog: number;
-    escalated: number;
-    mttrBiz: number;
-    mttrCal: number;
-  }[] {
-    const teamMap: Record<string, string> = {};
-    // Build SO→team mapping from CaseIQ metrics
-    if (Array.isArray(this.caseIqMetrics)) {
-      this.caseIqMetrics.forEach((m: any) => {
-        if (m?.TEAM_NAME && m?.IMPACTED_SERVICE_OFFERING) {
-          teamMap[m.IMPACTED_SERVICE_OFFERING] = m.TEAM_NAME;
-        }
-      });
-    }
-
-    const teams: Record<string, any> = {};
-    for (const row of this.getEspServiceOfferings()) {
-      const team = teamMap[row.SERVICE_OFFERING] || 'Other';
-      if (!teams[team]) {
-        teams[team] = {
-          team,
-          inflow: 0,
-          resolved: 0,
-          cancelled: 0,
-          routedOut: 0,
-          backlog: 0,
-          escalated: 0,
-          mttrBizSum: 0,
-          mttrCalSum: 0,
-          mttrCount: 0,
-        };
-      }
-      const t = teams[team];
-      t.inflow += Number(row.INFLOW) || 0;
-      t.resolved += Number(row.RESOLVED) || 0;
-      t.cancelled += Number(row.CANCELLED) || 0;
-      t.routedOut += Number(row.ROUTED_OUT) || 0;
-      t.backlog += Number(row.BACKLOG) || 0;
-      t.escalated += Number(row.ESCALATED) || 0;
-      const parsed = this.parseMttr(row.MTTR);
-      if (parsed) {
-        t.mttrBizSum += parsed.biz;
-        t.mttrCalSum += parsed.cal;
-        t.mttrCount++;
+  /**
+   * Column-prefix resilient reader for the exec metrics views.
+   * The P80 view currently exposes columns literally named IMPORT_TIME_P90
+   * and CASE_IQ_EXECUTION_TIME_P90 (mislabeled). Reading by prefix lets us
+   * survive column renames by the DB owner.
+   */
+  private execCol(row: any, prefix: string): number | null {
+    if (!row) return null;
+    const target = prefix.toUpperCase();
+    for (const key of Object.keys(row)) {
+      if (key.toUpperCase().startsWith(target)) {
+        const val = Number(row[key]);
+        return Number.isFinite(val) ? val : null;
       }
     }
-    return Object.values(teams)
-      .map((t: any) => ({
-        team: t.team,
-        inflow: t.inflow,
-        resolved: t.resolved,
-        cancelled: t.cancelled,
-        routedOut: t.routedOut,
-        backlog: t.backlog,
-        escalated: t.escalated,
-        mttrBiz: t.mttrCount
-          ? Math.round((t.mttrBizSum / t.mttrCount) * 100) / 100
-          : 0,
-        mttrCal: t.mttrCount
-          ? Math.round((t.mttrCalSum / t.mttrCount) * 100) / 100
-          : 0,
-      }))
-      .sort((a, b) => b.inflow - a.inflow);
+    return null;
   }
 
-  /** Parse MTTR string like "(1.49/2.35)" into { biz, cal } */
-  parseMttr(mttr: string | null): { biz: number; cal: number } | null {
-    if (!mttr || mttr === '0') return null;
-    const match = mttr.match(/\(?([\d.]+)\/([\d.]+)\)?/);
-    if (!match) return null;
-    return { biz: parseFloat(match[1]), cal: parseFloat(match[2]) };
+  private execTeam(row: any): string | null {
+    if (!row) return null;
+    for (const key of Object.keys(row)) {
+      if (key.toUpperCase() === 'TEAM_NAME') {
+        const v = row[key];
+        return v == null ? null : String(v);
+      }
+    }
+    return null;
   }
 
-  /** Executive KPIs */
+  /** Executive KPIs — Sourced entirely from the new p80/p90/coverage-gap/accuracy views. */
   executiveKpis(): CaseiqKpi[] {
-    const gt = this.getEspGrandTotal();
-    if (!gt) return [];
-    const parsed = this.parseMttr(gt.MTTR);
-    const inflow = Number(gt.INFLOW) || 0;
-    const resolved = Number(gt.RESOLVED) || 0;
-    const resolutionRate = inflow
-      ? Math.round((resolved / inflow) * 1000) / 10
-      : 0;
+    // Weighted MTTR (hours) from RESOLUTION_TIME + INCIDENT_COUNT (p90 view; same volumes as p80).
+    const mttrHrs = this.computeWeightedResolutionHours(this.execP90Data);
+
+    // Response time P80/P90 (minutes) = IMPORT_TIME + CASE_IQ_EXECUTION_TIME, weighted by INCIDENT_COUNT.
+    const rtP80 = this.computeWeightedResponseMinutes(this.execP80Data);
+    const rtP90 = this.computeWeightedResponseMinutes(this.execP90Data);
+
+    // Cases in ESP but not picked by CaseIQ.
+    const notPicked = this.execCoverageGapData.reduce(
+      (sum: number, row: any) =>
+        sum + (Number(this.execCol(row, 'INCIDENT_COUNT')) || 0),
+      0,
+    );
+
+    // Touchless rate = UPDATED_ONCE cases / all worknote-count cases.
+    const touchless = this.computeTouchless();
+
+    // Accuracy — reuse the Finance IT accuracy already computed for the ops strip.
+    const accuracyPct = this.getAccuracyForSection('Finance IT');
+    const accuracyCases = this.getTotalCasesFromAccuracy('Finance IT');
 
     return [
       {
-        title: 'MTTR (Business Days)',
+        title: 'Case Analyzer Accuracy',
         color: 'accent',
-        plain: true,
-        plainValue: parsed ? `${parsed.biz} days` : '--',
+        pillWidth: accuracyPct ?? 0,
+        pillText:
+          accuracyCases != null
+            ? `${accuracyCases.toLocaleString()} cases`
+            : '--',
+        pctText: accuracyPct != null ? `${accuracyPct.toFixed(1)}%` : '--',
       },
       {
-        title: 'MTTR (Calendar Days)',
+        title: 'Touchless Rate',
+        color: 'cyan',
+        pillWidth: touchless ? touchless.pct : 0,
+        pillText: touchless
+          ? `${touchless.touchless.toLocaleString()} / ${touchless.total.toLocaleString()}`
+          : '--',
+        pctText: touchless ? `${Math.round(touchless.pct)}%` : '--',
+      },
+      {
+        title: 'MTTR',
         color: 'cyan',
         plain: true,
-        plainValue: parsed ? `${parsed.cal} days` : '--',
+        plainValue: mttrHrs != null ? `${mttrHrs.toFixed(1)} hrs` : '--',
       },
       {
-        title: 'Resolution Rate',
+        title: 'Response Time P80',
         color: 'green',
-        pillWidth: resolutionRate,
-        pillText: `${resolved} / ${inflow}`,
-        pctText: `${resolutionRate}%`,
-      },
-      {
-        title: 'Inflow',
-        color: 'cyan',
         plain: true,
-        plainValue: inflow.toLocaleString(),
+        plainValue: rtP80 != null ? `${rtP80.toFixed(1)} min` : '--',
       },
       {
-        title: 'Current Backlog',
+        title: 'Response Time P90',
+        color: 'green',
+        plain: true,
+        plainValue: rtP90 != null ? `${rtP90.toFixed(1)} min` : '--',
+      },
+      {
+        title: 'Not Picked by CaseIQ',
         color: 'amber',
         plain: true,
-        plainValue: (Number(gt.BACKLOG) || 0).toLocaleString(),
+        plainValue: notPicked ? notPicked.toLocaleString() : '--',
       },
       {
-        title: 'Escalations',
+        title: 'Cases Not Analyzed (Conv Bot Timeout)',
         color: 'purple',
         plain: true,
-        plainValue: (Number(gt.ESCALATED) || 0).toLocaleString(),
+        plainValue: 'need data',
       },
     ];
   }
 
-  /** Build MTTR by Service Offering horizontal bar chart (ECharts) */
+  /**
+   * Weighted average of IMPORT_TIME + CASE_IQ_EXECUTION_TIME (both in minutes)
+   * weighted by INCIDENT_COUNT. Reads columns by prefix so a `_P80`/`_P90`
+   * suffix mismatch on the p80 view does not break the calculation.
+   */
+  private computeWeightedResponseMinutes(rows: any[]): number | null {
+    if (!Array.isArray(rows) || !rows.length) return null;
+    let weighted = 0;
+    let totalWeight = 0;
+    for (const row of rows) {
+      const imp = this.execCol(row, 'IMPORT_TIME');
+      const exec = this.execCol(row, 'CASE_IQ_EXECUTION_TIME');
+      const count = this.execCol(row, 'INCIDENT_COUNT') ?? 0;
+      if (imp == null || exec == null || count <= 0) continue;
+      weighted += (imp + exec) * count;
+      totalWeight += count;
+    }
+    return totalWeight > 0 ? weighted / totalWeight : null;
+  }
+
+  /** Weighted mean of RESOLUTION_TIME (stored in minutes) converted to hours. */
+  private computeWeightedResolutionHours(rows: any[]): number | null {
+    if (!Array.isArray(rows) || !rows.length) return null;
+    let weighted = 0;
+    let totalWeight = 0;
+    for (const row of rows) {
+      const rt = this.execCol(row, 'RESOLUTION_TIME');
+      const count = this.execCol(row, 'INCIDENT_COUNT') ?? 0;
+      if (rt == null || count <= 0) continue;
+      weighted += rt * count;
+      totalWeight += count;
+    }
+    return totalWeight > 0 ? weighted / totalWeight / 60 : null;
+  }
+
+  /**
+   * Touchless case share = UPDATED_ONCE / total across all worknote buckets.
+   * Returns null when the worknotes view has not yet loaded.
+   */
+  private computeTouchless(): {
+    touchless: number;
+    total: number;
+    pct: number;
+  } | null {
+    if (!this.execWorknotesData.length) return null;
+    let touchless = 0;
+    let total = 0;
+    for (const row of this.execWorknotesData) {
+      const count = this.execCol(row, 'INCIDENT_COUNT') ?? 0;
+      if (count <= 0) continue;
+      total += count;
+      const bucket = this.readChurnBucket(row);
+      if (bucket === 'UPDATED_ONCE') touchless += count;
+    }
+    if (total <= 0) return null;
+    return { touchless, total, pct: (touchless / total) * 100 };
+  }
+
+  /**
+   * Build the p80 → p90 dumbbell chart replacing MTTR by Service Offering.
+   * For each component we draw two dumbbells stacked in the same row:
+   *  – Import Time (min): p80 dot → p90 dot with a connector.
+   *  – CaseIQ Execution Time (min): p80 dot → p90 dot with a connector.
+   * The chart also renders the resolution horizontal bar chart via
+   * {@link buildResolutionChart}. Called whenever p80/p90 data changes.
+   */
   private buildMttrChart(): void {
-    const offerings = this.getEspServiceOfferings()
-      .map((r: any) => ({
-        name: r.SERVICE_OFFERING,
-        ...this.parseMttr(r.MTTR),
-      }))
-      .filter((r: any) => r.biz != null && r.biz > 0)
-      .sort((a: any, b: any) => b.cal - a.cal);
+    // Also build the sibling middle-top resolution chart.
+    this.buildResolutionChart();
 
-    if (!offerings.length) return;
+    if (!this.execP80Data.length || !this.execP90Data.length) return;
 
-    const labels = offerings.map((o: any) => {
-      let name: string = o.name;
-      name = name.replace('Billing, Invoice and Revenue - ', 'BIR: ');
-      name = name.replace('Billing Invoice and Revenue - ', 'BIR: ');
-      return name.length > 35 ? name.substring(0, 32) + '...' : name;
-    });
+    // Preferred display order matches the component table below (OM first, CAPITAL last).
+    // ECharts renders yAxis category data bottom-up, so reverse the order so
+    // the visual top-to-bottom matches OM → SM → I2C → AIT → FPP → P2P → CAPITAL.
+    const teamOrder = ['OM', 'SM', 'I2C', 'AIT', 'FPP', 'P2P', 'CAPITAL'];
+
+    // Build lookup maps by team.
+    const p80ByTeam: Record<string, any> = {};
+    const p90ByTeam: Record<string, any> = {};
+    for (const row of this.execP80Data) {
+      const team = this.execTeam(row);
+      if (team) p80ByTeam[team] = row;
+    }
+    for (const row of this.execP90Data) {
+      const team = this.execTeam(row);
+      if (team) p90ByTeam[team] = row;
+    }
+
+    const teams = teamOrder
+      .filter((t) => p80ByTeam[t] && p90ByTeam[t])
+      .reverse();
+    if (!teams.length) return;
+
+    // Two rows per team: Import Time and CaseIQ Execution Time.
+    // With teams reversed, first-in-data == bottom-of-axis; the visual reads
+    // OM (top) → CAPITAL (bottom), matching the component table order.
+    // Row order per team: Execution on bottom, Import on top (Import listed
+    // second here because ECharts places later data higher on the axis).
+    const yLabels: string[] = teams.flatMap((t) => [
+      `${t} — Execution`,
+      `${t} — Import`,
+    ]);
+
+    // Both metrics share the same blue family (matches the accent KPI gradient).
+    const importColor = '#00bceb';
+    const execColor = '#0070d2';
+
+    const p80Points: Array<[number, string, string, number, string]> = []; // [x, y-label, kind, count, team]
+    const p90Points: Array<[number, string, string, number, string]> = [];
+    const connectors: Array<Array<[number, string]>> = [];
+
+    for (const team of teams) {
+      this.appendDumbbellRow(
+        team,
+        p80ByTeam[team],
+        p90ByTeam[team],
+        p80Points,
+        p90Points,
+        connectors,
+      );
+    }
 
     const isDark = this.themeService.isDarkMode;
     const textColor = isDark ? '#e0e6ed' : '#1b1c1d';
     const mutedColor = isDark ? '#8899a6' : '#666';
     const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
 
+    // Color coded per axis label: Import rows in cyan, CaseIQ rows in purple.
+    const axisLabelColor = (val: string) =>
+      val.endsWith('— Import') ? importColor : execColor;
+
     this.chartOptionsMap['mttrSO'] = {
       tooltip: {
-        trigger: 'axis',
-        axisPointer: { type: 'shadow' },
+        trigger: 'item',
         backgroundColor: 'rgba(20,30,40,0.9)',
-        textStyle: { color: textColor, fontSize: 11 },
+        textStyle: { color: '#e0e6ed', fontSize: 11 },
+        formatter: (params: any) => {
+          const [x, , kind, count, team] = params.value as [
+            number,
+            string,
+            string,
+            number,
+            string,
+          ];
+          return (
+            `<div style="font-weight:600;color:${importColor};">${team}</div>` +
+            `<div>${kind}: <strong>${x.toFixed(1)} min</strong></div>` +
+            `<div style="color:${mutedColor};font-size:10px;">n = ${count.toLocaleString()}</div>`
+          );
+        },
       },
       legend: {
         top: 0,
+        data: [
+          { name: 'P80', icon: 'circle', itemStyle: { color: mutedColor } },
+          { name: 'P90', icon: 'circle', itemStyle: { color: importColor } },
+        ],
         textStyle: { color: textColor, fontSize: 11 },
-        itemWidth: 12,
-        itemHeight: 12,
+        itemWidth: 10,
+        itemHeight: 10,
       },
-      grid: { top: 30, left: 10, right: 30, bottom: 10, containLabel: true },
+      grid: { top: 35, left: 10, right: 60, bottom: 30, containLabel: true },
       xAxis: {
         type: 'value',
-        name: 'Days',
-        nameTextStyle: { color: mutedColor, fontSize: 11 },
-        axisLabel: { color: mutedColor },
+        name: 'Minutes',
+        nameLocation: 'end',
+        nameGap: 12,
+        nameTextStyle: {
+          color: mutedColor,
+          fontSize: 11,
+          padding: [0, 0, 0, 4],
+        },
+        axisLabel: { color: mutedColor, fontSize: 10 },
         splitLine: { lineStyle: { color: gridColor } },
       },
       yAxis: {
         type: 'category',
-        data: labels,
-        axisLabel: { color: textColor, fontSize: 10 },
+        data: yLabels,
+        axisLabel: {
+          fontSize: 10,
+          color: (val: string) => axisLabelColor(val),
+          fontWeight: 400,
+        },
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      series: [
+        // Connectors (line between p80 and p90 for each row).
+        {
+          type: 'custom',
+          renderItem: (_params: any, api: any) => {
+            const start = api.coord([api.value(0), api.value(1)]);
+            const end = api.coord([api.value(2), api.value(1)]);
+            const isImport = String(api.value(1)).endsWith('— Import');
+            return {
+              type: 'line',
+              shape: {
+                x1: start[0],
+                y1: start[1],
+                x2: end[0],
+                y2: end[1],
+              },
+              style: {
+                stroke: isImport ? importColor : execColor,
+                lineWidth: 3,
+                opacity: 0.35,
+              },
+            };
+          },
+          encode: { x: [0, 2], y: 1 },
+          data: connectors.map(([a, b]) => [a[0], a[1], b[0]]),
+          silent: true,
+          z: 1,
+        },
+        // P80 dots (hollow ring).
+        {
+          name: 'P80',
+          type: 'scatter',
+          data: p80Points,
+          symbolSize: 12,
+          itemStyle: {
+            color: '#ffffff',
+            borderColor: mutedColor,
+            borderWidth: 2,
+          },
+          z: 3,
+        },
+        // P90 dots (solid, color-coded by row).
+        {
+          name: 'P90',
+          type: 'scatter',
+          data: p90Points,
+          symbolSize: 13,
+          itemStyle: {
+            color: (params: any) => {
+              const label = params.value[1] as string;
+              return label.endsWith('— Import') ? importColor : execColor;
+            },
+            borderColor: '#ffffff',
+            borderWidth: 2,
+          },
+          z: 4,
+        },
+      ],
+    };
+  }
+
+  /**
+   * Extract one component's p80/p90 pair into dumbbell dots + connector
+   * segments. Mutates the passed accumulators to keep the parent
+   * {@link buildMttrChart} loop simple.
+   */
+  private appendDumbbellRow(
+    team: string,
+    p80Row: any,
+    p90Row: any,
+    p80Points: Array<[number, string, string, number, string]>,
+    p90Points: Array<[number, string, string, number, string]>,
+    connectors: Array<Array<[number, string]>>,
+  ): void {
+    const count = this.execCol(p90Row, 'INCIDENT_COUNT') ?? 0;
+
+    const imp80 = this.execCol(p80Row, 'IMPORT_TIME');
+    const imp90 = this.execCol(p90Row, 'IMPORT_TIME');
+    const importLabel = `${team} — Import`;
+    if (imp80 != null && imp90 != null) {
+      p80Points.push([imp80, importLabel, 'Import P80', count, team]);
+      p90Points.push([imp90, importLabel, 'Import P90', count, team]);
+      connectors.push([
+        [imp80, importLabel],
+        [imp90, importLabel],
+      ]);
+    }
+
+    const exec80 = this.execCol(p80Row, 'CASE_IQ_EXECUTION_TIME');
+    const exec90 = this.execCol(p90Row, 'CASE_IQ_EXECUTION_TIME');
+    const execLabel = `${team} — Execution`;
+    if (exec80 != null && exec90 != null) {
+      p80Points.push([exec80, execLabel, 'Execution P80', count, team]);
+      p90Points.push([exec90, execLabel, 'Execution P90', count, team]);
+      connectors.push([
+        [exec80, execLabel],
+        [exec90, execLabel],
+      ]);
+    }
+  }
+
+  /**
+   * Middle-top card: Resolution Time (MTTR) by component, horizontal bars.
+   * Uses the P90 view's RESOLUTION_TIME column (stored in minutes; rendered in hours).
+   */
+  private buildResolutionChart(): void {
+    if (!this.execP90Data.length) return;
+
+    const teamOrder = ['OM', 'SM', 'I2C', 'AIT', 'FPP', 'P2P', 'CAPITAL'];
+    const rowByTeam: Record<string, any> = {};
+    for (const row of this.execP90Data) {
+      const team = this.execTeam(row);
+      if (team) rowByTeam[team] = row;
+    }
+
+    const entries = teamOrder
+      .filter((t) => rowByTeam[t])
+      .map((team) => {
+        const mins = this.execCol(rowByTeam[team], 'RESOLUTION_TIME') ?? 0;
+        const count = this.execCol(rowByTeam[team], 'INCIDENT_COUNT') ?? 0;
+        return { team, hours: Math.round((mins / 60) * 10) / 10, count };
+      })
+      .filter((e) => e.hours > 0)
+      // Ascending → ECharts renders data[0] at bottom, so largest lands at top.
+      .sort((a, b) => a.hours - b.hours);
+
+    if (!entries.length) return;
+
+    const isDark = this.themeService.isDarkMode;
+    const textColor = isDark ? '#e0e6ed' : '#1b1c1d';
+    const mutedColor = isDark ? '#8899a6' : '#666';
+    const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+
+    this.chartOptionsMap['resolutionByTeam'] = {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
+        backgroundColor: 'rgba(20,30,40,0.9)',
+        textStyle: { color: '#e0e6ed', fontSize: 11 },
+        formatter: (params: any) => {
+          const p = params[0];
+          const entry = entries[p.dataIndex];
+          return (
+            `<div style="font-weight:600;">${entry.team}</div>` +
+            `<div>MTTR: <strong>${entry.hours.toFixed(1)} hrs</strong></div>` +
+            `<div style="color:${mutedColor};font-size:10px;">n = ${entry.count.toLocaleString()}</div>`
+          );
+        },
+      },
+      grid: { top: 20, left: 10, right: 40, bottom: 20, containLabel: true },
+      xAxis: {
+        type: 'value',
+        name: 'Hours',
+        nameTextStyle: { color: mutedColor, fontSize: 11 },
+        axisLabel: { color: mutedColor, fontSize: 10 },
+        splitLine: { lineStyle: { color: gridColor } },
+      },
+      yAxis: {
+        type: 'category',
+        data: entries.map((e) => e.team),
+        axisLabel: {
+          color: textColor,
+          fontSize: 11,
+          fontWeight: 400,
+        },
         axisLine: { show: false },
         axisTick: { show: false },
       },
       series: [
         {
-          name: 'Business Days',
           type: 'bar',
-          data: offerings.map((o: any) => o.biz),
+          data: entries.map((e) => e.hours),
           itemStyle: {
-            color: 'rgba(0, 112, 210, 0.7)',
-            borderRadius: [0, 4, 4, 0],
+            // Muted single-family gradient (accent KPI palette: dark blue → cyan).
+            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+              { offset: 0, color: '#0070d2' },
+              { offset: 1, color: '#00bceb' },
+            ]),
+            borderRadius: [6, 6, 6, 6],
           },
-          barGap: '10%',
-        },
-        {
-          name: 'Calendar Days',
-          type: 'bar',
-          data: offerings.map((o: any) => o.cal),
-          itemStyle: {
-            color: 'rgba(0, 188, 235, 0.5)',
-            borderRadius: [0, 4, 4, 0],
+          label: {
+            show: true,
+            position: 'right',
+            color: mutedColor,
+            fontSize: 11,
+            fontWeight: 400,
+            formatter: (params: any) =>
+              `${entries[params.dataIndex].hours.toFixed(1)} hrs`,
           },
+          barMaxWidth: 24,
         },
       ],
     };
+  }
+
+  /**
+   * Case Churn by Component — horizontal stacked bar of worknote-count buckets
+   * per team (UPDATED_ONCE = touchless / good, >10 = high churn / bad).
+   * Data source: ASK_CASEIQ_WORKNOTES_DATA_V via /api/caseiq/exec/worknotes-churn.
+   */
+  private buildChurnChart(): void {
+    if (!this.execWorknotesData.length) return;
+
+    // Preferred display order — same as dumbbell (reversed so OM lands at top).
+    const teamOrder = ['OM', 'SM', 'I2C', 'AIT', 'FPP', 'P2P', 'CAPITAL'];
+    // Bucket order + friendly labels + severity gradients (green → red).
+    // Each gradient shifts within its color family so stacked segments still
+    // have visual depth even when a segment is short.
+    const buckets: Array<{
+      key: string;
+      label: string;
+      legendColor: string;
+      gradient: [string, string];
+    }> = [
+      {
+        key: 'UPDATED_ONCE',
+        label: 'Touchless (1 update)',
+        legendColor: '#16a34a',
+        gradient: ['#4ade80', '#16a34a'],
+      },
+      {
+        key: '<5',
+        label: '< 5 updates',
+        legendColor: '#00bceb',
+        gradient: ['#22d3ee', '#0891b2'],
+      },
+      {
+        key: '<10',
+        label: '< 10 updates',
+        legendColor: '#e6a800',
+        gradient: ['#fbbf24', '#d97706'],
+      },
+      {
+        key: '>10',
+        label: '> 10 updates',
+        legendColor: '#dc2626',
+        gradient: ['#f87171', '#dc2626'],
+      },
+    ];
+
+    const totals = this.aggregateChurnTotals();
+    const teams = teamOrder.filter((t) => totals[t]).reverse();
+    if (!teams.length) return;
+
+    // Precompute per-team first/last non-zero bucket indices for rounded caps.
+    const capIndices = teams.map((t) =>
+      this.churnCapIndices(t, totals, buckets),
+    );
+
+    const isDark = this.themeService.isDarkMode;
+    const textColor = isDark ? '#e0e6ed' : '#1b1c1d';
+    const mutedColor = isDark ? '#8899a6' : '#666';
+    const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+
+    const churnTooltipFormatter = (params: any) => {
+      const team = params[0]?.axisValue ?? '';
+      const total = params.reduce(
+        (s: number, p: any) => s + (Number(p.value) || 0),
+        0,
+      );
+      const rows = params
+        .map(
+          (p: any) =>
+            `<div style="display:flex;justify-content:space-between;gap:12px;">` +
+            `<span>${p.marker}${p.seriesName}</span>` +
+            `<strong>${(Number(p.value) || 0).toLocaleString()}</strong>` +
+            `</div>`,
+        )
+        .join('');
+      return (
+        `<div style="font-weight:600;margin-bottom:4px;">${team}</div>` +
+        rows +
+        `<div style="border-top:1px solid ${mutedColor};margin-top:4px;padding-top:4px;` +
+        `display:flex;justify-content:space-between;gap:12px;">` +
+        `<span>Total</span><strong>${total.toLocaleString()}</strong></div>`
+      );
+    };
+
+    this.chartOptionsMap['churnByTeam'] = {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
+        backgroundColor: 'rgba(20,30,40,0.9)',
+        textStyle: { color: '#e0e6ed', fontSize: 11 },
+        formatter: churnTooltipFormatter,
+      },
+      legend: {
+        top: 0,
+        data: buckets.map((b) => ({
+          name: b.label,
+          itemStyle: { color: b.legendColor },
+        })),
+        textStyle: { color: textColor, fontSize: 11 },
+        itemWidth: 10,
+        itemHeight: 10,
+      },
+      grid: { top: 35, left: 10, right: 40, bottom: 20, containLabel: true },
+      xAxis: {
+        type: 'value',
+        name: 'Cases',
+        nameLocation: 'end',
+        nameGap: 12,
+        nameTextStyle: {
+          color: mutedColor,
+          fontSize: 11,
+          padding: [0, 0, 0, 4],
+        },
+        axisLabel: { color: mutedColor, fontSize: 10 },
+        splitLine: { lineStyle: { color: gridColor } },
+      },
+      yAxis: {
+        type: 'category',
+        data: teams,
+        axisLabel: { color: textColor, fontSize: 11, fontWeight: 400 },
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      series: buckets.map((b, bIdx) => ({
+        name: b.label,
+        type: 'bar',
+        stack: 'churn',
+        data: teams.map((t, tIdx) => ({
+          value: totals[t]?.[b.key] ?? 0,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+              { offset: 0, color: b.gradient[0] },
+              { offset: 1, color: b.gradient[1] },
+            ]),
+            borderRadius: this.churnDatumRadius(bIdx, capIndices[tIdx]),
+          },
+        })),
+        barMaxWidth: 28,
+        emphasis: { focus: 'series' },
+      })),
+    };
+  }
+
+  /** Aggregate churn buckets into team → bucketKey → count for buildChurnChart. */
+  private aggregateChurnTotals(): Record<string, Record<string, number>> {
+    const totals: Record<string, Record<string, number>> = {};
+    for (const row of this.execWorknotesData) {
+      const team = this.execTeam(row);
+      if (!team) continue;
+      const bucket = this.readChurnBucket(row);
+      if (!bucket) continue;
+      const count = this.execCol(row, 'INCIDENT_COUNT') ?? 0;
+      totals[team] = totals[team] ?? {};
+      totals[team][bucket] = (totals[team][bucket] ?? 0) + count;
+    }
+    return totals;
+  }
+
+  private readChurnBucket(row: any): string | null {
+    for (const key of Object.keys(row)) {
+      if (key.toUpperCase() === 'WORK_NOTES_COUNT') {
+        const v = row[key];
+        return v == null ? null : String(v);
+      }
+    }
+    return null;
+  }
+
+  /** Return {first, last} indices of the non-zero buckets for a team's stack. */
+  private churnCapIndices(
+    team: string,
+    totals: Record<string, Record<string, number>>,
+    buckets: Array<{ key: string }>,
+  ): { first: number; last: number } {
+    let first = -1;
+    let last = -1;
+    for (let i = 0; i < buckets.length; i++) {
+      const v = totals[team]?.[buckets[i].key] ?? 0;
+      if (v > 0) {
+        if (first === -1) first = i;
+        last = i;
+      }
+    }
+    return { first, last };
+  }
+
+  /** Per-datum radius: round only the visual outer caps of each team's stack. */
+  private churnDatumRadius(
+    bIdx: number,
+    caps: { first: number; last: number },
+  ): number[] {
+    const isFirst = bIdx === caps.first;
+    const isLast = bIdx === caps.last;
+    if (isFirst && isLast) return [6, 6, 6, 6];
+    if (isFirst) return [6, 0, 0, 6];
+    if (isLast) return [0, 6, 6, 0];
+    return [0, 0, 0, 0];
   }
 
   /** Build a weekly volume chart for the executive view (ECharts) */
@@ -2468,6 +2971,30 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         this.buildSankeyChart2Step();
       } else {
         this.buildSankeyChart();
+      }
+    }, 50);
+  }
+
+  /** Middle-bottom exec card: Weekly Case Volume ↔ Hourly Processing Load. */
+  flipExecBottomCard(): void {
+    this.execBottomCardFlipped = !this.execBottomCardFlipped;
+    setTimeout(() => {
+      if (this.execBottomCardFlipped) {
+        this.buildExecHourlyChart();
+      } else {
+        this.buildExecWeeklyChart();
+      }
+    }, 50);
+  }
+
+  /** Middle-top exec card: Resolution Time (MTTR) ↔ Case Churn by Component. */
+  flipExecMttrCard(): void {
+    this.execMttrCardFlipped = !this.execMttrCardFlipped;
+    setTimeout(() => {
+      if (this.execMttrCardFlipped) {
+        this.buildChurnChart();
+      } else {
+        this.buildResolutionChart();
       }
     }, 50);
   }

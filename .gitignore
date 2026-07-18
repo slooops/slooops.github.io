@@ -63,3 +63,9 @@ POST_REQUEST_FLOW.md
 TESTING_GUIDE.md
 .vscode/settings.json
 .codesight/default.json
+env.local
+README-LOCAL.md
+.claude/launch.json
+scripts/local-dev.patch
+scripts/run-server.py
+scripts/__pycache__/run-server.cpython-314.pyc

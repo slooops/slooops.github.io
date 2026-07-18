@@ -501,7 +501,10 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  /* Churn chart (flip-back) needs ~220px to render 7 team labels + legend
+     without cropping. Enforce a floor on both stacked cards so the flip
+     never surprises the viewer. */
+  min-height: 220px;
 }
 
 .exec-stacked-col > .ciq-card .analytics-chart-wrapper {
