@@ -26,12 +26,28 @@ import java.time.LocalDate;
  * retrain.
  *
  * <p>
- * Disabled by default until {@code wd0.predictions.scheduled.enabled=true}
- * is set, so this code can be deployed but stay dormant during the
- * sanity-check phase (manual triggers via POST /api/wd0/v2/projection/run).
+ * <b>Enabled by default</b> (opt-out, not opt-in). The bean is created
+ * unless {@code wd0.predictions.scheduled.enabled} is explicitly set to
+ * {@code false}. This is deliberate: on 2026-06-17 a stash-commit wiped the
+ * enable line from {@code application.properties} and the cron went dark
+ * for ~25 days because the previous {@code matchIfMissing=false} semantics
+ * meant "no property → no bean → no writes to JSR_WD0_PREDICTIONS /
+ * JSR_WD0_RAW_SNAPSHOTS." Flipping to {@code matchIfMissing=true} makes
+ * deployed environments resilient to future config-file mishaps.
+ *
+ * <p>
+ * Local dev safety: {@code application-local.yml} explicitly sets
+ * {@code wd0.predictions.scheduled.enabled: false}, so IntelliJ runs with
+ * {@code -Dspring.profiles.active=local} still no-op and never write to
+ * the DB. The {@code CONTROLM_SYNC_ENABLED} env-var pattern is the
+ * belt-and-suspenders layer at the deployment level.
+ *
+ * <p>
+ * Manual triggers remain available via {@code POST /api/wd0/v2/projection/run}
+ * regardless of this flag.
  */
 @Component
-@ConditionalOnProperty(prefix = "wd0.predictions.scheduled", name = "enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(prefix = "wd0.predictions.scheduled", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class Wd0PredictiveScheduledJob {
 
     private static final Logger log = LoggerFactory.getLogger(Wd0PredictiveScheduledJob.class);
