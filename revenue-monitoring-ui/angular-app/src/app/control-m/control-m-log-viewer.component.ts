@@ -25,6 +25,7 @@ import {
 } from '@ng-icons/phosphor-icons/bold';
 import { Subject, takeUntil } from 'rxjs';
 
+import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import { ControlMService } from './control-m.service';
 import type {
   ChatMessage,
@@ -86,7 +87,7 @@ const SUGGESTED_PROMPTS = [
 @Component({
   selector: 'app-control-m-log-viewer',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgIcon],
+  imports: [CommonModule, FormsModule, NgIcon, LoadingSymbolComponent],
   providers: [
     provideIcons({
       phosphorArrowClockwiseBold,

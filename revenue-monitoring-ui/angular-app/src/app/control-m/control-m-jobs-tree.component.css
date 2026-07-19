@@ -8,7 +8,7 @@
   --cmt-hover-bg: rgba(0, 112, 210, 0.04);
   --cmt-shadow:
     0 4px 20px rgba(0, 0, 0, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-  --cmt-header-bg: #f7f9fc;
+  --cmt-header-bg: #ffffff;
   --cmt-subheader-bg: #f0f4fa;
   --cmt-folder-icon: #0070d2;
   --cmt-caret: #6b7482;
@@ -76,6 +76,10 @@
   border-bottom: 1px solid var(--cmt-divider);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .cm-tree-title {
@@ -91,12 +95,94 @@
   color: var(--cmt-muted);
 }
 
+.cm-tree-search {
+  position: relative;
+  flex: 0 0 auto;
+  width: 280px;
+  max-width: 40vw;
+}
+
+.cm-tree-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  transform: translateY(-50%);
+  color: var(--cmt-muted);
+  pointer-events: none;
+}
+
+.cm-tree-search-input {
+  width: 100%;
+  height: 28px;
+  padding: 0 26px 0 26px;
+  border: 1px solid var(--cmt-divider);
+  border-radius: 8px;
+  background: var(--cmt-bg);
+  color: var(--cmt-text);
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.cm-tree-search-input:focus {
+  border-color: var(--cmt-accent);
+  box-shadow: 0 0 0 2px rgba(0, 188, 235, 0.18);
+}
+
+.cm-tree-search-clear {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--cmt-muted);
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
+}
+
+.cm-tree-search-clear:hover {
+  background: var(--cmt-hover-bg);
+  color: var(--cmt-text);
+}
+
+@media (max-width: 640px) {
+  .cm-tree-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cm-tree-search {
+    width: 100%;
+    max-width: none;
+  }
+}
+
 .cm-tree-empty,
 .cm-tree-error {
   padding: 24px 16px;
   text-align: center;
   font-size: 12px;
   color: var(--cmt-muted);
+}
+
+.cm-tree-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  --loading-symbol-width: 140px;
 }
 
 .cm-tree-error {

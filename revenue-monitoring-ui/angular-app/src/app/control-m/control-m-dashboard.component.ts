@@ -14,7 +14,7 @@ import {
   phosphorCaretDownBold,
   phosphorCaretUpBold,
   phosphorFolderOpenBold,
-  phosphorFunnelBold,
+  phosphorFunnelSimpleBold,
   phosphorMagnifyingGlassBold,
   phosphorPulseBold,
   phosphorSirenBold,
@@ -22,6 +22,10 @@ import {
   phosphorWarningBold,
   phosphorXBold,
 } from '@ng-icons/phosphor-icons/bold';
+import {
+  phosphorPulseFill,
+  phosphorWarningFill,
+} from '@ng-icons/phosphor-icons/fill';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart, PieChart } from 'echarts/charts';
@@ -45,6 +49,8 @@ import {
 
 import { ThemeService } from '../providers/theme.service';
 import { ChatbotService } from '../chatbot/chatbot.service';
+import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
+import { LoadingSymbolSmallComponent } from '../loading-symbol-small/loading-symbol-small.component';
 import { ControlMService } from './control-m.service';
 import { ControlMJobsTreeComponent } from './control-m-jobs-tree.component';
 import { ControlMLogViewerComponent } from './control-m-log-viewer.component';
@@ -101,6 +107,8 @@ interface DisplayFolder extends Folder {
     FormsModule,
     NgIcon,
     NgxEchartsDirective,
+    LoadingSymbolComponent,
+    LoadingSymbolSmallComponent,
     ControlMJobsTreeComponent,
     ControlMLogViewerComponent,
     ControlMActionDetailsComponent,
@@ -114,12 +122,14 @@ interface DisplayFolder extends Folder {
       phosphorCaretDownBold,
       phosphorCaretUpBold,
       phosphorFolderOpenBold,
-      phosphorFunnelBold,
+      phosphorFunnelSimpleBold,
       phosphorMagnifyingGlassBold,
       phosphorPulseBold,
+      phosphorPulseFill,
       phosphorSirenBold,
       phosphorSparkleBold,
       phosphorWarningBold,
+      phosphorWarningFill,
       phosphorXBold,
     }),
   ],
@@ -656,7 +666,7 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
       {
         value: this.kpiSuccess,
         name: 'Success',
-        itemStyle: { color: '#1c8c4c' },
+        itemStyle: { color: '#6ebe4a' },
       },
       {
         value: this.kpiFailure,
@@ -671,7 +681,7 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
       {
         value: this.kpiLateStart,
         name: 'Late-start',
-        itemStyle: { color: '#f39c12' },
+        itemStyle: { color: '#e6a800' },
       },
       {
         value: this.kpiPending,
@@ -731,9 +741,11 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
       legend: {
         data: ['Failures', 'Long-running', 'Late-start'],
         textStyle: { color: tickColor, fontSize: 10 },
-        top: 0,
+        top: 2,
+        itemHeight: 8,
+        itemWidth: 12,
       },
-      grid: { top: 24, left: 32, right: 8, bottom: 20, containLabel: true },
+      grid: { top: 26, left: 8, right: 8, bottom: 6, containLabel: true },
       xAxis: {
         type: 'category',
         data: labels,
@@ -774,7 +786,7 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
           type: 'bar',
           stack: 'total',
           data: this.trend.map((d) => d.LATE_START),
-          itemStyle: { color: '#f39c12', borderRadius: [4, 4, 0, 0] },
+          itemStyle: { color: '#e6a800', borderRadius: [4, 4, 0, 0] },
           barMaxWidth: 28,
         },
       ],
@@ -828,6 +840,18 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
     if (f.has_long_running || f.has_late_start) return 'cm-dot cm-dot-warn';
     if ((f.job_count ?? 0) === 0) return 'cm-dot cm-dot-muted';
     return 'cm-dot cm-dot-ok';
+  }
+
+  folderTopClass(f: {
+    has_failure?: boolean;
+    has_long_running?: boolean;
+    has_late_start?: boolean;
+    job_count?: number;
+  }): string {
+    if (f.has_failure) return 'is-top-error';
+    if (f.has_long_running || f.has_late_start) return 'is-top-warn';
+    if ((f.job_count ?? 0) === 0) return 'is-top-muted';
+    return 'is-top-ok';
   }
 
   trackByFolder = (_: number, f: Folder) => f.folder;

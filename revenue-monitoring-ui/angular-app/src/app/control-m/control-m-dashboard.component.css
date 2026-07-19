@@ -1,6 +1,6 @@
 /* ── Light-mode tokens (component-scoped) ── */
 :host {
-  --cm-bg: #f0f4f8;
+  --cm-bg: #ffffff;
   --cm-surface: #ffffff;
   --cm-card-bg: rgba(255, 255, 255, 0.72);
   --cm-card-border: rgba(255, 255, 255, 0.6);
@@ -17,12 +17,12 @@
   --cm-accent: #00bceb;
   --cm-primary: #0070d2;
 
-  --cm-ok: #1c8c4c;
-  --cm-ok-bg: rgba(28, 140, 76, 0.12);
+  --cm-ok: #6ebe4a;
+  --cm-ok-bg: rgba(110, 190, 74, 0.16);
   --cm-err: #e53935;
   --cm-err-bg: rgba(229, 57, 53, 0.12);
-  --cm-warn: #f39c12;
-  --cm-warn-bg: rgba(243, 156, 18, 0.14);
+  --cm-warn: #e6a800;
+  --cm-warn-bg: rgba(230, 168, 0, 0.16);
   --cm-info: #0070d2;
   --cm-info-bg: rgba(0, 112, 210, 0.1);
   --cm-neutral-bg: rgba(0, 0, 0, 0.06);
@@ -57,9 +57,9 @@
   --cm-border-soft: #22323f;
   --cm-hover-bg: rgba(0, 188, 235, 0.06);
 
-  --cm-ok-bg: rgba(28, 140, 76, 0.2);
+  --cm-ok-bg: rgba(110, 190, 74, 0.22);
   --cm-err-bg: rgba(229, 57, 53, 0.22);
-  --cm-warn-bg: rgba(243, 156, 18, 0.22);
+  --cm-warn-bg: rgba(230, 168, 0, 0.22);
   --cm-info-bg: rgba(0, 188, 235, 0.14);
   --cm-neutral-bg: rgba(255, 255, 255, 0.06);
   --cm-pending: #3a4a5a;
@@ -124,6 +124,7 @@
   padding: 1px 5px;
   background: var(--cm-neutral-bg);
   border-radius: 4px;
+  color: var(--cm-muted);
 }
 
 .cm-header-controls {
@@ -136,11 +137,14 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  margin: 0; /* override global label { margin-bottom: 5px } from forms.less */
   font-size: 12px;
+  font-weight: var(--fit-font-weight-normal, 400);
   color: var(--cm-muted);
 }
 
 .cm-select {
+  box-sizing: border-box;
   height: 28px;
   padding: 0 24px 0 10px;
   border-radius: 8px;
@@ -149,6 +153,7 @@
   color: var(--cm-text);
   font-size: 12px;
   font-weight: 500;
+  line-height: 1;
   outline: none;
   cursor: pointer;
   appearance: none;
@@ -164,6 +169,7 @@
 }
 
 .cm-btn {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -175,6 +181,7 @@
   color: var(--cm-text);
   font-size: 12px;
   font-weight: 600;
+  line-height: 1;
   cursor: pointer;
   transition:
     background 150ms ease,
@@ -192,18 +199,30 @@
 }
 
 .cm-btn-primary {
-  background: var(--cm-accent);
-  color: #002a3a;
-  border-color: transparent;
+  background: var(--cm-surface);
+  color: var(--cm-text);
+  border-color: var(--cm-border);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 .cm-btn-primary:hover {
-  background: #00a5ce;
-  color: #ffffff;
+  background: var(--cm-surface);
+  border-color: var(--cm-accent);
+  color: var(--cm-text);
+  box-shadow: 0 0 0 2px rgba(0, 188, 235, 0.15);
 }
 
 :host(.dark-theme) .cm-btn-primary {
-  color: #001a24;
+  background: var(--cm-card-bg);
+  color: var(--cm-text);
+  border-color: var(--cm-border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+:host(.dark-theme) .cm-btn-primary:hover {
+  background: var(--cm-card-bg);
+  border-color: var(--cm-accent);
+  color: var(--cm-text);
 }
 
 .cm-spin {
@@ -233,7 +252,8 @@
 }
 
 .cm-grid-2col {
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
 }
 
 /* ── Card ── */
@@ -435,17 +455,20 @@
 .cm-trend-card {
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .cm-trend-wrap {
-  flex: 1;
-  min-height: 200px;
-  padding: 8px 12px 12px;
+  flex: 1 1 auto;
+  min-height: 160px;
+  padding: 6px 12px 10px;
+  display: flex;
 }
 
 .cm-trend-chart {
   width: 100%;
-  height: 200px;
+  height: 100%;
+  min-height: 140px;
 }
 
 .cm-no-data {
@@ -462,8 +485,89 @@
 
 .cm-tile-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+/*
+ * Anti-orphan tuning.
+ *
+ * The base `auto-fill` rule packs as many 220px columns as the viewport allows,
+ * which is fine when the tile count divides evenly — but ugly when it leaves a
+ * lonely trailing row (e.g. 16 tiles rendered as 5 + 5 + 5 + 1).
+ *
+ * Modern `:has()` lets us detect the *exact* number of children via
+ * `:has(> :nth-child(N):last-child)` — that selector matches only when the
+ * grid has an Nth child that is also its last child, i.e. total count = N.
+ * We then force the column count that produces the cleanest layout, but only
+ * at viewport widths where the target column count can comfortably render.
+ */
+
+/* ≤ 6 tiles: prefer 3-across when there's room. */
+@media (min-width: 800px) {
+  .cm-tile-grid:has(> :nth-child(6):last-child),
+  .cm-tile-grid:has(> :nth-child(3):last-child) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* 8 tiles → 4×2 ; 9 tiles → 3×3 */
+@media (min-width: 1000px) {
+  .cm-tile-grid:has(> :nth-child(8):last-child) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .cm-tile-grid:has(> :nth-child(9):last-child) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* 10 → 5×2, 12 → 4×3, 15 → 5×3, 16 → 4×4 at this mid range */
+@media (min-width: 1200px) {
+  .cm-tile-grid:has(> :nth-child(10):last-child) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .cm-tile-grid:has(> :nth-child(12):last-child) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .cm-tile-grid:has(> :nth-child(15):last-child) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .cm-tile-grid:has(> :nth-child(16):last-child) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/*
+ * 16 tiles is the expected steady-state count. Above the mid range
+ * a 4×4 grid stretches individual tiles far too wide on 15"+ displays,
+ * so bump to 8×2 at wide viewports and 16×1 on ultra-wide.
+ */
+@media (min-width: 1400px) {
+  .cm-tile-grid:has(> :nth-child(16):last-child) {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1900px) {
+  .cm-tile-grid:has(> :nth-child(16):last-child) {
+    grid-template-columns: repeat(16, minmax(0, 1fr));
+  }
+}
+
+/* 18 → 6×3, 20 → 5×4, 24 → 6×4, 25 → 5×5 */
+@media (min-width: 1500px) {
+  .cm-tile-grid:has(> :nth-child(18):last-child) {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .cm-tile-grid:has(> :nth-child(20):last-child) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .cm-tile-grid:has(> :nth-child(24):last-child) {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .cm-tile-grid:has(> :nth-child(25):last-child) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
 }
 
 .cm-tile {
@@ -500,8 +604,28 @@
     var(--cm-card-shadow);
 }
 
-.cm-tile.is-group {
-  border-top: 3px solid var(--cm-accent);
+/* Health-driven top border. Applied to every tile; group tiles fall back to accent. */
+.cm-tile {
+  --cm-tile-top: transparent;
+  border-top: 3px solid var(--cm-tile-top);
+}
+.cm-tile[data-top="is-top-error"] {
+  --cm-tile-top: var(--cm-err);
+}
+.cm-tile[data-top="is-top-warn"] {
+  --cm-tile-top: var(--cm-warn);
+}
+.cm-tile[data-top="is-top-ok"] {
+  --cm-tile-top: var(--cm-ok);
+}
+.cm-tile[data-top="is-top-muted"] {
+  --cm-tile-top: var(--cm-pending);
+}
+/* Group tiles without a specific health status still get the accent. */
+.cm-tile.is-group:not([data-top="is-top-error"]):not(
+    [data-top="is-top-warn"]
+  ):not([data-top="is-top-ok"]):not([data-top="is-top-muted"]) {
+  --cm-tile-top: var(--cm-accent);
 }
 
 .cm-tile-head {
@@ -585,16 +709,16 @@
   flex-shrink: 0;
 }
 .cm-dot-ok {
-  background: #16a34a;
+  background: var(--cm-ok);
 }
 .cm-dot-warn {
-  background: #f39c12;
+  background: var(--cm-warn);
 }
 .cm-dot-error {
-  background: #e53935;
+  background: var(--cm-err);
 }
 .cm-dot-muted {
-  background: var(--cm-muted);
+  background: var(--cm-pending);
 }
 .cm-dot-info {
   background: var(--cm-accent);
@@ -607,7 +731,8 @@
   gap: 12px;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 16px 8px;
+  padding: 14px 24px 0;
+  margin-bottom: -8px;
 }
 
 .cm-filter-chips {
@@ -725,7 +850,7 @@
 
 /* ── Jobs section / table ── */
 .cm-jobs-section {
-  padding: 0 16px;
+  padding: 1rem 1rem 0;
 }
 
 .cm-table-scroll {
@@ -842,12 +967,23 @@
 }
 
 /* ── Loading / error ── */
-.cm-loading,
-.cm-loading-inline {
+.cm-loading {
   padding: 20px;
-  text-align: center;
   color: var(--cm-muted);
   font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  --loading-symbol-width: 140px;
+}
+
+.cm-loading-inline {
+  padding: 12px 16px;
+  color: var(--cm-muted);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cm-error-inline {

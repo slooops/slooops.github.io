@@ -261,6 +261,7 @@
   padding: 48px 24px;
   color: var(--lv-muted);
   font-size: 12px;
+  --loading-symbol-width: 140px;
 }
 
 .cm-lv-error-block {

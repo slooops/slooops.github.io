@@ -52,12 +52,7 @@
       ) {
         @if (textStates[activeTab]?.loading) {
           <div class="cm-lv-loading">
-            <ng-icon
-              name="phosphorArrowClockwiseBold"
-              size="16"
-              class="cm-lv-spin"
-            />
-            Loading…
+            <app-loading-symbol animationStyle="origins" />
           </div>
         } @else if (textStates[activeTab]?.error; as err) {
           <div class="cm-lv-error-block">
@@ -81,12 +76,7 @@
       @if (activeTab === "waiting-info") {
         @if (waitingState.loading) {
           <div class="cm-lv-loading">
-            <ng-icon
-              name="phosphorArrowClockwiseBold"
-              size="16"
-              class="cm-lv-spin"
-            />
-            Loading…
+            <app-loading-symbol animationStyle="origins" />
           </div>
         } @else if (waitingState.error) {
           <div class="cm-lv-error-block">
@@ -125,12 +115,7 @@
       @if (activeTab === "statistic-info") {
         @if (statsState.loading) {
           <div class="cm-lv-loading">
-            <ng-icon
-              name="phosphorArrowClockwiseBold"
-              size="16"
-              class="cm-lv-spin"
-            />
-            Loading…
+            <app-loading-symbol animationStyle="origins" />
           </div>
         } @else if (statsState.error) {
           <div class="cm-lv-error-block">
@@ -232,12 +217,7 @@
       @if (activeTab === "sql-info") {
         @if (sqlState.loading) {
           <div class="cm-lv-loading">
-            <ng-icon
-              name="phosphorArrowClockwiseBold"
-              size="16"
-              class="cm-lv-spin"
-            />
-            Loading…
+            <app-loading-symbol animationStyle="origins" />
           </div>
         } @else if (sqlState.error) {
           <div class="cm-lv-error-block">

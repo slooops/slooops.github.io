@@ -185,7 +185,9 @@
   <!-- ── Row 2: Folder tiles ── -->
   <section class="cm-tiles-section">
     @if (loadingFolders) {
-      <div class="cm-loading-inline">Loading folders…</div>
+      <div class="cm-loading-inline">
+        <app-loading-symbol-small />
+      </div>
     }
     @if (errorFolders) {
       <div class="cm-error-inline">
@@ -199,6 +201,7 @@
           class="cm-tile"
           [class.active]="selectedFolder === folder.folder"
           [class.is-group]="folder.isGroup"
+          [attr.data-top]="folderTopClass(folder)"
           (click)="onFolderClick(folder)"
         >
           <div class="cm-tile-head">
@@ -221,19 +224,19 @@
           <div class="cm-tile-flags">
             @if (folder.has_failure) {
               <span class="cm-flag cm-flag-err">
-                <ng-icon name="phosphorWarningBold" size="9" />
+                <ng-icon name="phosphorWarningFill" size="10" />
                 fail
               </span>
             }
             @if (folder.has_long_running) {
               <span class="cm-flag cm-flag-info">
-                <ng-icon name="phosphorPulseBold" size="9" />
+                <ng-icon name="phosphorPulseFill" size="10" />
                 long
               </span>
             }
             @if (folder.has_late_start) {
               <span class="cm-flag cm-flag-warn">
-                <ng-icon name="phosphorWarningBold" size="9" />
+                <ng-icon name="phosphorWarningFill" size="10" />
                 late
               </span>
             }
@@ -391,12 +394,12 @@
     </div>
   }
 
-  <!-- ── Active filters + search ── -->
-  <section class="cm-filter-bar">
-    @if (activeCategory !== "TOTAL" || selectedFolder || selectedSubApp) {
+  <!-- ── Active filters ── -->
+  @if (activeCategory !== "TOTAL" || selectedFolder || selectedSubApp) {
+    <section class="cm-filter-bar">
       <div class="cm-filter-chips">
         <span class="cm-filter-label">
-          <ng-icon name="phosphorFunnelBold" size="12" /> Filters:
+          <ng-icon name="phosphorFunnelSimpleBold" size="12" /> Filters:
         </span>
         @if (selectedFolder) {
           <span class="cm-chip cm-chip-info">
@@ -438,32 +441,8 @@
           </span>
         }
       </div>
-    }
-
-    <div class="cm-search-wrap">
-      <ng-icon
-        name="phosphorMagnifyingGlassBold"
-        size="12"
-        class="cm-search-icon"
-      />
-      <input
-        type="text"
-        class="cm-search-input"
-        placeholder="Search by job name or description…"
-        [(ngModel)]="searchQuery"
-      />
-      @if (searchQuery) {
-        <button
-          type="button"
-          class="cm-search-clear"
-          (click)="searchQuery = ''"
-          title="Clear search"
-        >
-          <ng-icon name="phosphorXBold" size="10" />
-        </button>
-      }
-    </div>
-  </section>
+    </section>
+  }
 
   <!-- ── Jobs tree view (Phase 2) ── -->
   <section class="cm-jobs-section">
@@ -472,6 +451,7 @@
       [loading]="loadingJobs"
       [error]="errorJobs"
       [darkMode]="themeService.isDarkMode"
+      [(search)]="searchQuery"
       (viewLogs)="onViewLogs($event)"
       (jobSelect)="onJobActionSelect($event)"
     />
@@ -502,7 +482,9 @@
         </div>
         <div class="cm-modal-body cm-modal-body-flush">
           @if (drillLoading) {
-            <div class="cm-loading">Loading…</div>
+            <div class="cm-loading">
+              <app-loading-symbol animationStyle="origins" />
+            </div>
           } @else if (drillJobs.length === 0) {
             <div class="cm-no-data">
               No failures, long-running, or late-start jobs recorded.

@@ -18,10 +18,37 @@
         }
       </p>
     </div>
+    <div class="cm-tree-search">
+      <ng-icon
+        name="phosphorMagnifyingGlassBold"
+        size="12"
+        class="cm-tree-search-icon"
+      />
+      <input
+        type="text"
+        class="cm-tree-search-input"
+        placeholder="Search by job name or description…"
+        [ngModel]="search"
+        (ngModelChange)="onSearchInput($event)"
+      />
+      @if (search) {
+        <button
+          type="button"
+          class="cm-tree-search-clear"
+          (click)="clearSearch()"
+          title="Clear search"
+          aria-label="Clear search"
+        >
+          <ng-icon name="phosphorXBold" size="10" />
+        </button>
+      }
+    </div>
   </div>
 
   @if (loading) {
-    <div class="cm-tree-empty">Loading…</div>
+    <div class="cm-tree-empty cm-tree-loading">
+      <app-loading-symbol animationStyle="origins" />
+    </div>
   } @else if (error) {
     <div class="cm-tree-error">Failed to load jobs: {{ error }}</div>
   } @else if (useFolderView && folderTree.length === 0) {

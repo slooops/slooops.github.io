@@ -8,6 +8,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   phosphorCaretDownBold,
@@ -20,10 +21,13 @@ import {
   phosphorFolderBold,
   phosphorFolderOpenBold,
   phosphorLockBold,
+  phosphorMagnifyingGlassBold,
   phosphorWarningBold,
+  phosphorXBold,
   phosphorXCircleBold,
 } from '@ng-icons/phosphor-icons/bold';
 
+import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import type { Job } from './control-m.types';
 
 interface SubAppNode {
@@ -42,7 +46,7 @@ interface FolderNode {
 @Component({
   selector: 'app-control-m-jobs-tree',
   standalone: true,
-  imports: [CommonModule, NgIcon],
+  imports: [CommonModule, FormsModule, NgIcon, LoadingSymbolComponent],
   providers: [
     provideIcons({
       phosphorCaretDownBold,
@@ -55,7 +59,9 @@ interface FolderNode {
       phosphorFolderBold,
       phosphorFolderOpenBold,
       phosphorLockBold,
+      phosphorMagnifyingGlassBold,
       phosphorWarningBold,
+      phosphorXBold,
       phosphorXCircleBold,
     }),
   ],
@@ -66,12 +72,23 @@ export class ControlMJobsTreeComponent implements OnChanges {
   @Input() jobs: Job[] = [];
   @Input() loading = false;
   @Input() error: string | null = null;
+  @Input() search = '';
   @Input() set darkMode(v: boolean) {
     this._darkMode = v;
   }
 
   @Output() jobSelect = new EventEmitter<Job>();
   @Output() viewLogs = new EventEmitter<Job>();
+  @Output() searchChange = new EventEmitter<string>();
+
+  onSearchInput(value: string): void {
+    this.search = value;
+    this.searchChange.emit(value);
+  }
+
+  clearSearch(): void {
+    this.onSearchInput('');
+  }
 
   @HostBinding('class.dark-theme') _darkMode = false;
 
@@ -82,7 +99,15 @@ export class ControlMJobsTreeComponent implements OnChanges {
   expandedApps = new Set<string>();
   expandedFolders = new Set<string>();
 
-  private hasAutoExpanded = false;
+  /**
+   * Signature of the last folder/sub-app shape we auto-expanded for. We only
+   * force-expand every branch when the tree's structure actually changes
+   * (e.g. after switching filters). Otherwise — including for the many
+   * change-detection cycles that pass a new `filteredJobs` reference with
+   * identical folder shape — we preserve the user's collapse state.
+   */
+  private lastFolderShapeKey = '';
+  private lastSubAppShapeKey = '';
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['jobs']) {
@@ -109,21 +134,37 @@ export class ControlMJobsTreeComponent implements OnChanges {
       this.subAppTree = this.buildSubAppTree(executed);
     }
 
-    // Auto-expand on first non-empty render
-    if (!this.hasAutoExpanded) {
-      if (this.useFolderView && this.folderTree.length > 0) {
-        this.hasAutoExpanded = true;
-        const allPaths = new Set<string>();
-        const collect = (n: FolderNode) => {
-          allPaths.add(n.path);
-          n.children.forEach(collect);
-        };
-        this.folderTree.forEach(collect);
+    // Only auto-expand when the tree's SHAPE changes (folder paths / sub-app
+    // set differs from what we last built). Steady-state change-detection
+    // cycles keep the user's manual collapse actions intact.
+    if (this.useFolderView && this.folderTree.length > 0) {
+      const allPaths = new Set<string>();
+      const collect = (n: FolderNode) => {
+        allPaths.add(n.path);
+        n.children.forEach(collect);
+      };
+      this.folderTree.forEach(collect);
+
+      const key = Array.from(allPaths).sort().join('|');
+      if (key !== this.lastFolderShapeKey) {
         this.expandedFolders = allPaths;
-      } else if (!this.useFolderView && this.subAppTree.length > 0) {
-        this.hasAutoExpanded = true;
-        this.expandedApps = new Set(this.subAppTree.map((n) => n.subApp));
+        this.lastFolderShapeKey = key;
       }
+      this.expandedApps = new Set();
+      this.lastSubAppShapeKey = '';
+    } else if (!this.useFolderView && this.subAppTree.length > 0) {
+      const apps = this.subAppTree.map((n) => n.subApp);
+      const key = apps.slice().sort().join('|');
+      if (key !== this.lastSubAppShapeKey) {
+        this.expandedApps = new Set(apps);
+        this.lastSubAppShapeKey = key;
+      }
+      this.expandedFolders = new Set();
+      this.lastFolderShapeKey = '';
+    } else {
+      // Empty tree — clear so a future non-empty rebuild expands cleanly.
+      this.lastFolderShapeKey = '';
+      this.lastSubAppShapeKey = '';
     }
   }
 
