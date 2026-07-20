@@ -745,6 +745,51 @@ export class OrderLifecycleComponent implements OnInit {
 
   columnsToDisplay: string[] = this.displayedColumns.slice();
 
+  // Column metadata for the native HTML table (label + optional header class)
+  columnMeta: {
+    [key: string]: { label: string; headerClass?: string; highlight?: boolean };
+  } = {
+    PROGRAM_NAME: { label: 'Program Name' },
+    ACCOUNT: { label: 'Account', highlight: true },
+    DEAL_ID: { label: 'Deal Id', highlight: true },
+    DEAL_UPLOAD_DATE: { label: 'Upload Date' },
+    ORDER_STATUS: { label: '1.Booking Status', headerClass: 'ol-step-header' },
+    BOOK_DATE: { label: 'Book Date' },
+    SALES_ORDER: { label: 'Order (#)', highlight: true },
+    ORDER_VALUE: { label: 'Order Value ($M)' },
+    TOTAL_LINE_COUNT: { label: 'Line Count' },
+    CONTRACT_NUMBER: { label: '2.Order Status', headerClass: 'ol-step-header' },
+    LINES_ON_HOLD: { label: 'Lines on Hold' },
+    FLEXIBLE_INVOICE_ELIGIBLE: { label: 'Flex Invoice' },
+    INVOICING_STATUS: { label: '3.Invoicing', headerClass: 'ol-step-header' },
+    INVOICE_LINES: { label: 'Invoice Lines' },
+    INVOICE_DATE: { label: 'Invoice Date' },
+    INVOICE_AMOUNT: { label: 'Invoice Amount ($M)' },
+    REV_ACCR_STATUS: {
+      label: '4.Revenue Accruals',
+      headerClass: 'ol-step-header',
+    },
+    GL_POSTING_STATUS: { label: '5.GL Posting', headerClass: 'ol-step-header' },
+    ACCRUALS_EXECUTION_TIME: { label: 'Accruals Time (Mins)' },
+    SUBSCRIPTION_ID: { label: 'Subscription Id' },
+    FUTURE_INVOICE_RELEASE_DATE: { label: 'Future Invoice Date' },
+    TERM_IN_YEARS: { label: 'Term' },
+    INVOICE_ELIGIBLE_DATE: { label: 'Invoice Eligible Date' },
+    CLO_COMMENTS: { label: 'CLO Updates' },
+    COMMENTS: { label: 'Comments' },
+  };
+
+  // Rows currently visible (filtered + paginated) for the native table
+  get visibleRows(): OrderLifecycleModel[] {
+    if (!this.dataSource) {
+      return [];
+    }
+    const rows: OrderLifecycleModel[] =
+      this.dataSource.filteredData ?? this.dataSource.data ?? [];
+    const start = this.pageIndex * this.pageSize;
+    return rows.slice(start, start + this.pageSize);
+  }
+
   selectedColumnsToDisplay: string[] = [];
 
   logSelectedColumns() {
@@ -888,6 +933,7 @@ export interface OrderLifecycleModel {
   INVOICE_ELIGIBLE_DATE: Date;
   DEAL_UPLOAD_DATE: string;
   CLO_COMMENTS: string;
+  SUBSCRIPTION_ID: string;
 }
 
 export interface ColumnSelection {
