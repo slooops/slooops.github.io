@@ -1,0 +1,24 @@
+{
+  "name": "@rev-ops-monitoring/dashboard-schematics",
+  "version": "1.0.0",
+  "description": "Angular schematic for generating monitoring dashboard components",
+  "schematics": "./collection.json",
+  "files": [
+    "collection.json",
+    "monitoring-dashboard/**/*"
+  ],
+  "keywords": [
+    "schematics"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/rev-ops-monitoring.git"
+  },
+  "peerDependencies": {
+    "@angular-devkit/core": "^17.0.0",
+    "@angular-devkit/schematics": "^17.0.0",
+    "typescript": "^5.2.0"
+  }
+}

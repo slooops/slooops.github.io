@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "SchematicsMonitoringDashboard",
+  "title": "Angular Monitoring Dashboard Component",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "The kebab-case name of the feature/container (e.g. ait-monitoring, invoice-tracker, gl-posting)",
+      "type": "string",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What is the kebab-case name of your monitoring dashboard feature? (e.g. ait-monitoring)"
+    },
+    "title": {
+      "description": "The display title for the dashboard header. Defaults to titlecase of name.",
+      "type": "string"
+    },
+    "selectorPrefix": {
+      "description": "Custom component selector prefix",
+      "type": "string",
+      "default": "app-"
+    },
+    "assignmentFilterKey": {
+      "description": "Default assignmentUsersFilterKey value for user context",
+      "type": "string",
+      "default": "FILTER_KEY_PLACEHOLDER"
+    },
+    "path": {
+      "description": "The path to create the component within src/app",
+      "type": "string",
+      "format": "path",
+      "default": "src/app"
+    },
+    "skipTests": {
+      "description": "Skip spec file generation",
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": ["name"]
+}
