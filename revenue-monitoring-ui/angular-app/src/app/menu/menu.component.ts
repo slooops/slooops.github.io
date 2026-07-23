@@ -317,7 +317,7 @@ export class MenuComponent {
               queryParams: { tab: 'revenue-accounting' },
             },
             {
-              label: 'Tax & Customa',
+              label: 'Tax & Customs',
               icon: 'phosphorPackageBold',
               route: '/operations-controls',
               queryParams: { tab: 'tax-and-customs' },
