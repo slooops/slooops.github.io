@@ -570,17 +570,6 @@ public class JdbcManager {
         return primaryJdbcTemplate.update(sql, forensicEmail, userName, userRole, creationDate);
     }
 
-    /**
-     * Executes an update/insert/merge statement with variable parameters.
-     * Used for analytics logging and other generic upsert operations.
-     * 
-     * @param sql    The SQL statement with ? placeholders
-     * @param params The parameter values to bind (varargs)
-     * @return Number of rows affected
-     */
-    public int executeUpdate(String sql, Object... params) {
-        return primaryJdbcTemplate.update(sql, params);
-    }
 
     /**
      * Inserts a new role into XXCFI_CTL_TOWER_ROLE_DEF.
@@ -714,4 +703,29 @@ public class JdbcManager {
                 lastUpdatedBy, userName, roleId);
     }
 
+
+    /**
+     * generic method for exception summary, details gathering
+     */
+    // For SELECT queries
+    public List<Map<String, Object>> executeQueryForList(String sql) {
+        return secondaryJdbcTemplate.queryForList(sql);
+    }
+
+    /**
+     * generic method for exception details filtering
+     */
+
+    // For SELECT with params queries
+    public List<Map<String, Object>> executeQueryForListWithParams(String sql, Object... params) {
+        return secondaryJdbcTemplate.queryForList(sql, params);
+    }
+
+    /**
+     * generic method for exception summary assignment
+     */
+    // For UPDATE/INSERT/DELETE queries
+    public int executeUpdate(String sql, Object... params) {
+        return primaryJdbcTemplate.update(sql, params);
+    }
 }
