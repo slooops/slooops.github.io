@@ -15,21 +15,12 @@
   padding: 0;
 }
 
-/* Ensure the filter bar (and its dropdown panels) always render above the
-   table below it, instead of blending into the table cells. */
+/* Ensure the filter bar (and its dropdown panels) render above the table
+   below it, but stay below app-level chrome (nav / side menu). A low z-index
+   is enough since the table container sits at z-index: 0. */
 app-filter-button-bar {
   position: relative;
-  z-index: 1000;
-}
-
-/* The nested filter panel and multi-select dropdowns must float above the
-   table and never be clipped by the panel container. */
-app-filter-button-bar ::ng-deep .fbb__panel {
-  z-index: 1001;
-}
-
-app-filter-button-bar ::ng-deep .fit-multiselect__dropdown {
-  z-index: 1002;
+  z-index: 2;
 }
 
 .ol-clear-selection {
