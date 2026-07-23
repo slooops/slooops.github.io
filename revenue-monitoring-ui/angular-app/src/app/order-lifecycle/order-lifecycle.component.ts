@@ -130,6 +130,14 @@ export class OrderLifecycleComponent implements OnInit {
   pageIndex: number = 0;
   pageSize: number = 100;
 
+  // Sorting state for sortable columns (Order Value, Line Count)
+  sortColumn: string | null = null;
+  sortDirection: 'asc' | 'desc' | '' = '';
+  readonly sortableColumns = new Set<string>([
+    'ORDER_VALUE',
+    'TOTAL_LINE_COUNT',
+  ]);
+
   get actionButtons(): ActionButtonConfig[] {
     return [
       {
@@ -272,6 +280,41 @@ export class OrderLifecycleComponent implements OnInit {
         length: this.paginator.length,
       });
     }
+  }
+
+  onSort(col: string): void {
+    if (!this.sortableColumns.has(col)) {
+      return;
+    }
+    if (this.sortColumn !== col) {
+      this.sortColumn = col;
+      this.sortDirection = 'asc';
+    } else if (this.sortDirection === 'asc') {
+      this.sortDirection = 'desc';
+    } else if (this.sortDirection === 'desc') {
+      this.sortColumn = null;
+      this.sortDirection = '';
+    } else {
+      this.sortDirection = 'asc';
+    }
+    this.pageIndex = 0;
+  }
+
+  private toSortableNumber(value: any): number | null {
+    if (value === null || value === undefined || value === 'TBD') {
+      return null;
+    }
+    const num = parseFloat(String(value).replace(/[^0-9.\-]/g, ''));
+    return isNaN(num) ? null : num;
+  }
+
+  // Format a currency value to 2 decimals; leaves 'TBD'/empty untouched
+  formatOrderValue(value: any): string {
+    const num = this.toSortableNumber(value);
+    if (num === null) {
+      return value === null || value === undefined ? 'TBD' : String(value);
+    }
+    return num.toFixed(2);
   }
 
   rebuildFilterConfigs(): void {
@@ -784,8 +827,23 @@ export class OrderLifecycleComponent implements OnInit {
     if (!this.dataSource) {
       return [];
     }
-    const rows: OrderLifecycleModel[] =
+    let rows: OrderLifecycleModel[] =
       this.dataSource.filteredData ?? this.dataSource.data ?? [];
+
+    if (this.sortColumn && this.sortDirection) {
+      const col = this.sortColumn;
+      const dir = this.sortDirection === 'asc' ? 1 : -1;
+      rows = [...rows].sort((a, b) => {
+        const av = this.toSortableNumber((a as any)[col]);
+        const bv = this.toSortableNumber((b as any)[col]);
+        // Push nulls/TBD to the bottom regardless of direction
+        if (av === null && bv === null) return 0;
+        if (av === null) return 1;
+        if (bv === null) return -1;
+        return (av - bv) * dir;
+      });
+    }
+
     const start = this.pageIndex * this.pageSize;
     return rows.slice(start, start + this.pageSize);
   }

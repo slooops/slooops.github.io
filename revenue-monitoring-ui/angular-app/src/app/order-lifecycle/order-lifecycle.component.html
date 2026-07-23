@@ -42,8 +42,32 @@
                   <th
                     class="ol-header-cell ol-col-{{ col }}"
                     [class.ol-step-header]="columnMeta[col]?.headerClass"
+                    [class.ol-sortable]="sortableColumns.has(col)"
+                    [class.ol-sorted]="sortColumn === col"
+                    (click)="onSort(col)"
                   >
-                    {{ columnMeta[col]?.label || col }}
+                    <span class="ol-header-label">
+                      {{ columnMeta[col]?.label || col }}
+                      @if (sortableColumns.has(col)) {
+                        <span
+                          class="ol-sort-arrows"
+                          [class.ol-sort-arrows--active]="sortColumn === col"
+                        >
+                          <i
+                            class="fa fa-caret-up ol-sort-up"
+                            [class.ol-sort-arrow--on]="
+                              sortColumn === col && sortDirection === 'asc'
+                            "
+                          ></i>
+                          <i
+                            class="fa fa-caret-down ol-sort-down"
+                            [class.ol-sort-arrow--on]="
+                              sortColumn === col && sortDirection === 'desc'
+                            "
+                          ></i>
+                        </span>
+                      }
+                    </span>
                   </th>
                 }
               }
@@ -96,7 +120,7 @@
                         {{ record.SALES_ORDER }}
                       }
                       @case ("ORDER_VALUE") {
-                        {{ record.ORDER_VALUE }}
+                        {{ formatOrderValue(record.ORDER_VALUE) }}
                       }
                       @case ("TOTAL_LINE_COUNT") {
                         {{ record.TOTAL_LINE_COUNT }}
@@ -124,7 +148,7 @@
                         }}
                       }
                       @case ("INVOICE_AMOUNT") {
-                        {{ record.INVOICE_AMOUNT }}
+                        {{ formatOrderValue(record.INVOICE_AMOUNT) }}
                       }
                       @case ("REV_ACCR_STATUS") {
                         {{ record.REV_ACCR_STATUS }}
