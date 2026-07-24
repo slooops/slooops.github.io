@@ -92,7 +92,9 @@
 
 .orc__kpi-row {
   display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+  /* Dynamic column count: cards auto-fit based on available width, so the
+     row adapts to however many KPI cards are present in the API response. */
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
   gap: 0.75rem;
 }
 
@@ -716,10 +718,6 @@
     min-width: 0;
     padding: 0 0.5rem;
     font-size: 11px;
-  }
-
-  .orc__kpi-row {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .orc__timeline-card {
