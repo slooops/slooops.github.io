@@ -82,9 +82,10 @@ export class BarChartComponent implements OnChanges, AfterViewInit, OnDestroy {
   private container!: HTMLDivElement;
   private actualWidth = 0;
   private actualHeight = 0;
-  private readonly margin = { top: 20, right: 50, bottom: 130, left: 20 };
+  private readonly margin = { top: 20, right: 20, bottom: 130, left: 20 };
   legendItems: LegendItem[] = [];
   private themeSub: Subscription | undefined;
+  private resizeObserver: ResizeObserver | undefined;
 
   // Color palette
   private readonly defaultColors = [
@@ -125,10 +126,31 @@ export class BarChartComponent implements OnChanges, AfterViewInit, OnDestroy {
         this.createChart();
       }
     });
+
+    // Re-measure and redraw when the container's width changes (e.g. a tab
+    // becomes visible, or the window resizes). Prevents bars being drawn at a
+    // stale, narrower width and leaving empty space in the card.
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(() => {
+        if (!this.container) return;
+        const newWidth = this.container.clientWidth;
+        if (
+          newWidth > 0 &&
+          Math.abs(newWidth - this.actualWidth) > 1 &&
+          this.data.length > 0 &&
+          !this.isLoading
+        ) {
+          this.calculateDimensions();
+          this.createChart();
+        }
+      });
+      this.resizeObserver.observe(this.container);
+    }
   }
 
   ngOnDestroy(): void {
     this.themeSub?.unsubscribe();
+    this.resizeObserver?.disconnect();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -246,7 +268,9 @@ export class BarChartComponent implements OnChanges, AfterViewInit, OnDestroy {
       .select(this.container)
       .append('svg')
       .attr('width', this.actualWidth)
-      .attr('height', this.actualHeight);
+      .attr('height', this.actualHeight)
+      .attr('viewBox', `0 0 ${this.actualWidth} ${this.actualHeight}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet');
 
     const width = this.actualWidth - this.margin.left - this.margin.right;
     const height = this.actualHeight - this.margin.top - this.margin.bottom;
@@ -424,7 +448,9 @@ export class BarChartComponent implements OnChanges, AfterViewInit, OnDestroy {
       .select(this.container)
       .append('svg')
       .attr('width', this.actualWidth)
-      .attr('height', this.actualHeight);
+      .attr('height', this.actualHeight)
+      .attr('viewBox', `0 0 ${this.actualWidth} ${this.actualHeight}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet');
 
     const width = this.actualWidth - this.margin.left - this.margin.right;
     const height = this.actualHeight - this.margin.top - this.margin.bottom;

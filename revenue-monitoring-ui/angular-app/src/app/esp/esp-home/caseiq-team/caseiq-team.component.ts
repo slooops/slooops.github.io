@@ -899,15 +899,19 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
     return apiData.map((item) => {
       const segments = item.data
         ? item.data.map((statusItem: any) => ({
-            name: statusItem.MATCH_STATUS,
+            name: statusItem.MATCH_STATUS ?? 'Uncategorized',
             value: statusItem.COUNT,
-            color: this.getMatchStatusColor(statusItem.MATCH_STATUS),
+            color: this.getMatchStatusColor(
+              statusItem.MATCH_STATUS ?? 'Uncategorized',
+            ),
           }))
         : [
             {
-              name: item.MATCH_STATUS || 'Unknown',
+              name: item.MATCH_STATUS || 'Uncategorized',
               value: item[countColumn] || 0,
-              color: this.getMatchStatusColor(item.MATCH_STATUS || 'Unknown'),
+              color: this.getMatchStatusColor(
+                item.MATCH_STATUS || 'Uncategorized',
+              ),
             },
           ];
 
@@ -916,7 +920,7 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
   }
 
   private getMatchStatusColor(matchStatus: string): string {
-    switch (matchStatus.toUpperCase()) {
+    switch ((matchStatus ?? '').toUpperCase()) {
       case 'MATCHED':
         return '#00bceb';
       case 'NOT MATCHED':
