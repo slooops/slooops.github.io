@@ -72,7 +72,7 @@ export class AtmfStackedChartComponent implements OnChanges {
         },
       },
       legend: { show: false },
-      grid: { top: 20, right: 10, bottom: 20, left: 60, containLabel: true },
+      grid: { top: 12, right: 8, bottom: 0, left: 0, containLabel: true },
       xAxis: {
         type: 'category',
         data: this.labels,

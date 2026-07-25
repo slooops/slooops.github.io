@@ -26,7 +26,9 @@
                   @if (isDateColumn(column)) {
                     {{ row[column] | date: "MM/dd/yy" }}
                   } @else if (isPercentColumn(column)) {
-                    @if (row[column] < 0) {
+                    @if (row[column] === null || row[column] === undefined) {
+                      <span class="pct-muted">—</span>
+                    } @else if (row[column] < 0) {
                       <span class="pct-down">▼ {{ row[column] }}%</span>
                     } @else {
                       <span class="pct-up">▲ {{ row[column] }}%</span>

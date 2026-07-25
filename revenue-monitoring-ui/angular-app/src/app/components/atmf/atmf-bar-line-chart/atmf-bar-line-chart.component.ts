@@ -52,7 +52,7 @@ export class AtmfBarLineChartComponent implements OnChanges {
     this.echartsOptions = {
       tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
       legend: { show: false },
-      grid: { top: 30, right: 60, bottom: 20, left: 60, containLabel: true },
+      grid: { top: 24, right: 0, bottom: 0, left: 0, containLabel: true },
       xAxis: {
         type: 'category',
         data: labels || [],

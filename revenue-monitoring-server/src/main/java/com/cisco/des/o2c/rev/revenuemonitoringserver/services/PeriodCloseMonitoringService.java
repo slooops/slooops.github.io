@@ -61,7 +61,13 @@ public class PeriodCloseMonitoringService {
 
         Map<String, Map<String, Object>> preCloseResults = new LinkedHashMap<>();
         Map<String, Map<String, Object>> midCloseResults = new LinkedHashMap<>();
-        Map<String, List<Map<String, Object>>> percentageBuffer = new HashMap<>();
+        // Track only the LATEST row's percentages per (LINE_TYPE + CLOSE_TYPE).
+        // Rows are pre-ordered by period_year, quarter, period_num in the SQL,
+        // so each successive put() during the loop overwrites and the final value
+        // corresponds to the latest quarter/period for that key. This prevents
+        // stale prior-period percentages from leaking into the latest column
+        // when the current period's QOQ/YOY (or MOM/PQM) values are NULL.
+        Map<String, Map<String, Object>> latestPercentages = new HashMap<>();
 
         for (Map<String, Object> row : data) {
             String lineType = row.get("LINE_TYPE").toString();
@@ -77,42 +83,30 @@ public class PeriodCloseMonitoringService {
             String periodKey = isQuarterEnd ? row.get("QUARTER").toString() : row.get("PERIOD_NAME").toString();
             resultMap.put(periodKey, row.get("LINE_COUNT"));
 
-            Map<String, Object> temp = new LinkedHashMap<>();
+            // Emit percentage keys unconditionally (null values allowed) so the FE
+            // always shows the latest quarter's actual %s, even if they are blank.
+            Map<String, Object> latest = new LinkedHashMap<>();
             if (isQuarterEnd) {
-                if (row.get("QOQ_PERCENTAGE") != null)
-                    temp.put("QUARTER OVER QUARTER", row.get("QOQ_PERCENTAGE"));
-                if (row.get("YOY_PERCENTAGE") != null)
-                    temp.put("YEAR OVER YEAR", row.get("YOY_PERCENTAGE"));
+                latest.put("QUARTER OVER QUARTER", row.get("QOQ_PERCENTAGE"));
+                latest.put("YEAR OVER YEAR", row.get("YOY_PERCENTAGE"));
             } else {
-                if (row.get("MOM_PERCENTAGE") != null)
-                    temp.put("MONTH OVER MONTH", row.get("MOM_PERCENTAGE"));
-                if (row.get("PQM_PERCENTAGE") != null)
-                    temp.put("PRIOR QUARTER MONTH", row.get("PQM_PERCENTAGE"));
+                latest.put("MONTH OVER MONTH", row.get("MOM_PERCENTAGE"));
+                latest.put("PRIOR QUARTER MONTH", row.get("PQM_PERCENTAGE"));
             }
-
-            if (!temp.isEmpty()) {
-                String percentKey = lineType + "-" + closeType;
-                percentageBuffer.computeIfAbsent(percentKey, k -> new ArrayList<>()).add(temp);
-            }
+            latestPercentages.put(uniqueKey, latest);
         }
 
         for (Map.Entry<String, Map<String, Object>> entry : preCloseResults.entrySet()) {
-            String key = entry.getKey();
-            List<Map<String, Object>> percentList = percentageBuffer.getOrDefault(key, Collections.emptyList());
-            for (Map<String, Object> percentMap : percentList) {
-                for (Map.Entry<String, Object> p : percentMap.entrySet()) {
-                    entry.getValue().put(p.getKey(), p.getValue());
-                }
+            Map<String, Object> latest = latestPercentages.get(entry.getKey());
+            if (latest != null) {
+                entry.getValue().putAll(latest);
             }
         }
 
         for (Map.Entry<String, Map<String, Object>> entry : midCloseResults.entrySet()) {
-            String key = entry.getKey();
-            List<Map<String, Object>> percentList = percentageBuffer.getOrDefault(key, Collections.emptyList());
-            for (Map<String, Object> percentMap : percentList) {
-                for (Map.Entry<String, Object> p : percentMap.entrySet()) {
-                    entry.getValue().put(p.getKey(), p.getValue());
-                }
+            Map<String, Object> latest = latestPercentages.get(entry.getKey());
+            if (latest != null) {
+                entry.getValue().putAll(latest);
             }
         }
 
