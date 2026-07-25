@@ -559,6 +559,19 @@
   margin-left: auto;
 }
 
+.ciq-reset-link {
+  color: var(--ciq-accent);
+  cursor: pointer;
+  margin-left: 0.25rem;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.ciq-reset-link:hover {
+  color: var(--ciq-cyan);
+  text-decoration: underline;
+}
+
 /* Flip card button */
 .flip-btn {
   background: none;

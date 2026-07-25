@@ -1,0 +1,41 @@
+{
+  "pdf_options": {
+    "format": "Letter",
+    "margin": {
+      "top": "0.65in",
+      "right": "0.65in",
+      "bottom": "0.75in",
+      "left": "0.65in"
+    },
+    "printBackground": true,
+    "displayHeaderFooter": true,
+    "headerTemplate": "<div></div>",
+    "footerTemplate": "<div style='width:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:8pt;color:#666;padding:0 0.6in;display:flex;justify-content:space-between;'><span>Cisco — Revenue Operations Monitoring</span><span>Page <span class='pageNumber'></span> of <span class='totalPages'></span></span></div>"
+  },
+  "launch_options": {
+    "args": ["--no-sandbox"]
+  },
+  "marked_options": {
+    "gfm": true,
+    "breaks": false
+  },
+  "stylesheet": [
+    "https://cdn.jsdelivr.net/npm/github-markdown-css@5.5.1/github-markdown-light.css",
+    "https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css",
+    "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css"
+  ],
+  "body_class": "markdown-body",
+  "css": ".markdown-body{box-sizing:border-box;min-width:200px;max-width:980px;margin:0 auto;padding:0 8px;font-size:10.5pt;}.markdown-body h1{font-size:20pt;}.markdown-body h2{font-size:15pt;margin-top:1.4em;}.markdown-body h3{font-size:12.5pt;}.markdown-body table{font-size:9.5pt;}.markdown-body pre{page-break-inside:avoid;}.markdown-body img{max-width:100%;page-break-inside:avoid;}.markdown-body h1,.markdown-body h2,.markdown-body h3{page-break-after:avoid;}.katex-display{overflow:auto hidden;padding:4pt 0;}",
+  "script": [
+    { "url": "https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" },
+    {
+      "url": "https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    },
+    {
+      "url": "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"
+    },
+    {
+      "content": "document.addEventListener('DOMContentLoaded',()=>{if(window.hljs){document.querySelectorAll('pre code').forEach(el=>window.hljs.highlightElement(el));}if(window.renderMathInElement){window.renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});}window.__mdReady=true;});"
+    }
+  ]
+}

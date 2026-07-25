@@ -370,6 +370,17 @@ export const routes: Routes = [
       supportsDarkMode: true,
     },
   },
+  {
+    path: 'qbr',
+    loadComponent: () =>
+      import('./qbr/qbr.component').then((m) => m.QbrComponent),
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'ESP Case Manager > CaseIQ QBR',
+      supportsDarkMode: true,
+    },
+  },
 ];
 
 @NgModule({

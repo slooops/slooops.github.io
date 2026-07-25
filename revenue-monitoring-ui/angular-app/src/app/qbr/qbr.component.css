@@ -1,0 +1,379 @@
+/* Inherit CaseIQ design tokens (--ciq-*) and glass-card patterns. */
+@import "../esp/esp-home/esp-home.component.css";
+
+:host {
+  /* QBR-scoped overrides layered on top of --ciq-* tokens. */
+  --qbr-page-max: 1600px;
+  --qbr-radius: 1rem;
+  --qbr-divider: rgba(160, 174, 192, 0.4);
+  --qbr-highlight: #7c3aed;
+  --qbr-success: #16a34a;
+  --qbr-title-color: #143d6b;
+  display: block;
+  min-height: 100%;
+  background: var(--ciq-bg);
+}
+
+:host(.dark-theme) {
+  --qbr-divider: rgba(90, 110, 128, 0.35);
+  --qbr-highlight: #a78bfa;
+  --qbr-success: #4ade80;
+  --qbr-title-color: #90cdf4;
+}
+
+/* ── Loading ─────────────────────────────────────────── */
+.qbr-loading {
+  padding: 3rem;
+  text-align: center;
+  color: var(--ciq-muted);
+  font-size: 0.875rem;
+}
+
+/* ── Outer shell ─────────────────────────────────────── */
+.qbr-shell {
+  padding: 1.5rem 2rem 1.5rem;
+  font-family: var(--fit-font-family-base, 'Inter', system-ui, sans-serif);
+  color: var(--ciq-text);
+  max-width: var(--qbr-page-max);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ── Header ──────────────────────────────────────────── */
+.qbr-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.qbr-title-block {
+  flex: 1;
+}
+
+.qbr-title {
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--qbr-title-color);
+  margin: 0 0 0.25rem 0;
+  letter-spacing: -0.02em;
+}
+
+.qbr-subtitle {
+  font-size: 0.9375rem;
+  color: var(--ciq-muted);
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ── Q4 Target callout (glass card, matches .caseiq-kpi) ── */
+.qbr-target-box {
+  min-width: 320px;
+  max-width: 400px;
+  padding: 0.875rem 1rem;
+  background: var(--ciq-card-bg);
+  border: 1px solid var(--ciq-card-border);
+  border-radius: var(--qbr-radius);
+  box-shadow: var(--ciq-card-shadow);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.qbr-target-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ciq-muted);
+  margin-bottom: 0.5rem;
+}
+
+.qbr-target-list {
+  list-style: none;
+  margin: 0 0 0.5rem 0;
+  padding: 0;
+}
+
+.qbr-target-list li {
+  font-size: 0.75rem;
+  color: var(--ciq-text);
+  margin: 0.125rem 0;
+  padding-left: 0.75rem;
+  position: relative;
+  line-height: 1.45;
+}
+
+.qbr-target-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--ciq-muted);
+}
+
+.qbr-target-val {
+  color: var(--ciq-accent);
+  font-weight: 600;
+}
+
+.qbr-target-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--ciq-accent);
+  text-decoration: none;
+  margin-top: 0.25rem;
+}
+
+.qbr-target-link:hover {
+  text-decoration: underline;
+}
+
+.qbr-target-link-suffix {
+  color: var(--ciq-muted);
+}
+
+/* ── Three-column body ───────────────────────────────── */
+.qbr-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
+  gap: 0;
+  padding: 0.5rem 0 0.5rem 0;
+}
+
+.qbr-col {
+  padding: 0 1.5rem;
+  border-right: 1px dashed var(--qbr-divider);
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.qbr-col:last-child {
+  border-right: none;
+}
+
+.qbr-col:first-child {
+  padding-left: 0;
+}
+
+.qbr-col-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ciq-text);
+  margin: 0 0 0.25rem 0;
+  text-align: center;
+  line-height: 1.35;
+}
+
+.qbr-col-title-sub {
+  font-weight: 400;
+  color: var(--ciq-muted);
+}
+
+/* ── Tile grids ──────────────────────────────────────── */
+.qbr-tiles {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.qbr-tiles--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.qbr-tiles--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* Glass card tile — mirrors .caseiq-kpi (no hard tile borders). */
+.qbr-tile {
+  background: var(--ciq-card-bg);
+  border: 1px solid var(--ciq-card-border);
+  border-radius: var(--qbr-radius);
+  box-shadow: var(--ciq-card-shadow);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0.75rem 0.875rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 78px;
+  justify-content: center;
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+.qbr-tile:hover {
+  box-shadow:
+    0 6px 24px rgba(0, 112, 210, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  transform: translateY(-1px);
+}
+
+:host(.dark-theme) .qbr-tile:hover {
+  box-shadow: 0 6px 24px rgba(0, 188, 235, 0.08);
+}
+
+.qbr-tile-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+  letter-spacing: 0.06em;
+  color: var(--ciq-muted);
+  text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.qbr-tile-value {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--ciq-text);
+  text-align: center;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.qbr-tile-num {
+  color: var(--qbr-highlight);
+  font-weight: 700;
+  font-size: 1.375rem;
+}
+
+.qbr-tile-slash {
+  color: var(--ciq-muted);
+  font-weight: 400;
+  font-size: 0.9375rem;
+}
+
+.qbr-tile-pct {
+  color: var(--ciq-muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  margin-left: 0.125rem;
+}
+
+.qbr-tile--highlight .qbr-tile-num {
+  color: var(--ciq-accent);
+}
+
+/* ── Notes list ──────────────────────────────────────── */
+.qbr-notes {
+  list-style: none;
+  margin: 0.5rem 0 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.qbr-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--ciq-text);
+  line-height: 1.45;
+  padding-left: 0.75rem;
+  position: relative;
+}
+
+.qbr-note:not(.qbr-note--check)::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--ciq-muted);
+}
+
+.qbr-note--check {
+  padding-left: 0;
+}
+
+.qbr-note--check ng-icon {
+  color: var(--qbr-success);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.qbr-footnote-ref {
+  color: var(--ciq-muted);
+  font-size: 0.625rem;
+  margin: 0 1px;
+}
+
+/* ── Next steps callout (glass card) ─────────────────── */
+.qbr-next-steps {
+  margin: 0.5rem 10% 0.5rem 10%;
+  padding: 1rem 1.25rem;
+  background: var(--ciq-card-bg);
+  border: 1px solid var(--ciq-card-border);
+  border-radius: var(--qbr-radius);
+  box-shadow: var(--ciq-card-shadow);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.qbr-next-steps-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ciq-muted);
+  margin-bottom: 0.375rem;
+}
+
+/* ── Footer footnotes ────────────────────────────────── */
+.qbr-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  align-items: flex-end;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--qbr-divider);
+  margin-top: 0.25rem;
+}
+
+.qbr-footnote {
+  font-size: 0.6875rem;
+  color: var(--ciq-muted);
+  line-height: 1.4;
+}
+
+.qbr-footnote sup {
+  margin-right: 2px;
+}
+
+/* ── Responsive fallback ─────────────────────────────── */
+@media (max-width: 1200px) {
+  .qbr-columns {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .qbr-col {
+    border-right: none;
+    border-bottom: 1px dashed var(--qbr-divider);
+    padding: 0 0 1.5rem 0;
+  }
+  .qbr-col:last-child {
+    border-bottom: none;
+  }
+  .qbr-header {
+    flex-direction: column;
+  }
+  .qbr-target-box {
+    max-width: 100%;
+  }
+  .qbr-next-steps {
+    margin: 0.5rem 0;
+  }
+  .qbr-tiles--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

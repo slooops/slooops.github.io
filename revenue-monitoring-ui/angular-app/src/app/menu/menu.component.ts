@@ -480,6 +480,12 @@ export class MenuComponent {
           route: '/sbp-case-analyzer',
           roles: ['ADMIN'],
         },
+        {
+          label: 'CaseIQ QBR',
+          icon: 'phosphorPresentationChartBold',
+          route: '/qbr',
+          roles: ['ADMIN'],
+        },
       ],
     },
     {

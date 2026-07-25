@@ -524,15 +524,24 @@
       <div class="ciq-card ciq-card--chart ciq-card--tall">
         <div class="ciq-card-header">
           <span class="ciq-card-title">P80 → P90 Response Time</span>
-          <span class="analytics-date-range"
-            >Import + CaseIQ Execution by Component</span
-          >
+          <span class="analytics-date-range">
+            Import + CaseIQ Execution by Component
+            @if (hiddenDumbbellRows.size > 0) {
+              <a
+                class="ciq-reset-link"
+                (click)="resetHiddenDumbbellRows()"
+                title="Show all rows"
+                >· show all ({{ hiddenDumbbellRows.size }} hidden)</a
+              >
+            }
+          </span>
         </div>
         <div class="analytics-chart-wrapper" style="flex: 1">
           <div
             echarts
             [options]="chartOptionsMap['mttrSO']"
-            style="height: 100%; width: 100%"
+            (chartClick)="onDumbbellChartClick($event)"
+            style="height: 100%; width: 100%; cursor: pointer"
           ></div>
         </div>
       </div>

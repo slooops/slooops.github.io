@@ -140,8 +140,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     'https://cisco.sharepoint.com/:x:/r/sites/ManagementandFinance/Shared%20Documents/Transformation%20Programs/Active%20Programs/AI%20in%20SDLC/Normalization%20%26%20Support%20Pillar/CaseIQ%20Agent%20status/CaseIQ%20Agent%20deployment%20status.xlsx?d=w39991f3a78824847a66383ad1c9db4d3&csf=1&web=1&e=sWPQgd';
 
   constructor(
-    private readonly http: ApiHttpService,
-    private readonly destroyManager: DestroyManager,
+    protected readonly http: ApiHttpService,
+    protected readonly destroyManager: DestroyManager,
     private readonly monitoringService: CaseiqMonitoringDataService,
     public themeService: ThemeService,
     public router: Router,
@@ -219,6 +219,13 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   execMttrCardFlipped = false;
   /** Flip state for middle-bottom card (Weekly Case Volume ↔ Hourly Processing Load) */
   execBottomCardFlipped = false;
+  /**
+   * Row labels currently hidden on the P80 → P90 dumbbell chart. Clicking a
+   * y-axis label (e.g. "FPP — Import") toggles membership so users can hide
+   * outlier rows that blow out the shared x-axis scale. FPP Import is hidden
+   * by default because bulk-load spikes skew the axis.
+   */
+  hiddenDumbbellRows = new Set<string>(['FPP — Import']);
   private themeSub?: Subscription;
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -317,6 +324,15 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     // Initial build of sections/charts once view is ready
     this.buildSectionsFromMetrics();
     this.showLoadingForMoment();
+  }
+
+  /**
+   * Rebuild `sections` from the current metrics array. Exposed so subclasses
+   * (e.g. {@link QbrComponent}) can trigger it after assigning
+   * `caseIqMetrics` outside of the normal parent-driven `@Input` flow.
+   */
+  protected rebuildSections(): void {
+    this.buildSectionsFromMetrics();
   }
 
   ngOnDestroy(): void {
@@ -2143,7 +2159,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
    * and CASE_IQ_EXECUTION_TIME_P90 (mislabeled). Reading by prefix lets us
    * survive column renames by the DB owner.
    */
-  private execCol(row: any, prefix: string): number | null {
+  protected execCol(row: any, prefix: string): number | null {
     if (!row) return null;
     const target = prefix.toUpperCase();
     for (const key of Object.keys(row)) {
@@ -2247,7 +2263,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
    * weighted by INCIDENT_COUNT. Reads columns by prefix so a `_P80`/`_P90`
    * suffix mismatch on the p80 view does not break the calculation.
    */
-  private computeWeightedResponseMinutes(rows: any[]): number | null {
+  protected computeWeightedResponseMinutes(rows: any[]): number | null {
     if (!Array.isArray(rows) || !rows.length) return null;
     let weighted = 0;
     let totalWeight = 0;
@@ -2263,7 +2279,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   /** Weighted mean of RESOLUTION_TIME (stored in minutes) converted to hours. */
-  private computeWeightedResolutionHours(rows: any[]): number | null {
+  protected computeWeightedResolutionHours(rows: any[]): number | null {
     if (!Array.isArray(rows) || !rows.length) return null;
     let weighted = 0;
     let totalWeight = 0;
@@ -2298,6 +2314,34 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     }
     if (total <= 0) return null;
     return { touchless, total, pct: (touchless / total) * 100 };
+  }
+
+  /**
+   * Handle clicks on the P80 → P90 dumbbell chart. Y-axis labels have
+   * `triggerEvent: true`, so clicking a label like "FPP — Import" fires here
+   * with `componentType === 'yAxis'`. We toggle the row in
+   * {@link hiddenDumbbellRows} and rebuild the chart so the axis label
+   * updates (strikethrough) and data points/connectors are re-filtered.
+   */
+  onDumbbellChartClick(event: any): void {
+    if (event?.componentType !== 'yAxis') return;
+    const value = event?.value;
+    const label = typeof value === 'string' ? value : String(value ?? '');
+    if (!label) return;
+
+    if (this.hiddenDumbbellRows.has(label)) {
+      this.hiddenDumbbellRows.delete(label);
+    } else {
+      this.hiddenDumbbellRows.add(label);
+    }
+    this.buildMttrChart();
+  }
+
+  /** Restore every hidden row on the P80 → P90 dumbbell chart. */
+  resetHiddenDumbbellRows(): void {
+    if (this.hiddenDumbbellRows.size === 0) return;
+    this.hiddenDumbbellRows.clear();
+    this.buildMttrChart();
   }
 
   /**
@@ -2341,6 +2385,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     // OM (top) → CAPITAL (bottom), matching the component table order.
     // Row order per team: Execution on bottom, Import on top (Import listed
     // second here because ECharts places later data higher on the axis).
+    // Rows in `hiddenDumbbellRows` are kept on the axis (with a muted /
+    // strikethrough label) so users can click to toggle them back on — data
+    // points and connectors are simply suppressed in `appendDumbbellRow`.
     const yLabels: string[] = teams.flatMap((t) => [
       `${t} — Execution`,
       `${t} — Import`,
@@ -2371,8 +2418,15 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
 
     // Color coded per axis label: Import rows in cyan, CaseIQ rows in purple.
-    const axisLabelColor = (val: string) =>
+    // Hidden rows render muted with a prefix so users can click to unhide.
+    const baseAxisLabelColor = (val: string) =>
       val.endsWith('— Import') ? importColor : execColor;
+
+    const axisLabelColor = (val: string) =>
+      this.hiddenDumbbellRows.has(val) ? mutedColor : baseAxisLabelColor(val);
+
+    const axisLabelFormatter = (val: string) =>
+      this.hiddenDumbbellRows.has(val) ? `✕  ${val}` : val;
 
     this.chartOptionsMap['mttrSO'] = {
       tooltip: {
@@ -2421,10 +2475,12 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       yAxis: {
         type: 'category',
         data: yLabels,
+        triggerEvent: true,
         axisLabel: {
           fontSize: 10,
           color: (val: string) => axisLabelColor(val),
           fontWeight: 400,
+          formatter: axisLabelFormatter,
         },
         axisLine: { show: false },
         axisTick: { show: false },
@@ -2508,7 +2564,11 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     const imp80 = this.execCol(p80Row, 'IMPORT_TIME');
     const imp90 = this.execCol(p90Row, 'IMPORT_TIME');
     const importLabel = `${team} — Import`;
-    if (imp80 != null && imp90 != null) {
+    if (
+      imp80 != null &&
+      imp90 != null &&
+      !this.hiddenDumbbellRows.has(importLabel)
+    ) {
       p80Points.push([imp80, importLabel, 'Import P80', count, team]);
       p90Points.push([imp90, importLabel, 'Import P90', count, team]);
       connectors.push([
@@ -2520,7 +2580,11 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     const exec80 = this.execCol(p80Row, 'CASE_IQ_EXECUTION_TIME');
     const exec90 = this.execCol(p90Row, 'CASE_IQ_EXECUTION_TIME');
     const execLabel = `${team} — Execution`;
-    if (exec80 != null && exec90 != null) {
+    if (
+      exec80 != null &&
+      exec90 != null &&
+      !this.hiddenDumbbellRows.has(execLabel)
+    ) {
       p80Points.push([exec80, execLabel, 'Execution P80', count, team]);
       p90Points.push([exec90, execLabel, 'Execution P90', count, team]);
       connectors.push([

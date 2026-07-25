@@ -1,7 +1,7 @@
 # WD0 Midclose Prediction Model — Status Report & Post-Mortem
 
 **Author:** Jack Sloop
-**Date:** May 29, 2026
+**Date:** May 29, 2026 (last updated 2026-07-24)
 **Audience:** Leadership review + handoff doc for FY27 retrain
 **Branch:** `UI2.0`
 **Related files:**
@@ -21,6 +21,7 @@
 2. **A 3pm Pacific scheduled job** ([`Wd0PredictiveScheduledJob`](revenue-monitoring-server/src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/scheduler/Wd0PredictiveScheduledJob.java)) now fires **every day of the week throughout the close window** in deployed environments and persists predictions + the raw per-day-bucket inputs into Oracle. Formal predictions (WD-3/-2/-1) carry calibrated LOW/HIGH bounds; all other days — including weekends — persist `weighted_sum` + snapshots with NULL bounds purely as training data. **Data collection for retraining is live and verified** (see [Section 6](#6-data-collection-status)).
 3. **Two attempts to improve on the predecessor's bounds failed**, and we now understand exactly why ([Section 5](#5-post-mortem-of-jae-wons-model)).
 4. **Plan:** keep collecting aligned `(prediction, actual)` rows for ~6 months, then retrain using a 4-segment quantile regression. Long-term, retrain after every period close so the model becomes dynamic instead of fixed.
+5. **⚠ JUL-26 (Q4 YE) `PREDICTION_LOW` / `PREDICTION_HIGH` are hand-overridden** by finance leadership across WD-3, WD-2, and WD-1 for both PRODUCT and SERVICE (6 rows total, `PREDICTION_ID` 863, 864, 883, 884, 903, 904). **Do not use those two columns for JUL-26 in any retrain or backtest.** `WEIGHTED_SUM` and `JSR_WD0_RAW_SNAPSHOTS` are untouched and remain the source of truth — see [Section 9](#9-jul-26-ye-manual-override-notice).
 
 ---
 
@@ -58,8 +59,8 @@ Tagged in DB as `MODEL_VERSION = 'v1-predecessor'`.
 
 ### 2.2 Storage tables (ARFINRO schema)
 
-| Table                        | Purpose                                                                                                                              |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Table                   | Purpose                                                                                                                              |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `JSR_WD0_PREDICTIONS`   | One row per `(period, WD, line_type, run)`: weighted_sum, prediction_low, prediction_high, generated_at, model_version.              |
 | `JSR_WD0_RAW_SNAPSHOTS` | Per-day-bucket inputs that fed each prediction: count_date, day_offset, per_day_weight, line_count, source_query. FK to predictions. |
 
@@ -200,6 +201,21 @@ That last bullet is the architectural change that converts the system from "hand
 ### What Jae Won got wrong (or what got lost in translation)
 
 - **Published min/max table is PRODUCT-anchored, applied uniformly.** The WD-1 min (0.44) and WD-2 max (1.65) match PROMISE_DATE-only numbers exactly; FIRD-only would give (0.28, 1.72). When this table is applied to SERVICE predictions, bounds are systematically 30% too tight in the direction of the noisy tail. This is the math reason for the OCT-25 and OCT-26 SERVICE blowouts.
+- **Predecessor's calibration window sat across a business-mix inflection point, and the mix keeps moving.** The FY23–FY25 training data spans directly across the Splunk acquisition, which reshaped Cisco's SERVICE segment. Concrete timeline overlaid on the training window (Cisco fiscal year ends late July):
+
+  | Date                          | Event                                                                          | Training-data implication                                                    |
+  | ----------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
+  | Aug 2022 – Mar 17, 2024       | Pre-Splunk baseline                                                            | ~19 months of PRODUCT-dominant rows at the front of the FY23–FY25 window     |
+  | **Mar 18, 2024**              | Splunk acquisition closes                                                      | Structural break — nothing before this point represents the current business |
+  | May 15, 2024 (Q3 FY24 report) | First Splunk revenue in Cisco financials — partial quarter, $413M contribution | Mar–Apr 2024 close cycles have partial-Splunk noise                          |
+  | Aug 14, 2024 (Q4 FY24 report) | First full quarter with Splunk absorbed ($1.4B FY24 total)                     | From here on, SERVICE line volume steps up permanently                       |
+  | Aug 13, 2025 (Q4 FY25 report) | Splunk enters "organic" YoY baseline; ex-Splunk callouts dropped               | Roughly the end of the predecessor's training window                         |
+  | Aug 2025 – present (FY26)     | AI-infra buildout shifts mix back toward PRODUCT-dominant                      | JUL-26 YE shows PRODUCT `WEIGHTED_SUM` ~7× SERVICE — see Section 9           |
+
+  Two consequences for the retrain:
+  - The PRODUCT-anchored-uniform-table bias documented above is _compounded_ by the fact that even a well-fit SERVICE table calibrated on FY23–FY25 may not generalize forward if the mix keeps inverting. Roughly half of the predecessor's training window is pre-Splunk (small SERVICE) and half is post-Splunk (large SERVICE) — the "average" fit will be wrong for whatever regime is current.
+  - **Future retrains should treat PRODUCT and SERVICE as independent time series with independently-fit weights and multipliers, and should not lean on cross-line-type ratios or a joint model.** When the FY27 retrain happens, also consider segmenting or weighting training rows by era (`< 2024-03-18` = pre-Splunk, `2024-03-18` → `2025-07-31` = Splunk-integration transient, `≥ 2025-08-01` = fully-consolidated) rather than treating the whole FY23–FY25 window as homogeneous. Rolling-window retrain (Section 4.3) is the long-term answer for exactly this reason — the PRODUCT/SERVICE relationship at Cisco is non-stationary on the scale of years due to acquisitions and macro spend cycles (Splunk in FY24, AI-infra boom FY25–FY26, whatever comes next), and coupling them will bake past mix assumptions into future predictions.
+
 - **The `Model/MIDCLOSE_PREDICTION_*.csv` regression CSVs are misleading.** They look like a training dataset but are a target decomposition. Anyone trying to refit the model from those files will get R² = 1.0 and conclude the model is perfect. It is not.
 - **No automation.** Each prediction required Jae Won manually running queries, pasting into Excel, recalculating. There was no persistence of inputs alongside outputs, so there was nothing to retrain _from_. That gap is exactly what `JSR_WD0_PREDICTIONS` + `JSR_WD0_RAW_SNAPSHOTS` now fill.
 - **Fixed weights, no closed feedback loop.** Weights were last calibrated against FY23–FY25 and have not moved since. As of FY26 (mid-cycle now), nothing in the system would detect or correct drift.
@@ -274,7 +290,13 @@ When ready to retrain:
     WHERE GENERATED_AT >= SYSDATE - 180 GROUP BY CASE WHEN PREDICTION_LOW IS NULL THEN 'training-only' ELSE 'formal' END;
    ```
    Expect ≥ ~360 prediction rows and ≥ ~2,000 snapshot rows; roughly **6 formal predictions per cycle** (3 WDs × 2 line types) and **~54 training-only per cycle**.
-2. **Build the actuals join.** `ARFINRO.ASK_QE_ME_INTERFACE_LOAD` keyed on `(period_year, period_num, line_type)` with `close_type = 'MIDCLOSE'`.
+   **Before joining to actuals: read [Section 9](#9-jul-26-ye-manual-override-notice) and either drop the 6 tampered JUL-26 rows or reconstruct their bounds from `WEIGHTED_SUM`. Do not train against the stored `PREDICTION_LOW` / `PREDICTION_HIGH` for that period.**
+2. **Build the actuals join.** `ARFINRO.ASK_QE_ME_INTERFACE_LOAD` keyed on `(period_year, period_num, line_type)` with `close_type = 'MIDCLOSE'`. Known data-quality issues to clean before training (verified 2026-07-24):
+   - **APR-23 and MAY-23 rows are identical duplicates** (P=20,872 / S=25,401 for both). Likely a mistaken reload; one row should be dropped, and the correct source for the other backfilled if possible.
+   - **MAY-26 SERVICE is mis-tagged** with `PERIOD_NUM=8` (which is MAR-26). The row with `LINE_TYPE='SERVICE'`, `LINE_COUNT=1567`, `CLOSE_START='2026-05-24'` is almost certainly the real MAY-26 SERVICE close and should be renumbered to `PERIOD_NUM=10`.
+   - **FEB-25 CLOSE_START='2024-02-23'** is a probable typo (should be 2025-02-23).
+   - **FY22 rows all have empty CLOSE_START.** If close-date is needed for time-based joins, backfill from period metadata.
+   - **FY23 has 3–5× outlier months** (AUG-23 P=51,809, MAR-23 P=49,629, JUL-23 S=73,854). Investigate before including — could be legitimate quarter-end surges or backfill/reclass events, but they will materially move any weighted average.
 3. **Re-read this report, then [STAGE3_CONTEXT.md](notebooks/STAGE3_CONTEXT.md) Sections "4-model architecture" and "Methodology recommendation"** — the user-decided architecture and quantile-regression plan are spec'd there.
 4. **Use `notebooks/wd0_weight_tuning.ipynb` as the skeleton.** Its scaffolding for LOO CV, coverage, and width metrics is reusable. Replace the input data source with the live `JSR_WD0_*` tables.
 5. **Compare any new model against `v1-predecessor` on the same LOO split.** Required deltas to ship: coverage ≥ 75% AND median width ≤ predecessor's median width × 1.1. (Don't ship something 2× wider just because it covers more — see Section 3.1.)
@@ -284,12 +306,158 @@ When ready to retrain:
 
 ## 8. Risks & open questions
 
-| Risk                                                                                                                            | Mitigation                                                                                                                              |
-| ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Cron stops firing in prod for some reason and we don't notice for weeks                                                         | Add a Datadog/health-check alert on `MAX(GENERATED_AT)` in `JSR_WD0_PREDICTIONS` being older than 24h on a weekday. Not built yet. |
-| Source SQL drifts (e.g. someone changes the DB link target) and predictions silently degrade                                    | Persist a hash of each source query in `JSR_WD0_RAW_SNAPSHOTS.SOURCE_QUERY` (currently stores name only). Easy add.                |
-| 6 months of data still isn't enough to beat the predecessor's hand-tuned weights                                                | Acceptable outcome — we keep v1 in prod and document that the noise floor is the binding constraint, not the model.                     |
-| Sales/service close behaviour fundamentally changes (org restructure, new ERP, etc.) and historical data becomes non-stationary | Rolling-window retrain (Section 4.3) is designed to handle exactly this, but requires monitoring drift in the meantime.                 |
+| Risk                                                                                                                            | Mitigation                                                                                                                                                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cron stops firing in prod for some reason and we don't notice for weeks                                                         | Add a Datadog/health-check alert on `MAX(GENERATED_AT)` in `JSR_WD0_PREDICTIONS` being older than 24h on a weekday. Not built yet.                                                                                                                                         |
+| Source SQL drifts (e.g. someone changes the DB link target) and predictions silently degrade                                    | Persist a hash of each source query in `JSR_WD0_RAW_SNAPSHOTS.SOURCE_QUERY` (currently stores name only). Easy add.                                                                                                                                                        |
+| 6 months of data still isn't enough to beat the predecessor's hand-tuned weights                                                | Acceptable outcome — we keep v1 in prod and document that the noise floor is the binding constraint, not the model.                                                                                                                                                        |
+| Sales/service close behaviour fundamentally changes (org restructure, new ERP, etc.) and historical data becomes non-stationary | Rolling-window retrain (Section 4.3) is designed to handle exactly this, but requires monitoring drift in the meantime.                                                                                                                                                    |
+| Manual override of `PREDICTION_LOW` / `PREDICTION_HIGH` by leadership after cron write (occurred for JUL-26 YE)                 | Preserve `WEIGHTED_SUM` and `JSR_WD0_RAW_SNAPSHOTS` untouched; document every override in Section 9; recompute originals from raw during retrain. Longer-term consider an `IS_OVERRIDDEN` / `OVERRIDE_NOTE` column and a trigger-based audit log on the predictions table. |
+
+---
+
+## 9. JUL-26 YE manual override notice
+
+**Date recorded:** 2026-07-24 (WD-1 of JUL-26, Q4 fiscal year-end)
+**Recorded by:** Jack Sloop, at the direction of finance leadership.
+**Scope:** `ARFINRO.JSR_WD0_PREDICTIONS` rows where `PERIOD_NAME = 'JUL-26'` and `WD IN ('WD-3','WD-2','WD-1')` — 6 rows total.
+
+### What happened
+
+For the JUL-26 Q4 year-end close, leadership replaced the model-computed `PREDICTION_LOW` and `PREDICTION_HIGH` values with hand-calculated numbers produced outside this system. The WD-3 and WD-2 overrides were applied by the DBA directly. The WD-1 override was applied via this codebase's MCP tooling on 2026-07-24 with values supplied by the DBA (LOW/HIGH: PRODUCT 19436 / 38267, SERVICE 21747 / 46543).
+
+### Rows affected
+
+| PREDICTION_ID | WD   | LINE_TYPE | WEIGHTED_SUM (untouched) | Current LOW (overridden) | Current HIGH (overridden) |
+| ------------- | ---- | --------- | ------------------------ | ------------------------ | ------------------------- |
+| 863           | WD-3 | PRODUCT   | 25,526                   | 18,923                   | 38,621                    |
+| 864           | WD-3 | SERVICE   | 2,995                    | 18,654                   | 26,453                    |
+| 883           | WD-2 | PRODUCT   | 25,548                   | 12,435                   | 29,621                    |
+| 884           | WD-2 | SERVICE   | 3,100                    | 19,242                   | 24,653                    |
+| 903           | WD-1 | PRODUCT   | 25,304                   | 19,436                   | 38,267                    |
+| 904           | WD-1 | SERVICE   | 4,085                    | 21,747                   | 46,543                    |
+
+### What the model would have said (reconstructed from `JSR_WD0_RAW_SNAPSHOTS`)
+
+Each of the 6 predictions has its full per-day-bucket input trace preserved in `JSR_WD0_RAW_SNAPSHOTS` (PRODUCT rows have 2 buckets each, SERVICE rows have 9 each — 2 SERVICE_FLEXIBLE_INVOICE + 7 SERVICE_FUTURE_INVOICE_RELEASE). Summing `PER_DAY_WEIGHT × LINE_COUNT` across those buckets and cross-checking against the stored `WEIGHTED_SUM` confirms **all six reconstructions match to the rounding**, so the numbers below are what the model produced end-to-end at the snapshot time of day for each WD:
+
+| PREDICTION_ID | WD   | LINE_TYPE | Snapshot GEN (UTC) | Recomputed WS (from raw) | Stored WS | Model LOW (`WS × qe_low`) | Model HIGH (`WS × qe_high`) |
+| ------------- | ---- | --------- | ------------------ | -----------------------: | --------: | ------------------------: | --------------------------: |
+| 863           | WD-3 | PRODUCT   | 2026-07-22 22:01   |                25,525.65 |    25,526 |                **13,784** |                  **89,850** |
+| 864           | WD-3 | SERVICE   | 2026-07-22 22:01   |                 2,995.45 |     2,995 |                 **1,618** |                  **10,544** |
+| 883           | WD-2 | PRODUCT   | 2026-07-23 22:01   |                25,548.25 |    25,548 |                **18,395** |                  **88,397** |
+| 884           | WD-2 | SERVICE   | 2026-07-23 22:01   |                 3,099.89 |     3,100 |                 **2,232** |                  **10,726** |
+| 903           | WD-1 | PRODUCT   | 2026-07-24 22:01   |                25,303.95 |    25,304 |                **31,883** |                  **82,997** |
+| 904           | WD-1 | SERVICE   | 2026-07-24 22:01   |                 4,085.21 |     4,085 |                 **5,147** |                  **13,399** |
+
+Independent verification: rows 903 and 904 are the two the model output today. I read `PREDICTION_LOW` / `PREDICTION_HIGH` out of the DB immediately before the WD-1 override was applied, and they matched the reconstructed values above to the dollar (31,883 / 82,997 for PRODUCT and 5,147 / 13,399 for SERVICE). WD-3 and WD-2 model bounds were never persisted anywhere — they were overwritten in place — but the raw-snapshot reconstruction is the audit-trail equivalent.
+
+### Model output vs. overridden values, side by side
+
+| WD   | LINE_TYPE | Model LOW | Overridden LOW |   ∆ LOW | Model HIGH | Overridden HIGH |  ∆ HIGH |
+| ---- | --------- | --------: | -------------: | ------: | ---------: | --------------: | ------: |
+| WD-3 | PRODUCT   |    13,784 |         18,923 |  +5,139 |     89,850 |          38,621 | −51,229 |
+| WD-3 | SERVICE   |     1,618 |         18,654 | +17,036 |     10,544 |          26,453 | +15,909 |
+| WD-2 | PRODUCT   |    18,395 |         12,435 |  −5,960 |     88,397 |          29,621 | −58,776 |
+| WD-2 | SERVICE   |     2,232 |         19,242 | +17,010 |     10,726 |          24,653 | +13,927 |
+| WD-1 | PRODUCT   |    31,883 |         19,436 | −12,447 |     82,997 |          38,267 | −44,730 |
+| WD-1 | SERVICE   |     5,147 |         21,747 | +16,600 |     13,399 |          46,543 | +33,144 |
+
+Pattern the overrides implement:
+
+- **PRODUCT HIGH pulled way in** across all three WDs (−45k to −59k lines). The model's HIGH bound is dominated by the 3.28–3.52 QE multiplier applied to a Jul-27-heavy weighted sum, which produces ~80–90k lines. Leadership evidently doesn't believe that upper tail.
+- **SERVICE bounds pushed way out** across all three WDs (LOW +~17k lines, HIGH +14–33k lines). The model believes SERVICE close will be tiny (`WS` of 3–4k → HIGH of only ~10–13k lines). Leadership is compensating for the well-documented Section 3.3 bias that under-predicts SERVICE — the predecessor's calibration on a window (FY23–FY25) that swings from 49% SERVICE share to 29% SERVICE share year-over-year (see Section 5) means the multiplier table is a wide-window average that will misfit any specific YE.
+- **Portfolio totals (PRODUCT + SERVICE combined):** Model band `LOW/HIGH` = 15,401 / 100,394 (WD-3), 20,627 / 99,122 (WD-2), 37,030 / 96,396 (WD-1). Overridden band = 37,577 / 65,074 (WD-3), 31,677 / 54,274 (WD-2), 41,183 / 84,810 (WD-1). The overridden band is narrower everywhere and skews the top of the range down substantially.
+
+All numbers in this section are order-line counts (rows in `cg1_oe_order_lines_all` / FIRD / FLEXI), not currency. The model does not touch revenue amounts anywhere in the pipeline.
+
+The tampering is unambiguous but there is no `IS_OVERRIDDEN` flag on the table today — this section is the only marker.
+
+### Rules for any future retrain / backtest touching JUL-26
+
+1. **Do not read `PREDICTION_LOW` or `PREDICTION_HIGH` for JUL-26.** These columns are contaminated and no longer represent model output.
+2. **Recompute originals from `WEIGHTED_SUM`** using the QE multipliers from Section 2.1:
+   - WD-3 QE: `(0.54, 3.52)`
+   - WD-2 QE: `(0.72, 3.46)`
+   - WD-1 QE: `(1.26, 3.28)`
+     Reconstruction: `original_low = WEIGHTED_SUM × qe_low`, `original_high = WEIGHTED_SUM × qe_high`.
+3. **`WEIGHTED_SUM` itself is untouched** and matches what the model produced on 2026-07-22 / 07-23 / 07-24. Same for `JSR_WD0_RAW_SNAPSHOTS` — every per-day-bucket line count that fed these predictions is intact. Those two are the source of truth going forward.
+4. **When computing coverage / width metrics against actuals**, either drop the JUL-26 rows or use the reconstructed originals — never the DB-stored bounds.
+5. **If similar overrides happen again**, add a row to this table and to the audit trail rather than silently overwriting.
+
+### 9.5 What is actually in the Jul 27 pileup
+
+Live drill-down of `finfblrl.cg1_oe_order_lines_all@FINFBLBLO_LINK` for `promise_date = 2026-07-27`, run 2026-07-24 late afternoon (same filters as `PRODUCT_PROMISE_DATE_SQL`):
+
+| Metric                              |                                                          Value |
+| ----------------------------------- | -------------------------------------------------------------: |
+| Total eligible lines                |                                                     **35,192** |
+| Distinct orders (header_id)         |                                                     **11,837** |
+| Distinct customers (sold_to_org_id) |                                                        **728** |
+| Total ordered value                 |                                                 **≈ $10.72 B** |
+| Median unit selling price           |                                                        $766.56 |
+| Avg unit selling price              | $83,453 (skewed by large-ticket software / subscription lines) |
+
+**By flow status** (line counts):
+
+| Flow status                       |  Lines | Ordered value |
+| --------------------------------- | -----: | ------------: |
+| AWAITING_FULFILLMENT              | 12,921 |       $1.75 B |
+| BOOKED                            | 10,850 |   **$8.19 B** |
+| AWAITING_SHIPPING                 | 10,577 |        $736 M |
+| SHIPPED                           |    649 |         $18 M |
+| PO_OPEN / PRODUCTION_OPEN / other |    195 |        ~$36 M |
+
+The `BOOKED` bucket is only ~31% of lines but ~76% of dollar value — that's where the big-ticket software / subscription / large-enterprise deals sit. `AWAITING_FULFILLMENT` + `AWAITING_SHIPPING` (67% of lines, 23% of value) is the physical hardware channel push.
+
+**Top 15 customers by line count** (Party names resolved from `apps.hz_cust_accounts` ⋈ `apps.hz_parties`):
+
+|   # | Customer                                | Lines | Ordered value |
+| --: | --------------------------------------- | ----: | ------------: |
+|   1 | INGRAM MICRO                            | 2,727 |       $28.5 M |
+|   2 | TD SYNNEX CORPORATION                   | 2,322 |       $31.7 M |
+|   3 | CDW LOGISTICS LLC                       | 1,807 |       $17.7 M |
+|   4 | WORLD WIDE TECHNOLOGY INC               | 1,584 |       $28.5 M |
+|   5 | PRESIDIO NETWORKED SOLUTIONS GROUP, LLC | 1,101 |       $12.1 M |
+|   6 | TD SYNNEX SUPPLY CHAIN SERVICES LIMITED |   693 |       $10.8 M |
+|   7 | SCANSOURCE INC                          |   583 |        $7.7 M |
+|   8 | EPLUS TECHNOLOGY INC                    |   581 |        $5.0 M |
+|   9 | INSIGHT DIRECT USA INC                  |   525 |        $6.9 M |
+|  10 | WESTCON GROUP NETHERLANDS B V           |   483 |        $9.1 M |
+|  11 | INGRAM MICRO INC CANADA                 |   459 |        $3.7 M |
+|  12 | D&H DISTRIBUTING COMPANY                |   433 |        $4.9 M |
+|  13 | COMPUTACENTER AG & CO. OHG              |   406 |        $9.6 M |
+|  14 | MICRONET DE MEXICO SA DE CV             |   396 |       $29.1 M |
+|  15 | INGRAM MICRO PAN EUROPE GMBH            |   362 |       $12.1 M |
+
+Top 15 customers = 14,462 lines = **41% of the whole day**. All names are the standard Cisco distributor / global VAR channel — Ingram, TD SYNNEX, CDW, WWT, Presidio, ScanSource, ePlus, Insight, Westcon, D&H, Computacenter. No unusual concentration; this is the year-end push flowing through the normal channel accounts.
+
+**Top line types** (all PRODUCT, resolved from `apps.oe_transaction_types_tl`):
+
+| Line type          | Region         |                                 Lines |
+| ------------------ | -------------- | ------------------------------------: |
+| Standard-PRD-US-L  | United States  |                                16,811 |
+| Standard-PRD-UKH-L | UK / EMEAR Hub |                                11,479 |
+| Standard-PRD-MX-L  | Mexico         |                                 1,405 |
+| Standard-PRD-IN-L  | India          |                                 1,228 |
+| Standard-PRD-CAN-L | Canada         |                                   900 |
+| Standard-PRD-AUS-L | Australia      |                                   816 |
+| Standard-PRD-KR-L  | Korea          | 761 (but $9.6 B — subscription-heavy) |
+
+All top line types are `Standard-PRD-*-L` (Standard Revenue Order product lines) across geographies. Zero SERVICE line types in the top 15, which is consistent with this data flowing exclusively through `PRODUCT_PROMISE_DATE_SQL`. SERVICE has its own two independent inputs (Section 3.1: `SERVICE_FLEXIBLE_INVOICE_SQL` on `apps.xxgco_oe_invoice_schedules` and `SERVICE_FUTURE_INVOICE_RELEASE_SQL` on `apps.xxgco_oe_order_lines_ext`); neither reads promise_date.
+
+### 9.6 Reading of the Jul 27 signal
+
+- **Not a data-quality artifact.** The pileup is 11,837 distinct orders across 728 customers — nothing is duplicated or mis-tagged.
+- **Not a "one whale" deal.** The single largest customer (Ingram Micro) is 7.7% of Jul 27 lines. Top 15 combined = 41%. This is a broad channel push, not a single distortion.
+- **Consistent with year-end push behavior.** 31% of lines are `BOOKED` and account for 76% of dollar value → high-value contracts staged to release into revenue by fiscal-year cutoff. 67% of lines are physical hardware `AWAITING_FULFILLMENT` / `AWAITING_SHIPPING` → distributor replenishment plus channel year-end.
+- **The model's HIGH is defensible.** At the QE HIGH multiplier of 3.28, 25,304 `WEIGHTED_SUM` yields 82,997 HIGH. Given 35,192 lines are already sitting on Jul 27 alone with `flow_status` not CLOSED/CANCELLED, the model saying "up to ~83k lines could close this WD" is arithmetically consistent with the data. The override tightened this to 38,267 — a bound that would need > 55% of the Jul 27 pipeline to slip past YE for the actual to fall inside it.
+
+### Follow-up work worth doing
+
+- Add `IS_OVERRIDDEN NUMBER(1) DEFAULT 0` and `OVERRIDE_NOTE VARCHAR2(4000)` columns to `JSR_WD0_PREDICTIONS`, or add a lightweight `JSR_WD0_PREDICTION_OVERRIDES` audit table keyed by `PREDICTION_ID`. Backfill the 6 JUL-26 rows.
+- If leadership wants to keep the ability to override, add an authenticated write endpoint that stamps the override + reason instead of doing this at the SQL level.
+- **Post-JUL-26 actuals (available 2026-07-27):** join `ARFINRO.ASK_QE_ME_INTERFACE_LOAD` on `PERIOD_NAME = 'JUL-26'`, compare against both the model's original bounds and the override, and log which was closer. This is the first end-to-end training instance for the FY27 recalibration.
 
 ---
 
