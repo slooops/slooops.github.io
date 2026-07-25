@@ -107,7 +107,7 @@ export class Wd0HistoricalDataComponent
   dataSource: any;
 
   unprocessedRegressionData: any[] = [];
-  numberOfMonths: number = 12;
+  numberOfMonths: number = 4;
   newMonthName: string = '';
   latestPeriodName: string = '';
   newMonthData = [[0, 0]];
