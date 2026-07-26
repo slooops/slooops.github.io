@@ -835,6 +835,8 @@ export class Wd0HistoricalDataComponent
   }
 
   private getFiscalQuarter(month: string, year: string): string {
+    // Column suffix (YY) is already the fiscal year, so no year adjustment is
+    // needed — OCT_26 is Q1 of FY26, JUL_26 is Q4 of FY26, etc.
     const fiscalMonths = {
       OCT: 'Q1',
       JAN: 'Q2',
@@ -904,17 +906,42 @@ export class Wd0HistoricalDataComponent
     });
 
     // Convert the Set to an array and filter out ENTITY and LINE_TYPE
-    const columnArray = Array.from(allKeys).filter(
+    const columnArray = (Array.from(allKeys) as string[]).filter(
       (key) => key !== 'ENTITY' && key !== 'LINE_TYPE',
     );
 
-    // Keep only the last 8 columns along with ENTITY and LINE_TYPE
+    // Sort period columns in fiscal order. The YY suffix in the column name
+    // is the FISCAL year, and within a fiscal year the close months order as
+    // Q1=OCT, Q2=JAN, Q3=APR, Q4=JUL. Object.keys() insertion order can't be
+    // trusted here because the totals aggregation in getHistoricalData() skips
+    // falsy values (0 / null), pushing the current quarter into the middle and
+    // dropping it from the slice(-N) window.
+    const fiscalQuarterIndex: Record<string, number> = {
+      OCT: 0, // Q1 close
+      JAN: 1, // Q2 close
+      APR: 2, // Q3 close
+      JUL: 3, // Q4 close
+    };
+    const periodPattern = /^([A-Z]{3})_(\d{2})$/;
+    const columnSortKey = (col: string): number => {
+      const match = periodPattern.exec(col);
+      if (!match) return Number.MAX_SAFE_INTEGER;
+      const quarter = fiscalQuarterIndex[match[1]] ?? -1;
+      if (quarter < 0) return Number.MAX_SAFE_INTEGER;
+      const fiscalYear = parseInt(match[2], 10);
+      return fiscalYear * 4 + quarter;
+    };
+    const sortedColumns = columnArray
+      .slice()
+      .sort((a, b) => columnSortKey(a) - columnSortKey(b));
+
+    // Keep only the last N columns along with ENTITY and LINE_TYPE
     this.displayedColumns = [
       'ENTITY',
       'LINE_TYPE',
-      ...columnArray.slice(-this.numberOfQuartersOfHistoricalData), // Selects the last 8 columns
+      ...sortedColumns.slice(-this.numberOfQuartersOfHistoricalData),
       'trend',
-    ].map((key) => String(key));
+    ];
   }
 
   refreshExportData() {
