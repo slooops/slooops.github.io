@@ -2,7 +2,6 @@ import { Component, HostBinding, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DataService } from '../providers/data.service';
 import { ThemeService } from '../providers/theme.service';
-import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
 import { ApiHttpService } from '../providers/http.service';
@@ -16,8 +15,6 @@ import {
   MenuMiniComponent,
   MenuMiniItem,
 } from '../shared/menu-mini/menu-mini.component';
-import { provideIcons } from '@ng-icons/core';
-import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 
 export interface UserContext {
   username: string;
@@ -31,12 +28,6 @@ export interface UserContext {
   selector: 'app-invoicing',
   templateUrl: './invoicing.component.html',
   styleUrls: ['./invoicing.component.css'],
-  providers: [
-    DestroyManager,
-    provideIcons({
-      phosphorSparkleBold,
-    }),
-  ],
   imports: [
     CommonModule,
     MatTabsModule,
@@ -52,11 +43,8 @@ export class InvoicingComponent implements OnInit {
     return this.themeService.isDarkMode;
   }
 
-  private userName: string = '';
-
   constructor(
     private dataService: DataService,
-    private destroyManager: DestroyManager,
     public authService: AuthenticationService,
     private menuService: MenuService,
     private http: ApiHttpService,
@@ -75,11 +63,8 @@ export class InvoicingComponent implements OnInit {
       assignmentUsersFilterKey: 'I2C',
     };
   }
-  preInvoicingProcessFlowHtml: string = '';
-  preInvoicingProcessFlowcss: string = '';
-  roles: string[] = [];
-  userContextData: UserContext;
-  // userInfo: Map<string, any> = new Map();
+
+  // ─── Lifecycle ────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
     this.userName = this.authService.getUserName();
@@ -104,508 +89,23 @@ export class InvoicingComponent implements OnInit {
     if (this.filteredTabs.length > 0) {
       this.logTabVisit(this.filteredTabs[0]?.label);
     }
-
-    // this.userInfo.set('username', this.authService.getUserID());
-    // this.userInfo.set('userRoles', this.authService.getUserAccessRoles());
-    // this.assignmentUsers = this.dataService.getAssignmentUsers('I2C');
   }
 
-  fieldConfig = [
-    {
-      controlName: 'periodName',
-      label: 'Period Name',
-      sourceKey: 'PERIOD_NAME',
-      disabled: true,
-    },
-    {
-      controlName: 'appName',
-      label: 'Application Name',
-      sourceKey: 'APPLICATION_NAME',
-      disabled: true,
-    },
-    {
-      controlName: 'processFlow',
-      label: 'Process Flow',
-      sourceKey: 'PROCESS_FLOW',
-      disabled: true,
-    },
-    {
-      controlName: 'orgName',
-      label: 'Organization Name',
-      sourceKey: 'ORG_NAME',
-      disabled: true,
-    },
-    {
-      controlName: 'creationDate',
-      label: 'Transaction Date',
-      sourceKey: 'TRANSACTION_DATE',
-      disabled: true,
-    },
-    {
-      controlName: 'aging',
-      label: 'Aging',
-      sourceKey: 'AGING',
-      disabled: true,
-    },
-    {
-      controlName: 'assignedTo',
-      label: 'Assigned To',
-      sourceKey: 'ASSIGNED_TO',
-      disabled: 'dynamic',
-      validators: [Validators.required],
-    },
-    { controlName: 'comments', label: 'Comments', sourceKey: 'COMMENTS' },
-  ];
+  // ─── Auth & User State ────────────────────────────────────────────────────
+  // Resolved in constructor to ensure values are available before first render.
 
-  preInvoicingFilters: {
-    formControlName: string;
-    columnName: string;
-    type: string;
-    subAppMapping: boolean;
-  }[] = [
-    {
-      columnName: 'PROCESS_FLOW',
-      formControlName: 'processFlow',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      columnName: 'ORG_NAME',
-      formControlName: 'orgName',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      formControlName: 'billNumber',
-      columnName: 'BILL_NUMBER',
-      type: 'text',
-      subAppMapping: false,
-    },
-    {
-      formControlName: 'transactionId',
-      columnName: 'TRANSACTION_ID',
-      type: 'text',
-      subAppMapping: false,
-    },
-  ];
+  private userName: string = '';
+  roles: string[] = [];
+  userContextData: UserContext;
 
-  autoInvoicingFilters: {
-    formControlName: string;
-    columnName: string;
-    type: string;
-    subAppMapping: boolean;
-  }[] = [
-    {
-      columnName: 'PROCESS_FLOW',
-      formControlName: 'processFlow',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      columnName: 'ORG_NAME',
-      formControlName: 'orgName',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      formControlName: 'transactionId',
-      columnName: 'TRANSACTION_ID',
-      type: 'text',
-      subAppMapping: false,
-    },
-  ];
-
-  rpoExtractFilters: {
-    formControlName: string;
-    columnName: string;
-    type: string;
-    subAppMapping: boolean;
-  }[] = [
-    {
-      columnName: 'PROCESS_FLOW',
-      formControlName: 'processFlow',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      columnName: 'ORG_NAME',
-      formControlName: 'orgName',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      formControlName: 'subscriptionId',
-      columnName: 'SUBSCRIPTION_ID',
-      type: 'text',
-      subAppMapping: false,
-    },
-    {
-      formControlName: 'transactionId',
-      columnName: 'TRANSACTION_ID',
-      type: 'text',
-      subAppMapping: false,
-    },
-  ];
-
-  pcmFilters: {
-    formControlName: string;
-    columnName: string;
-    type: string;
-    subAppMapping: boolean;
-  }[] = [
-    {
-      columnName: 'PROCESS_FLOW',
-      formControlName: 'processFlow',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      columnName: 'ORG_NAME',
-      formControlName: 'orgName',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      formControlName: 'receiptNumber',
-      columnName: 'RECEIPT_NUMBER',
-      type: 'text',
-      subAppMapping: false,
-    },
-    {
-      formControlName: 'bankTraceId',
-      columnName: 'BANK_TRACE_ID',
-      type: 'text',
-      subAppMapping: false,
-    },
-  ];
-
-  srtProcessFilters: {
-    formControlName: string;
-    columnName: string;
-    type: string;
-    subAppMapping: boolean;
-  }[] = [
-    {
-      columnName: 'PROCESS_FLOW',
-      formControlName: 'processFlow',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      columnName: 'ORG_NAME',
-      formControlName: 'orgName',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      formControlName: 'subscriptionId',
-      columnName: 'SUBSCRIPTION_ID',
-      type: 'text',
-      subAppMapping: false,
-    },
-    {
-      formControlName: 'transactionList',
-      columnName: 'TRANSACTION_LIST',
-      type: 'select',
-      subAppMapping: false,
-    },
-  ];
-
-  postInvoicingFilters: {
-    formControlName: string;
-    columnName: string;
-    type: string;
-    subAppMapping: boolean;
-  }[] = [
-    {
-      columnName: 'PROCESS_FLOW',
-      formControlName: 'processFlow',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      columnName: 'ORG_NAME',
-      formControlName: 'orgName',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      formControlName: 'transactionId',
-      columnName: 'TRANSACTION_ID',
-      type: 'text',
-      subAppMapping: false,
-    },
-  ];
-
-  eInvoicingFilters: {
-    formControlName: string;
-    columnName: string;
-    type: string;
-    subAppMapping: boolean;
-  }[] = [
-    {
-      columnName: 'PROCESS_FLOW',
-      formControlName: 'processFlow',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      columnName: 'ORG_NAME',
-      formControlName: 'orgName',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      formControlName: 'transactionId',
-      columnName: 'TRANSACTION_ID',
-      type: 'text',
-      subAppMapping: false,
-    },
-  ];
-
-  preAndAutoInvoiceKeysToMap: string[] = [
-    'PERIOD_NAME',
-    'ORG_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'TRANSACTION_DATE',
-  ];
+  // ─── Period Status ────────────────────────────────────────────────────────
+  // Populated via dataService.periodStatus$ subscription in ngOnInit.
 
   periodStatus: any;
 
-  specialWords: string[] = [
-    'name',
-    'amount',
-    'interface',
-    'error',
-    'number',
-    'total',
-    'hold',
-    'pending',
-    'status',
-    'num',
-    'year',
-    'status',
-    'sub',
-    'staging',
-    'id',
-    'line',
-  ];
-
-  skippedWords: string[] = ['IOL', 'AR', 'ID'];
-
-  preInvoicingUrls: { [key: string]: string } = {
-    summaryUrl: 'pre-invoice-error-summary',
-    detailsUrl: 'pre-invoice-error-details',
-    filteredDetailsUrl: 'pre-invoice-error-details-filtered',
-    summaryUpdateUrl: 'pre-invoice-error-summary-update',
-    webexMessageUrl: 'send-message-invoicing',
-    chartTotalsUrl: '',
-    chartDetailsUrl: '',
-  };
-
-  autoInvoicingUrls: { [key: string]: string } = {
-    summaryUrl: 'auto-invoice-error-summary',
-    detailsUrl: 'auto-invoice-error-details',
-    filteredDetailsUrl: 'auto-invoice-error-details-filtered',
-    summaryUpdateUrl: 'auto-invoice-error-summary-update',
-    webexMessageUrl: 'send-message-invoicing',
-    chartTotalsUrl: '',
-    chartDetailsUrl: '',
-  };
-
-  cmAmortUrls: { [key: string]: string } = {
-    summaryUrl: 'post-invoice-error-summary',
-    detailsUrl: 'post-invoice-error-details',
-    filteredDetailsUrl: 'post-invoice-error-details-filtered',
-    summaryUpdateUrl: 'post-invoice-error-summary-update',
-    webexMessageUrl: 'send-message-invoicing',
-    chartTotalsUrl: '',
-    chartDetailsUrl: '',
-  };
-
-  printUrls: { [key: string]: string } = {
-    summaryUrl: 'print-error-summary',
-    detailsUrl: 'print-error-details',
-    filteredDetailsUrl: 'print-error-details-filtered',
-    summaryUpdateUrl: 'print-error-summary-update',
-    webexMessageUrl: 'send-message-invoicing',
-    chartTotalsUrl: '',
-    chartDetailsUrl: '',
-  };
-
-  creditCardUrls: { [key: string]: string } = {
-    summaryUrl: 'credit-card-error-summary',
-    detailsUrl: 'credit-card-error-details',
-    filteredDetailsUrl: 'credit-card-error-details-filtered',
-    summaryUpdateUrl: '',
-    webexMessageUrl: '',
-    chartTotalsUrl: '',
-    chartDetailsUrl: '',
-  };
-
-  // assignmentUsers: string[] = [];
-
-  debitCardUrls: { [key: string]: string } = {
-    summaryUrl: 'debit-card-error-summary',
-    detailsUrl: 'debit-card-error-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
-    webexMessageUrl: '',
-    chartTotalsUrl: '',
-    chartDetailsUrl: '',
-  };
-
-  rpoExtractUrls: { [key: string]: string } = {
-    summaryUrl: 'rpo-extract-error-summary',
-    detailsUrl: 'rpo-extract-error-details',
-    filteredDetailsUrl: 'rpo-extract-details-filtered',
-    summaryUpdateUrl: 'rpo-extract-summary-update',
-    webexMessageUrl: 'send-message-invoicing',
-    chartTotalsUrl: '',
-    chartDetailsUrl: '',
-  };
-
-  srtProcessUrls: { [key: string]: string } = {
-    summaryUrl: 'srt-process-error-summary',
-    detailsUrl: 'srt-process-error-details',
-    filteredDetailsUrl: 'srt-process-details-filtered',
-    summaryUpdateUrl: 'srt-process-summary-update',
-    webexMessageUrl: 'send-message-invoicing',
-    chartTotalsUrl: '',
-    chartDetailsUrl: '',
-  };
-
-  eInvoicingUrls: { [key: string]: string } = {
-    summaryUrl: 'einvoicing-error-summary',
-    detailsUrl: 'einvoicing-error-details',
-    filteredDetailsUrl: 'einvoicing-error-details-filtered',
-    summaryUpdateUrl: 'einvoicing-error-summary-update',
-    webexMessageUrl: 'send-message-invoicing',
-    chartTotalsUrl: '',
-    chartDetailsUrl: '',
-  };
-
-  fusionUrls: { [key: string]: string } = {
-    summaryUrl: 'fusion-error-summary',
-    detailsUrl: 'fusion-error-details',
-    filteredDetailsUrl: 'fusion-error-details-filtered',
-    summaryUpdateUrl: 'fusion-error-summary-update',
-    webexMessageUrl: 'send-message-invoicing',
-    chartTotalsUrl: '',
-    chartDetailsUrl: '',
-  };
-
-  creditCardCheckUrls: { [key: string]: string } = {
-    summaryUrl: 'credit-card-check-summary-view',
-    detailsUrl: 'credit-card-check-detail-view',
-    filteredDetailsUrl: 'credit-card-check-detail-view-filtered',
-    summaryUpdateUrl: 'credit-card-check-summary-update',
-    webexMessageUrl: '',
-    chartTotalsUrl: '',
-    chartDetailsUrl: '',
-  };
-
-  pcmApplicationUrls: { [key: string]: string } = {
-    summaryUrl: 'pcm-application-summary',
-    detailsUrl: 'pcm-application-details',
-    filteredDetailsUrl: 'pcm-application-details-filtered',
-    summaryUpdateUrl: 'pcm-application-summary-update',
-    webexMessageUrl: '',
-    chartTotalsUrl: '',
-    chartDetailsUrl: '',
-  };
-
-  fusionFilters: {
-    formControlName: string;
-    columnName: string;
-    type: string;
-    subAppMapping: boolean;
-  }[] = [
-    {
-      columnName: 'PROCESS_FLOW',
-      formControlName: 'processFlow',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      columnName: 'ORG_NAME',
-      formControlName: 'orgName',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      formControlName: 'orderNumber',
-      columnName: 'ORDER_NUMBER',
-      type: 'text',
-      subAppMapping: false,
-    },
-    {
-      formControlName: 'transactionId',
-      columnName: 'TRANSACTION_ID',
-      type: 'text',
-      subAppMapping: false,
-    },
-  ];
-
-  creditCardCheckFilters: {
-    formControlName: string;
-    columnName: string;
-    type: string;
-    subAppMapping: boolean;
-  }[] = [
-    {
-      columnName: 'PROCESS_FLOW',
-      formControlName: 'processFlow',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      columnName: 'ORG_NAME',
-      formControlName: 'orgName',
-      type: 'select',
-      subAppMapping: false,
-    },
-    {
-      formControlName: 'orderNumber',
-      columnName: 'ORDER_NUMBER',
-      type: 'text',
-      subAppMapping: false,
-    },
-    {
-      formControlName: 'icmsYN',
-      columnName: 'ICMS_Y_N',
-      type: 'select',
-      subAppMapping: false,
-    },
-  ];
-
-  formatLabel(label: string): string {
-    const acronyms = this.skippedWords || [];
-
-    return label
-      .toLowerCase() // Convert to lowercase
-      .replace(/_/g, ' ') // Replace underscores with spaces
-      .split(' ') // Split into words
-      .map(
-        (word) =>
-          acronyms.includes(word.toUpperCase())
-            ? word.toUpperCase() // Keep the word in uppercase if it's in skippedWords
-            : word.charAt(0).toUpperCase() + word.slice(1), // Capitalize the first letter otherwise
-      )
-      .join(' '); // Join words back with spaces
-  }
-
-  getErrorSummaryPeriodStatus() {
-    this.dataService.periodStatus$.subscribe((data: any) => {
-      if (data) {
-        this.periodStatus = {
-          ...data,
-          lastUpdated: new Date().toLocaleString(),
-        };
-      }
-    });
-  }
+  // ─── Tab & Navigation Config ──────────────────────────────────────────────
+  // visibleTabs defines all possible tabs with their role guards.
+  // filteredTabs is the role-filtered subset actually rendered.
 
   visibleTabs: {
     label: string;
@@ -713,6 +213,7 @@ export class InvoicingComponent implements OnInit {
   selectedIndex: number = 0;
   filteredTabs: { label: string; component: string; disabled?: boolean }[] = [];
 
+  // Post-Invoicing has nested pill sub-tabs; index tracks which sub-tab is active.
   postInvoicingSubIndex: number = 0;
   postInvoicingSubTabs: string[] = [
     'CM Amortization',
@@ -723,18 +224,480 @@ export class InvoicingComponent implements OnInit {
     'PCM Application',
   ];
 
-  getDefaultTabIndex() {
-    this.filteredTabs = this.visibleTabs.filter((tab) =>
-      tab.role.some((role) => this.roles.includes(role)),
-    );
-  }
-
   get menuItems(): MenuMiniItem[] {
     return this.filteredTabs.map((t) => ({
       label: t.label,
       disabled: t.disabled,
     }));
   }
+
+  // ─── Assignment Dialog Field Config ───────────────────────────────────────
+  // Defines the fields rendered in the row-assignment side panel / dialog.
+  // Fields with disabled: true are read-only; disabled: 'dynamic' means
+  // editability is determined at runtime based on user role.
+
+  fieldConfig = [
+    {
+      controlName: 'periodName',
+      label: 'Period Name',
+      sourceKey: 'PERIOD_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'appName',
+      label: 'Application Name',
+      sourceKey: 'APPLICATION_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'processFlow',
+      label: 'Process Flow',
+      sourceKey: 'PROCESS_FLOW',
+      disabled: true,
+    },
+    {
+      controlName: 'orgName',
+      label: 'Organization Name',
+      sourceKey: 'ORG_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'creationDate',
+      label: 'Transaction Date',
+      sourceKey: 'TRANSACTION_DATE',
+      disabled: true,
+    },
+    {
+      controlName: 'aging',
+      label: 'Aging',
+      sourceKey: 'AGING',
+      disabled: true,
+    },
+    {
+      controlName: 'assignedTo',
+      label: 'Assigned To',
+      sourceKey: 'ASSIGNED_TO',
+      disabled: 'dynamic',
+      validators: [Validators.required],
+    },
+    { controlName: 'comments', label: 'Comments', sourceKey: 'COMMENTS' },
+  ];
+
+  // ─── Keys to Map ──────────────────────────────────────────────────────────
+  // Columns surfaced in the summary row header / key display area.
+  // Shared across Pre-Invoicing and Auto-Invoicing tabs.
+
+  preAndAutoInvoiceKeysToMap: string[] = [
+    'PERIOD_NAME',
+    'ORG_NAME',
+    'APPLICATION_NAME',
+    'PROCESS_FLOW',
+    'TRANSACTION_DATE',
+  ];
+
+  // ─── Filter Configurations ────────────────────────────────────────────────
+  // Each array defines the filter bar for a specific tab / sub-tab.
+  // All filters include the standard PROCESS_FLOW + ORG_NAME selects;
+  // additional text/select filters are tab-specific.
+
+  preInvoicingFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'billNumber',
+      columnName: 'BILL_NUMBER',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+  ];
+
+  autoInvoicingFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+  ];
+
+  // Shared across CM Amortization, Invoice Delivery, and Digital Payments sub-tabs.
+  postInvoicingFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+  ];
+
+  srtProcessFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'subscriptionId',
+      columnName: 'SUBSCRIPTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionList',
+      columnName: 'TRANSACTION_LIST',
+      type: 'select',
+      subAppMapping: false,
+    },
+  ];
+
+  rpoExtractFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'subscriptionId',
+      columnName: 'SUBSCRIPTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+  ];
+
+  pcmFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'receiptNumber',
+      columnName: 'RECEIPT_NUMBER',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'bankTraceId',
+      columnName: 'BANK_TRACE_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+  ];
+
+  eInvoicingFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+  ];
+
+  fusionFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'orderNumber',
+      columnName: 'ORDER_NUMBER',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+  ];
+
+  creditCardCheckFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'orderNumber',
+      columnName: 'ORDER_NUMBER',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'icmsYN',
+      columnName: 'ICMS_Y_N',
+      type: 'select',
+      subAppMapping: false,
+    },
+  ];
+
+  // ─── API URL Maps ─────────────────────────────────────────────────────────
+  // Each map provides the 7 endpoint slugs consumed by MonitoringDashboardComponent.
+  // Empty string disables the feature (e.g. no webexMessageUrl = no Webex button).
+
+  preInvoicingUrls: { [key: string]: string } = {
+    summaryUrl: 'pre-invoice-error-summary',
+    detailsUrl: 'pre-invoice-error-details',
+    filteredDetailsUrl: 'pre-invoice-error-details-filtered',
+    summaryUpdateUrl: 'pre-invoice-error-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  autoInvoicingUrls: { [key: string]: string } = {
+    summaryUrl: 'auto-invoice-error-summary',
+    detailsUrl: 'auto-invoice-error-details',
+    filteredDetailsUrl: 'auto-invoice-error-details-filtered',
+    summaryUpdateUrl: 'auto-invoice-error-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  // Post-Invoicing sub-tab URL maps
+  cmAmortUrls: { [key: string]: string } = {
+    summaryUrl: 'post-invoice-error-summary',
+    detailsUrl: 'post-invoice-error-details',
+    filteredDetailsUrl: 'post-invoice-error-details-filtered',
+    summaryUpdateUrl: 'post-invoice-error-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  printUrls: { [key: string]: string } = {
+    summaryUrl: 'print-error-summary',
+    detailsUrl: 'print-error-details',
+    filteredDetailsUrl: 'print-error-details-filtered',
+    summaryUpdateUrl: 'print-error-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  creditCardUrls: { [key: string]: string } = {
+    summaryUrl: 'credit-card-error-summary',
+    detailsUrl: 'credit-card-error-details',
+    filteredDetailsUrl: 'credit-card-error-details-filtered',
+    summaryUpdateUrl: '',
+    webexMessageUrl: '',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  srtProcessUrls: { [key: string]: string } = {
+    summaryUrl: 'srt-process-error-summary',
+    detailsUrl: 'srt-process-error-details',
+    filteredDetailsUrl: 'srt-process-details-filtered',
+    summaryUpdateUrl: 'srt-process-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  rpoExtractUrls: { [key: string]: string } = {
+    summaryUrl: 'rpo-extract-error-summary',
+    detailsUrl: 'rpo-extract-error-details',
+    filteredDetailsUrl: 'rpo-extract-details-filtered',
+    summaryUpdateUrl: 'rpo-extract-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  pcmApplicationUrls: { [key: string]: string } = {
+    summaryUrl: 'pcm-application-summary',
+    detailsUrl: 'pcm-application-details',
+    filteredDetailsUrl: 'pcm-application-details-filtered',
+    summaryUpdateUrl: 'pcm-application-summary-update',
+    webexMessageUrl: '',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  // Top-level tab URL maps
+  eInvoicingUrls: { [key: string]: string } = {
+    summaryUrl: 'einvoicing-error-summary',
+    detailsUrl: 'einvoicing-error-details',
+    filteredDetailsUrl: 'einvoicing-error-details-filtered',
+    summaryUpdateUrl: 'einvoicing-error-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  fusionUrls: { [key: string]: string } = {
+    summaryUrl: 'fusion-error-summary',
+    detailsUrl: 'fusion-error-details',
+    filteredDetailsUrl: 'fusion-error-details-filtered',
+    summaryUpdateUrl: 'fusion-error-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  creditCardCheckUrls: { [key: string]: string } = {
+    summaryUrl: 'credit-card-check-summary-view',
+    detailsUrl: 'credit-card-check-detail-view',
+    filteredDetailsUrl: 'credit-card-check-detail-view-filtered',
+    summaryUpdateUrl: 'credit-card-check-summary-update',
+    webexMessageUrl: '',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  debitCardUrls: { [key: string]: string } = {
+    summaryUrl: 'debit-card-error-summary',
+    detailsUrl: 'debit-card-error-details',
+    filteredDetailsUrl: '',
+    summaryUpdateUrl: '',
+    webexMessageUrl: '',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  // ─── Event Handlers ───────────────────────────────────────────────────────
 
   onGridMenuItemClick(index: number): void {
     this.onTabChange(index);
@@ -753,6 +716,26 @@ export class InvoicingComponent implements OnInit {
     }
     // Log tab visit for analytics
     this.logTabVisit(this.filteredTabs[index]?.label);
+  }
+
+  // ─── Data & Subscription Methods ─────────────────────────────────────────
+
+  getErrorSummaryPeriodStatus() {
+    this.dataService.periodStatus$.subscribe((data: any) => {
+      if (data) {
+        this.periodStatus = {
+          ...data,
+          lastUpdated: new Date().toLocaleString(),
+        };
+      }
+    });
+  }
+
+  /** Filters visibleTabs down to only those the current user has a role for. */
+  getDefaultTabIndex() {
+    this.filteredTabs = this.visibleTabs.filter((tab) =>
+      tab.role.some((role) => this.roles.includes(role)),
+    );
   }
 
   /**
