@@ -70,6 +70,7 @@ import type {
   JobCategory,
   JobSource,
   LogTabKey,
+  SubApplication,
   Summary,
   TrendDay,
 } from './control-m.types';
@@ -183,6 +184,20 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
   // Sub-app refresh tracking
   refreshingFolders = new Set<string>();
 
+  // Lazy-load state (server-side pagination for the hierarchy tree)
+  /** Page size for a single sub-app fetch. */
+  static readonly SUBAPP_PAGE_SIZE = 100;
+  /**
+   * Full outline of every sub-application, derived from `folders`. One entry
+   * per distinct sub_app name; counts + health flags are unioned across the
+   * folders that contain that sub-app.
+   */
+  fullSubAppOutline: SubApplication[] = [];
+  /** Sub-apps currently being fetched (used by the tree to show a spinner). */
+  loadingSubApps = new Set<string>();
+  /** Sub-apps we've already fetched at least the first page for. */
+  loadedSubApps = new Set<string>();
+
   // Derived collections
   displayFolders: DisplayFolder[] = [];
   groupProcessAreas: Record<string, RenderedProcessArea[]> = {};
@@ -235,6 +250,9 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
     this.selectedSubApp = null;
     this.activeCategory = 'TOTAL';
     this.searchQuery = '';
+    this.fullSubAppOutline = [];
+    this.loadingSubApps = new Set();
+    this.loadedSubApps = new Set();
     this.loadAll();
   }
 
@@ -242,11 +260,11 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
     if (!silent) {
       this.loadingSummary = true;
       this.loadingFolders = true;
-      this.loadingJobs = true;
+      // Jobs are loaded lazily per sub-app — no bulk load at mount.
+      this.loadingJobs = false;
     }
     this.loadSummary();
     this.loadFolders();
-    this.loadJobs();
     this.loadTrend();
   }
 
@@ -275,6 +293,7 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (f) => {
           this.folders = f ?? [];
+          this.rebuildSubAppOutline();
           this.rebuildDisplayFolders();
           this.errorFolders = null;
           this.loadingFolders = false;
@@ -286,21 +305,131 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Build a flat outline of every sub-application from `this.folders`.
+   * A sub-app may appear under multiple folders; we dedupe by `sub_app`
+   * name and union counts + health flags.
+   */
+  private rebuildSubAppOutline(): void {
+    const map = new Map<string, SubApplication>();
+    for (const folder of this.folders) {
+      for (const sa of folder.sub_applications ?? []) {
+        const existing = map.get(sa.sub_app);
+        if (!existing) {
+          map.set(sa.sub_app, { ...sa });
+        } else {
+          existing.count += sa.count;
+          existing.has_failure = existing.has_failure || sa.has_failure;
+          existing.has_long_running =
+            existing.has_long_running || sa.has_long_running;
+          existing.has_late_start =
+            existing.has_late_start || sa.has_late_start;
+        }
+      }
+    }
+    this.fullSubAppOutline = Array.from(map.values()).sort((a, b) =>
+      a.sub_app.localeCompare(b.sub_app),
+    );
+  }
+
+  /**
+   * Outline currently shown to the tree. When a folder (or a folder + sub-app)
+   * is selected the outline is narrowed so the tree can enter folder view.
+   */
+  get visibleSubAppOutline(): SubApplication[] {
+    if (this.selectedSubApp) {
+      return this.fullSubAppOutline.filter(
+        (o) => o.sub_app === this.selectedSubApp,
+      );
+    }
+    if (this.selectedFolder) {
+      const folder = this.folders.find((f) => f.folder === this.selectedFolder);
+      if (folder) {
+        const names = new Set(
+          (folder.sub_applications ?? []).map((sa) => sa.sub_app),
+        );
+        return this.fullSubAppOutline.filter((o) => names.has(o.sub_app));
+      }
+    }
+    return this.fullSubAppOutline;
+  }
+
   loadJobs(): void {
+    // Legacy full-load path is intentionally a no-op; the tree fetches jobs
+    // per sub-application on demand via `onSubAppExpand` / `onSubAppLoadMore`.
+    // Callers that used to trigger a bulk refresh should instead re-fetch
+    // the sub-apps they care about (see `refetchLoadedSubApps`).
+    this.loadingJobs = false;
+  }
+
+  // ── Lazy sub-app fetching (server-side pagination) ──────────────
+
+  /** Tree emitted an expand for a sub-app we haven't loaded yet. */
+  onSubAppExpand(evt: { subApp: string; loadedCount: number }): void {
+    if (
+      this.loadingSubApps.has(evt.subApp) ||
+      this.loadedSubApps.has(evt.subApp)
+    ) {
+      return;
+    }
+    this.fetchSubAppJobs(evt.subApp, 0);
+  }
+
+  /** Tree emitted a "Load more" for a sub-app. */
+  onSubAppLoadMore(evt: { subApp: string; loadedCount: number }): void {
+    if (this.loadingSubApps.has(evt.subApp)) return;
+    this.fetchSubAppJobs(evt.subApp, evt.loadedCount);
+  }
+
+  private fetchSubAppJobs(subApp: string, offset: number): void {
+    this.loadingSubApps = new Set(this.loadingSubApps).add(subApp);
     this.api
-      .getJobs(this.source, { limit: 100000 })
+      .getJobs(this.source, {
+        sub_application: subApp,
+        limit: ControlMDashboardComponent.SUBAPP_PAGE_SIZE,
+        offset,
+      })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (j) => {
-          this.allJobs = j ?? [];
-          this.errorJobs = null;
-          this.loadingJobs = false;
+        next: (jobs) => {
+          const page = jobs ?? [];
+          // Append — dedupe by job_id (fall back to job_name) so a re-fetch
+          // of an existing page does not double-count rows.
+          const seen = new Set(this.allJobs.map((j) => j.job_id || j.job_name));
+          const additions = page.filter(
+            (j) => !seen.has(j.job_id || j.job_name),
+          );
+          this.allJobs = [...this.allJobs, ...additions];
+          this.loadedSubApps = new Set(this.loadedSubApps).add(subApp);
+          const nextLoading = new Set(this.loadingSubApps);
+          nextLoading.delete(subApp);
+          this.loadingSubApps = nextLoading;
         },
-        error: (err) => {
-          this.errorJobs = this.errorMessage(err);
-          this.loadingJobs = false;
+        error: () => {
+          const nextLoading = new Set(this.loadingSubApps);
+          nextLoading.delete(subApp);
+          this.loadingSubApps = nextLoading;
         },
       });
+  }
+
+  /**
+   * Re-fetch the first page of every sub-app the user has already loaded.
+   * Used after a targeted refresh so the tree stays in sync without pulling
+   * every job in the application.
+   */
+  private refetchLoadedSubApps(): void {
+    const subApps = Array.from(this.loadedSubApps);
+    if (subApps.length === 0) return;
+    // Drop existing jobs for those sub-apps so a fresh page replaces them.
+    const wanted = new Set(subApps);
+    this.allJobs = this.allJobs.filter(
+      (j) => !wanted.has(j.sub_application || ''),
+    );
+    this.loadedSubApps = new Set();
+    for (const sa of subApps) {
+      this.fetchSubAppJobs(sa, 0);
+    }
   }
 
   loadTrend(_silent = false): void {
@@ -439,11 +568,14 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe(() => {
           this.refreshingFolders.delete(folder.folder);
-          this.loadJobs();
           this.loadFolders();
+          // Prefetch jobs for the folder's sub-apps so folder view has data.
+          for (const sa of subApps) {
+            this.loadedSubApps.delete(sa);
+            this.allJobs = this.allJobs.filter((j) => j.sub_application !== sa);
+            this.fetchSubAppJobs(sa, 0);
+          }
         });
-    } else {
-      this.loadJobs();
     }
   }
 
@@ -474,8 +606,13 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
         )
         .subscribe(() => {
           this.refreshingFolders.delete(folder.folder);
-          this.loadJobs();
           this.loadFolders();
+          // Force a fresh fetch of this sub-app's first page.
+          this.loadedSubApps.delete(subApp);
+          this.allJobs = this.allJobs.filter(
+            (j) => j.sub_application !== subApp,
+          );
+          this.fetchSubAppJobs(subApp, 0);
         });
     }
   }

@@ -324,6 +324,73 @@
   border-top: 1px solid var(--cmt-divider);
 }
 
+/* ── Lazy-load affordances ── */
+.cm-subapp-loading {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+}
+
+.cm-subapp-loading-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  border-top: 1px solid var(--cmt-divider);
+}
+
+.cm-subapp-empty {
+  padding: 12px 16px;
+  color: var(--cmt-muted);
+  font-size: 12px;
+  border-top: 1px solid var(--cmt-divider);
+  font-style: italic;
+}
+
+.cm-load-more-row {
+  display: flex;
+  justify-content: center;
+  padding: 8px;
+  border-top: 1px solid var(--cmt-divider);
+}
+
+.cm-load-more-btn {
+  appearance: none;
+  border: 1px solid var(--cmt-border);
+  background: transparent;
+  color: var(--cmt-text);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+}
+
+.cm-load-more-btn:hover:not(:disabled) {
+  background: rgba(0, 112, 210, 0.08);
+  border-color: #0070d2;
+  color: #0070d2;
+}
+
+.cm-load-more-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+:host(.dark-theme) .cm-load-more-btn:hover:not(:disabled) {
+  background: rgba(0, 188, 235, 0.08);
+  border-color: #00bceb;
+  color: #00bceb;
+}
+
 .cm-jobs-table {
   width: 100%;
   border-collapse: collapse;

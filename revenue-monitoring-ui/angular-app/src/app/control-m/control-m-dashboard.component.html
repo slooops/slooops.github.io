@@ -448,12 +448,16 @@
   <section class="cm-jobs-section">
     <app-control-m-jobs-tree
       [jobs]="filteredJobs"
+      [subAppOutline]="visibleSubAppOutline"
+      [loadingSubApps]="loadingSubApps"
       [loading]="loadingJobs"
       [error]="errorJobs"
       [darkMode]="themeService.isDarkMode"
       [(search)]="searchQuery"
       (viewLogs)="onViewLogs($event)"
       (jobSelect)="onJobActionSelect($event)"
+      (subAppExpand)="onSubAppExpand($event)"
+      (subAppLoadMore)="onSubAppLoadMore($event)"
     />
   </section>
 

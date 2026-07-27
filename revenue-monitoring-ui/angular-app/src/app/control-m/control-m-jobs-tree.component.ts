@@ -28,11 +28,17 @@ import {
 } from '@ng-icons/phosphor-icons/bold';
 
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
-import type { Job } from './control-m.types';
+import { LoadingSymbolSmallComponent } from '../loading-symbol-small/loading-symbol-small.component';
+import type { Job, SubApplication } from './control-m.types';
 
 interface SubAppNode {
   subApp: string;
-  jobs: Job[];
+  displayName: string;
+  totalCount: number;
+  loadedJobs: Job[];
+  hasFailure: boolean;
+  hasLongRunning: boolean;
+  hasLateStart: boolean;
 }
 
 interface FolderNode {
@@ -46,7 +52,13 @@ interface FolderNode {
 @Component({
   selector: 'app-control-m-jobs-tree',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgIcon, LoadingSymbolComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgIcon,
+    LoadingSymbolComponent,
+    LoadingSymbolSmallComponent,
+  ],
   providers: [
     provideIcons({
       phosphorCaretDownBold,
@@ -69,7 +81,25 @@ interface FolderNode {
   styleUrls: ['./control-m-jobs-tree.component.css'],
 })
 export class ControlMJobsTreeComponent implements OnChanges {
+  /**
+   * Jobs that have already been fetched from the server. In lazy-load mode
+   * this is the accumulator the parent appends to as sub-apps are expanded.
+   */
   @Input() jobs: Job[] = [];
+
+  /**
+   * Sub-application outline (name + total job count + health flags) used to
+   * render the top-level tree structure BEFORE any jobs are loaded.
+   * When set, the tree renders one row per outline entry and only pulls
+   * `jobs` when a row is expanded.
+   */
+  @Input() subAppOutline: SubApplication[] = [];
+
+  /**
+   * Sub-applications currently being fetched. Used to show a per-row spinner.
+   */
+  @Input() loadingSubApps: Set<string> = new Set();
+
   @Input() loading = false;
   @Input() error: string | null = null;
   @Input() search = '';
@@ -80,6 +110,14 @@ export class ControlMJobsTreeComponent implements OnChanges {
   @Output() jobSelect = new EventEmitter<Job>();
   @Output() viewLogs = new EventEmitter<Job>();
   @Output() searchChange = new EventEmitter<string>();
+  @Output() subAppExpand = new EventEmitter<{
+    subApp: string;
+    loadedCount: number;
+  }>();
+  @Output() subAppLoadMore = new EventEmitter<{
+    subApp: string;
+    loadedCount: number;
+  }>();
 
   onSearchInput(value: string): void {
     this.search = value;
@@ -100,17 +138,15 @@ export class ControlMJobsTreeComponent implements OnChanges {
   expandedFolders = new Set<string>();
 
   /**
-   * Signature of the last folder/sub-app shape we auto-expanded for. We only
-   * force-expand every branch when the tree's structure actually changes
-   * (e.g. after switching filters). Otherwise — including for the many
-   * change-detection cycles that pass a new `filteredJobs` reference with
-   * identical folder shape — we preserve the user's collapse state.
+   * Signature of the last folder-view shape we auto-expanded for. Only used
+   * in `useFolderView` (single-sub-app) mode. In multi-sub-app mode with the
+   * lazy-loading outline we default all rows to COLLAPSED and never
+   * auto-expand.
    */
   private lastFolderShapeKey = '';
-  private lastSubAppShapeKey = '';
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['jobs']) {
+    if (changes['jobs'] || changes['subAppOutline']) {
       this.rebuild();
     }
   }
@@ -121,10 +157,21 @@ export class ControlMJobsTreeComponent implements OnChanges {
       (j) => (j.category as string) !== 'UNKNOWN_STATUS',
     );
 
-    // How many unique sub-apps?
-    const subs = new Set<string>();
-    executed.forEach((j) => subs.add(j.sub_application || '—'));
-    this.useFolderView = subs.size === 1;
+    // Prefer the parent-supplied outline for the top-level structure. Fall
+    // back to unique sub-apps from the loaded jobs (legacy / drill-down
+    // paths where the outline isn't set).
+    let sourceSubApps: string[];
+    if (this.subAppOutline.length > 0) {
+      sourceSubApps = this.subAppOutline.map((s) => s.sub_app);
+    } else {
+      const set = new Set<string>();
+      executed.forEach((j) => set.add(j.sub_application || '—'));
+      sourceSubApps = Array.from(set);
+    }
+
+    // Folder view kicks in when the caller has narrowed the outline (or the
+    // loaded jobs) to a single sub-application — typically after a tile click.
+    this.useFolderView = sourceSubApps.length === 1;
 
     if (this.useFolderView) {
       this.folderTree = this.buildFolderTree(executed);
@@ -134,10 +181,10 @@ export class ControlMJobsTreeComponent implements OnChanges {
       this.subAppTree = this.buildSubAppTree(executed);
     }
 
-    // Only auto-expand when the tree's SHAPE changes (folder paths / sub-app
-    // set differs from what we last built). Steady-state change-detection
-    // cycles keep the user's manual collapse actions intact.
     if (this.useFolderView && this.folderTree.length > 0) {
+      // Folder view is triggered by a deliberate narrowing (single sub-app)
+      // and typically contains a small number of folders — expand them all
+      // by default when the shape changes so contents are immediately visible.
       const allPaths = new Set<string>();
       const collect = (n: FolderNode) => {
         allPaths.add(n.path);
@@ -151,20 +198,11 @@ export class ControlMJobsTreeComponent implements OnChanges {
         this.lastFolderShapeKey = key;
       }
       this.expandedApps = new Set();
-      this.lastSubAppShapeKey = '';
-    } else if (!this.useFolderView && this.subAppTree.length > 0) {
-      const apps = this.subAppTree.map((n) => n.subApp);
-      const key = apps.slice().sort().join('|');
-      if (key !== this.lastSubAppShapeKey) {
-        this.expandedApps = new Set(apps);
-        this.lastSubAppShapeKey = key;
-      }
+    } else {
+      // Multi-sub-app (outline) mode: everything starts collapsed. User
+      // explicitly opens rows, which triggers on-demand job fetches.
       this.expandedFolders = new Set();
       this.lastFolderShapeKey = '';
-    } else {
-      // Empty tree — clear so a future non-empty rebuild expands cleanly.
-      this.lastFolderShapeKey = '';
-      this.lastSubAppShapeKey = '';
     }
   }
 
@@ -238,28 +276,84 @@ export class ControlMJobsTreeComponent implements OnChanges {
   // ── Sub-app tree (multi-sub-app mode) ────────────────────────────────
 
   private buildSubAppTree(jobs: Job[]): SubAppNode[] {
+    // Group loaded jobs by sub-application
     const grouped = new Map<string, Job[]>();
     for (const j of jobs) {
       const sa = j.sub_application || '—';
       if (!grouped.has(sa)) grouped.set(sa, []);
       grouped.get(sa)!.push(j);
     }
+
+    if (this.subAppOutline.length > 0) {
+      // Outline mode: one row per outline entry. `loadedJobs` may be empty
+      // (nothing fetched yet) or a subset up to the sub-app's total count.
+      return this.subAppOutline
+        .map((sa) => {
+          const loaded = this.dedupLatest(grouped.get(sa.sub_app) ?? []).sort(
+            (a, b) => a.job_name.localeCompare(b.job_name),
+          );
+          return {
+            subApp: sa.sub_app,
+            displayName: sa.display_name || sa.sub_app,
+            totalCount: sa.count,
+            loadedJobs: loaded,
+            hasFailure: sa.has_failure,
+            hasLongRunning: sa.has_long_running,
+            hasLateStart: sa.has_late_start,
+          } satisfies SubAppNode;
+        })
+        .sort((a, b) => a.subApp.localeCompare(b.subApp));
+    }
+
+    // Legacy fallback: no outline supplied — derive rows from loaded jobs only.
     return Array.from(grouped.entries())
-      .map(([subApp, list]) => ({
-        subApp,
-        jobs: this.dedupLatest(list).sort((a, b) =>
+      .map(([subApp, list]) => {
+        const loaded = this.dedupLatest(list).sort((a, b) =>
           a.job_name.localeCompare(b.job_name),
-        ),
-      }))
+        );
+        return {
+          subApp,
+          displayName: subApp,
+          totalCount: loaded.length,
+          loadedJobs: loaded,
+          hasFailure: false,
+          hasLongRunning: false,
+          hasLateStart: false,
+        } satisfies SubAppNode;
+      })
       .sort((a, b) => a.subApp.localeCompare(b.subApp));
   }
 
   // ── UI actions ───────────────────────────────────────────────────────
 
   toggleApp(subApp: string): void {
-    if (this.expandedApps.has(subApp)) this.expandedApps.delete(subApp);
-    else this.expandedApps.add(subApp);
+    const opening = !this.expandedApps.has(subApp);
+    if (opening) this.expandedApps.add(subApp);
+    else this.expandedApps.delete(subApp);
     this.expandedApps = new Set(this.expandedApps); // trigger CD
+
+    // Fire load request if this sub-app has no jobs loaded yet and isn't
+    // already being fetched. The parent decides page size / offset.
+    if (opening) {
+      const node = this.subAppTree.find((n) => n.subApp === subApp);
+      if (
+        node?.loadedJobs.length === 0 &&
+        node.totalCount > 0 &&
+        !this.loadingSubApps.has(subApp)
+      ) {
+        this.subAppExpand.emit({ subApp, loadedCount: 0 });
+      }
+    }
+  }
+
+  loadMoreForSubApp(node: SubAppNode, event: Event): void {
+    event.stopPropagation();
+    if (this.loadingSubApps.has(node.subApp)) return;
+    if (node.loadedJobs.length >= node.totalCount) return;
+    this.subAppLoadMore.emit({
+      subApp: node.subApp,
+      loadedCount: node.loadedJobs.length,
+    });
   }
 
   toggleFolder(path: string): void {
@@ -292,7 +386,8 @@ export class ControlMJobsTreeComponent implements OnChanges {
     if (this.useFolderView) {
       return this.folderTree.reduce((s, f) => s + this.countJobs(f), 0);
     }
-    return this.subAppTree.reduce((s, g) => s + g.jobs.length, 0);
+    // Prefer outline totals (accurate even before jobs are fetched).
+    return this.subAppTree.reduce((s, g) => s + g.totalCount, 0);
   }
 
   get folderCount(): number {

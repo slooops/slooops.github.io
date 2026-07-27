@@ -86,21 +86,55 @@
                   />
                 </span>
                 <span class="cm-subapp-name" [title]="group.subApp">{{
-                  group.subApp
+                  group.displayName
                 }}</span>
                 <span class="cm-count-pill cm-count-cyan">
-                  {{ group.jobs.length | number }} job{{
-                    group.jobs.length === 1 ? "" : "s"
+                  {{ group.totalCount | number }} job{{
+                    group.totalCount === 1 ? "" : "s"
                   }}
                 </span>
+                @if (loadingSubApps.has(group.subApp)) {
+                  <span class="cm-subapp-loading">
+                    <app-loading-symbol-small />
+                  </span>
+                }
               </button>
               @if (expandedApps.has(group.subApp)) {
-                <div class="cm-jobs-scroll">
-                  <ng-container
-                    [ngTemplateOutlet]="jobsTable"
-                    [ngTemplateOutletContext]="{ jobs: group.jobs }"
-                  />
-                </div>
+                @if (
+                  loadingSubApps.has(group.subApp) &&
+                  group.loadedJobs.length === 0
+                ) {
+                  <div class="cm-subapp-loading-block">
+                    <app-loading-symbol animationStyle="origins" />
+                  </div>
+                } @else if (group.loadedJobs.length > 0) {
+                  <div class="cm-jobs-scroll">
+                    <ng-container
+                      [ngTemplateOutlet]="jobsTable"
+                      [ngTemplateOutletContext]="{ jobs: group.loadedJobs }"
+                    />
+                  </div>
+                  @if (group.loadedJobs.length < group.totalCount) {
+                    <div class="cm-load-more-row">
+                      <button
+                        type="button"
+                        class="cm-load-more-btn"
+                        [disabled]="loadingSubApps.has(group.subApp)"
+                        (click)="loadMoreForSubApp(group, $event)"
+                      >
+                        @if (loadingSubApps.has(group.subApp)) {
+                          <app-loading-symbol-small />
+                        } @else {
+                          Load more · showing
+                          {{ group.loadedJobs.length | number }} of
+                          {{ group.totalCount | number }}
+                        }
+                      </button>
+                    </div>
+                  }
+                } @else {
+                  <div class="cm-subapp-empty">No jobs loaded.</div>
+                }
               }
             </li>
           }
