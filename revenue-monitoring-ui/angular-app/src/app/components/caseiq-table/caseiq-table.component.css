@@ -285,7 +285,23 @@
 }
 
 .ciq-table td.clickable-cell:hover {
-  text-decoration: underline;
+  text-decoration: none;
+}
+
+.incident-number-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.analyzed-icon {
+  color: #0070d2;
+  flex-shrink: 0;
+}
+
+:host(.dark-theme) .analyzed-icon {
+  color: #00bceb;
 }
 
 :host(.dark-theme) .ciq-table td.clickable-cell {

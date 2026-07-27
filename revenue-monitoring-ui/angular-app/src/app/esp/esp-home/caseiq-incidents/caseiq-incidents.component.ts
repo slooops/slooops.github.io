@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ThemeService } from 'src/app/providers/theme.service';
+import { AuthenticationService } from 'src/app/providers/authentication.service';
 import {
   FilterButtonBarComponent,
   FilterConfig,
@@ -130,6 +131,17 @@ export class CaseiqIncidentsComponent implements OnInit {
   currentPage = 0;
   pageSize = 10;
 
+  // Role-based team filtering
+  private readonly teamMappings: Record<string, string> = {
+    CASE_IQ_I2C: 'I2C',
+    CASE_IQ_OM: 'OM',
+    CASE_IQ_SBP: 'SM',
+    CASE_IQ_CAPITAL: 'CAPITAL',
+    CASE_IQ_AIT: 'AIT',
+    CASE_IQ_FPP: 'FPP',
+    CASE_IQ_P2P: 'P2P',
+  };
+
   readonly searchFieldOptions: Array<{
     label: string;
     value: 'incidentNumber' | 'category' | 'coreIssue';
@@ -178,11 +190,110 @@ export class CaseiqIncidentsComponent implements OnInit {
 
   metricsSummary: Record<string, number> = {};
   kpiConfig: DynamicKpi[] = [];
+  private allIncidents: SupervisorIncident[] = [];
+  private userTeamFilters: string[] = [];
+  private isAdminOrManager = false;
 
   constructor(
     public themeService: ThemeService,
     private readonly http: HttpClient,
+    private readonly authService: AuthenticationService,
   ) {}
+
+  /**
+   * Determines user's access level and team restrictions
+   * - Admin/Manager/Orchestrator roles: view all teams (no filtering)
+   * - Single CASE_IQ role: view only that team
+   * - Multiple CASE_IQ roles: view all those teams (client-side filtering)
+   * @returns object with admin flag and team filters
+   */
+  private getUserAccessLevel(): { isAdmin: boolean; teams: string[] } {
+    const userRoles = this.authService.getUserAccessRoles();
+
+    // Check for admin/manager roles that view all data
+    if (
+      userRoles.includes('ADMIN') ||
+      userRoles.includes('CASE_IQ_MANAGER') ||
+      userRoles.includes('CASE_IQ_ORCHESTRATOR')
+    ) {
+      return { isAdmin: true, teams: [] };
+    }
+
+    // Extract all CASE_IQ team roles
+    const teamRoles = userRoles.filter((role) =>
+      this.teamMappings.hasOwnProperty(role),
+    );
+
+    if (teamRoles.length === 0) {
+      return { isAdmin: false, teams: [] };
+    }
+
+    // Map roles to team names
+    const teams = teamRoles.map((role) => this.teamMappings[role]);
+
+    return { isAdmin: false, teams };
+  }
+
+  /**
+   * Builds metrics summary URL
+   * - If user has single team: append ?team=${team} for backend filtering
+   * - If user has multiple teams or is admin: use base URL (no filtering)
+   * @returns URL with optional team query parameter
+   */
+  private getMetricsSummaryUrl(): string {
+    const accessLevel = this.getUserAccessLevel();
+    this.isAdminOrManager = accessLevel.isAdmin;
+    this.userTeamFilters = accessLevel.teams;
+
+    // Single team: use backend filtering
+    if (accessLevel.teams.length === 1) {
+      return `${this.metricsSummaryUrl}?team=${accessLevel.teams[0]}`;
+    }
+
+    // Admin, multiple teams, or no teams: use base URL
+    return this.metricsSummaryUrl;
+  }
+
+  /**
+   * Builds metrics incidents URL
+   * - If user has single team: append ?team=${team} for backend filtering
+   * - If user has multiple teams or is admin: use base URL (client-side filtering)
+   * @returns URL with optional team query parameter
+   */
+  private getMetricsIncidentsUrl(): string {
+    const accessLevel = this.getUserAccessLevel();
+    this.isAdminOrManager = accessLevel.isAdmin;
+    this.userTeamFilters = accessLevel.teams;
+
+    // Single team: use backend filtering
+    if (accessLevel.teams.length === 1) {
+      return `${this.metricsIncidentsUrl}?team=${accessLevel.teams[0]}`;
+    }
+
+    // Admin, multiple teams, or no teams: use base URL
+    return this.metricsIncidentsUrl;
+  }
+
+  /**
+   * Filters raw incident data based on user's team access
+   * Called when user has multiple teams (client-side filtering)
+   * @param incidents raw incident objects from API
+   * @returns filtered incidents matching user's allowed teams
+   */
+  private filterIncidentsByTeam(
+    incidents: Record<string, unknown>[],
+  ): Record<string, unknown>[] {
+    // No filtering for admin/manager or single team (backend already filtered)
+    if (this.isAdminOrManager || this.userTeamFilters.length <= 1) {
+      return incidents;
+    }
+
+    // Filter by allowed teams using team_name property
+    return incidents.filter((incident) => {
+      const teamName = incident['team_name'] as string | undefined;
+      return teamName && this.userTeamFilters.includes(teamName);
+    });
+  }
 
   ngOnInit(): void {
     this.applyFilter();
@@ -191,15 +302,19 @@ export class CaseiqIncidentsComponent implements OnInit {
   }
 
   private loadIncidents(): void {
-    this.http.get<unknown>(this.metricsIncidentsUrl).subscribe({
+    this.http.get<unknown>(this.getMetricsIncidentsUrl()).subscribe({
       next: (response) => {
         const apiIncidents = this.extractIncidentRows(response);
-        this.incidents = this.groupIncidents(apiIncidents);
+        // Apply client-side filtering for multiple team access
+        const filteredIncidents = this.filterIncidentsByTeam(apiIncidents);
+        this.incidents = this.groupIncidents(filteredIncidents);
+        this.allIncidents = [...this.incidents];
         this.updateDynamicFilterOptionsFromIncidents();
         this.applyFilter();
       },
       error: () => {
         this.incidents = [];
+        this.allIncidents = [];
         this.updateDynamicFilterOptionsFromIncidents();
         this.applyFilter();
       },
@@ -470,16 +585,18 @@ export class CaseiqIncidentsComponent implements OnInit {
   }
 
   private loadMetricsSummary(): void {
-    this.http.get<SupervisorMetricsSummary>(this.metricsSummaryUrl).subscribe({
-      next: (response) => {
-        this.metricsSummary = this.buildMetricsSummary(response);
-        this.kpiConfig = this.buildKpiConfig(this.metricsSummary);
-      },
-      error: () => {
-        this.metricsSummary = {};
-        this.kpiConfig = [];
-      },
-    });
+    this.http
+      .get<SupervisorMetricsSummary>(this.getMetricsSummaryUrl())
+      .subscribe({
+        next: (response) => {
+          this.metricsSummary = this.buildMetricsSummary(response);
+          this.kpiConfig = this.buildKpiConfig(this.metricsSummary);
+        },
+        error: () => {
+          this.metricsSummary = {};
+          this.kpiConfig = [];
+        },
+      });
   }
 
   private buildMetricsSummary(

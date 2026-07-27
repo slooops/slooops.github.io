@@ -697,8 +697,8 @@ export class EspHomeComponent implements OnInit {
   isTileAccessible(tileName: string): boolean {
     if (tileName === 'Orchestrator') {
       return (
-        this.roles.includes('ADMIN') ||
-        this.roles.includes('CASE_IQ_ORCHESTRATOR')
+        this.roles.find((role) => role.startsWith('CASE_IQ_')) !== undefined ||
+        this.roles.includes('ADMIN')
       );
     }
 

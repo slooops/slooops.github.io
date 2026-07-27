@@ -630,7 +630,8 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       (column) =>
         !column.includes('MATCH') &&
         column !== 'CATEGORY_MATCH' &&
-        column !== 'CORE_ISSUE_MATCH',
+        column !== 'CORE_ISSUE_MATCH' &&
+        column !== 'ANALYZED_BY',
     );
   }
 

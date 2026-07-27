@@ -88,6 +88,12 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
   viewLabels = ['Classification Summary'];
   selectedIncidentNumber: string | null = null;
   selectedTimelineIncident: SupervisorIncident | null = null;
+  incidentDetailData: Record<string, unknown> | null = null;
+  incidentDetailLoading = false;
+  incidentDetailError: string | null = null;
+
+  private readonly dashboardIncidentDetailUrl =
+    '/api/caseiq-supervisor/api/v1/incidents';
 
   onIncidentCellClick(event: { column: string; value: any; row: any }): void {
     if (
@@ -95,11 +101,35 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
       event.column === 'INCIDENT_NUMBER'
     ) {
       this.selectedIncidentNumber = event.value;
+      this.loadIncidentDetail(event.value);
     }
+  }
+
+  private loadIncidentDetail(incidentNumber: string): void {
+    this.incidentDetailLoading = true;
+    this.incidentDetailError = null;
+
+    const url = `${this.dashboardIncidentDetailUrl}/${encodeURIComponent(incidentNumber)}`;
+    this.httpClient.get<unknown>(url).subscribe({
+      next: (response) => {
+        this.incidentDetailData =
+          typeof response === 'object' && response !== null
+            ? (response as Record<string, unknown>)
+            : {};
+        this.incidentDetailLoading = false;
+      },
+      error: () => {
+        this.incidentDetailError = 'Failed to load incident detail.';
+        this.incidentDetailLoading = false;
+      },
+    });
   }
 
   closeIncidentDetail(): void {
     this.selectedIncidentNumber = null;
+    this.incidentDetailData = null;
+    this.incidentDetailLoading = false;
+    this.incidentDetailError = null;
   }
 
   onTimelineDetailOpen(incident: SupervisorIncident): void {

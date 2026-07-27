@@ -430,6 +430,20 @@
                         ></span>
                         {{ row[column] }}
                       </div>
+                    } @else if (
+                      (column === "incident_number" ||
+                        column === "INCIDENT_NUMBER") &&
+                      row["ANALYZED_BY"] === "Supervisor Analyzed"
+                    ) {
+                      <div class="incident-number-cell">
+                        {{ row[column] }} &nbsp;
+                        <ng-icon
+                          name="phosphorSparkleBold"
+                          size="13"
+                          class="analyzed-icon"
+                          [matTooltip]="'Analyzed by: Supervisor Agent'"
+                        ></ng-icon>
+                      </div>
                     } @else {
                       {{ row[column] }}
                     }

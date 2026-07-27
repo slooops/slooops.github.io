@@ -8,6 +8,7 @@ import {
   HostBinding,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgIconComponent } from '@ng-icons/core';
 import { ThemeService } from '../../../providers/theme.service';
 
 interface PipelineStep {
@@ -48,7 +49,7 @@ interface IncidentSummary {
 @Component({
   selector: 'app-caseiq-incident-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NgIconComponent],
   templateUrl: './caseiq-incident-detail.component.html',
   styleUrls: ['./caseiq-incident-detail.component.css'],
 })

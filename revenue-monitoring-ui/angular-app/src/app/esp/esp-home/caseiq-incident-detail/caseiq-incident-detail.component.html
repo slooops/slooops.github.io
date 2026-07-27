@@ -33,6 +33,13 @@
     </div>
   }
 
+  @if (!isLoading && !error && !incidentViewModel) {
+    <div class="id__empty">
+      <ng-icon name="phosphorWarningBold" size="32"></ng-icon>
+      <span>No data found for this incident.</span>
+    </div>
+  }
+
   @if (!isLoading && !error && incidentViewModel) {
     @let incident = incidentViewModel;
     <!-- Header Card -->
