@@ -18,6 +18,7 @@ import { LandingComponent } from './landing/landing.component';
 import { AitComponent } from './ait/ait.component';
 import { CaseiqMonitoringDashboardComponent } from './esp/caseiq-monitoring-dashboard/caseiq-monitoring-dashboard.component';
 import { CtmAlertsDashboardComponent } from './ctm-alerts/ctm-alerts-dashboard.component';
+import { ControlMDashboardComponent } from './control-m/control-m-dashboard.component';
 import { SelfHealingComponent } from './self-healing/self-healing.component';
 import { ExceptionDetailsComponent } from './self-healing/exception-details/exception-details.component';
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
@@ -378,6 +379,16 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'ESP Case Manager > CaseIQ QBR',
+      supportsDarkMode: true,
+    },
+  },
+  {
+    path: 'control-m',
+    component: ControlMDashboardComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Control-M',
       supportsDarkMode: true,
     },
   },

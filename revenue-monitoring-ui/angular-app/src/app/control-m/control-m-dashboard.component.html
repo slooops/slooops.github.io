@@ -1,0 +1,577 @@
+<div class="cm-dashboard">
+  <!-- ── Header ── -->
+  <header class="cm-header">
+    <div class="cm-title-group">
+      <h1 class="cm-title">
+        <ng-icon name="phosphorSirenBold" size="18" class="cm-title-icon" />
+        <span>Control-<span class="cm-accent">M</span></span>
+      </h1>
+      <span class="cm-subtitle">
+        FinanceAI • Live from
+        <code>i2c-control-m-dev.cisco.com</code>
+      </span>
+    </div>
+
+    <div class="cm-header-controls">
+      <label class="cm-select-wrapper">
+        <span class="cm-select-label">Source</span>
+        <select
+          class="cm-select"
+          [ngModel]="source"
+          (ngModelChange)="onSourceChange($event)"
+        >
+          @for (s of sources; track s.value) {
+            <option [ngValue]="s.value">{{ s.label }}</option>
+          }
+        </select>
+      </label>
+
+      <button
+        class="cm-btn cm-btn-primary"
+        (click)="forceRefresh()"
+        [disabled]="refreshing"
+        [title]="'Force refresh from Control-M'"
+      >
+        <ng-icon
+          name="phosphorArrowClockwiseBold"
+          size="14"
+          [class.cm-spin]="refreshing"
+        />
+        Refresh
+      </button>
+
+      <span class="cm-last-updated">
+        {{ lastUpdated ? (lastUpdated | date: "MMM d, HH:mm:ss") : "—" }}
+      </span>
+    </div>
+  </header>
+
+  <!-- ── Row 1: KPI donut + 7-day trend ── -->
+  <section class="cm-grid cm-grid-2col">
+    <!-- KPI donut card -->
+    <div class="cm-card cm-kpi-card">
+      @if (errorSummary) {
+        <div class="cm-error-inline">
+          Failed to load summary: {{ errorSummary }}
+        </div>
+      } @else {
+        <div class="cm-kpi-layout">
+          <div class="cm-donut-wrap">
+            <div echarts [options]="donutOptions" class="cm-donut"></div>
+          </div>
+          <div class="cm-kpi-body">
+            <div class="cm-kpi-headline">
+              <button
+                type="button"
+                class="cm-kpi-total"
+                [class.active]="activeCategory === 'TOTAL'"
+                (click)="onCategoryClick('TOTAL')"
+                title="Show all jobs"
+              >
+                {{ kpiTotal | number }}
+              </button>
+              <span class="cm-kpi-total-label">jobs scheduled</span>
+              <span class="cm-kpi-meta">
+                {{ kpiSuccess | number }} done · {{ pctFail }}% failed
+              </span>
+            </div>
+
+            <!-- Stacked progress bar -->
+            <div class="cm-progress">
+              @if (kpiTotal > 0) {
+                <div
+                  class="cm-progress-seg cm-seg-ok"
+                  [style.width.%]="(kpiSuccess / kpiTotal) * 100"
+                  (click)="onCategoryClick('SUCCESS')"
+                  [title]="'Success: ' + kpiSuccess"
+                ></div>
+                <div
+                  class="cm-progress-seg cm-seg-err"
+                  [style.width.%]="(kpiFailure / kpiTotal) * 100"
+                  (click)="onCategoryClick('FAILURE')"
+                  [title]="'Failures: ' + kpiFailure"
+                ></div>
+                <div
+                  class="cm-progress-seg cm-seg-info"
+                  [style.width.%]="(kpiLongRunning / kpiTotal) * 100"
+                  (click)="onCategoryClick('LONG_RUNNING')"
+                  [title]="'Long-running: ' + kpiLongRunning"
+                ></div>
+                <div
+                  class="cm-progress-seg cm-seg-warn"
+                  [style.width.%]="(kpiLateStart / kpiTotal) * 100"
+                  (click)="onCategoryClick('LATE_START')"
+                  [title]="'Late-start: ' + kpiLateStart"
+                ></div>
+                <div
+                  class="cm-progress-seg cm-seg-pending"
+                  [style.width.%]="(kpiPending / kpiTotal) * 100"
+                  [title]="'Pending: ' + kpiPending"
+                ></div>
+              }
+            </div>
+
+            <!-- Legend chips -->
+            <div class="cm-legend-chips">
+              <button
+                type="button"
+                class="cm-legend-chip"
+                [class.active]="activeCategory === 'SUCCESS'"
+                (click)="onCategoryClick('SUCCESS')"
+              >
+                <span class="cm-swatch cm-sw-ok"></span>
+                Success <b>{{ kpiSuccess | number }}</b>
+              </button>
+              <button
+                type="button"
+                class="cm-legend-chip"
+                [class.active]="activeCategory === 'FAILURE'"
+                (click)="onCategoryClick('FAILURE')"
+              >
+                <span class="cm-swatch cm-sw-err"></span>
+                Failures <b>{{ kpiFailure | number }}</b>
+              </button>
+              <button
+                type="button"
+                class="cm-legend-chip"
+                [class.active]="activeCategory === 'LONG_RUNNING'"
+                (click)="onCategoryClick('LONG_RUNNING')"
+              >
+                <span class="cm-swatch cm-sw-info"></span>
+                Long-running <b>{{ kpiLongRunning | number }}</b>
+              </button>
+              <button
+                type="button"
+                class="cm-legend-chip"
+                [class.active]="activeCategory === 'LATE_START'"
+                (click)="onCategoryClick('LATE_START')"
+              >
+                <span class="cm-swatch cm-sw-warn"></span>
+                Late-start <b>{{ kpiLateStart | number }}</b>
+              </button>
+              @if (kpiPending > 0) {
+                <span class="cm-legend-chip cm-legend-static">
+                  <span class="cm-swatch cm-sw-pending"></span>
+                  Pending <b>{{ kpiPending | number }}</b>
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- 7-day trend chart card -->
+    <div class="cm-card cm-trend-card">
+      <div class="cm-card-header">
+        <span>Last 7 days</span>
+        <span class="cm-card-hint">Click a bar for details</span>
+      </div>
+      <div class="cm-trend-wrap">
+        @if (hasTrend) {
+          <div
+            echarts
+            [options]="trendOptions"
+            class="cm-trend-chart"
+            (chartClick)="onTrendChartClick($event)"
+          ></div>
+        } @else {
+          <div class="cm-no-data">No trend data</div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Row 2: Folder tiles ── -->
+  <section class="cm-tiles-section">
+    @if (loadingFolders) {
+      <div class="cm-loading-inline">
+        <app-loading-symbol-small />
+      </div>
+    }
+    @if (errorFolders) {
+      <div class="cm-error-inline">
+        Error loading folders: {{ errorFolders }}
+      </div>
+    }
+    <div class="cm-tile-grid">
+      @for (folder of displayFolders; track trackByFolder($index, folder)) {
+        <button
+          type="button"
+          class="cm-tile"
+          [class.active]="selectedFolder === folder.folder"
+          [class.is-group]="folder.isGroup"
+          [attr.data-top]="folderTopClass(folder)"
+          (click)="onFolderClick(folder)"
+        >
+          <div class="cm-tile-head">
+            <span [class]="folderHealthClass(folder)"></span>
+            @if (refreshingFolders.has(folder.folder)) {
+              <ng-icon
+                name="phosphorArrowClockwiseBold"
+                size="10"
+                class="cm-spin cm-tile-refresh"
+              />
+            }
+            @if (folder.isGroup) {
+              <span class="cm-tile-badge">Group</span>
+            }
+          </div>
+          <div class="cm-tile-label" [title]="folder.display_name">
+            {{ folder.display_name }}
+          </div>
+          <div class="cm-tile-count">{{ folder.job_count | number }}</div>
+          <div class="cm-tile-flags">
+            @if (folder.has_failure) {
+              <span class="cm-flag cm-flag-err">
+                <ng-icon name="phosphorWarningFill" size="10" />
+                fail
+              </span>
+            }
+            @if (folder.has_long_running) {
+              <span class="cm-flag cm-flag-info">
+                <ng-icon name="phosphorPulseFill" size="10" />
+                long
+              </span>
+            }
+            @if (folder.has_late_start) {
+              <span class="cm-flag cm-flag-warn">
+                <ng-icon name="phosphorWarningFill" size="10" />
+                late
+              </span>
+            }
+          </div>
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- ── Group popup (2-step) ── -->
+  @if (activeGroupId && groupProcessAreas[activeGroupId]) {
+    <div class="cm-modal-backdrop" (click)="closeGroupPopup()">
+      <div
+        class="cm-modal cm-modal-narrow"
+        role="dialog"
+        aria-modal="true"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="cm-modal-header">
+          <div class="cm-modal-title-group">
+            @if (activeProcessAreaId) {
+              <button
+                type="button"
+                class="cm-back-btn"
+                (click)="activeProcessAreaId = null"
+                title="Back to process areas"
+              >
+                <ng-icon name="phosphorArrowLeftBold" size="14" />
+              </button>
+            }
+            <div>
+              <h3 class="cm-modal-title">
+                {{ selectedGroup?.display_name }}
+                @if (activeProcessAreaId && selectedProcessArea) {
+                  <span class="cm-modal-crumb">
+                    &nbsp;›&nbsp;{{ selectedProcessArea.label }}
+                  </span>
+                }
+              </h3>
+              <p class="cm-modal-sub">
+                {{
+                  activeProcessAreaId ? "Select folder" : "Select process area"
+                }}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="cm-icon-btn"
+            (click)="closeGroupPopup()"
+            aria-label="Close"
+          >
+            <ng-icon name="phosphorXBold" size="14" />
+          </button>
+        </div>
+
+        <div class="cm-modal-body">
+          @if (!activeProcessAreaId) {
+            @for (area of groupProcessAreas[activeGroupId]; track area.id) {
+              <button
+                type="button"
+                class="cm-modal-row"
+                (click)="selectProcessArea(area.id)"
+              >
+                <div class="cm-modal-row-left">
+                  <span [class]="folderHealthClass(area)"></span>
+                  <span class="cm-modal-row-label">{{ area.label }}</span>
+                  <span class="cm-modal-row-meta">
+                    ({{ area.children.length }} folder{{
+                      area.children.length === 1 ? "" : "s"
+                    }})
+                  </span>
+                </div>
+                <span class="cm-modal-row-count">{{ area.job_count }}</span>
+              </button>
+            }
+          }
+          @if (activeProcessAreaId && selectedProcessArea) {
+            @for (child of selectedProcessArea.children; track child.folder) {
+              <button
+                type="button"
+                class="cm-modal-row"
+                [class.active]="selectedFolder === child.folder"
+                (click)="pickFolderFromGroup(child)"
+              >
+                <div class="cm-modal-row-left">
+                  <span [class]="folderHealthClass(child)"></span>
+                  <span class="cm-modal-row-label">{{
+                    child.display_name
+                  }}</span>
+                </div>
+                <span class="cm-modal-row-count">{{ child.job_count }}</span>
+              </button>
+            }
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ── Sub-app popup ── -->
+  @if (showSubAppPopup && currentFolderObj) {
+    <div class="cm-modal-backdrop" (click)="showSubAppPopup = false">
+      <div
+        class="cm-modal cm-modal-narrow"
+        role="dialog"
+        aria-modal="true"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="cm-modal-header">
+          <div>
+            <h3 class="cm-modal-title">{{ currentFolderObj.display_name }}</h3>
+            <p class="cm-modal-sub">Select sub-application</p>
+          </div>
+          <button
+            type="button"
+            class="cm-icon-btn"
+            (click)="showSubAppPopup = false"
+            aria-label="Close"
+          >
+            <ng-icon name="phosphorXBold" size="14" />
+          </button>
+        </div>
+        <div class="cm-modal-body">
+          <button
+            type="button"
+            class="cm-modal-row"
+            [class.active]="!selectedSubApp"
+            (click)="selectSubApp(null, currentFolderObj)"
+          >
+            <div class="cm-modal-row-left">
+              <span class="cm-dot cm-dot-info"></span>
+              <span class="cm-modal-row-label">All Sub-Applications</span>
+            </div>
+            <span class="cm-modal-row-count">{{
+              currentFolderObj.job_count
+            }}</span>
+          </button>
+          @for (sa of currentFolderObj.sub_applications; track sa.sub_app) {
+            <button
+              type="button"
+              class="cm-modal-row"
+              [class.active]="selectedSubApp === sa.sub_app"
+              (click)="selectSubApp(sa.sub_app, currentFolderObj)"
+            >
+              <div class="cm-modal-row-left">
+                <span [class]="folderHealthClass(sa)"></span>
+                <span class="cm-modal-row-label">{{ sa.display_name }}</span>
+              </div>
+              <span class="cm-modal-row-count">{{ sa.count }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ── Active filters ── -->
+  @if (activeCategory !== "TOTAL" || selectedFolder || selectedSubApp) {
+    <section class="cm-filter-bar">
+      <div class="cm-filter-chips">
+        <span class="cm-filter-label">
+          <ng-icon name="phosphorFunnelSimpleBold" size="12" /> Filters:
+        </span>
+        @if (selectedFolder) {
+          <span class="cm-chip cm-chip-info">
+            Folder: {{ currentFolderObj?.display_name || selectedFolder }}
+            <button
+              type="button"
+              class="cm-chip-close"
+              (click)="clearFolder()"
+              title="Clear folder"
+            >
+              <ng-icon name="phosphorXBold" size="10" />
+            </button>
+          </span>
+        }
+        @if (selectedSubApp) {
+          <span class="cm-chip cm-chip-alt">
+            Sub-App: {{ selectedSubApp }}
+            <button
+              type="button"
+              class="cm-chip-close"
+              (click)="selectedSubApp = null"
+              title="Clear sub-app"
+            >
+              <ng-icon name="phosphorXBold" size="10" />
+            </button>
+          </span>
+        }
+        @if (activeCategory !== "TOTAL") {
+          <span class="cm-chip cm-chip-primary">
+            {{ activeCategory.replace("_", " ") }} ({{ filteredJobs.length }})
+            <button
+              type="button"
+              class="cm-chip-close"
+              (click)="clearCategory()"
+              title="Clear category"
+            >
+              <ng-icon name="phosphorXBold" size="10" />
+            </button>
+          </span>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- ── Jobs tree view (Phase 2) ── -->
+  <section class="cm-jobs-section">
+    <app-control-m-jobs-tree
+      [jobs]="filteredJobs"
+      [subAppOutline]="visibleSubAppOutline"
+      [loadingSubApps]="loadingSubApps"
+      [fullyLoadedSubApps]="fullyLoadedSubApps"
+      [forceExpandAll]="searchActive"
+      [loading]="loadingJobs || searchLoading"
+      [error]="errorJobs"
+      [darkMode]="themeService.isDarkMode"
+      [search]="searchQuery"
+      (searchChange)="onSearchChange($event)"
+      (viewLogs)="onViewLogs($event)"
+      (jobSelect)="onJobActionSelect($event)"
+      (subAppExpand)="onSubAppExpand($event)"
+      (subAppLoadMore)="onSubAppLoadMore($event)"
+    />
+  </section>
+
+  <!-- ── Trend drill-down modal ── -->
+  @if (drillDay) {
+    <div class="cm-modal-backdrop" (click)="closeDrillDay()">
+      <div
+        class="cm-modal cm-modal-wide"
+        role="dialog"
+        aria-modal="true"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="cm-modal-header">
+          <div>
+            <h3 class="cm-modal-title">Issues on {{ drillDay.label }}</h3>
+            <p class="cm-modal-sub">Failures · Long-running · Late-start</p>
+          </div>
+          <button
+            type="button"
+            class="cm-icon-btn"
+            (click)="closeDrillDay()"
+            aria-label="Close"
+          >
+            <ng-icon name="phosphorXBold" size="14" />
+          </button>
+        </div>
+        <div class="cm-modal-body cm-modal-body-flush">
+          @if (drillLoading) {
+            <div class="cm-loading">
+              <app-loading-symbol animationStyle="origins" />
+            </div>
+          } @else if (drillJobs.length === 0) {
+            <div class="cm-no-data">
+              No failures, long-running, or late-start jobs recorded.
+            </div>
+          } @else {
+            <div class="cm-table-scroll">
+              <table class="cm-table">
+                <thead>
+                  <tr>
+                    <th>Job Name</th>
+                    <th>Sub-App</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Category</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Elapsed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (j of drillJobs; track trackByJob($index, j)) {
+                    <tr>
+                      <td class="cm-cell-mono">{{ j.job_name }}</td>
+                      <td>{{ j.sub_application }}</td>
+                      <td class="cm-cell-desc" [title]="j.description || ''">
+                        {{ j.description || "—" }}
+                      </td>
+                      <td>{{ j.status || "—" }}</td>
+                      <td>
+                        <span [class]="statusBadgeClass(j)">{{
+                          j.category
+                        }}</span>
+                      </td>
+                      <td class="cm-cell-mono">
+                        {{ formatDate(j.start_time) }}
+                      </td>
+                      <td class="cm-cell-mono">{{ formatDate(j.end_time) }}</td>
+                      <td class="cm-cell-mono">
+                        {{ formatDuration(j.elapsed_sec) }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+        <div class="cm-modal-footer">
+          {{ drillJobs.length }} job{{ drillJobs.length === 1 ? "" : "s" }}
+          found
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ── Log viewer modal (Phase 3) ── -->
+  @if (logViewerJob) {
+    <app-control-m-log-viewer
+      [job]="logViewerJob"
+      [source]="source"
+      [initialTab]="logViewerInitialTab"
+      [darkMode]="themeService.isDarkMode"
+      (closed)="closeLogViewer()"
+    />
+  }
+
+  <!-- ── Action details modal (Phase 4) ── -->
+  @if (actionJob) {
+    <app-control-m-action-details
+      [job]="actionJob"
+      [source]="source"
+      [darkMode]="themeService.isDarkMode"
+      (closed)="closeActionModal()"
+      (actionCompleted)="onActionCompleted($event)"
+    />
+  }
+
+  <!-- ── Floating AI chat (Phase 5) ── -->
+  <app-control-m-ai-chat
+    [application]="source"
+    [darkMode]="themeService.isDarkMode"
+  />
+</div>

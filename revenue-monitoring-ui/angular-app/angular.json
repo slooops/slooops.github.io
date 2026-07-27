@@ -21,24 +21,16 @@
               "base": "dist"
             },
             "index": "src/index.html",
-            "polyfills": [
-              "src/polyfills.ts",
-              "@angular/localize/init"
-            ],
+            "polyfills": ["src/polyfills.ts", "@angular/localize/init"],
             "tsConfig": "tsconfig.app.json",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
+            "assets": ["src/favicon.ico", "src/assets"],
             "styles": [
               "src/cisco-theme.scss",
               "src/styles.scss",
               "src/assets/ui.css"
             ],
             "scripts": [],
-            "allowedCommonJsDependencies": [
-              "chart.js"
-            ],
+            "allowedCommonJsDependencies": ["chart.js"],
             "browser": "src/main.ts"
           },
           "configurations": {
@@ -113,7 +105,9 @@
             }
           },
           "defaultConfiguration": "development",
-          "options": {}
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
@@ -128,10 +122,7 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
+            "assets": ["src/favicon.ico", "src/assets"],
             "styles": [
               "src/cisco-theme.scss",
               "src/styles.scss",
@@ -139,10 +130,7 @@
             ],
             "scripts": [],
             "codeCoverage": true,
-            "codeCoverageExclude": [
-              "**/node_modules/**",
-              "**/coverage/**"
-            ]
+            "codeCoverageExclude": ["**/node_modules/**", "**/coverage/**"]
           }
         },
         "storybook": {

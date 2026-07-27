@@ -23,7 +23,7 @@
 }
 
 .logo {
-  width: 180px;
+  width: var(--loading-symbol-width, 180px);
   fill: var(--grey);
 }
 
