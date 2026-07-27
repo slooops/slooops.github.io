@@ -100,6 +100,20 @@ export class ControlMJobsTreeComponent implements OnChanges {
    */
   @Input() loadingSubApps: Set<string> = new Set();
 
+  /**
+   * Sub-applications the parent has confirmed as fully loaded under the
+   * current filter (server returned a short page). When present, the
+   * "Load more" button is suppressed even if `loadedJobs.length` is below
+   * the outline `totalCount` — typical when a category filter is active.
+   */
+  @Input() fullyLoadedSubApps: Set<string> = new Set();
+
+  /**
+   * When true (e.g. global search mode), all sub-app rows auto-expand on
+   * rebuild so the user sees results without clicking each row.
+   */
+  @Input() forceExpandAll = false;
+
   @Input() loading = false;
   @Input() error: string | null = null;
   @Input() search = '';
@@ -146,7 +160,11 @@ export class ControlMJobsTreeComponent implements OnChanges {
   private lastFolderShapeKey = '';
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['jobs'] || changes['subAppOutline']) {
+    if (
+      changes['jobs'] ||
+      changes['subAppOutline'] ||
+      changes['forceExpandAll']
+    ) {
       this.rebuild();
     }
   }
@@ -199,10 +217,15 @@ export class ControlMJobsTreeComponent implements OnChanges {
       }
       this.expandedApps = new Set();
     } else {
-      // Multi-sub-app (outline) mode: everything starts collapsed. User
-      // explicitly opens rows, which triggers on-demand job fetches.
+      // Multi-sub-app (outline) mode: everything starts collapsed by default.
+      // User explicitly opens rows, which triggers on-demand job fetches.
+      // Exception: search mode passes `forceExpandAll` so the caller can flip
+      // every row open once search results arrive.
       this.expandedFolders = new Set();
       this.lastFolderShapeKey = '';
+      if (this.forceExpandAll && this.subAppTree.length > 0) {
+        this.expandedApps = new Set(this.subAppTree.map((n) => n.subApp));
+      }
     }
   }
 

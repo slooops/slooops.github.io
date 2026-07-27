@@ -38,6 +38,8 @@ import { CanvasRenderer } from 'echarts/renderers';
 import type { EChartsOption } from 'echarts';
 import {
   catchError,
+  debounceTime,
+  distinctUntilChanged,
   forkJoin,
   of,
   Subject,
@@ -197,6 +199,30 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
   loadingSubApps = new Set<string>();
   /** Sub-apps we've already fetched at least the first page for. */
   loadedSubApps = new Set<string>();
+  /**
+   * Sub-apps where the server has confirmed no more pages exist (last page
+   * was smaller than the requested limit). Used to suppress the "Load more"
+   * button when a category filter drops loaded count below the outline total.
+   */
+  fullyLoadedSubApps = new Set<string>();
+  /**
+   * Bumped on every filter change (category / search / folder). In-flight
+   * job fetches stamp themselves with the current version and discard their
+   * results if it has moved on — prevents stale responses from polluting
+   * a newer filter state.
+   */
+  private filterVersion = 0;
+  /** Debounced source for the tree's search input. */
+  private readonly searchInput$ = new Subject<string>();
+  /** Global search in progress (server-side, across all sub-apps). */
+  searchLoading = false;
+  /**
+   * Truthy when the last global search hit the fetch limit — signals to the
+   * user that the visible results may be a subset of all matches.
+   */
+  searchTruncated = false;
+  /** Cap on rows returned by a single global search fetch. */
+  static readonly SEARCH_MAX_RESULTS = 500;
 
   // Derived collections
   displayFolders: DisplayFolder[] = [];
@@ -217,6 +243,19 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
     // Hide the global chatbot launcher while on this route — the Control-M
     // dashboard owns its own AI assistant that occupies the same corner.
     this.chatbotService.hide();
+
+    // Debounced global search: whenever the tree's search box changes we run
+    // one server-side fetch that spans every sub-application in the current
+    // source and (optionally) the active category filter.
+    this.subs.push(
+      this.searchInput$
+        .pipe(
+          debounceTime(300),
+          distinctUntilChanged(),
+          takeUntil(this.destroy$),
+        )
+        .subscribe(() => this.applyFilterChange()),
+    );
 
     this.loadAll();
     // Auto-refresh (silent)
@@ -253,6 +292,9 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
     this.fullSubAppOutline = [];
     this.loadingSubApps = new Set();
     this.loadedSubApps = new Set();
+    this.fullyLoadedSubApps = new Set();
+    this.searchTruncated = false;
+    this.filterVersion++;
     this.loadAll();
   }
 
@@ -382,16 +424,26 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
   }
 
   private fetchSubAppJobs(subApp: string, offset: number): void {
+    const version = this.filterVersion;
+    const limit = ControlMDashboardComponent.SUBAPP_PAGE_SIZE;
+    const opts: {
+      sub_application: string;
+      limit: number;
+      offset: number;
+      category?: JobCategory;
+      job_name?: string;
+    } = { sub_application: subApp, limit, offset };
+    if (this.activeCategory !== 'TOTAL') opts.category = this.activeCategory;
+    const trimmedQuery = this.searchQuery.trim();
+    if (trimmedQuery) opts.job_name = trimmedQuery;
+
     this.loadingSubApps = new Set(this.loadingSubApps).add(subApp);
     this.api
-      .getJobs(this.source, {
-        sub_application: subApp,
-        limit: ControlMDashboardComponent.SUBAPP_PAGE_SIZE,
-        offset,
-      })
+      .getJobs(this.source, opts)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (jobs) => {
+          if (version !== this.filterVersion) return; // stale
           const page = jobs ?? [];
           // Append — dedupe by job_id (fall back to job_name) so a re-fetch
           // of an existing page does not double-count rows.
@@ -401,16 +453,97 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
           );
           this.allJobs = [...this.allJobs, ...additions];
           this.loadedSubApps = new Set(this.loadedSubApps).add(subApp);
+          // Server returned a partial page → no more results for this filter.
+          if (page.length < limit) {
+            this.fullyLoadedSubApps = new Set(this.fullyLoadedSubApps).add(
+              subApp,
+            );
+          }
           const nextLoading = new Set(this.loadingSubApps);
           nextLoading.delete(subApp);
           this.loadingSubApps = nextLoading;
         },
         error: () => {
+          if (version !== this.filterVersion) return;
           const nextLoading = new Set(this.loadingSubApps);
           nextLoading.delete(subApp);
           this.loadingSubApps = nextLoading;
         },
       });
+  }
+
+  // ── Filter changes (category / search) ─────────────────────────────
+
+  /**
+   * Reset every trace of previously-loaded jobs. Called whenever a filter
+   * (category or global search) changes so the tree starts from an empty
+   * slate under the new criteria.
+   */
+  private resetLoadedJobState(): void {
+    this.filterVersion++;
+    this.allJobs = [];
+    this.loadedSubApps = new Set();
+    this.loadingSubApps = new Set();
+    this.fullyLoadedSubApps = new Set();
+    this.searchTruncated = false;
+  }
+
+  /**
+   * Called on any filter transition (category click, folder change, search
+   * input). Clears loaded state and, if a search is active, kicks off a
+   * global server-side search across all sub-applications.
+   */
+  private applyFilterChange(): void {
+    this.resetLoadedJobState();
+    const query = this.searchQuery.trim();
+    if (query) {
+      this.performGlobalSearch(query);
+    }
+  }
+
+  private performGlobalSearch(query: string): void {
+    const version = this.filterVersion;
+    const limit = ControlMDashboardComponent.SEARCH_MAX_RESULTS;
+    const opts: {
+      job_name: string;
+      limit: number;
+      category?: JobCategory;
+    } = { job_name: query, limit };
+    if (this.activeCategory !== 'TOTAL') opts.category = this.activeCategory;
+
+    this.searchLoading = true;
+    this.api
+      .getJobs(this.source, opts)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (jobs) => {
+          if (version !== this.filterVersion) return;
+          const results = jobs ?? [];
+          this.allJobs = results;
+          this.searchTruncated = results.length >= limit;
+          // Everything is loaded up-front; mark each represented sub-app so
+          // "Load more" is suppressed inside the tree.
+          const subApps = new Set(results.map((j) => j.sub_application || '—'));
+          this.loadedSubApps = new Set(subApps);
+          this.fullyLoadedSubApps = new Set(subApps);
+          this.searchLoading = false;
+        },
+        error: () => {
+          if (version !== this.filterVersion) return;
+          this.searchLoading = false;
+        },
+      });
+  }
+
+  /** Tree emits searchChange as the user types. */
+  onSearchChange(value: string): void {
+    this.searchQuery = value;
+    this.searchInput$.next(value);
+  }
+
+  /** True whenever the global search box has a trimmed value. */
+  get searchActive(): boolean {
+    return this.searchQuery.trim().length > 0;
   }
 
   /**
@@ -545,11 +678,15 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
     if (this.selectedFolder === folder.folder) {
       this.selectedFolder = null;
       this.selectedSubApp = null;
+      this.applyFilterChange();
       return;
     }
 
     this.selectedFolder = folder.folder;
     this.selectedSubApp = null;
+    // Filter scope changed — invalidate previously-loaded jobs so the tree
+    // shows only the folder's sub-apps under any active category filter.
+    this.applyFilterChange();
     if (folder.sub_applications.length >= 1) {
       this.showSubAppPopup = true;
     }
@@ -569,9 +706,12 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
         .subscribe(() => {
           this.refreshingFolders.delete(folder.folder);
           this.loadFolders();
-          // Prefetch jobs for the folder's sub-apps so folder view has data.
+          if (this.searchActive) return; // search results already cover this
+          // Prefetch jobs for the folder's sub-apps so folder view has data
+          // ready under the current category filter.
           for (const sa of subApps) {
             this.loadedSubApps.delete(sa);
+            this.fullyLoadedSubApps.delete(sa);
             this.allJobs = this.allJobs.filter((j) => j.sub_application !== sa);
             this.fetchSubAppJobs(sa, 0);
           }
@@ -596,6 +736,8 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
   selectSubApp(subApp: string | null, folder: Folder): void {
     this.selectedSubApp = subApp;
     this.showSubAppPopup = false;
+    // Sub-app narrowing is another filter change — invalidate prior state.
+    this.applyFilterChange();
     if (subApp) {
       this.refreshingFolders.add(folder.folder);
       this.api
@@ -607,8 +749,11 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
         .subscribe(() => {
           this.refreshingFolders.delete(folder.folder);
           this.loadFolders();
-          // Force a fresh fetch of this sub-app's first page.
+          if (this.searchActive) return;
+          // Force a fresh fetch of this sub-app's first page under the
+          // current category filter.
           this.loadedSubApps.delete(subApp);
+          this.fullyLoadedSubApps.delete(subApp);
           this.allJobs = this.allJobs.filter(
             (j) => j.sub_application !== subApp,
           );
@@ -620,14 +765,19 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
   clearFolder(): void {
     this.selectedFolder = null;
     this.selectedSubApp = null;
+    this.applyFilterChange();
   }
 
   clearCategory(): void {
+    if (this.activeCategory === 'TOTAL') return;
     this.activeCategory = 'TOTAL';
+    this.applyFilterChange();
   }
 
   onCategoryClick(cat: JobCategory): void {
+    if (this.activeCategory === cat) return;
     this.activeCategory = cat;
+    this.applyFilterChange();
   }
 
   // ── Trend drill-down ───────────────────────────────────────────────
@@ -767,6 +917,10 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
   }
 
   get filteredJobs(): Job[] {
+    // Server-side filters (category, global search, sub-application) have
+    // already narrowed the fetched jobs; we only need to enforce the
+    // folder/sub-app scope client-side (in case the server returned a
+    // superset from a broader fetch) and drop UNKNOWN_STATUS stubs.
     let jobs = this.allJobs;
     if (this.selectedFolder) {
       const fg = this.currentFolderObj;
@@ -778,18 +932,6 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
     if (this.selectedSubApp) {
       jobs = jobs.filter((j) => j.sub_application === this.selectedSubApp);
     }
-    if (this.activeCategory !== 'TOTAL') {
-      jobs = jobs.filter((j) => j.category === this.activeCategory);
-    }
-    const q = this.searchQuery.trim().toLowerCase();
-    if (q) {
-      jobs = jobs.filter(
-        (j) =>
-          (j.job_name ?? '').toLowerCase().includes(q) ||
-          (j.description ?? '').toLowerCase().includes(q),
-      );
-    }
-    // Hide never-executed stubs
     return jobs.filter((j) => (j.category as string) !== 'UNKNOWN_STATUS');
   }
 

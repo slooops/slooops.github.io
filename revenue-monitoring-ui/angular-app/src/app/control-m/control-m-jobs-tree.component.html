@@ -114,7 +114,10 @@
                       [ngTemplateOutletContext]="{ jobs: group.loadedJobs }"
                     />
                   </div>
-                  @if (group.loadedJobs.length < group.totalCount) {
+                  @if (
+                    group.loadedJobs.length < group.totalCount &&
+                    !fullyLoadedSubApps.has(group.subApp)
+                  ) {
                     <div class="cm-load-more-row">
                       <button
                         type="button"
@@ -133,7 +136,9 @@
                     </div>
                   }
                 } @else {
-                  <div class="cm-subapp-empty">No jobs loaded.</div>
+                  <div class="cm-subapp-empty">
+                    No jobs match the current filter.
+                  </div>
                 }
               }
             </li>
