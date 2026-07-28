@@ -1,0 +1,259 @@
+import { Component, HostBinding, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { DataService } from '../providers/data.service';
+import { ThemeService } from '../providers/theme.service';
+import { AuthenticationService } from '../providers/authentication.service';
+import { MenuService } from '../providers/menu.service';
+import { ApiHttpService } from '../providers/http.service';
+import { Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
+import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
+import {
+  MenuMiniComponent,
+  MenuMiniItem,
+} from '../shared/menu-mini/menu-mini.component';
+
+export interface UserContext {
+  username: string;
+  userId: string;
+  roles: string[];
+  apiUrl: string;
+  assignmentUsersFilterKey: string;
+}
+
+@Component({
+  selector: 'app-invoice-tracker',
+  templateUrl: './invoice-tracker.component.html',
+  styleUrls: ['./invoice-tracker.component.css'],
+  imports: [
+    CommonModule,
+    MatTabsModule,
+    MonitoringDashboardComponent,
+    LoadingSymbolComponent,
+    MenuMiniComponent,
+  ],
+  standalone: true,
+})
+export class InvoiceTrackerComponent implements OnInit {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+
+  constructor(
+    private dataService: DataService,
+    public authService: AuthenticationService,
+    private menuService: MenuService,
+    private http: ApiHttpService,
+    private route: ActivatedRoute,
+    public themeService: ThemeService,
+  ) {
+    // Initialize roles and user context in constructor so they're available before template renders
+    this.roles = this.authService.getUserAccessRoles();
+
+    // Initialize userContextData with default assignment users filter key
+    this.userContextData = {
+      username: this.authService.getUserName(),
+      userId: this.authService.getUserID(),
+      roles: this.roles,
+      apiUrl: this.authService.getHostUrl(),
+      assignmentUsersFilterKey: 'FILTER_KEY_PLACEHOLDER',
+    };
+  }
+
+  // ─── Lifecycle ────────────────────────────────────────────────────────────
+
+  ngOnInit(): void {
+    this.userName = this.authService.getUserName();
+    this.getErrorSummaryPeriodStatus();
+    this.getDefaultTabIndex();
+
+    // Handle tab query param from side-nav
+    this.route.queryParams.subscribe((params) => {
+      const tabSlug = params['tab'];
+      if (tabSlug) {
+        const idx = this.filteredTabs.findIndex(
+          (t) => t.label.toLowerCase().replace(/\s+/g, '-') === tabSlug,
+        );
+        if (idx >= 0) {
+          this.selectedIndex = idx;
+          this.onTabChange(idx);
+        }
+      }
+    });
+
+    // Log initial tab visit
+    if (this.filteredTabs.length > 0) {
+      this.logTabVisit(this.filteredTabs[0]?.label);
+    }
+  }
+
+  // ─── Auth & User State ────────────────────────────────────────────────────
+  // Resolved in constructor to ensure values are available before first render.
+
+  private userName: string = '';
+  roles: string[] = [];
+  userContextData: UserContext;
+
+  // ─── Period Status ────────────────────────────────────────────────────────
+  // Populated via dataService.periodStatus$ subscription in ngOnInit.
+
+  periodStatus: any;
+
+  // ─── Tab & Navigation Config ──────────────────────────────────────────────
+  // visibleTabs defines all possible tabs with their role guards.
+  // filteredTabs is the role-filtered subset actually rendered.
+
+  // ────────────────────────────────────────────────────────────────────
+  // ─── VISIBLE_TABS (REPLACE EMPTY ARRAY BELOW WITH AI-GENERATED CODE)
+  // ────────────────────────────────────────────────────────────────────
+  visibleTabs: {
+    label: string;
+    component: string;
+    role: string[];
+    disabled?: boolean;
+  }[] = [];
+
+  selectedIndex: number = 0;
+  filteredTabs: { label: string; component: string; disabled?: boolean }[] = [];
+
+  
+
+  get menuItems(): MenuMiniItem[] {
+    return this.filteredTabs.map((t) => ({
+      label: t.label,
+      disabled: t.disabled,
+    }));
+  }
+
+  // ─── Assignment Dialog Field Config ───────────────────────────────────────
+  // Defines the fields rendered in the row-assignment side panel / dialog.
+  // Fields with disabled: true are read-only; disabled: 'dynamic' means
+  // editability is determined at runtime based on user role.
+
+  fieldConfig = [
+    {
+      controlName: 'periodName',
+      label: 'Period Name',
+      sourceKey: 'PERIOD_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'appName',
+      label: 'Application Name',
+      sourceKey: 'APPLICATION_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'processFlow',
+      label: 'Process Flow',
+      sourceKey: 'PROCESS_FLOW',
+      disabled: true,
+    },
+    {
+      controlName: 'orgName',
+      label: 'Organization Name',
+      sourceKey: 'ORG_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'creationDate',
+      label: 'Transaction Date',
+      sourceKey: 'TRANSACTION_DATE',
+      disabled: true,
+    },
+    {
+      controlName: 'aging',
+      label: 'Aging',
+      sourceKey: 'AGING',
+      disabled: true,
+    },
+    {
+      controlName: 'assignedTo',
+      label: 'Assigned To',
+      sourceKey: 'ASSIGNED_TO',
+      disabled: 'dynamic',
+      validators: [Validators.required],
+    },
+    { controlName: 'comments', label: 'Comments', sourceKey: 'COMMENTS' },
+  ];
+
+  // ────────────────────────────────────────────────────────────────────
+  // ─── FILTER_CONFIGS (INSERT AI-GENERATED FILTER ARRAYS BELOW)
+  // ────────────────────────────────────────────────────────────────────
+  // Each array defines the filter bar for a specific tab / sub-tab.
+  // Format: <featureName>Filters: { formControlName: string; columnName: string; type: string; subAppMapping: boolean; }[]
+
+  // ────────────────────────────────────────────────────────────────────
+  // ─── KEYS_TO_MAP (INSERT AI-GENERATED KEY ARRAYS BELOW)
+  // ────────────────────────────────────────────────────────────────────
+  // Columns surfaced in the summary row header / key display area.
+  // Format: <featureName>KeysToMap: string[] = [...]
+
+  // ────────────────────────────────────────────────────────────────────
+  // ─── URL_MAPS (INSERT AI-GENERATED URL MAP OBJECTS BELOW)
+  // ────────────────────────────────────────────────────────────────────
+  // Each map provides the 4 core endpoint slugs consumed by MonitoringDashboardComponent.
+  // Format: <featureName>Urls: { [key: string]: string } = { summaryUrl, detailsUrl, filteredDetailsUrl, summaryUpdateUrl, webexMessageUrl, chartTotalsUrl, chartDetailsUrl }
+
+  // ─── Event Handlers ───────────────────────────────────────────────────────
+
+  onGridMenuItemClick(index: number): void {
+    this.onTabChange(index);
+  }
+
+  onTabChange(index: number) {
+    this.selectedIndex = index;
+    const newHeader = `Continuous Monitoring > Invoice Tracker > ${this.filteredTabs[index]?.label}`;
+    this.menuService.updateHeader(newHeader);
+    // Update last updated timestamp on tab switch
+    if (this.periodStatus) {
+      this.periodStatus = {
+        ...this.periodStatus,
+        lastUpdated: new Date().toLocaleString(),
+      };
+    }
+    // Log tab visit for analytics
+    this.logTabVisit(this.filteredTabs[index]?.label);
+  }
+
+  // ─── Data & Subscription Methods ─────────────────────────────────────────
+
+  getErrorSummaryPeriodStatus() {
+    this.dataService.periodStatus$.subscribe((data: any) => {
+      if (data) {
+        this.periodStatus = {
+          ...data,
+          lastUpdated: new Date().toLocaleString(),
+        };
+      }
+    });
+  }
+
+  /** Filters visibleTabs down to only those the current user has a role for. */
+  getDefaultTabIndex() {
+    this.filteredTabs = this.visibleTabs.filter((tab) =>
+      tab.role.some((role) => this.roles.includes(role)),
+    );
+  }
+
+  /**
+   * Logs a tab visit for analytics.
+   * Creates a pseudo-route like "/<kebab-name>/<tab-slug>"
+   */
+  private logTabVisit(tabLabel: string): void {
+    if (!tabLabel || !this.userName) return;
+    const tabSlug = tabLabel.toLowerCase().replace(/\s+/g, '-');
+    const pseudoRoute = `/invoice-tracker/${tabSlug}`;
+    this.http
+      .post('log-page-visit', {
+        userName: this.userName,
+        pageRoute: pseudoRoute,
+      })
+      .subscribe({
+        next: () => {},
+        error: (err) => console.debug('Tab analytics log failed:', err),
+      });
+  }
+}
