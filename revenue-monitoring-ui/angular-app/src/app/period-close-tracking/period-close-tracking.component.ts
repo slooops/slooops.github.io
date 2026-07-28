@@ -539,15 +539,20 @@ export class PeriodCloseTrackingComponent implements OnInit {
         data.map((invData) => {
           for (let col of Object.keys(invData)) {
             if (col.includes('AMOUNT')) {
+              const val = invData[col];
               invData[col] =
-                '$' +
-                invData[col].toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                });
+                val == null
+                  ? '$0.00'
+                  : '$' +
+                    Number(val).toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    });
             }
             if (col.includes('COUNT')) {
-              invData[col] = invData[col].toLocaleString('en-US');
+              const val = invData[col];
+              invData[col] =
+                val == null ? '0' : Number(val).toLocaleString('en-US');
             }
           }
           return invData;
