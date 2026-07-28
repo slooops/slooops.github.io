@@ -42,10 +42,6 @@
   text-overflow: ellipsis;
 }
 
-.fit-multiselect__display:not(.fit-multiselect__display--placeholder) {
-  text-transform: lowercase;
-}
-
 .fit-multiselect__display--placeholder {
   color: var(--fit-color-text-muted);
 }
@@ -204,7 +200,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-transform: lowercase;
 }
 
 .fit-multiselect__no-results {

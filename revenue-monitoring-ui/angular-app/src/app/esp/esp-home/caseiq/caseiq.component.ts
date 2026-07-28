@@ -1622,6 +1622,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     'Null Classification',
     'Unknown Team',
     'Resolution Error',
+    'Awaiting Bot Response',
   ];
   errorCurrentPage = 1;
   errorPageSize = 10;

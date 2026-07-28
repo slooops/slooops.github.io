@@ -5,6 +5,39 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 export type BadgeVariant = 'default' | 'success' | 'warning' | 'danger';
 export type IconPosition = 'left' | 'right';
 
+// Gradient progress-pill colors (used by ProgressPill / KpiTile / StatTable)
+export type PillColor =
+  | 'accent'
+  | 'cyan'
+  | 'purple'
+  | 'amber'
+  | 'green'
+  | 'grey'
+  | 'neutral'
+  | 'orange';
+
+export type PillSize = 'sm' | 'md' | 'lg';
+
+// Chip (pill-shaped label) colors
+export type ChipColor = 'neutral' | 'green' | 'grey' | 'amber' | 'orange';
+
+// Stat-table renderer types
+export type StatTableRenderer =
+  | 'text'
+  | 'number'
+  | 'chip'
+  | 'progressPill'
+  | 'numberWithSub'
+  | 'link';
+
+export interface StatTableColumn {
+  key: string;
+  label: string;
+  renderer?: StatTableRenderer;
+  align?: 'left' | 'center' | 'right';
+  width?: string;
+}
+
 export interface SelectOption {
   label: string;
   value: string;

@@ -1,0 +1,14 @@
+<div
+  class="pp-pill"
+  [class.pp-pill--sm]="size === 'sm'"
+  [class.pp-pill--lg]="size === 'lg'"
+  [class.pp-pill--clickable]="clickable"
+  (click)="onClick($event)"
+>
+  <div
+    class="pp-pill-fill"
+    [ngClass]="'pp-fill--' + color"
+    [style.width.%]="fillWidth"
+  ></div>
+  <span class="pp-pill-text">{{ label }}</span>
+</div>

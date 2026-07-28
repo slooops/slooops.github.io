@@ -17,8 +17,12 @@ export { BadgeComponent } from './atoms/badge/badge.component';
 export { TableCellComponent } from './atoms/table-cell/table-cell.component';
 export { TableHeaderCellComponent } from './atoms/table-header-cell/table-header-cell.component';
 export { ModalShellComponent } from './atoms/modal-shell/modal-shell.component';
+export { ProgressPillComponent } from './atoms/progress-pill/progress-pill.component';
+export { ChipComponent } from './atoms/chip/chip.component';
 
 // Compounds
 export { DataTableComponent } from './compounds/data-table/data-table.component';
 export { FilterBarComponent } from './compounds/filter-bar/filter-bar.component';
 export { UserFormComponent } from './compounds/user-form/user-form.component';
+export { KpiTileComponent } from './compounds/kpi-tile/kpi-tile.component';
+export { StatTableComponent } from './compounds/stat-table/stat-table.component';

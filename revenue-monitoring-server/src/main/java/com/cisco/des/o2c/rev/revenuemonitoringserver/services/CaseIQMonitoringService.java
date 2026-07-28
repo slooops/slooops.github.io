@@ -536,7 +536,7 @@ public class CaseIQMonitoringService {
      * is selected.
      */
     private static final Pattern DATE_LOOKBACK_PATTERN = Pattern.compile(
-            "AND\\s+(?:a\\.)?(?:caseiq_run_date|created_at)\\s*>=\\s*SYSDATE\\s*-\\s*:lookback_hours/24\\s*"
+            "AND\\s+(?:a\\.)?(?:caseiq_run_date|created_at|run_date)\\s*>=\\s*SYSDATE\\s*-\\s*:lookback_hours/24\\s*"
                     + "|" +
                     "WHERE\\s+(?:opened_at|caseiq_run_date)\\s*>\\s*SYSDATE\\s*-\\s*:lookback_days\\s+AND\\s+"
                     + "|" +
@@ -1137,7 +1137,21 @@ public class CaseIQMonitoringService {
                         "WHERE (resolution_api_status NOT IN ('SUCCESS', 'NOT_SUPPORTED', 'PARTIAL SUCCESS') " +
                         "  OR resolution_api_status IS NULL) " +
                         "AND is_active = 'TRUE' " +
-                        "AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " + fiscFilter;
+                        "AND caseiq_run_date >= SYSDATE - :lookback_hours/24 " + fiscFilter +
+
+                        "UNION ALL " +
+
+                        // Awaiting Bot Response — lives in staging table (never reaches analyzer table
+                        // until the ConvBot responds). Alias run_date -> caseiq_run_date so the outer
+                        // SELECT can consume it uniformly with the other branches.
+                        "SELECT incident_number, NVL(team_name, 'UNKNOWN') AS team_name, " +
+                        "category, core_issue, llm_summary, run_date AS caseiq_run_date, " +
+                        "DBMS_LOB.SUBSTR(incident_description, 2000, 1) AS incident_description, " +
+                        "DBMS_LOB.SUBSTR(resolution_api_summary, 2000, 1) AS resolution_api_summary, " +
+                        "'Awaiting Bot Response' AS anomaly_label " +
+                        "FROM ARFINRO.XXCASEIQ_ESP_STAGING_TBL " +
+                        "WHERE case_analyzer_status = 'AWAITING_RESPONSE_FROM_BOT' " +
+                        "AND run_date >= SYSDATE - :lookback_hours/24 " + fiscFilter;
 
         if (hasQuarter) {
             union = stripDateLookback(union);

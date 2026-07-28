@@ -1,0 +1,140 @@
+:host {
+  --pp-track-bg: #f4f5f6;
+  --pp-text: #1b1c1d;
+  --pp-text-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+  display: block;
+  width: 100%;
+}
+
+:host(.dark-theme) {
+  --pp-track-bg: rgba(255, 255, 255, 0.08);
+  --pp-text: #ffffff;
+  --pp-text-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+.pp-pill {
+  position: relative;
+  width: 100%;
+  height: 1.375rem;
+  background: var(--pp-track-bg);
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.pp-pill--sm {
+  height: 1.125rem;
+}
+
+.pp-pill--lg {
+  height: 1.75rem;
+}
+
+.pp-pill--clickable {
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.pp-pill--clickable:hover {
+  filter: brightness(1.1);
+}
+
+.pp-pill-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 999px;
+  min-width: 0;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Gradient fills ────────────────────────────────────── */
+.pp-fill--accent {
+  background: linear-gradient(135deg, #0070d2, #00bceb);
+}
+
+.pp-fill--cyan {
+  background: linear-gradient(135deg, #00a3d9, #00d4ff);
+}
+
+.pp-fill--purple {
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+}
+
+.pp-fill--amber {
+  background: linear-gradient(135deg, #d97706, #fbbf24);
+}
+
+.pp-fill--green {
+  background: linear-gradient(135deg, #16a34a, #4ade80);
+}
+
+.pp-fill--grey {
+  background: linear-gradient(135deg, #6b7280, #9ca3af);
+}
+
+.pp-fill--neutral {
+  background: linear-gradient(135deg, #d1d5db, #e5e7eb);
+}
+
+.pp-fill--orange {
+  background: linear-gradient(135deg, #ea580c, #fb923c);
+}
+
+/* ── Dark-mode gradient tweaks ─────────────────────────── */
+:host(.dark-theme) .pp-fill--accent {
+  background: linear-gradient(135deg, #0080e6, #00d4ff);
+}
+
+:host(.dark-theme) .pp-fill--cyan {
+  background: linear-gradient(135deg, #00bcd4, #00e5ff);
+}
+
+:host(.dark-theme) .pp-fill--purple {
+  background: linear-gradient(135deg, #8b5cf6, #c4b5fd);
+}
+
+:host(.dark-theme) .pp-fill--amber {
+  background: linear-gradient(135deg, #f59e0b, #fcd34d);
+}
+
+:host(.dark-theme) .pp-fill--green {
+  background: linear-gradient(135deg, #22c55e, #86efac);
+}
+
+:host(.dark-theme) .pp-fill--grey {
+  background: linear-gradient(135deg, #9ca3af, #d1d5db);
+}
+
+:host(.dark-theme) .pp-fill--neutral {
+  background: linear-gradient(135deg, #4b5563, #6b7280);
+}
+
+:host(.dark-theme) .pp-fill--orange {
+  background: linear-gradient(135deg, #f97316, #fdba74);
+}
+
+/* ── Label overlay ─────────────────────────────────────── */
+.pp-pill-text {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--pp-text);
+  white-space: nowrap;
+  text-shadow: var(--pp-text-shadow);
+  line-height: normal;
+  padding: 0 0.375rem;
+}
+
+.pp-pill--sm .pp-pill-text {
+  font-size: 0.5625rem;
+}
+
+.pp-pill--lg .pp-pill-text {
+  font-size: 0.8125rem;
+}

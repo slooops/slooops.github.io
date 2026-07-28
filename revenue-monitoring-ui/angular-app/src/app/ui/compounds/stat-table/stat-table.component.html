@@ -1,0 +1,106 @@
+<div class="stat-table-card">
+  <div class="stat-table-scroll">
+    <table class="stat-table">
+      <thead>
+        <tr>
+          @for (col of columns; track col.key) {
+            <th
+              [style.text-align]="col.align || 'center'"
+              [style.width]="col.width || null"
+            >
+              {{ col.label }}
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows; track $index) {
+          <tr>
+            @for (col of columns; track col.key) {
+              <td [style.text-align]="col.align || 'center'">
+                @switch (col.renderer) {
+                  @case ("chip") {
+                    @let chip = asChip(row[col.key]);
+                    @if (chip) {
+                      <app-chip
+                        [label]="chip.label"
+                        [color]="chip.color"
+                        [clickable]="chip.clickable !== false"
+                        (chipClick)="
+                          chipClick.emit({ row: row, column: col.key })
+                        "
+                      ></app-chip>
+                    } @else {
+                      <span class="stat-empty">--</span>
+                    }
+                  }
+                  @case ("progressPill") {
+                    @let pill = asPill(row[col.key]);
+                    @if (pill) {
+                      <div class="stat-pill-wrap">
+                        <app-progress-pill
+                          [percentage]="pill.percentage"
+                          [color]="pill.color"
+                          [label]="pill.label"
+                          size="sm"
+                          [clickable]="!!pill.clickable"
+                          (pillClick)="
+                            pillClick.emit({ row: row, column: col.key })
+                          "
+                        ></app-progress-pill>
+                      </div>
+                    } @else {
+                      <span class="stat-empty">--</span>
+                    }
+                  }
+                  @case ("numberWithSub") {
+                    @let n = asNumberWithSub(row[col.key]);
+                    @if (n && n.main != null) {
+                      <span class="stat-main">{{ n.main }}</span>
+                      @if (n.sub != null) {
+                        <span class="stat-sub"> / {{ n.sub }}</span>
+                      }
+                      @if (n.pct != null) {
+                        <span class="stat-pct"> ({{ n.pct }}%)</span>
+                      }
+                    } @else {
+                      <span class="stat-empty">--</span>
+                    }
+                  }
+                  @case ("link") {
+                    @let lnk = asLink(row[col.key]);
+                    @if (lnk) {
+                      <a
+                        class="stat-link"
+                        (click)="linkClick.emit({ row: row, column: col.key })"
+                        >{{ lnk.label }}</a
+                      >
+                    } @else {
+                      <span class="stat-empty">--</span>
+                    }
+                  }
+                  @case ("number") {
+                    @let num = asPrimitive(row[col.key]);
+                    @if (num != null) {
+                      <span class="stat-main">{{ num }}</span>
+                    } @else {
+                      <span class="stat-empty">--</span>
+                    }
+                  }
+                  @default {
+                    @let txt = asPrimitive(row[col.key]);
+                    @if (txt != null) {
+                      {{ txt }}
+                    } @else {
+                      <span class="stat-empty">--</span>
+                    }
+                  }
+                }
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

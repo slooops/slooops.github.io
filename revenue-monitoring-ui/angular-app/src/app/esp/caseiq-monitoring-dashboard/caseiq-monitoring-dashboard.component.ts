@@ -185,6 +185,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     'Null Classification',
     'Unknown Team',
     'Resolution Error',
+    'Awaiting Bot Response',
   ];
 
   // Error Incidents pagination (server-side)
