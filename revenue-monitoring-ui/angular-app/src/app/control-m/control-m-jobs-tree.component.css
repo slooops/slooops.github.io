@@ -89,6 +89,13 @@
   color: var(--cmt-text);
 }
 
+.cm-tree-scope {
+  margin-left: 6px;
+  font-weight: 500;
+  color: var(--cmt-accent, var(--cmt-muted));
+  font-size: 12px;
+}
+
 .cm-tree-sub {
   margin: 3px 0 0;
   font-size: 11px;

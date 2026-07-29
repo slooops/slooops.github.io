@@ -117,6 +117,12 @@ export class ControlMJobsTreeComponent implements OnChanges {
   @Input() loading = false;
   @Input() error: string | null = null;
   @Input() search = '';
+  /**
+   * Optional label describing the current narrowing (folder name, sub-app
+   * display name). When set, it renders next to the tree title so users can
+   * see which selection the tree is currently scoped to.
+   */
+  @Input() scopeLabel: string | null = null;
   @Input() set darkMode(v: boolean) {
     this._darkMode = v;
   }
@@ -248,6 +254,32 @@ export class ControlMJobsTreeComponent implements OnChanges {
     return Array.from(map.values());
   }
 
+  // ── Job sort: Ended Not OK → Wait Condition → Ended OK → other, then
+  //             within each bucket ordered by start_time ascending. ────
+
+  private jobSortRank(job: Job): number {
+    const status = (job.status || '').toLowerCase();
+    const category = (job.category || '').toUpperCase();
+    if (category === 'FAILURE' || status === 'ended not ok') return 0;
+    if (category === 'WAIT_CONDITION' || status.includes('wait')) return 1;
+    if (category === 'SUCCESS' || status === 'ended ok') return 2;
+    return 3;
+  }
+
+  private readonly compareJobs = (a: Job, b: Job): number => {
+    const ra = this.jobSortRank(a);
+    const rb = this.jobSortRank(b);
+    if (ra !== rb) return ra - rb;
+    const at = a.start_time
+      ? new Date(a.start_time).getTime()
+      : Number.POSITIVE_INFINITY;
+    const bt = b.start_time
+      ? new Date(b.start_time).getTime()
+      : Number.POSITIVE_INFINITY;
+    if (at !== bt) return at - bt;
+    return a.job_name.localeCompare(b.job_name);
+  };
+
   // ── Folder tree (single-sub-app mode) ────────────────────────────────
 
   private buildFolderTree(jobs: Job[]): FolderNode[] {
@@ -263,9 +295,7 @@ export class ControlMJobsTreeComponent implements OnChanges {
     }
 
     const buildNode = (path: string): FolderNode => {
-      const own = (jobsByFolder.get(path) || []).sort((a, b) =>
-        a.job_name.localeCompare(b.job_name),
-      );
+      const own = (jobsByFolder.get(path) || []).sort(this.compareJobs);
       const childPaths = Array.from(allFolders).filter((f) => {
         if (!f.startsWith(path + '/')) return false;
         const rest = f.slice(path.length + 1);
@@ -313,7 +343,7 @@ export class ControlMJobsTreeComponent implements OnChanges {
       return this.subAppOutline
         .map((sa) => {
           const loaded = this.dedupLatest(grouped.get(sa.sub_app) ?? []).sort(
-            (a, b) => a.job_name.localeCompare(b.job_name),
+            this.compareJobs,
           );
           return {
             subApp: sa.sub_app,
@@ -331,9 +361,7 @@ export class ControlMJobsTreeComponent implements OnChanges {
     // Legacy fallback: no outline supplied — derive rows from loaded jobs only.
     return Array.from(grouped.entries())
       .map(([subApp, list]) => {
-        const loaded = this.dedupLatest(list).sort((a, b) =>
-          a.job_name.localeCompare(b.job_name),
-        );
+        const loaded = this.dedupLatest(list).sort(this.compareJobs);
         return {
           subApp,
           displayName: subApp,

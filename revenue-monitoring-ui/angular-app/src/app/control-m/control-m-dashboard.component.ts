@@ -11,12 +11,14 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   phosphorArrowClockwiseBold,
   phosphorArrowLeftBold,
+  phosphorBrowserBold,
   phosphorCaretDownBold,
   phosphorCaretUpBold,
   phosphorFolderOpenBold,
   phosphorFunnelSimpleBold,
   phosphorMagnifyingGlassBold,
   phosphorPulseBold,
+  phosphorSidebarBold,
   phosphorSirenBold,
   phosphorSparkleBold,
   phosphorWarningBold,
@@ -52,7 +54,6 @@ import {
 import { ThemeService } from '../providers/theme.service';
 import { ChatbotService } from '../chatbot/chatbot.service';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
-import { LoadingSymbolSmallComponent } from '../loading-symbol-small/loading-symbol-small.component';
 import { ControlMService } from './control-m.service';
 import { ControlMJobsTreeComponent } from './control-m-jobs-tree.component';
 import { ControlMLogViewerComponent } from './control-m-log-viewer.component';
@@ -111,7 +112,6 @@ interface DisplayFolder extends Folder {
     NgIcon,
     NgxEchartsDirective,
     LoadingSymbolComponent,
-    LoadingSymbolSmallComponent,
     ControlMJobsTreeComponent,
     ControlMLogViewerComponent,
     ControlMActionDetailsComponent,
@@ -122,6 +122,7 @@ interface DisplayFolder extends Folder {
     provideIcons({
       phosphorArrowClockwiseBold,
       phosphorArrowLeftBold,
+      phosphorBrowserBold,
       phosphorCaretDownBold,
       phosphorCaretUpBold,
       phosphorFolderOpenBold,
@@ -129,6 +130,7 @@ interface DisplayFolder extends Folder {
       phosphorMagnifyingGlassBold,
       phosphorPulseBold,
       phosphorPulseFill,
+      phosphorSidebarBold,
       phosphorSirenBold,
       phosphorSparkleBold,
       phosphorWarningBold,
@@ -177,6 +179,80 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
   activeGroupId: string | null = null;
   activeProcessAreaId: string | null = null;
   showSubAppPopup = false;
+
+  // Tile-selector UI mode ─ user-toggleable between the classic modal and a
+  // right-hand sidebar drawer that lets the tile grid stay in view while a
+  // selection is being made. Persisted per browser.
+  private static readonly TILE_SELECTOR_MODE_KEY = 'ctm.tile-selector-mode';
+  tileSelectorMode: 'drawer' | 'modal' = 'drawer';
+
+  toggleTileSelectorMode(): void {
+    this.tileSelectorMode =
+      this.tileSelectorMode === 'drawer' ? 'modal' : 'drawer';
+    try {
+      localStorage.setItem(
+        ControlMDashboardComponent.TILE_SELECTOR_MODE_KEY,
+        this.tileSelectorMode,
+      );
+    } catch {
+      /* localStorage unavailable — best-effort only. */
+    }
+  }
+
+  /** True when a group / sub-app selector is currently active. */
+  get tileSelectorOpen(): boolean {
+    return (
+      (this.activeGroupId !== null &&
+        !!this.groupProcessAreas[this.activeGroupId]) ||
+      (this.showSubAppPopup && !!this.currentFolderObj)
+    );
+  }
+
+  closeTileSelector(): void {
+    this.activeGroupId = null;
+    this.activeProcessAreaId = null;
+    this.showSubAppPopup = false;
+  }
+
+  /**
+   * Loading signal for the Job Hierarchy Tree. Covers the window between
+   * a sub-app selection and the first page landing — without this the tree
+   * would misreport "No jobs to display" while the fetch is in flight.
+   */
+  get treeLoading(): boolean {
+    if (this.loadingJobs || this.searchLoading) return true;
+    if (this.selectedSubApp) {
+      if (this.loadingSubApps.has(this.selectedSubApp)) return true;
+      // Between selectSubApp() and the first fetch subscribing, only
+      // refreshingFolders is populated. Treat that window as loading too.
+      if (
+        this.refreshingFolders.size > 0 &&
+        !this.loadedSubApps.has(this.selectedSubApp)
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Human-friendly label describing the tree's current narrowing. Rendered
+   * beside the tree title so users can see which folder / sub-app the table
+   * is scoped to. Prefers display_name where the outline/folder provides one.
+   */
+  get treeScopeLabel(): string | null {
+    if (this.selectedSubApp) {
+      const outline = this.fullSubAppOutline.find(
+        (o) => o.sub_app === this.selectedSubApp,
+      );
+      return outline?.display_name || this.selectedSubApp;
+    }
+    if (this.selectedFolder) {
+      const folder = this.folders.find((f) => f.folder === this.selectedFolder);
+      return folder?.display_name || this.selectedFolder;
+    }
+    return null;
+  }
 
   // Drill-down (7-day trend)
   drillDay: TrendDay | null = null;
@@ -243,6 +319,18 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
     // Hide the global chatbot launcher while on this route — the Control-M
     // dashboard owns its own AI assistant that occupies the same corner.
     this.chatbotService.hide();
+
+    // Restore the user's preferred tile-selector UI (drawer vs modal).
+    try {
+      const stored = localStorage.getItem(
+        ControlMDashboardComponent.TILE_SELECTOR_MODE_KEY,
+      );
+      if (stored === 'drawer' || stored === 'modal') {
+        this.tileSelectorMode = stored;
+      }
+    } catch {
+      /* localStorage unavailable — fall back to default. */
+    }
 
     // Debounced global search: whenever the tree's search box changes we run
     // one server-side fetch that spans every sub-application in the current
@@ -739,6 +827,9 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
     // Sub-app narrowing is another filter change — invalidate prior state.
     this.applyFilterChange();
     if (subApp) {
+      // Kick off the first page fetch immediately so the tree shows jobs
+      // without waiting on the (potentially slow) refreshFolder round-trip.
+      this.fetchSubAppJobs(subApp, 0);
       this.refreshingFolders.add(folder.folder);
       this.api
         .refreshFolder(this.source, subApp)
@@ -751,7 +842,7 @@ export class ControlMDashboardComponent implements OnInit, OnDestroy {
           this.loadFolders();
           if (this.searchActive) return;
           // Force a fresh fetch of this sub-app's first page under the
-          // current category filter.
+          // current category filter so any newly-synced rows appear.
           this.loadedSubApps.delete(subApp);
           this.fullyLoadedSubApps.delete(subApp);
           this.allJobs = this.allJobs.filter(

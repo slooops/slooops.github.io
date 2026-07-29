@@ -198,6 +198,75 @@ app.use(
   }),
 );
 
+// Proxy for Control-M (i2c-control-m) FastAPI backend (avoids CORS)
+//   Browser calls:  /api/control-m/summary?application=FIN_I2C
+//   Backend sees:   /api/ctm/summary?application=FIN_I2C
+const CONTROL_M_API_URL =
+  process.env.CONTROL_M_API_URL || "https://i2c-control-m-dev.cisco.com";
+
+app.use(
+  "/api/control-m",
+  createProxyMiddleware({
+    target: CONTROL_M_API_URL,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/control-m": "/api/ctm",
+    },
+    // Log every proxied request/response so upstream failures surface in the
+    // pod logs instead of showing up as a cryptic "Http failure during
+    // parsing" in the browser. Cheap and structured for splunk/loki.
+    onProxyReq: (proxyReq, req) => {
+      console.log(
+        JSON.stringify({
+          type: "ctm-proxy-req",
+          timestamp: new Date().toISOString(),
+          method: req.method,
+          incomingPath: req.originalUrl,
+          upstreamPath: proxyReq.path,
+          upstreamHost: proxyReq.getHeader("host"),
+        }),
+      );
+    },
+    onProxyRes: (proxyRes, req) => {
+      // Only log non-success responses to keep chatty poll traffic quiet.
+      if (proxyRes.statusCode >= 400) {
+        console.log(
+          JSON.stringify({
+            type: "ctm-proxy-res",
+            timestamp: new Date().toISOString(),
+            method: req.method,
+            path: req.originalUrl,
+            status: proxyRes.statusCode,
+            contentType: proxyRes.headers["content-type"] || null,
+          }),
+        );
+      }
+    },
+    // If the upstream is unreachable (DNS failure, connection refused,
+    // egress blocked) the default behavior is to emit an HTML 500 that the
+    // Angular client cannot parse. Convert those transport errors into a
+    // structured JSON 502 so the UI can surface a real error message.
+    onError: (err, req, res) => {
+      console.error(
+        JSON.stringify({
+          type: "ctm-proxy-error",
+          timestamp: new Date().toISOString(),
+          method: req.method,
+          path: req.originalUrl,
+          message: err.message,
+          code: err.code || null,
+        }),
+      );
+      if (res.headersSent) return;
+      res.status(502).json({
+        error: "control-m upstream failed",
+        detail: err.message,
+        code: err.code || null,
+      });
+    },
+  }),
+);
+
 app.use(express.static(path.join(__dirname, "../ui/dist/browser")));
 
 app.get("*", (req, res) => {

@@ -1,7 +1,14 @@
 <div class="cm-tree-card">
   <div class="cm-tree-header">
     <div>
-      <h3 class="cm-tree-title">Job Hierarchy Tree</h3>
+      <h3 class="cm-tree-title">
+        Job Hierarchy Tree
+        @if (scopeLabel) {
+          <span class="cm-tree-scope" [title]="scopeLabel"
+            >· {{ scopeLabel }}</span
+          >
+        }
+      </h3>
       <p class="cm-tree-sub">
         @if (useFolderView) {
           {{ flatJobCount | number }} job{{

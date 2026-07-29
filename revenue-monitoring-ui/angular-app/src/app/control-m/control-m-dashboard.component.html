@@ -27,6 +27,27 @@
       </label>
 
       <button
+        type="button"
+        class="cm-btn"
+        (click)="toggleTileSelectorMode()"
+        [title]="
+          tileSelectorMode === 'drawer'
+            ? 'Switch to modal selector'
+            : 'Switch to sidebar selector'
+        "
+      >
+        <ng-icon
+          [name]="
+            tileSelectorMode === 'drawer'
+              ? 'phosphorSidebarBold'
+              : 'phosphorBrowserBold'
+          "
+          size="14"
+        />
+        {{ tileSelectorMode === "drawer" ? "Sidebar" : "Modal" }}
+      </button>
+
+      <button
         class="cm-btn cm-btn-primary"
         (click)="forceRefresh()"
         [disabled]="refreshing"
@@ -186,7 +207,7 @@
   <section class="cm-tiles-section">
     @if (loadingFolders) {
       <div class="cm-loading-inline">
-        <app-loading-symbol-small />
+        <app-loading-symbol animationStyle="origins" />
       </div>
     }
     @if (errorFolders) {
@@ -194,60 +215,211 @@
         Error loading folders: {{ errorFolders }}
       </div>
     }
-    <div class="cm-tile-grid">
-      @for (folder of displayFolders; track trackByFolder($index, folder)) {
-        <button
-          type="button"
-          class="cm-tile"
-          [class.active]="selectedFolder === folder.folder"
-          [class.is-group]="folder.isGroup"
-          [attr.data-top]="folderTopClass(folder)"
-          (click)="onFolderClick(folder)"
-        >
-          <div class="cm-tile-head">
-            <span [class]="folderHealthClass(folder)"></span>
-            @if (refreshingFolders.has(folder.folder)) {
-              <ng-icon
-                name="phosphorArrowClockwiseBold"
-                size="10"
-                class="cm-spin cm-tile-refresh"
-              />
-            }
-            @if (folder.isGroup) {
-              <span class="cm-tile-badge">Group</span>
-            }
-          </div>
-          <div class="cm-tile-label" [title]="folder.display_name">
-            {{ folder.display_name }}
-          </div>
-          <div class="cm-tile-count">{{ folder.job_count | number }}</div>
-          <div class="cm-tile-flags">
-            @if (folder.has_failure) {
-              <span class="cm-flag cm-flag-err">
-                <ng-icon name="phosphorWarningFill" size="10" />
-                fail
-              </span>
-            }
-            @if (folder.has_long_running) {
-              <span class="cm-flag cm-flag-info">
-                <ng-icon name="phosphorPulseFill" size="10" />
-                long
-              </span>
-            }
-            @if (folder.has_late_start) {
-              <span class="cm-flag cm-flag-warn">
-                <ng-icon name="phosphorWarningFill" size="10" />
-                late
-              </span>
-            }
-          </div>
-        </button>
+    <div
+      class="cm-tiles-layout"
+      [class.has-drawer]="tileSelectorMode === 'drawer' && tileSelectorOpen"
+    >
+      <div class="cm-tile-grid">
+        @for (folder of displayFolders; track trackByFolder($index, folder)) {
+          <button
+            type="button"
+            class="cm-tile"
+            [class.active]="selectedFolder === folder.folder"
+            [class.is-group]="folder.isGroup"
+            [attr.data-top]="folderTopClass(folder)"
+            (click)="onFolderClick(folder)"
+          >
+            <div class="cm-tile-title-row">
+              <span [class]="folderHealthClass(folder)"></span>
+              <div class="cm-tile-label" [title]="folder.display_name">
+                {{ folder.display_name }}
+              </div>
+              @if (refreshingFolders.has(folder.folder)) {
+                <ng-icon
+                  name="phosphorArrowClockwiseBold"
+                  size="10"
+                  class="cm-spin cm-tile-refresh"
+                />
+              }
+            </div>
+            <div class="cm-tile-count">{{ folder.job_count | number }}</div>
+            <div class="cm-tile-flags">
+              @if (folder.has_failure) {
+                <span class="cm-flag cm-flag-err">
+                  <ng-icon name="phosphorWarningFill" size="10" />
+                  fail
+                </span>
+              }
+              @if (folder.has_long_running) {
+                <span class="cm-flag cm-flag-info">
+                  <ng-icon name="phosphorPulseFill" size="10" />
+                  long
+                </span>
+              }
+              @if (folder.has_late_start) {
+                <span class="cm-flag cm-flag-warn">
+                  <ng-icon name="phosphorWarningFill" size="10" />
+                  late
+                </span>
+              }
+              @if (folder.isGroup) {
+                <span class="cm-tile-badge">Group</span>
+              }
+            </div>
+          </button>
+        }
+      </div>
+
+      <!-- Sidebar drawer: shows the same selection options as the modals,
+           inline to the right of the tile grid. Toggled by the toolbar. -->
+      @if (tileSelectorMode === "drawer" && tileSelectorOpen) {
+        <aside class="cm-side-drawer">
+          @if (activeGroupId && groupProcessAreas[activeGroupId]) {
+            <div class="cm-drawer-header">
+              <div class="cm-modal-title-group">
+                @if (activeProcessAreaId) {
+                  <button
+                    type="button"
+                    class="cm-back-btn"
+                    (click)="activeProcessAreaId = null"
+                    title="Back to process areas"
+                  >
+                    <ng-icon name="phosphorArrowLeftBold" size="14" />
+                  </button>
+                }
+                <div>
+                  <h3 class="cm-modal-title">
+                    {{ selectedGroup?.display_name }}
+                    @if (activeProcessAreaId && selectedProcessArea) {
+                      <span class="cm-modal-crumb">
+                        &nbsp;›&nbsp;{{ selectedProcessArea.label }}
+                      </span>
+                    }
+                  </h3>
+                  <p class="cm-modal-sub">
+                    {{
+                      activeProcessAreaId
+                        ? "Select folder"
+                        : "Select process area"
+                    }}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                class="cm-icon-btn"
+                (click)="closeGroupPopup()"
+                aria-label="Close"
+              >
+                <ng-icon name="phosphorXBold" size="14" />
+              </button>
+            </div>
+            <div class="cm-drawer-body">
+              @if (!activeProcessAreaId) {
+                @for (area of groupProcessAreas[activeGroupId]; track area.id) {
+                  <button
+                    type="button"
+                    class="cm-modal-row"
+                    (click)="selectProcessArea(area.id)"
+                  >
+                    <div class="cm-modal-row-left">
+                      <span [class]="folderHealthClass(area)"></span>
+                      <span class="cm-modal-row-label">{{ area.label }}</span>
+                      <span class="cm-modal-row-meta">
+                        ({{ area.children.length }} folder{{
+                          area.children.length === 1 ? "" : "s"
+                        }})
+                      </span>
+                    </div>
+                    <span class="cm-modal-row-count">{{ area.job_count }}</span>
+                  </button>
+                }
+              }
+              @if (activeProcessAreaId && selectedProcessArea) {
+                @for (
+                  child of selectedProcessArea.children;
+                  track child.folder
+                ) {
+                  <button
+                    type="button"
+                    class="cm-modal-row"
+                    [class.active]="selectedFolder === child.folder"
+                    (click)="pickFolderFromGroup(child)"
+                  >
+                    <div class="cm-modal-row-left">
+                      <span [class]="folderHealthClass(child)"></span>
+                      <span class="cm-modal-row-label">{{
+                        child.display_name
+                      }}</span>
+                    </div>
+                    <span class="cm-modal-row-count">{{
+                      child.job_count
+                    }}</span>
+                  </button>
+                }
+              }
+            </div>
+          } @else if (showSubAppPopup && currentFolderObj) {
+            <div class="cm-drawer-header">
+              <div>
+                <h3 class="cm-modal-title">
+                  {{ currentFolderObj.display_name }}
+                </h3>
+                <p class="cm-modal-sub">Select sub-application</p>
+              </div>
+              <button
+                type="button"
+                class="cm-icon-btn"
+                (click)="showSubAppPopup = false"
+                aria-label="Close"
+              >
+                <ng-icon name="phosphorXBold" size="14" />
+              </button>
+            </div>
+            <div class="cm-drawer-body">
+              <button
+                type="button"
+                class="cm-modal-row"
+                [class.active]="!selectedSubApp"
+                (click)="selectSubApp(null, currentFolderObj)"
+              >
+                <div class="cm-modal-row-left">
+                  <span class="cm-dot cm-dot-info"></span>
+                  <span class="cm-modal-row-label">All Sub-Applications</span>
+                </div>
+                <span class="cm-modal-row-count">{{
+                  currentFolderObj.job_count
+                }}</span>
+              </button>
+              @for (sa of currentFolderObj.sub_applications; track sa.sub_app) {
+                <button
+                  type="button"
+                  class="cm-modal-row"
+                  [class.active]="selectedSubApp === sa.sub_app"
+                  (click)="selectSubApp(sa.sub_app, currentFolderObj)"
+                >
+                  <div class="cm-modal-row-left">
+                    <span [class]="folderHealthClass(sa)"></span>
+                    <span class="cm-modal-row-label">{{
+                      sa.display_name
+                    }}</span>
+                  </div>
+                  <span class="cm-modal-row-count">{{ sa.count }}</span>
+                </button>
+              }
+            </div>
+          }
+        </aside>
       }
     </div>
   </section>
 
   <!-- ── Group popup (2-step) ── -->
-  @if (activeGroupId && groupProcessAreas[activeGroupId]) {
+  @if (
+    tileSelectorMode === "modal" &&
+    activeGroupId &&
+    groupProcessAreas[activeGroupId]
+  ) {
     <div class="cm-modal-backdrop" (click)="closeGroupPopup()">
       <div
         class="cm-modal cm-modal-narrow"
@@ -338,7 +510,7 @@
   }
 
   <!-- ── Sub-app popup ── -->
-  @if (showSubAppPopup && currentFolderObj) {
+  @if (tileSelectorMode === "modal" && showSubAppPopup && currentFolderObj) {
     <div class="cm-modal-backdrop" (click)="showSubAppPopup = false">
       <div
         class="cm-modal cm-modal-narrow"
@@ -452,10 +624,11 @@
       [loadingSubApps]="loadingSubApps"
       [fullyLoadedSubApps]="fullyLoadedSubApps"
       [forceExpandAll]="searchActive"
-      [loading]="loadingJobs || searchLoading"
+      [loading]="treeLoading"
       [error]="errorJobs"
       [darkMode]="themeService.isDarkMode"
       [search]="searchQuery"
+      [scopeLabel]="treeScopeLabel"
       (searchChange)="onSearchChange($event)"
       (viewLogs)="onViewLogs($event)"
       (jobSelect)="onJobActionSelect($event)"

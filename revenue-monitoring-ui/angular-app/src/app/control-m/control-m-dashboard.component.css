@@ -483,6 +483,83 @@
   padding: 0 16px;
 }
 
+/* ── Two-column layout: tile grid + optional sidebar drawer ── */
+.cm-tiles-layout {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.cm-tiles-layout > .cm-tile-grid {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cm-tiles-layout.has-drawer > .cm-tile-grid {
+  /* Give the tile grid slightly tighter minimum columns while the drawer
+     is eating horizontal space so the grid still packs neatly. */
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+.cm-side-drawer {
+  flex: 0 0 340px;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  background: var(--cm-surface);
+  border: 1px solid var(--cm-border);
+  border-radius: 14px;
+  box-shadow: var(--cm-card-shadow);
+  overflow: hidden;
+  align-self: flex-start;
+  position: sticky;
+  top: 88px;
+  max-height: calc(100vh - 120px);
+  animation: cm-drawer-in 200ms ease;
+}
+
+.cm-drawer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--cm-border);
+}
+
+.cm-drawer-body {
+  padding: 10px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+}
+
+@keyframes cm-drawer-in {
+  from {
+    transform: translateX(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Below ~900px collapse the drawer under the tile grid so tiles remain
+   readable on smaller screens. */
+@media (max-width: 900px) {
+  .cm-tiles-layout {
+    flex-direction: column;
+  }
+  .cm-side-drawer {
+    flex-basis: auto;
+    max-width: none;
+    position: static;
+    max-height: none;
+  }
+}
+
 .cm-tile-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -628,10 +705,11 @@
   --cm-tile-top: var(--cm-accent);
 }
 
-.cm-tile-head {
+.cm-tile-title-row {
   display: flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
 }
 
 .cm-tile-refresh {
@@ -652,6 +730,8 @@
 }
 
 .cm-tile-label {
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: 12px;
   font-weight: 600;
   color: var(--cm-text);
@@ -670,6 +750,7 @@
 .cm-tile-flags {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 4px;
   margin-top: 4px;
   min-height: 14px;
