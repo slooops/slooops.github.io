@@ -1,9 +1,15 @@
 <div class="esp-dashboard">
   <!-- Loading Overlay -->
   @if (isLoadingQuarter) {
+    <!-- @if (true) { -->
     <div class="loading-overlay">
+      <div class="loading-cloud" aria-hidden="true">
+        <span class="loading-cloud__layer loading-cloud__layer--soft"></span>
+        <span class="loading-cloud__layer loading-cloud__layer--mid"></span>
+        <span class="loading-cloud__layer loading-cloud__layer--core"></span>
+      </div>
       <div class="loading-content">
-        <div class="spinner"></div>
+        <app-loading-symbol animationStyle="origins"></app-loading-symbol>
         <p class="loading-message">{{ loadingQuarterMessage }}</p>
       </div>
     </div>
@@ -64,20 +70,16 @@
 
         @if (activeTab === "Finance IT" && roles.includes("ADMIN")) {
           <div class="ciq-view-toggle">
-            <button
-              class="ciq-view-btn"
-              [class.ciq-view-btn--active]="caseiqView === 'ops'"
-              (click)="caseiqView = 'ops'"
-            >
-              Operations
-            </button>
-            <button
-              class="ciq-view-btn"
-              [class.ciq-view-btn--active]="caseiqView === 'executive'"
-              (click)="caseiqView = 'executive'"
-            >
-              Executive
-            </button>
+            @for (ctx of caseiqContexts; track ctx) {
+              <button
+                type="button"
+                class="ciq-ctx-btn"
+                [class.ciq-ctx-btn--active]="caseiqView === ctx"
+                (click)="caseiqView = ctx"
+              >
+                {{ ctx }}
+              </button>
+            }
           </div>
         }
       </div>

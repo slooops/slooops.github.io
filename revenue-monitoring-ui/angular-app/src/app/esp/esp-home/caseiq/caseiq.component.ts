@@ -23,7 +23,10 @@ import {
   phosphorArrowsClockwiseBold,
   phosphorArrowLineDownBold,
 } from '@ng-icons/phosphor-icons/bold';
-import { phosphorEmptyDuotone } from '@ng-icons/phosphor-icons/duotone';
+import {
+  phosphorEmptyDuotone,
+  phosphorCoffeeDuotone,
+} from '@ng-icons/phosphor-icons/duotone';
 import * as echarts from 'echarts/core';
 import {
   BarChart,
@@ -73,6 +76,19 @@ import {
   FilterConfig,
   FilterValues,
 } from '../../../components/filter-button-bar/filter-button-bar.component';
+import {
+  ChordChartComponent,
+  ChordFlow,
+} from '../../../components/chord-chart/chord-chart.component';
+import {
+  ParallelSetRecord,
+  ParallelSetsComponent,
+} from '../../../components/parallel-sets/parallel-sets.component';
+import {
+  HiveLink,
+  HiveNode,
+  HivePlotComponent,
+} from '../../../components/hive-plot/hive-plot.component';
 
 interface CaseIqTableMetric {
   total: number | null;
@@ -102,6 +118,32 @@ interface CaseiqKpi {
   plainValue?: string;
 }
 
+/** Outcome buckets tracked per component row. */
+type OutcomeKey = 'inProgress' | 'routed' | 'cancelled' | 'service';
+
+/** One component row of the ctx-3 response time table. */
+interface ResponseTimeRow {
+  component: string;
+  incidentCount: number;
+  importTime: number | null;
+  executionTime: number | null;
+  mttr: number | null;
+  autoResolved: number;
+  touchedLt5: number;
+  touchedLt10: number;
+  touchedGt10: number;
+  /** Cases that reached a post-CaseIQ state (all four churn buckets). */
+  cohortTotal: number;
+}
+
+/** One core issue row of the response time drilldown modal. */
+interface CoreIssueRow extends Omit<ResponseTimeRow, 'component'> {
+  coreIssue: string;
+}
+
+/** Display order shared by every per-component table in this dashboard. */
+const COMPONENT_ORDER = ['OM', 'SM', 'I2C', 'AIT', 'FPP', 'P2P', 'CAPITAL'];
+
 @Component({
   selector: 'app-caseiq',
   templateUrl: './caseiq.component.html',
@@ -118,6 +160,9 @@ interface CaseiqKpi {
     NgxEchartsDirective,
     FilterButtonBarComponent,
     PaginationComponent,
+    ChordChartComponent,
+    ParallelSetsComponent,
+    HivePlotComponent,
   ],
   providers: [
     provideIcons({
@@ -125,6 +170,7 @@ interface CaseiqKpi {
       phosphorArrowsClockwiseBold,
       phosphorArrowLineDownBold,
       phosphorEmptyDuotone,
+      phosphorCoffeeDuotone,
     }),
     provideEchartsCore({ echarts }),
   ],
@@ -203,8 +249,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   hourlyCardFlipped = false;
   sankeyCardFlipped = false;
 
-  // ── Context Switcher: "Operations" vs "Executive" ──────────
-  @Input() caseiqView: 'ops' | 'executive' = 'ops';
+  // ── Context Switcher: 1 = Operations, 2 = Executive, 3 = Executive (redux) ──
+  @Input() caseiqView: 1 | 2 | 3 = 1;
 
   // ── Executive view data (all from new p80/p90/worknotes/coverage-gap views) ──
   /** p80 metrics per team from ASK_CASEIQ_METRICS_DSH_80_V */
@@ -215,6 +261,32 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   execWorknotesData: any[] = [];
   /** Coverage gap (ESP cases not in CaseIQ) from ASK_CASEIQ_NOT_EXISTS_INC_V */
   execCoverageGapData: any[] = [];
+  /** Response time + post-CaseIQ churn per component, filtered by quarter (ctx 3) */
+  execResponseTimeData: any[] = [];
+  execResponseTimeLoading = false;
+  /** True until every executive dataset for the selected quarter has settled */
+  execViewLoading = true;
+  /** Response time drilldown modal (per component core-issue breakdown) */
+  responseModalOpen = false;
+  responseModalComponent = '';
+  /** Core issue rows for the open modal — fetched only when it is opened. */
+  responseModalRows: CoreIssueRow[] = [];
+  responseModalLoading = false;
+  responseModalFailed = false;
+  /** Chord diagram inputs (Component → Channel → Outcome). */
+  chordFlows: ChordFlow[] = [];
+  chordColors: Record<string, string> = {};
+  chordOrder: string[] = [];
+  /** Parallel sets inputs (one record per Component × Channel × Outcome). */
+  parsetRecords: ParallelSetRecord[] = [];
+  parsetColors: Record<string, string> = {};
+  parsetOrder: string[][] = [];
+  readonly parsetDimensions = ['Component', 'Channel', 'Outcome'];
+  /** Hive plot inputs. */
+  hiveNodes: HiveNode[] = [];
+  hiveLinks: HiveLink[] = [];
+  hiveColors: Record<string, string> = {};
+  readonly hiveAxes = ['Components', 'Channels', 'Outcomes'];
   /** Flip state for middle-top card (Resolution Time ↔ Case Churn) */
   execMttrCardFlipped = false;
   /** Flip state for middle-bottom card (Weekly Case Volume ↔ Hourly Processing Load) */
@@ -251,35 +323,39 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         this.fetchAccuracyData();
         this.refetchWeeklyTeamVolume();
         this.refetchWeeklyCasesAnalyzed();
-        // Rebuild executive charts when quarter changes
-        if (this.caseiqView === 'executive') {
-          setTimeout(() => {
-            this.buildMttrChart();
-            this.buildChurnChart();
-            this.buildExecWeeklyChart();
-            this.buildExecHourlyChart();
-            this.buildSankeyChart();
-          }, 100);
-        }
+        this.fetchExecResponseTime();
+        this.fetchExecViewData();
+        // Rebuild the active context's charts when the quarter changes
+        this.scheduleContextChartRebuild(100, false);
       }
     }
 
     if ('caseiqView' in changes && this.viewInitialized) {
-      if (this.caseiqView === 'executive') {
-        setTimeout(() => {
-          this.buildMttrChart();
-          this.buildChurnChart();
-          this.buildExecWeeklyChart();
-          this.buildExecHourlyChart();
-          this.buildSankeyChart();
-        }, 50);
-      } else if (this.caseiqView === 'ops') {
-        // Rebuild ops charts — canvases were removed from DOM during executive view
-        setTimeout(() => {
-          this.createAllCharts();
-          this.tryBuildAnalyticsCharts();
-        }, 50);
-      }
+      this.scheduleContextChartRebuild(50, true);
+    }
+  }
+
+  /**
+   * Rebuild the charts belonging to the active context after `delayMs`.
+   * When `includeOps` is true, context 1 also re-creates its canvases (they are
+   * removed from the DOM while another context is displayed).
+   */
+  private scheduleContextChartRebuild(delayMs: number, includeOps: boolean) {
+    if (this.caseiqView === 2) {
+      setTimeout(() => {
+        this.buildMttrChart();
+        this.buildChurnChart();
+        this.buildExecWeeklyChart();
+        this.buildExecHourlyChart();
+        this.buildSankeyChart();
+      }, delayMs);
+    } else if (this.caseiqView === 3) {
+      setTimeout(() => this.buildCtx3Charts(), delayMs);
+    } else if (includeOps) {
+      setTimeout(() => {
+        this.createAllCharts();
+        this.tryBuildAnalyticsCharts();
+      }, delayMs);
     }
   }
 
@@ -288,7 +364,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     // Rebuild executive charts when theme toggles
     this.themeSub = this.themeService.isDarkMode$.subscribe(() => {
-      if (this.caseiqView === 'executive') {
+      if (this.caseiqView === 2) {
         setTimeout(() => {
           this.buildMttrChart();
           this.buildChurnChart();
@@ -300,6 +376,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             this.buildSankeyChart();
           }
         }, 50);
+      } else if (this.caseiqView === 3) {
+        setTimeout(() => this.buildCtx3Charts(), 50);
       }
     });
 
@@ -320,6 +398,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     // Fetch executive-view datasets (p80, p90, worknotes churn, coverage gap)
     this.fetchExecViewData();
+    this.fetchExecResponseTime();
 
     // Initial build of sections/charts once view is ready
     this.buildSectionsFromMetrics();
@@ -865,9 +944,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   /** Sum of a specific metric's total across all component (non-Finance IT) rows */
-  getSumMetricTotal(
-    metric: 'inProgress' | 'routed' | 'cancelled' | 'service',
-  ): number {
+  getSumMetricTotal(metric: OutcomeKey): number {
     return this.getSummaryRows().reduce(
       (sum, row) => sum + (row[metric].total ?? 0),
       0,
@@ -2077,6 +2154,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   onEscapeKey(): void {
     if (this.drilldownOpen) this.closeDrilldown();
     if (this.showAccuracyModal) this.closeAccuracyModal();
+    if (this.responseModalOpen) this.closeResponseDetail();
   }
 
   // ── Accuracy Detail Modal ─────────────────────────────────
@@ -2104,54 +2182,84 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   // switchView is no longer needed — caseiqView is an @Input from parent
 
   /**
-   * Fetch the four executive-view datasets from the new backend endpoints
+   * Fetch the four executive-view datasets for the selected quarter
    * (p80, p90, worknotes churn, coverage gap). Column names in the p80 view
    * are currently mislabeled `_P90` so we read them by prefix in {@link execCol}.
    */
   private fetchExecViewData(): void {
+    const qtr = this.selectedQuarter || 'Q4FY26';
+    this.execViewLoading = true;
+    let settled = 0;
+    const settle = () => {
+      settled += 1;
+      if (settled >= 4) this.execViewLoading = false;
+    };
     const rebuild = () => {
-      if (this.caseiqView === 'executive') {
+      settle();
+      if (this.caseiqView === 2) {
         setTimeout(() => {
           this.buildMttrChart();
         }, 0);
+      } else if (this.caseiqView === 3) {
+        setTimeout(() => this.buildCtx3Charts(), 0);
       }
     };
     const rebuildChurn = () => {
-      if (this.caseiqView === 'executive') {
+      settle();
+      if (this.caseiqView === 2) {
         setTimeout(() => {
           this.buildChurnChart();
         }, 0);
+      } else if (this.caseiqView === 3) {
+        setTimeout(() => this.buildCtx3Charts(), 0);
       }
     };
-    this.http.get('caseiq/exec/metrics-p80', this.destroyManager).subscribe({
-      next: (d: any) => {
-        this.execP80Data = Array.isArray(d) ? d : [];
-        rebuild();
-      },
-      error: () => {},
-    });
-    this.http.get('caseiq/exec/metrics-p90', this.destroyManager).subscribe({
-      next: (d: any) => {
-        this.execP90Data = Array.isArray(d) ? d : [];
-        rebuild();
-      },
-      error: () => {},
-    });
     this.http
-      .get('caseiq/exec/worknotes-churn', this.destroyManager)
+      .get(`caseiq/exec/metrics-p80?fiscQtr=${qtr}`, this.destroyManager)
+      .subscribe({
+        next: (d: any) => {
+          this.execP80Data = Array.isArray(d) ? d : [];
+          rebuild();
+        },
+        error: () => settle(),
+      });
+    this.http
+      .get(`caseiq/exec/metrics-p90?fiscQtr=${qtr}`, this.destroyManager)
+      .subscribe({
+        next: (d: any) => {
+          this.execP90Data = Array.isArray(d) ? d : [];
+          rebuild();
+        },
+        error: () => settle(),
+      });
+    this.http
+      .get(`caseiq/exec/worknotes-churn?fiscQtr=${qtr}`, this.destroyManager)
       .subscribe({
         next: (d: any) => {
           this.execWorknotesData = Array.isArray(d) ? d : [];
           rebuildChurn();
         },
-        error: () => {},
+        error: () => settle(),
       });
-    this.http.get('caseiq/exec/coverage-gap', this.destroyManager).subscribe({
-      next: (d: any) => {
-        this.execCoverageGapData = Array.isArray(d) ? d : [];
-      },
-      error: () => {},
-    });
+    this.http
+      .get(`caseiq/exec/coverage-gap?fiscQtr=${qtr}`, this.destroyManager)
+      .subscribe({
+        next: (d: any) => {
+          this.execCoverageGapData = Array.isArray(d) ? d : [];
+          settle();
+        },
+        error: () => settle(),
+      });
+  }
+
+  /** No percentile metrics for the selected quarter (dumbbell + MTTR charts). */
+  get execMetricsNoData(): boolean {
+    return !this.execViewLoading && !this.execP90Data.length;
+  }
+
+  /** No post-CaseIQ worknote activity for the selected quarter (churn chart). */
+  get execChurnNoData(): boolean {
+    return !this.execViewLoading && !this.execWorknotesData.length;
   }
 
   /**
@@ -3333,5 +3441,533 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         },
       ],
     } as EChartsOption;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ── Context 3 (Executive redux draft) ─────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /** Build every chart rendered by context 3. */
+  private buildCtx3Charts(): void {
+    this.buildSankeyChart4Step();
+    this.buildResolutionChart();
+    this.buildChurnChart();
+    this.buildExecWeeklyChart();
+    this.buildExecHourlyChart();
+    this.buildChordChart();
+    this.buildAlluvialChart();
+    this.buildHiveChart();
+  }
+
+  /**
+   * Fetch the quarter-filtered response time + churn table. Unlike the
+   * DSH_80/DSH_90/WORKNOTES views (which hardcode Q4FY26), this endpoint takes
+   * the selected quarter.
+   */
+  private fetchExecResponseTime(): void {
+    const qtr = this.selectedQuarter || 'Q4FY26';
+    this.execResponseTimeLoading = true;
+    this.http
+      .get(`caseiq/exec/response-time?fiscQtr=${qtr}`, this.destroyManager)
+      .subscribe({
+        next: (d: any) => {
+          this.execResponseTimeData = Array.isArray(d) ? d : [];
+          this.execResponseTimeLoading = false;
+        },
+        error: () => {
+          this.execResponseTimeData = [];
+          this.execResponseTimeLoading = false;
+        },
+      });
+  }
+
+  /** Rows for the ctx-3 response time table, one per component. */
+  responseTimeRows(): ResponseTimeRow[] {
+    return this.execResponseTimeData
+      .map((row) => ({
+        component: this.execTeam(row) ?? '—',
+        ...this.mapResponseMetrics(row),
+      }))
+      .filter((row) => row.component !== 'UNKNOWN')
+      .sort(
+        (a, b) =>
+          this.componentRank(a.component) - this.componentRank(b.component),
+      );
+  }
+
+  /** Position in the dashboard-wide component order; unknowns sort last. */
+  private componentRank(component: string): number {
+    const idx = COMPONENT_ORDER.indexOf(component);
+    return idx === -1 ? COMPONENT_ORDER.length : idx;
+  }
+
+  /** Shared numeric mapping for the response time / core issue tables. */
+  private mapResponseMetrics(row: any): Omit<ResponseTimeRow, 'component'> {
+    const num = (key: string): number | null => {
+      const val = Number(row?.[key] ?? row?.[key.toUpperCase()]);
+      return Number.isFinite(val) ? val : null;
+    };
+    const autoResolved = num('AUTO_RESOLVED') ?? 0;
+    const touchedLt5 = num('TOUCHED_LT_5') ?? 0;
+    const touchedLt10 = num('TOUCHED_LT_10') ?? 0;
+    const touchedGt10 = num('TOUCHED_GT_10') ?? 0;
+    return {
+      incidentCount: num('INCIDENT_COUNT') ?? 0,
+      importTime: num('IMPORT_TIME'),
+      executionTime: num('EXECUTION_TIME'),
+      mttr: num('RESOLUTION_TIME'),
+      autoResolved,
+      touchedLt5,
+      touchedLt10,
+      touchedGt10,
+      cohortTotal: autoResolved + touchedLt5 + touchedLt10 + touchedGt10,
+    };
+  }
+
+  /**
+   * KPI strip summarising the response time table: mean percentile times across
+   * the components plus each churn bucket as a share of all post-CaseIQ cases.
+   */
+  responseKpis(): CaseiqKpi[] {
+    const rows = this.responseTimeRows();
+    const mean = (pick: (r: ResponseTimeRow) => number | null) => {
+      const vals = rows
+        .map(pick)
+        .filter((v): v is number => v != null && Number.isFinite(v));
+      if (!vals.length) return null;
+      return vals.reduce((a, b) => a + b, 0) / vals.length;
+    };
+    const total = rows.reduce((sum, r) => sum + r.cohortTotal, 0);
+    const bucket = (title: string, color: string, value: number): CaseiqKpi => {
+      const pct = total > 0 ? (value / total) * 100 : 0;
+      return {
+        title,
+        color,
+        pillWidth: pct,
+        pillText: `${value.toLocaleString()} / ${total.toLocaleString()}`,
+        pctText: total > 0 ? `${pct.toFixed(1)}%` : '--',
+      };
+    };
+    const sum = (pick: (r: ResponseTimeRow) => number) =>
+      rows.reduce((acc, r) => acc + pick(r), 0);
+
+    return [
+      {
+        title: 'Import Time P90',
+        color: 'green',
+        plain: true,
+        plainValue: this.formatDuration(mean((r) => r.importTime)),
+      },
+      {
+        title: 'Execution Time P90',
+        color: 'green',
+        plain: true,
+        plainValue: this.formatDuration(mean((r) => r.executionTime)),
+      },
+      {
+        title: 'MTTR Time P60',
+        color: 'cyan',
+        plain: true,
+        plainValue: this.formatDuration(mean((r) => r.mttr)),
+      },
+      bucket(
+        'Auto Resolved',
+        'accent',
+        sum((r) => r.autoResolved),
+      ),
+      bucket(
+        'Touched < 5',
+        'cyan',
+        sum((r) => r.touchedLt5),
+      ),
+      bucket(
+        'Touched < 10',
+        'amber',
+        sum((r) => r.touchedLt10),
+      ),
+      bucket(
+        'Touched > 10',
+        'purple',
+        sum((r) => r.touchedGt10),
+      ),
+    ];
+  }
+
+  /** Auto-resolved share of the post-CaseIQ cohort for a table row. */
+  autoResolvedPct(row: { autoResolved: number; cohortTotal: number }): number {
+    return row.cohortTotal > 0 ? (row.autoResolved / row.cohortTotal) * 100 : 0;
+  }
+
+  /** Minutes → "12.3 min" under an hour, "3.4 h" above, "—" when missing. */
+  formatDuration(minutes: number | null): string {
+    if (minutes == null) return '—';
+    if (Math.abs(minutes) < 60) return `${minutes.toFixed(1)} min`;
+    return `${(minutes / 60).toFixed(1)} h`;
+  }
+
+  /** Same as {@link formatDuration} but split so the unit can be de-emphasised. */
+  durationParts(minutes: number | null): { value: string; unit: string } {
+    if (minutes == null) return { value: '—', unit: '' };
+    if (Math.abs(minutes) < 60)
+      return { value: minutes.toFixed(1), unit: 'min' };
+    return { value: (minutes / 60).toFixed(1), unit: 'h' };
+  }
+
+  openResponseDetail(component: string): void {
+    this.responseModalComponent = component;
+    this.responseModalOpen = true;
+    this.fetchResponseCoreIssues(component);
+  }
+
+  closeResponseDetail(): void {
+    this.responseModalOpen = false;
+    this.responseModalRows = [];
+    this.responseModalFailed = false;
+  }
+
+  /**
+   * Core issue breakdown for one component, fetched only when the modal opens
+   * (the seven components carry ~279 core issues between them).
+   */
+  private fetchResponseCoreIssues(component: string): void {
+    const qtr = this.selectedQuarter || 'Q4FY26';
+    this.responseModalRows = [];
+    this.responseModalFailed = false;
+    this.responseModalLoading = true;
+    const url =
+      `caseiq/exec/response-time/core-issues?fiscQtr=${encodeURIComponent(qtr)}` +
+      `&teamName=${encodeURIComponent(component)}`;
+    this.http.get(url, this.destroyManager).subscribe({
+      next: (d: any) => {
+        const rows = Array.isArray(d) ? d : [];
+        this.responseModalRows = rows.map((row) => ({
+          coreIssue: row?.CORE_ISSUE ?? row?.core_issue ?? 'Unclassified',
+          ...this.mapResponseMetrics(row),
+        }));
+        this.responseModalLoading = false;
+      },
+      error: () => {
+        this.responseModalRows = [];
+        this.responseModalFailed = true;
+        this.responseModalLoading = false;
+      },
+    });
+  }
+
+  /**
+   * 4-step Sankey: Component → Agent/Ops → Outcome → Component.
+   *
+   * The 3-step flow loses the originating component once cases pass through
+   * the Agent/Ops node, so the component set is repeated as a terminal stage.
+   * Terminal node names carry a trailing NBSP to stay unique from the leading
+   * component nodes; the label formatter trims it back off for display.
+   */
+  private buildSankeyChart4Step(): void {
+    const rows = this.getSummaryRows();
+    if (!rows.length) return;
+
+    const { links, nodeSet } = this.buildSankey4StepLinks(rows);
+    if (!links.length) return;
+
+    const nodeColors: Record<string, string> = {
+      Agent: '#0070d2',
+      Ops: '#8899a6',
+      'In Progress': '#e6a800',
+      'Routed Out': '#00bceb',
+      Canceled: '#9933ff',
+      'Service Requests': '#6ebe4a',
+    };
+
+    const colorFor = (key: string) => {
+      const base = key.trim();
+      return nodeColors[base] ?? this.teamColors[base] ?? '#0070d2';
+    };
+
+    const textColor = this.themeService.isDarkMode ? '#e0e6ed' : '#1b1c1d';
+
+    const data = Array.from(nodeSet).map((name) => ({
+      name,
+      itemStyle: { color: colorFor(name) },
+    }));
+
+    this.chartOptionsMap['sankey4Step'] = {
+      tooltip: {
+        trigger: 'item',
+        triggerOn: 'mousemove',
+        backgroundColor: 'rgba(20,30,40,0.9)',
+        textStyle: { fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif' },
+      },
+      series: [
+        {
+          type: 'sankey',
+          data,
+          links,
+          lineStyle: { color: 'gradient', opacity: 0.4 },
+          label: {
+            color: textColor,
+            fontSize: 9,
+            fontFamily: 'Inter, system-ui, sans-serif',
+            formatter: (params: any) => String(params.name).trim(),
+          },
+          emphasis: { focus: 'adjacency' },
+          nodeWidth: 16,
+          nodeGap: 8,
+          layoutIterations: 32,
+          draggable: false,
+          left: '2%',
+          right: '10%',
+          top: '4%',
+          bottom: '4%',
+        },
+      ],
+    } as EChartsOption;
+  }
+
+  /** Assemble the nodes/links for the 4-step (Component → … → Component) Sankey. */
+  private buildSankey4StepLinks(rows: CaseIqTableRow[]): {
+    links: { source: string; target: string; value: number }[];
+    nodeSet: Set<string>;
+  } {
+    /** Trailing NBSP keeps terminal component nodes distinct from source ones. */
+    const TERMINAL = '\u00a0';
+    const outcomes: {
+      key: OutcomeKey;
+      label: string;
+    }[] = [
+      { key: 'inProgress', label: 'In Progress' },
+      { key: 'routed', label: 'Routed Out' },
+      { key: 'cancelled', label: 'Canceled' },
+      { key: 'service', label: 'Service Requests' },
+    ];
+
+    const links: { source: string; target: string; value: number }[] = [];
+    const nodeSet = new Set<string>();
+    const laneOutcomes: Record<string, Record<string, number>> = {
+      Agent: {},
+      Ops: {},
+    };
+
+    const addLink = (source: string, target: string, value: number) => {
+      if (value <= 0) return;
+      links.push({ source, target, value });
+      nodeSet.add(source);
+      nodeSet.add(target);
+    };
+
+    // Steps 1 & 3: Component → Agent/Ops, and Outcome → originating Component.
+    for (const row of rows) {
+      const comp = row.sectionName;
+      nodeSet.add(comp);
+      addLink(comp, 'Agent', this.getAgentTotalCases(row));
+      addLink(comp, 'Ops', this.getComponentOpsTotalCases(row));
+
+      for (const outcome of outcomes) {
+        const agentVal = row[outcome.key].agent ?? 0;
+        const opsVal = row[outcome.key].ops ?? 0;
+        laneOutcomes['Agent'][outcome.label] =
+          (laneOutcomes['Agent'][outcome.label] ?? 0) + agentVal;
+        laneOutcomes['Ops'][outcome.label] =
+          (laneOutcomes['Ops'][outcome.label] ?? 0) + opsVal;
+        addLink(outcome.label, comp + TERMINAL, agentVal + opsVal);
+      }
+    }
+
+    // Step 2: Agent/Ops → Outcome.
+    for (const lane of ['Agent', 'Ops']) {
+      for (const outcome of outcomes) {
+        addLink(lane, outcome.label, laneOutcomes[lane][outcome.label] ?? 0);
+      }
+    }
+
+    return { links, nodeSet };
+  }
+
+  // ── Relationship charts (Component × Channel × Outcome) ───────────────────
+
+  /** Outcome columns shared by the sankey and the relationship charts. */
+  private readonly relationOutcomes: {
+    key: OutcomeKey;
+    label: string;
+  }[] = [
+    { key: 'inProgress', label: 'In Progress' },
+    { key: 'routed', label: 'Routed Out' },
+    { key: 'cancelled', label: 'Canceled' },
+    { key: 'service', label: 'Service Requests' },
+  ];
+
+  private readonly relationColors: Record<string, string> = {
+    Agent: '#1f6feb',
+    Ops: '#0f8b8d',
+    'In Progress': '#e6a800',
+    'Routed Out': '#00bceb',
+    Canceled: '#9933ff',
+    'Service Requests': '#6ebe4a',
+  };
+
+  private relationColor(name: string): string {
+    return this.relationColors[name] ?? this.teamColors[name] ?? '#0070d2';
+  }
+
+  /**
+   * Flatten the component table into Component × Channel × Outcome triples.
+   * Every relationship chart below reads from this single joint distribution.
+   */
+  private buildRelationTriples(): {
+    component: string;
+    lane: string;
+    outcome: string;
+    value: number;
+  }[] {
+    const triples: {
+      component: string;
+      lane: string;
+      outcome: string;
+      value: number;
+    }[] = [];
+    for (const row of this.getSummaryRows()) {
+      for (const outcome of this.relationOutcomes) {
+        const byLane: Record<string, number> = {
+          Agent: row[outcome.key].agent ?? 0,
+          Ops: row[outcome.key].ops ?? 0,
+        };
+        for (const lane of ['Agent', 'Ops']) {
+          if (byLane[lane] > 0) {
+            triples.push({
+              component: row.sectionName,
+              lane,
+              outcome: outcome.label,
+              value: byLane[lane],
+            });
+          }
+        }
+      }
+    }
+    return triples;
+  }
+
+  /**
+   * Chord data: each sector's slice of the circumference is its case volume
+   * (components → channel → outcome), and every ribbon is width-proportional
+   * to the flow it carries. Rendered by the d3 chord component.
+   */
+  private buildChordChart(): void {
+    const triples = this.buildRelationTriples();
+    if (!triples.length) {
+      this.chordFlows = [];
+      return;
+    }
+
+    const agg = new Map<string, number>();
+    const add = (source: string, target: string, value: number) => {
+      const key = `${source}|${target}`;
+      agg.set(key, (agg.get(key) ?? 0) + value);
+    };
+    for (const t of triples) {
+      add(t.component, t.lane, t.value);
+      add(t.lane, t.outcome, t.value);
+    }
+
+    this.chordFlows = Array.from(agg, ([key, value]) => {
+      const [source, target] = key.split('|');
+      return { source, target, value };
+    });
+
+    const colors: Record<string, string> = {};
+    for (const flow of this.chordFlows) {
+      colors[flow.source] = this.relationColor(flow.source);
+      colors[flow.target] = this.relationColor(flow.target);
+    }
+    this.chordColors = colors;
+    this.chordOrder = [
+      ...COMPONENT_ORDER,
+      'Agent',
+      'Ops',
+      ...this.relationOutcomes.map((o) => o.label),
+    ];
+  }
+
+  /**
+   * Parallel sets: unlike a Sankey, every Component × Channel × Outcome
+   * combination keeps its own ribbon from the first axis to the last, so a
+   * band arriving at "Routed Out" can still be traced back to its component.
+   */
+  private buildAlluvialChart(): void {
+    const triples = this.buildRelationTriples();
+    if (!triples.length) {
+      this.parsetRecords = [];
+      return;
+    }
+
+    this.parsetRecords = triples.map((t) => ({
+      keys: [t.component, t.lane, t.outcome],
+      value: t.value,
+    }));
+    this.parsetOrder = [
+      COMPONENT_ORDER,
+      ['Agent', 'Ops'],
+      this.relationOutcomes.map((o) => o.label),
+    ];
+    this.parsetColors = this.relationPalette(triples);
+  }
+
+  /**
+   * Hive plot: components, channels and outcomes each get their own radial
+   * axis, ordered by volume. Edges cover both hops (component ↔ channel,
+   * channel ↔ outcome) plus the direct component ↔ outcome relationship.
+   */
+  private buildHiveChart(): void {
+    const triples = this.buildRelationTriples();
+    if (!triples.length) {
+      this.hiveNodes = [];
+      this.hiveLinks = [];
+      return;
+    }
+
+    const totals = new Map<string, number>();
+    const bump = (name: string, value: number) =>
+      totals.set(name, (totals.get(name) ?? 0) + value);
+    const pairs = new Map<string, number>();
+    const addPair = (source: string, target: string, value: number) => {
+      const key = `${source}|${target}`;
+      pairs.set(key, (pairs.get(key) ?? 0) + value);
+    };
+
+    for (const t of triples) {
+      bump(t.component, t.value);
+      bump(t.lane, t.value);
+      bump(t.outcome, t.value);
+      addPair(t.component, t.lane, t.value);
+      addPair(t.lane, t.outcome, t.value);
+      addPair(t.component, t.outcome, t.value);
+    }
+
+    const axisOf = (name: string): number => {
+      if (name === 'Agent' || name === 'Ops') return 1;
+      return this.relationOutcomes.some((o) => o.label === name) ? 2 : 0;
+    };
+
+    this.hiveNodes = Array.from(totals, ([name, value]) => ({
+      name,
+      axis: axisOf(name),
+      value,
+    }));
+    this.hiveLinks = Array.from(pairs, ([key, value]) => {
+      const [source, target] = key.split('|');
+      return { source, target, value };
+    });
+    this.hiveColors = this.relationPalette(triples);
+  }
+
+  /** Colour lookup covering every name used by the relationship charts. */
+  private relationPalette(
+    triples: { component: string; lane: string; outcome: string }[],
+  ): Record<string, string> {
+    const colors: Record<string, string> = {};
+    for (const t of triples) {
+      colors[t.component] = this.relationColor(t.component);
+      colors[t.lane] = this.relationColor(t.lane);
+      colors[t.outcome] = this.relationColor(t.outcome);
+    }
+    return colors;
   }
 }

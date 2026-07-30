@@ -224,8 +224,8 @@
   <!-- Data refresh overlay -->
   @if (refreshingData) {
     <div class="table-loading-overlay">
-      <div class="spinner"></div>
-      <div class="loading-text">Fetching data...</div>
+      <app-loading-symbol animationStyle="origins"></app-loading-symbol>
+      <div class="loading-text">&nbsp;</div>
     </div>
   }
 
@@ -553,9 +553,7 @@
         [displayedColumns]="tableColumns"
         [exportFileName]="teamConfig.exportFileName"
         [tableTitle]="tableTitle"
-        [tableTitleTooltip]="
-          'Use the Upload button to submit and validate the data for accuracy. Default filter applied to display for category match or core issue match is N or NULL.'
-        "
+        [tableTitleTooltip]="'Use the Upload button to submit and validate the data for accuracy. Default filter applied to display for category match or core issue match is N or NULL.'"
         [extraWideColumns]="['Case Summary - Description']"
         [enablePagination]="true"
         [pageSize]="10"

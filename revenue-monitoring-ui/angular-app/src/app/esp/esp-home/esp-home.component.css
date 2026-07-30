@@ -52,36 +52,113 @@
 }
 
 /* ═══════════════════════════════════════════════════════
-   Loading Overlay
+   Loading Cloud
    ═══════════════════════════════════════════════════════ */
 .loading-overlay {
+  --ciq-loading-text: #6b7480;
+  --ciq-loading-sheen: #b9c2cc;
+  --ciq-loading-tint: rgba(255, 255, 255, 0.5);
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  backdrop-filter: blur(2px);
+}
+
+:host(.dark-theme) .loading-overlay {
+  --ciq-loading-text: #8f9dab;
+  --ciq-loading-sheen: #dfe7ef;
+  --ciq-loading-tint: rgba(15, 25, 35, 0.5);
+}
+
+/* A soft 40vw × 40vh cloud: three masked blur layers stack up so the blur is
+   densest at the centre and dissolves to nothing well before the edges. */
+.loading-cloud {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40vw;
+  height: 40vh;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.loading-cloud__layer {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.loading-cloud__layer--soft {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  -webkit-mask-image: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.8) 45%,
+    rgba(0, 0, 0, 0) 78%
+  );
+  mask-image: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.8) 45%,
+    rgba(0, 0, 0, 0) 78%
+  );
+}
+
+.loading-cloud__layer--mid {
+  inset: 12% 14%;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  -webkit-mask-image: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.85) 38%,
+    rgba(0, 0, 0, 0) 74%
+  );
+  mask-image: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.85) 38%,
+    rgba(0, 0, 0, 0) 74%
+  );
+}
+
+.loading-cloud__layer--core {
+  inset: 26% 30%;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  background: radial-gradient(
+    ellipse at center,
+    var(--ciq-loading-tint) 0%,
+    transparent 72%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.9) 32%,
+    rgba(0, 0, 0, 0) 70%
+  );
+  mask-image: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.9) 32%,
+    rgba(0, 0, 0, 0) 70%
+  );
 }
 
 .loading-content {
-  background: var(--ciq-surface);
+  position: relative;
   padding: 2rem 3rem;
-  border-radius: var(--ciq-card-radius);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.5rem;
   min-width: 300px;
-}
-
-:host(.dark-theme) .loading-content {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .spinner {
@@ -103,16 +180,52 @@
 }
 
 .loading-message {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--ciq-text);
   margin: 0;
   text-align: center;
+  font-size: 0.6875rem;
+  /* font-style: italic; */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em; /* re-centres after the trailing letter-space */
+  color: var(--ciq-loading-text);
+  background-image: linear-gradient(
+    100deg,
+    var(--ciq-loading-text) 0%,
+    var(--ciq-loading-text) 38%,
+    var(--ciq-loading-sheen) 50%,
+    var(--ciq-loading-text) 62%,
+    var(--ciq-loading-text) 100%
+  );
+  background-size: 250% 100%;
+  background-position: 130% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: loading-sheen 5s ease-in-out infinite;
+}
+
+@keyframes loading-sheen {
+  0%,
+  12% {
+    background-position: 130% 0;
+  }
+  70%,
+  100% {
+    background-position: -30% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-message {
+    animation: none;
+  }
 }
 
 .loading-message .table-header-text {
   text-align: left;
   margin: 0.5rem 0 0 0;
+  -webkit-text-fill-color: var(--ciq-loading-text);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1891,65 +2004,65 @@ p {
 }
 
 /* ═══════════════════════════════════════════════════════
-   VIEW TOGGLE (Operations / Executive)
+   CONTEXT SWITCHER (1 / 2 / 3)
    ═══════════════════════════════════════════════════════ */
 .ciq-view-toggle {
-  display: flex;
-  gap: 0;
-  border-radius: 999px;
-  overflow: hidden;
-  margin-left: -1rem;
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
 }
 
-.ciq-view-btn {
-  padding: 0.3rem 0.9rem;
-  border: none;
-  font-size: 0.625rem;
-  font-weight: 700;
+.ciq-ctx-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 112, 210, 0.25);
+  background: rgba(255, 255, 255, 0.6);
+  color: #555;
+  font-size: 0.7rem;
+  font-weight: 600;
   cursor: pointer;
-  background: transparent;
-  color: #00bceb;
-  transition: all 150ms ease;
-  white-space: nowrap;
-  border-radius: 999px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   line-height: normal;
+  padding: 0;
 }
 
-.ciq-view-btn--active {
-  background: linear-gradient(135deg, #00a3d9, #00d4ff);
+.ciq-ctx-btn:hover {
+  background: rgba(0, 188, 235, 0.12);
+  border-color: rgba(0, 188, 235, 0.5);
+  color: #0070d2;
+}
+
+.ciq-ctx-btn--active {
+  background: linear-gradient(135deg, #0070d2, #00bceb);
   color: #fff;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(0, 112, 210, 0.3);
 }
 
-.ciq-view-btn--active:hover {
-  color: #fff;
+:host-context(.dark-theme) .ciq-ctx-btn {
+  background: rgba(28, 44, 58, 0.6);
+  border-color: rgba(0, 188, 235, 0.25);
+  color: #8899a6;
 }
 
-:host-context(.dark-theme) .ciq-view-toggle {
-  border-color: #00bceb;
-}
-
-:host-context(.dark-theme) .ciq-view-btn {
+:host-context(.dark-theme) .ciq-ctx-btn:hover {
+  background: rgba(0, 188, 235, 0.15);
+  border-color: rgba(0, 188, 235, 0.5);
   color: #00bceb;
 }
 
-:host-context(.dark-theme) .ciq-view-btn:first-child {
-  border-right-color: #00bceb;
-}
-
-:host-context(.dark-theme) .ciq-view-btn:hover {
-  background: rgba(0, 188, 235, 0.15);
-}
-
-:host-context(.dark-theme) .ciq-view-btn--active {
-  background: #00bceb;
-  color: #0f1923;
-}
-
-:host-context(.dark-theme) .ciq-view-btn--active:hover {
-  background: #00a8d4;
-  color: #0f1923;
+:host-context(.dark-theme) .ciq-ctx-btn--active {
+  background: linear-gradient(135deg, #0070d2, #00bceb);
+  color: #fff;
+  border-color: transparent;
 }
 
 /* ═══════════════════════════════════════════════════════

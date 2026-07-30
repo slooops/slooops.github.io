@@ -508,23 +508,174 @@ public class CaseIQMonitoringService {
             "ORDER BY team_name, fisc_qtr";
 
     // ─── Executive Dashboard: p80/p90 metrics, worknotes churn, coverage gap ───
-    // NOTE: Both P80 and P90 views currently expose columns literally named
-    // IMPORT_TIME_P90 and CASE_IQ_EXECUTION_TIME_P90 (the P80 view's names are
-    // mislabeled). The Angular layer reads these by column-name prefix
-    // (IMPORT_TIME*, CASE_IQ_EXECUTION_TIME*) so the UI keeps working if the
-    // DB owner renames later. SELECT * preserves whatever names Oracle exposes.
+    // These were originally served by ASK_CASEIQ_METRICS_DSH_80_V / _90_V,
+    // ASK_CASEIQ_WORKNOTES_DATA_V and ASK_CASEIQ_NOT_EXISTS_INC_V, all of which
+    // hardcode FISCAL_QTR = 'Q4FY26'. The statements below reproduce those view
+    // definitions verbatim against the base table with a :fisc_qtr bind so the
+    // executive contexts follow the quarter dropdown. Column names are kept
+    // identical to the views so the Angular layer needs no changes.
 
-    private static final String EXEC_METRICS_P80 = "SELECT * FROM ARFINRO.ASK_CASEIQ_METRICS_DSH_80_V";
+    /**
+     * Percentile metrics per component. {@code pctile} is the import/execution
+     * percentile (the views use 0.8 / 0.9); resolution time stays at p60 as in
+     * both views. Only literals we control are interpolated.
+     */
+    private static String execMetricsSql(String pctile, String suffix) {
+        return "WITH base_metrics AS (" +
+                "  SELECT team_name, " +
+                "    ROUND((caseiq_import_date - DECODE(routed_in, 'Y', routed_in_date, opened_at)) * 24 * 60, 1) AS import_time, "
+                +
+                "    ROUND((caseiq_executed_date - caseiq_import_date) * 24 * 60, 1) AS case_iq_execution_time, " +
+                "    ROUND((resolved_at - opened_at) * 24 * 60, 1) AS resolution_time " +
+                "  FROM ARFINRO.ASK_CASE_IQ_DATA_METRICS " +
+                "  WHERE fiscal_qtr = :fisc_qtr AND exists_case_iq = 'Y' AND enabled_flag = 'Y'" +
+                ") " +
+                "SELECT team_name, COUNT(1) AS incident_count, " +
+                "  ROUND(PERCENTILE_CONT(" + pctile + ") WITHIN GROUP (ORDER BY import_time), 2) AS import_time_"
+                + suffix + ", " +
+                "  ROUND(PERCENTILE_CONT(" + pctile
+                + ") WITHIN GROUP (ORDER BY case_iq_execution_time), 2) AS case_iq_execution_time_" + suffix + ", " +
+                "  ROUND(PERCENTILE_CONT(0.6) WITHIN GROUP (ORDER BY resolution_time), 2) AS resolution_time " +
+                "FROM base_metrics WHERE import_time < 500 AND import_time > -500 " +
+                "GROUP BY team_name ORDER BY team_name";
+    }
 
-    private static final String EXEC_METRICS_P90 = "SELECT * FROM ARFINRO.ASK_CASEIQ_METRICS_DSH_90_V";
+    private static final String EXEC_METRICS_P80 = execMetricsSql("0.8", "p80");
 
-    private static final String EXEC_WORKNOTES_CHURN = "SELECT team_name, work_notes_count, incident_count " +
-            "FROM ARFINRO.ASK_CASEIQ_WORKNOTES_DATA_V " +
+    private static final String EXEC_METRICS_P90 = execMetricsSql("0.9", "p90");
+
+    private static final String EXEC_WORKNOTES_CHURN = "SELECT team_name, work_notes_count, " +
+            "  COUNT(incident_number) AS incident_count " +
+            "FROM (" +
+            "  SELECT team_name, incident_number, " +
+            "    CASE WHEN work_notes_count <= 1 THEN 'UPDATED_ONCE' " +
+            "         WHEN work_notes_count BETWEEN 2 AND 5 THEN '<5' " +
+            "         WHEN work_notes_count BETWEEN 6 AND 10 THEN '<10' " +
+            "         WHEN work_notes_count > 10 THEN '>10' END AS work_notes_count " +
+            "  FROM (" +
+            "    SELECT b.team_name, a.incident_number, COUNT(1) AS work_notes_count " +
+            "    FROM ARFINRO.ASK_CASEIQ_WORK_NOTES_DATA a, ARFINRO.ASK_CASE_IQ_DATA_METRICS b " +
+            "    WHERE a.incident_number = b.incident_number " +
+            "      AND b.fiscal_qtr = :fisc_qtr AND b.exists_case_iq = 'Y' AND b.enabled_flag = 'Y' " +
+            "      AND b.routed_ops = 'N' AND b.routed_agent = 'N' AND b.cancelled = '0' " +
+            "      AND b.service_incident = 'N' AND b.incident_state IN ('Closed', 'Resolved') " +
+            "      AND a.timestamp > (SELECT MAX(c.timestamp) FROM ARFINRO.ASK_CASEIQ_WORK_NOTES_DATA c " +
+            "                          WHERE a.incident_number = c.incident_number AND c.resolution_api_flag = 'Y') " +
+            "    GROUP BY b.team_name, a.incident_number)) " +
+            "GROUP BY team_name, work_notes_count " +
             "ORDER BY team_name, work_notes_count";
 
-    private static final String EXEC_COVERAGE_GAP = "SELECT team_name, incident_count " +
-            "FROM ARFINRO.ASK_CASEIQ_NOT_EXISTS_INC_V " +
-            "ORDER BY team_name";
+    private static final String EXEC_COVERAGE_GAP = "SELECT team_name, COUNT(DISTINCT incident_number) AS incident_count "
+            +
+            "FROM ARFINRO.ASK_CASE_IQ_DATA_METRICS " +
+            "WHERE fiscal_qtr = :fisc_qtr AND exists_case_iq = 'N' AND enabled_flag = 'Y' " +
+            "GROUP BY team_name ORDER BY team_name";
+
+    /**
+     * Response time by component for a single fiscal quarter.
+     *
+     * Combines the two datasets the executive charts already use, but
+     * quarter-parameterized (the DSH_80/DSH_90 and WORKNOTES views hardcode
+     * Q4FY26):
+     * - p90 import time / CaseIQ execution time and p60 resolution time (minutes),
+     * matching ASK_CASEIQ_METRICS_DSH_90_V.
+     * - case-churn buckets (worknote updates after the CaseIQ resolution call),
+     * matching ASK_CASEIQ_WORKNOTES_DATA_V. Cases with no post-CaseIQ worknote
+     * (or a single one) count as auto resolved.
+     */
+    private static final String EXEC_RESPONSE_TIME_BY_TEAM = "WITH metrics AS (" +
+            "  SELECT team_name, " +
+            "    ROUND((caseiq_import_date - DECODE(routed_in, 'Y', routed_in_date, opened_at)) * 1440, 1) AS import_time, "
+            +
+            "    ROUND((caseiq_executed_date - caseiq_import_date) * 1440, 1) AS exec_time, " +
+            "    ROUND((resolved_at - opened_at) * 1440, 1) AS resolution_time " +
+            "  FROM ARFINRO.ASK_CASE_IQ_DATA_METRICS " +
+            "  WHERE fiscal_qtr = :fisc_qtr AND exists_case_iq = 'Y' AND enabled_flag = 'Y'" +
+            "), " +
+            "times AS (" +
+            "  SELECT team_name, COUNT(1) AS incident_count, " +
+            "    ROUND(PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY import_time), 2) AS import_time, " +
+            "    ROUND(PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY exec_time), 2) AS execution_time, " +
+            "    ROUND(PERCENTILE_CONT(0.6) WITHIN GROUP (ORDER BY resolution_time), 2) AS resolution_time " +
+            "  FROM metrics WHERE import_time BETWEEN -500 AND 500 " +
+            "  GROUP BY team_name" +
+            "), " +
+            "churn_base AS (" +
+            "  SELECT b.team_name, " +
+            "    (SELECT COUNT(1) FROM ARFINRO.ASK_CASEIQ_WORK_NOTES_DATA a " +
+            "      WHERE a.incident_number = b.incident_number " +
+            "        AND a.timestamp > (SELECT MAX(c.timestamp) FROM ARFINRO.ASK_CASEIQ_WORK_NOTES_DATA c " +
+            "                            WHERE c.incident_number = b.incident_number " +
+            "                              AND c.resolution_api_flag = 'Y')) AS note_count " +
+            "  FROM ARFINRO.ASK_CASE_IQ_DATA_METRICS b " +
+            "  WHERE b.fiscal_qtr = :fisc_qtr AND b.exists_case_iq = 'Y' AND b.enabled_flag = 'Y' " +
+            "    AND b.routed_ops = 'N' AND b.routed_agent = 'N' AND b.cancelled = '0' " +
+            "    AND b.service_incident = 'N' AND b.incident_state IN ('Closed', 'Resolved')" +
+            "), " +
+            "churn AS (" +
+            "  SELECT team_name, " +
+            "    COUNT(CASE WHEN NVL(note_count, 0) <= 1 THEN 1 END) AS auto_resolved, " +
+            "    COUNT(CASE WHEN note_count BETWEEN 2 AND 5 THEN 1 END) AS touched_lt_5, " +
+            "    COUNT(CASE WHEN note_count BETWEEN 6 AND 10 THEN 1 END) AS touched_lt_10, " +
+            "    COUNT(CASE WHEN note_count > 10 THEN 1 END) AS touched_gt_10 " +
+            "  FROM churn_base GROUP BY team_name" +
+            ") " +
+            "SELECT t.team_name, t.incident_count, t.import_time, t.execution_time, t.resolution_time, " +
+            "  NVL(c.auto_resolved, 0) AS auto_resolved, NVL(c.touched_lt_5, 0) AS touched_lt_5, " +
+            "  NVL(c.touched_lt_10, 0) AS touched_lt_10, NVL(c.touched_gt_10, 0) AS touched_gt_10 " +
+            "FROM times t LEFT JOIN churn c ON c.team_name = t.team_name " +
+            "ORDER BY t.team_name";
+
+    /**
+     * Same shape as {@link #EXEC_RESPONSE_TIME_BY_TEAM} but broken out by
+     * core issue for a single component. Backs the response time drilldown
+     * modal, which only fetches when opened (279 core issues across the seven
+     * components).
+     */
+    private static final String EXEC_RESPONSE_TIME_BY_CORE_ISSUE = "WITH metrics AS (" +
+            "  SELECT NVL(core_issue_text, 'Unclassified') AS core_issue, " +
+            "    ROUND((caseiq_import_date - DECODE(routed_in, 'Y', routed_in_date, opened_at)) * 1440, 1) AS import_time, "
+            +
+            "    ROUND((caseiq_executed_date - caseiq_import_date) * 1440, 1) AS exec_time, " +
+            "    ROUND((resolved_at - opened_at) * 1440, 1) AS resolution_time " +
+            "  FROM ARFINRO.ASK_CASE_IQ_DATA_METRICS " +
+            "  WHERE fiscal_qtr = :fisc_qtr AND team_name = :team_name " +
+            "    AND exists_case_iq = 'Y' AND enabled_flag = 'Y'" +
+            "), " +
+            "times AS (" +
+            "  SELECT core_issue, COUNT(1) AS incident_count, " +
+            "    ROUND(PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY import_time), 2) AS import_time, " +
+            "    ROUND(PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY exec_time), 2) AS execution_time, " +
+            "    ROUND(PERCENTILE_CONT(0.6) WITHIN GROUP (ORDER BY resolution_time), 2) AS resolution_time " +
+            "  FROM metrics WHERE import_time BETWEEN -500 AND 500 " +
+            "  GROUP BY core_issue" +
+            "), " +
+            "churn_base AS (" +
+            "  SELECT NVL(b.core_issue_text, 'Unclassified') AS core_issue, " +
+            "    (SELECT COUNT(1) FROM ARFINRO.ASK_CASEIQ_WORK_NOTES_DATA a " +
+            "      WHERE a.incident_number = b.incident_number " +
+            "        AND a.timestamp > (SELECT MAX(c.timestamp) FROM ARFINRO.ASK_CASEIQ_WORK_NOTES_DATA c " +
+            "                            WHERE c.incident_number = b.incident_number " +
+            "                              AND c.resolution_api_flag = 'Y')) AS note_count " +
+            "  FROM ARFINRO.ASK_CASE_IQ_DATA_METRICS b " +
+            "  WHERE b.fiscal_qtr = :fisc_qtr AND b.team_name = :team_name " +
+            "    AND b.exists_case_iq = 'Y' AND b.enabled_flag = 'Y' " +
+            "    AND b.routed_ops = 'N' AND b.routed_agent = 'N' AND b.cancelled = '0' " +
+            "    AND b.service_incident = 'N' AND b.incident_state IN ('Closed', 'Resolved')" +
+            "), " +
+            "churn AS (" +
+            "  SELECT core_issue, " +
+            "    COUNT(CASE WHEN NVL(note_count, 0) <= 1 THEN 1 END) AS auto_resolved, " +
+            "    COUNT(CASE WHEN note_count BETWEEN 2 AND 5 THEN 1 END) AS touched_lt_5, " +
+            "    COUNT(CASE WHEN note_count BETWEEN 6 AND 10 THEN 1 END) AS touched_lt_10, " +
+            "    COUNT(CASE WHEN note_count > 10 THEN 1 END) AS touched_gt_10 " +
+            "  FROM churn_base GROUP BY core_issue" +
+            ") " +
+            "SELECT t.core_issue, t.incident_count, t.import_time, t.execution_time, t.resolution_time, " +
+            "  NVL(c.auto_resolved, 0) AS auto_resolved, NVL(c.touched_lt_5, 0) AS touched_lt_5, " +
+            "  NVL(c.touched_lt_10, 0) AS touched_lt_10, NVL(c.touched_gt_10, 0) AS touched_gt_10 " +
+            "FROM times t LEFT JOIN churn c ON c.core_issue = t.core_issue " +
+            "ORDER BY t.incident_count DESC, t.core_issue";
 
     // ─── Fiscal quarter injection ───────────────────────────────────────────────
 
@@ -1247,30 +1398,49 @@ public class CaseIQMonitoringService {
 
     /**
      * p80 percentile metrics per team: import time, execution time (min) +
-     * resolution time + count.
+     * resolution time + count, for one fiscal quarter.
      */
-    public List<Map<String, Object>> getExecMetricsP80() {
-        return jdbcManager.queryForList(EXEC_METRICS_P80);
+    public List<Map<String, Object>> getExecMetricsP80(String fiscQtr) {
+        return jdbcManager.queryWithNamedParams(EXEC_METRICS_P80, buildParams("fisc_qtr", fiscQtr));
     }
 
     /**
      * p90 percentile metrics per team: import time, execution time (min) +
-     * resolution time + count.
+     * resolution time + count, for one fiscal quarter.
      */
-    public List<Map<String, Object>> getExecMetricsP90() {
-        return jdbcManager.queryForList(EXEC_METRICS_P90);
+    public List<Map<String, Object>> getExecMetricsP90(String fiscQtr) {
+        return jdbcManager.queryWithNamedParams(EXEC_METRICS_P90, buildParams("fisc_qtr", fiscQtr));
     }
 
     /**
      * Case churn buckets per team: how many times cases are touched after CaseIQ
-     * recommendation.
+     * recommendation, for one fiscal quarter.
      */
-    public List<Map<String, Object>> getExecWorknotesChurn() {
-        return jdbcManager.queryForList(EXEC_WORKNOTES_CHURN);
+    public List<Map<String, Object>> getExecWorknotesChurn(String fiscQtr) {
+        return jdbcManager.queryWithNamedParams(EXEC_WORKNOTES_CHURN, buildParams("fisc_qtr", fiscQtr));
     }
 
-    /** Cases in ESP but not picked up by CaseIQ (coverage gap). */
-    public List<Map<String, Object>> getExecCoverageGap() {
-        return jdbcManager.queryForList(EXEC_COVERAGE_GAP);
+    /** Cases in ESP but not picked up by CaseIQ (coverage gap) for one quarter. */
+    public List<Map<String, Object>> getExecCoverageGap(String fiscQtr) {
+        return jdbcManager.queryWithNamedParams(EXEC_COVERAGE_GAP, buildParams("fisc_qtr", fiscQtr));
+    }
+
+    /**
+     * Response times (import / execution / MTTR) plus post-CaseIQ churn buckets
+     * per component, filtered to a single fiscal quarter.
+     */
+    public List<Map<String, Object>> getExecResponseTimeByTeam(String fiscQtr) {
+        return jdbcManager.queryWithNamedParams(EXEC_RESPONSE_TIME_BY_TEAM, buildParams("fisc_qtr", fiscQtr));
+    }
+
+    /**
+     * Same breakdown as {@link #getExecResponseTimeByTeam(String)} but per core
+     * issue within a single component. Fetched on demand by the drilldown modal.
+     */
+    public List<Map<String, Object>> getExecResponseTimeByCoreIssue(String fiscQtr, String teamName) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("fisc_qtr", fiscQtr);
+        params.put("team_name", teamName);
+        return jdbcManager.queryWithNamedParams(EXEC_RESPONSE_TIME_BY_CORE_ISSUE, params);
     }
 }

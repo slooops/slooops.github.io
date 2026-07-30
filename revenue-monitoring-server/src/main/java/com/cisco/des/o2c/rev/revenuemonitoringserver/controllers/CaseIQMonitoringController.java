@@ -257,22 +257,39 @@ public class CaseIQMonitoringController {
     // ─── Executive Dashboard endpoints ─────────────────────────────────────────
 
     @GetMapping("/exec/metrics-p80")
-    public ResponseEntity<List<Map<String, Object>>> execMetricsP80() {
-        return new ResponseEntity<>(service.getExecMetricsP80(), HttpStatus.OK);
+    public ResponseEntity<List<Map<String, Object>>> execMetricsP80(
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getExecMetricsP80(fiscQtr), HttpStatus.OK);
     }
 
     @GetMapping("/exec/metrics-p90")
-    public ResponseEntity<List<Map<String, Object>>> execMetricsP90() {
-        return new ResponseEntity<>(service.getExecMetricsP90(), HttpStatus.OK);
+    public ResponseEntity<List<Map<String, Object>>> execMetricsP90(
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getExecMetricsP90(fiscQtr), HttpStatus.OK);
     }
 
     @GetMapping("/exec/worknotes-churn")
-    public ResponseEntity<List<Map<String, Object>>> execWorknotesChurn() {
-        return new ResponseEntity<>(service.getExecWorknotesChurn(), HttpStatus.OK);
+    public ResponseEntity<List<Map<String, Object>>> execWorknotesChurn(
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getExecWorknotesChurn(fiscQtr), HttpStatus.OK);
     }
 
     @GetMapping("/exec/coverage-gap")
-    public ResponseEntity<List<Map<String, Object>>> execCoverageGap() {
-        return new ResponseEntity<>(service.getExecCoverageGap(), HttpStatus.OK);
+    public ResponseEntity<List<Map<String, Object>>> execCoverageGap(
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getExecCoverageGap(fiscQtr), HttpStatus.OK);
+    }
+
+    @GetMapping("/exec/response-time")
+    public ResponseEntity<List<Map<String, Object>>> execResponseTime(
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getExecResponseTimeByTeam(fiscQtr), HttpStatus.OK);
+    }
+
+    @GetMapping("/exec/response-time/core-issues")
+    public ResponseEntity<List<Map<String, Object>>> execResponseTimeByCoreIssue(
+            @RequestParam(required = false) String fiscQtr,
+            @RequestParam String teamName) {
+        return new ResponseEntity<>(service.getExecResponseTimeByCoreIssue(fiscQtr, teamName), HttpStatus.OK);
     }
 }

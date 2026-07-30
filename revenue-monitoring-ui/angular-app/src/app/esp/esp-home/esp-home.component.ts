@@ -25,6 +25,7 @@ import {
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { MatIconModule } from '@angular/material/icon';
+import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.component';
 
 interface MetricTile {
   name: string;
@@ -62,6 +63,7 @@ interface AccuracyData {
     MatTooltipModule,
     MatIconModule,
     MenuMiniComponent,
+    LoadingSymbolComponent,
   ],
   standalone: true,
 })
@@ -85,8 +87,9 @@ export class EspHomeComponent implements OnInit {
   activeTab: string = ''; // Will be set based on user roles
   overallAccuracy: string = '';
 
-  // CaseIQ context switcher (Operations / Executive)
-  caseiqView: 'ops' | 'executive' = 'ops';
+  // CaseIQ context switcher (1 = Operations, 2 = Executive, 3 = Executive redux)
+  caseiqView: 1 | 2 | 3 = 1;
+  readonly caseiqContexts: (1 | 2 | 3)[] = [1, 2, 3];
 
   // Quarter filter properties
   selectedQuarter: string = '';

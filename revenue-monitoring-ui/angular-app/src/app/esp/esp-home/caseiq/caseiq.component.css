@@ -160,10 +160,18 @@
   line-height: normal;
 }
 
-/* ── Component name column ── */
+/* ── Component name column (always left aligned) ── */
 .summary-component {
   font-weight: 700;
   color: var(--ciq-text);
+  text-align: left;
+}
+
+.ciq-table th:first-child,
+.ciq-table td:first-child,
+.ciq-components-table thead th:first-child,
+.ciq-components-table tbody td:first-child {
+  text-align: left;
 }
 
 /* ── Center-aligned columns: Total Cases (2), Active Agents (10), Service Incidents (11) ── */
@@ -236,6 +244,18 @@
   background: rgba(234, 88, 12, 0.1);
   color: #ea580c;
   border: 1px solid rgba(234, 88, 12, 0.2);
+}
+
+.badge-cyan {
+  background: rgba(0, 188, 235, 0.1);
+  color: #0091b3;
+  border: 1px solid rgba(0, 188, 235, 0.25);
+}
+
+:host(.dark-theme) .badge-cyan {
+  background: rgba(0, 188, 235, 0.15);
+  color: #00bceb;
+  border-color: rgba(0, 188, 235, 0.35);
 }
 
 :host(.dark-theme) .badge-neutral {
@@ -344,7 +364,6 @@
   color: var(--ciq-text);
   font-size: 0.75rem;
   text-align: center;
-  padding: 0.625rem 0.75rem;
   border-bottom: 1px solid var(--ciq-border);
 }
 
@@ -1313,6 +1332,18 @@
   overflow-y: auto;
 }
 
+/* Wide, scrollable variant used by the core issue breakdown table. */
+.ciq-modal--wide {
+  max-width: 1080px;
+}
+
+.ciq-modal__body--table {
+  height: auto;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 0 16px 16px;
+}
+
 .ciq-modal__pre {
   margin: 0;
   padding: 16px;
@@ -1331,4 +1362,118 @@
 :host(.dark-theme) .ciq-modal__pre {
   background: rgba(0, 0, 0, 0.2);
   border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Context pane transitions (1 / 2 / 3) ─────────────────────────────── */
+.ciq-ctx-pane {
+  width: 100%;
+  animation: ciq-ctx-fade-in 0.6s ease both;
+}
+
+@keyframes ciq-ctx-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Response time table (ctx 3) ──────────────────────────────────────── */
+/* Two header rows: sticky would stack them on top of each other. */
+.ciq-response-table thead th {
+  position: static;
+}
+
+.ciq-response-table .ciq-response-grouprow th {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ciq-muted);
+  padding: 0.5rem 0.75rem 0.25rem;
+  border-bottom: none;
+}
+
+.ciq-response-table .ciq-response-grouprow th:not(:first-child) {
+  border-left: 1px solid var(--ciq-border);
+}
+
+.ciq-response-table tbody td:nth-child(5) {
+  border-left: 1px solid var(--ciq-border);
+}
+
+.ciq-response-table thead tr:last-child th:nth-child(5) {
+  border-left: 1px solid var(--ciq-border);
+}
+
+/* Keep row height identical to the ctx 1/2 component tables: an inline-block
+   badge otherwise adds the inline baseline gap below the text. */
+.ciq-response-table .component-badge {
+  vertical-align: middle;
+}
+
+/* Pill plus its percentage share, side by side in one cell. */
+.ciq-pill-with-pct {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* Whole row opens the core issue drilldown. */
+.ciq-row-clickable {
+  cursor: pointer;
+}
+
+.ciq-pill-with-pct .summary-pct {
+  white-space: nowrap;
+}
+
+/* ── Core issue breakdown table (response time modal) ─────────────────── */
+.ciq-core-issue-table .ciq-core-issue-cell {
+  max-width: 22rem;
+  white-space: normal;
+}
+
+.ciq-core-issue-label {
+  display: block;
+  font-weight: 600;
+}
+
+.ciq-core-issue-table .ciq-core-issue-cell .td-sub {
+  font-weight: 400;
+}
+
+/* ── "Still brewing" empty state ──────────────────────────────────────── */
+.ciq-brewing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  height: 100%;
+  min-height: 90px;
+  padding: 1rem;
+  text-align: center;
+  color: var(--ciq-muted);
+}
+
+.ciq-brewing ng-icon {
+  color: #00bceb;
+  opacity: 0.75;
+}
+
+.ciq-brewing-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ciq-text);
+  letter-spacing: 0.02em;
+}
+
+.ciq-brewing-text {
+  font-size: 0.6875rem;
+  max-width: 26ch;
+  line-height: 1.4;
 }

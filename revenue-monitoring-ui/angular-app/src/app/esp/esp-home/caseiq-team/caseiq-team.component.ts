@@ -29,6 +29,7 @@ import { BarChartComponent } from '../../../components/bar-chart/bar-chart.compo
 import { ThemeService } from '../../../providers/theme.service';
 import { HttpClient } from '@angular/common/http';
 import { SupervisorIncident } from '../caseiq-incidents/caseiq-incidents.component';
+import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.component';
 
 export interface TeamConfig {
   /** Display name: 'OM', 'SM', 'Capital', etc. */
@@ -63,6 +64,7 @@ interface AccuracyData {
     CaseiqTableComponent,
     CaseiqExpandModalComponent,
     CaseiqIncidentDetailComponent,
+    LoadingSymbolComponent,
   ],
   providers: [
     provideIcons({
