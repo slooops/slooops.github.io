@@ -106,7 +106,7 @@ pipeline {
                         echo "Building Python API Gateway using Docker..."
                     }
                     dockerBuild()
-                    sh "docker tag containers.cisco.com/it_cvc_i2c_ai_core/subscription_orders_ai:$GIT_COMMIT containers.cisco.com/it_cvc_i2c_ai_core/subscription_orders_ai:api-gateway-$GIT_COMMIT"
+                    sh "docker tag containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:$GIT_COMMIT containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:api-gateway-$GIT_COMMIT"
                 }
             }
         }
@@ -117,7 +117,7 @@ pipeline {
             }
             steps {
                 dockerPush(
-                    image: "containers.cisco.com/it_cvc_i2c_ai_core/subscription_orders_ai:api-gateway-$GIT_COMMIT"
+                    image: "containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:api-gateway-$GIT_COMMIT"
                 )
                 notifyDocker()
             }
@@ -129,7 +129,7 @@ pipeline {
             }
             steps {
                 triggerSpinnakerDevDeployment(
-                    image: "containers.cisco.com/it_cvc_i2c_ai_core/subscription_orders_ai:api-gateway-$GIT_COMMIT",
+                    image: "containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:api-gateway-$GIT_COMMIT",
                     environments: [
                         "dev-subscription-python",
                     ]
