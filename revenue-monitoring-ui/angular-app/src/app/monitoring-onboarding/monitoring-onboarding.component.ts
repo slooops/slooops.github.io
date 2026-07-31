@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostBinding, OnInit } from '@angular/core';
+import { Component, HostBinding, HostListener, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -106,11 +106,39 @@ export class MonitoringOnboardingComponent implements OnInit {
   submitError: string | null = null;
   generated: GeneratedDocs | null = null;
 
+  /** Whether the user has copied or downloaded at least one generated doc. */
+  docsSaved = false;
+  /** Whether the in-page "unsaved changes" warning banner is visible. */
+  leaveWarningDismissed = false;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthenticationService,
     public themeService: ThemeService,
   ) {}
+
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this.hasUnsavedGeneratedDocs) {
+      event.preventDefault();
+      // Legacy browsers require returnValue to be set to trigger the prompt.
+      event.returnValue = '';
+    }
+  }
+
+  /** True while generated docs exist that the user has not copied or downloaded. */
+  get hasUnsavedGeneratedDocs(): boolean {
+    return !!this.generated && !this.docsSaved;
+  }
+
+  /** Whether the in-page leave warning banner should be shown. */
+  get showLeaveWarning(): boolean {
+    return !!this.generated && !this.leaveWarningDismissed;
+  }
+
+  dismissLeaveWarning(): void {
+    this.leaveWarningDismissed = true;
+  }
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -394,6 +422,8 @@ export class MonitoringOnboardingComponent implements OnInit {
     this.submitting = true;
     this.submitError = null;
     this.generated = null;
+    this.docsSaved = false;
+    this.leaveWarningDismissed = false;
 
     try {
       const response = await fetch(resolvedUrl, {
@@ -433,6 +463,7 @@ export class MonitoringOnboardingComponent implements OnInit {
     if (!text) return;
     try {
       await navigator.clipboard.writeText(text);
+      this.docsSaved = true;
     } catch {
       /* clipboard unavailable — silently ignore */
     }
@@ -491,6 +522,7 @@ export class MonitoringOnboardingComponent implements OnInit {
     a.download = fileName;
     a.click();
     URL.revokeObjectURL(url);
+    this.docsSaved = true;
   }
 
   private buildDownloadMarkdown(kind: 'backend' | 'frontend'): string {
@@ -1061,12 +1093,16 @@ export class MonitoringOnboardingComponent implements OnInit {
   editForRegeneration(): void {
     this.generated = null;
     this.submitError = null;
+    this.docsSaved = false;
+    this.leaveWarningDismissed = false;
     this.currentStep = this.steps.findIndex((s) => s.key === 'review');
   }
 
   resetForm(): void {
     this.generated = null;
     this.submitError = null;
+    this.docsSaved = false;
+    this.leaveWarningDismissed = false;
     this.currentStep = 0;
 
     this.form.patchValue({

@@ -308,6 +308,11 @@
               </tr>
             }
           }
+          @if (paginatedIncidents.length === 0) {
+            <tr class="orc__empty-row">
+              <td colspan="6" class="orc__empty-cell">No data available</td>
+            </tr>
+          }
         </tbody>
       </table>
     </div>

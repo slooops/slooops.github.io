@@ -233,6 +233,17 @@
   border-bottom: none;
 }
 
+.orc__empty-row:hover {
+  background: transparent;
+}
+
+.orc__empty-cell {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--orc-muted);
+  font-size: var(--fit-font-size-base, 0.8rem);
+}
+
 .orc__incident-link {
   border: none;
   background: none;

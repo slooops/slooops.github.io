@@ -44,6 +44,40 @@
           </div>
         </div>
 
+        @if (showLeaveWarning) {
+          <div
+            class="mo-leave-warning"
+            [class.mo-leave-warning-saved]="docsSaved"
+            role="alert"
+          >
+            <ng-icon
+              class="mo-leave-warning-icon"
+              name="phosphorWarningBold"
+              size="18"
+            />
+            <div class="mo-leave-warning-text">
+              @if (docsSaved) {
+                <strong>Saved.</strong> Your documents are copied or downloaded.
+                These results are not stored — if you leave or refresh this
+                page, you will need to regenerate them.
+              } @else {
+                <strong>Don’t lose your work.</strong> These documents are not
+                saved anywhere. Copy or download both files before you leave —
+                if you navigate back, refresh, or close this tab, the generated
+                content will be lost.
+              }
+            </div>
+            <button
+              class="mo-leave-warning-close"
+              type="button"
+              (click)="dismissLeaveWarning()"
+              aria-label="Dismiss warning"
+            >
+              &#x2715;
+            </button>
+          </div>
+        }
+
         <div class="mo-generated-grid">
           <section class="mo-generated-section">
             <div class="mo-doc-head">

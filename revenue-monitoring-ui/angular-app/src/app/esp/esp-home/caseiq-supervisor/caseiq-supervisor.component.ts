@@ -28,6 +28,7 @@ export class CaseiqSupervisorComponent {
   selectedIncident: SupervisorIncident | null = null;
   selectedIncidentDetailData: Record<string, unknown> | null = null;
   @Input() caseReopenMetrics: any;
+  @Input() selectedQuarter: any;
 
   periodStatus = {
     periodName: 'JUN-26',

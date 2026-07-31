@@ -35,6 +35,7 @@ export interface SupervisorIncident {
   processedAt: string;
   processedEpoch: number;
   pipelineStages: number;
+  fiscalQuarter: string;
   runs: number;
   history: SupervisorExecution[];
 }
@@ -117,6 +118,7 @@ interface CaseReopenMetric {
 export class CaseiqIncidentsComponent implements OnInit, OnChanges {
   @Output() sharedStateOpen = new EventEmitter<SharedStateOpenEvent>();
   @Input() caseReopenMetrics: CaseReopenMetric[] = [];
+  @Input() selectedQuarter: any;
   private static readonly CUSTOM_DATE_RANGE_VALUE = 'Date range';
 
   private readonly metricsSummaryUrl =
@@ -242,6 +244,9 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['caseReopenMetrics']) {
       this.syncReopenedIncidentTeamKeys();
+    }
+    if (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) {
+      this.applyFilter();
     }
   }
 
@@ -508,6 +513,8 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
           'pipelineStages',
           'stage_count',
         ]) ?? 0,
+      fiscalQuarter:
+        this.pickString(item, ['fiscal_quarter', 'fiscalQuarter']) || '',
       runs: 1,
       history: [],
     };
@@ -768,6 +775,13 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
 
     let result = [...this.incidents];
 
+    const selectedQuarter = this.normalizeQuarter(this.selectedQuarter);
+    if (selectedQuarter) {
+      result = result.filter(
+        (row) => this.normalizeQuarter(row.fiscalQuarter) === selectedQuarter,
+      );
+    }
+
     const selectedOutcomes = this.getSelectedFilterValues('outcome');
     if (selectedOutcomes.length > 0) {
       result = result.filter((row) => selectedOutcomes.includes(row.outcome));
@@ -808,6 +822,13 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
     ) {
       this.expandedIncidentKey = null;
     }
+  }
+
+  private normalizeQuarter(value: unknown): string {
+    return String(value ?? '')
+      .replace(/[\s_-]+/g, '')
+      .trim()
+      .toUpperCase();
   }
 
   private compareIncidentsForDisplay(

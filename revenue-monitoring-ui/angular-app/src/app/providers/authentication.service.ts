@@ -83,7 +83,7 @@ export class AuthenticationService {
     await this.getUserRoles(this.userId);
     await this.getUserRolesSync(this.userId);
     if (
-      this.userRoles.length === 0 &&
+      this.getUserAccessRoles().length === 0 &&
       !this.bypassRoutes.includes(this.router.url)
     ) {
       this.router.navigate(['/error']);
@@ -174,19 +174,19 @@ export class AuthenticationService {
   userRoles: string[] = [];
   userAccessRoles: string[] = [];
   getUserRoles(username: string) {
-    let rolesUrl = this.authUrl + `user-role?username=${username}`;
-    return fetch(rolesUrl)
-      .then((response) => response.json())
-      .then((info) => {
-        console.log('User roles fetched:', info);
-        this.userRoles = [
-          'CASE_IQ_MONITORING',
-          ...info['userRoles'].map((role: any) => role.roleName),
-        ];
-      })
-      .catch((error) => {
-        console.error('Error fetching user roles:', error);
-      });
+    // let rolesUrl = this.authUrl + `user-role?username=${username}`;
+    // return fetch(rolesUrl)
+    //   .then((response) => response.json())
+    //   .then((info) => {
+    //     console.log('User roles fetched:', info);
+    //     this.userRoles = [
+    //       'CASE_IQ_MONITORING',
+    //       ...info['userRoles'].map((role: any) => role.roleName),
+    //     ];
+    //   })
+    //   .catch((error) => {
+    //     console.error('Error fetching user roles:', error);
+    //   });
   }
 
   adminRoles: any = [];

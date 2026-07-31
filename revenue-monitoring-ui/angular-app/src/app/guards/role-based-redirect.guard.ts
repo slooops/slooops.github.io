@@ -76,7 +76,10 @@ export class RoleBasedRedirectGuard implements CanActivate {
       roles.includes('CASE_IQ_AIT') ||
       roles.includes('CASE_IQ_FPP') ||
       roles.includes('CASE_IQ_P2P') ||
-      roles.includes('CASE_IQ_CAPITAL')
+      roles.includes('CASE_IQ_CAPITAL') ||
+      roles.includes('CASE_IQ_FINANCE_IT') ||
+      roles.includes('CASE_IQ_MONITORING') ||
+      roles.includes('CASE_IQ_MONITORING_ADMIN')
     ) {
       return '/case-iq';
     }

@@ -411,6 +411,7 @@ export class MenuComponent {
             'CASE_IQ_P2P',
             'CASE_IQ_CAPITAL',
             'CASE_IQ_ORCHESTRATOR',
+            'CASE_IQ_FINANCE_IT',
           ],
           children: [
             {
@@ -418,7 +419,7 @@ export class MenuComponent {
               icon: 'phosphorBrainBold',
               route: '/case-iq',
               queryParams: { tab: 'finance-it' },
-              roles: ['ADMIN', 'CASE_IQ_MANAGER'],
+              roles: ['ADMIN', 'CASE_IQ_MANAGER', 'CASE_IQ_FINANCE_IT'],
             },
             {
               label: 'OM',
@@ -474,6 +475,7 @@ export class MenuComponent {
               icon: 'phosphorBrainBold',
               route: '/case-iq',
               queryParams: { tab: 'orchestrator' },
+              roles: ['ADMIN', 'CASE_IQ_ORCHESTRATOR'],
             },
           ],
         },

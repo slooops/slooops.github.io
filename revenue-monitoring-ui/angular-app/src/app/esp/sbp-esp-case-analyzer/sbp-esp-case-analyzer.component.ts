@@ -115,7 +115,7 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
   ngOnInit(): void {
     this.updateTime();
     this.loadPeriodInfo();
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
 
     // Rebuild charts when theme changes
     this.themeService.isDarkMode$.subscribe(() => {
