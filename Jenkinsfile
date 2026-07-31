@@ -101,7 +101,7 @@ pipeline {
                 expression { env.BRANCH_NAME == 'UI2.0' }
             }
             steps {
-                dir("backend/api-gateway") {
+                dir("api-gateway") {
                     script {
                         echo "Building Python API Gateway using Docker..."
                     }
@@ -113,7 +113,7 @@ pipeline {
 
         stage('Push API Gateway') {
             when {
-                expression { env.BRANCH_NAME == 'developmnet' }
+                expression { env.BRANCH_NAME == 'UI2.0' }
             }
             steps {
                 dockerPush(
@@ -125,7 +125,7 @@ pipeline {
 
         stage('Deploy API Gateway') {
             when {
-                expression { env.BRANCH_NAME == 'developmnet' }
+                expression { env.BRANCH_NAME == 'UI2.0' }
             }
             steps {
                 triggerSpinnakerDevDeployment(
