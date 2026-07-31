@@ -1,0 +1,146 @@
+---
+# Source: templates/dev.yaml
+
+# codectl version : 1.5.6
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: "subscription-ai-backend-service-python"
+  namespace: "rev-operations-dashboard-rtp2"
+  labels:
+    # softwareId is a non-sensitive unique identifier for the software
+    softwareId: "36aa8ae42452fca8a36479ddbef3daff74c031db"
+    softwareName: "subscription-financials-ai"
+  annotations:
+    cae.cisco.com/proxy-read-timeout: "300"
+    cae.cisco.com/proxy-send-timeout: "300"
+    cae.cisco.com/proxy-connect-timeout: "60"
+spec:
+  ports:
+    - name: "api"
+      protocol: "TCP"
+      port: 8000
+  selector:
+    app: "subscription-ai-backend-python"
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "subscription-ai-backend-python"
+  namespace: "rev-operations-dashboard-rtp2"
+  labels:
+    # softwareId is a non-sensitive unique identifier for the software
+    softwareId: "36aa8ae42452fca8a36479ddbef3daff74c031db"
+    softwareName: "subscription-financials-ai"
+spec:
+  selector:
+    matchLabels:
+      app: "subscription-ai-backend-python"
+  replicas: 1
+  template:
+    metadata:
+      namespace: "rev-operations-dashboard-rtp2"
+      labels:
+        app: "subscription-ai-backend-python"
+        environment: "dev"
+        # softwareId is a non-sensitive unique identifier for the software
+        softwareId: "36aa8ae42452fca8a36479ddbef3daff74c031db"
+        softwareName: "subscription-financials-ai"
+    spec:
+      containers:
+        - image: 'containers.cisco.com/it_cvc_i2c_ai_core/subscription_orders_ai:${trigger["parameters"]["imageTag"]}'
+          imagePullPolicy: IfNotPresent
+          name: "subscription-ai-backend-python"
+          ports:
+            - containerPort: 8000
+      imagePullSecrets:
+        - name: it-cvc-i2c-ai-core-cdconsole-bot-pull-secret
+---
+apiVersion: cae.cisco.com/v1
+kind: SSOAuthConfig
+metadata:
+  name: subscription-ai-dev-python-api.cisco.com
+  namespace: rev-operations-dashboard-rtp2
+  annotations:
+    ssoauthconfig.cae.cisco.com/provider.secondary_idp: ping
+spec:
+  contexts:
+    - context: /api/
+      contextMatch: prefix
+      policyType: public
+      methods:
+        - "*"
+    - context: /ask
+      contextMatch: exact
+      policyType: public
+      methods:
+        - "POST"
+    - context: /chat
+      contextMatch: exact
+      policyType: public
+      methods:
+        - "POST"
+    - context: /control-tower-ui-chat
+      contextMatch: exact
+      policyType: public
+      methods:
+        - "POST"
+    - context: /control-tower-ui-chat-stream
+      contextMatch: exact
+      policyType: public
+      methods:
+        - "POST"
+    - context: /webhook
+      contextMatch: exact
+      policyType: public
+      methods:
+        - "POST"
+    - context: /card-logo
+      contextMatch: exact
+      policyType: public
+    - context: /snoop.jsp
+      contextMatch: exact
+      policyType: public
+    - context: /pingpong.html
+      contextMatch: exact
+      policyType: public
+    - context: /favicon.ico
+      contextMatch: exact
+      policyType: public
+    - context: /.emantest.html
+      contextMatch: exact
+      policyType: public
+    - context: /pub/
+      contextMatch: prefix
+      policyType: public
+    - context: ^/.*/pingpong\.html$
+      contextMatch: regex
+      policyType: public
+    - context: /
+      contextMatch: prefix
+      policyType: web
+  policy:
+    api:
+      allow:
+        - paths:
+            - path: /api/
+              pathMatch: prefix
+          when:
+            - kind: tokenIssuer
+              values:
+                - ping
+    web:
+      allow:
+        - paths:
+            - path: /
+              pathMatch: prefix
+          when:
+            - kind: userId
+              values:
+                - "*"
+  provider:
+    cors: platform
+    idp: duo
+    sso: platform

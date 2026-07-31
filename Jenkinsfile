@@ -96,6 +96,47 @@ pipeline {
             }
         }
 
+        stage('Build API Gateway') {
+            when {
+                expression { env.BRANCH_NAME == 'UI2.0' }
+            }
+            steps {
+                dir("backend/api-gateway") {
+                    script {
+                        echo "Building Python API Gateway using Docker..."
+                    }
+                    dockerBuild()
+                    sh "docker tag containers.cisco.com/it_cvc_i2c_ai_core/subscription_orders_ai:$GIT_COMMIT containers.cisco.com/it_cvc_i2c_ai_core/subscription_orders_ai:api-gateway-$GIT_COMMIT"
+                }
+            }
+        }
+
+        stage('Push API Gateway') {
+            when {
+                expression { env.BRANCH_NAME == 'developmnet' }
+            }
+            steps {
+                dockerPush(
+                    image: "containers.cisco.com/it_cvc_i2c_ai_core/subscription_orders_ai:api-gateway-$GIT_COMMIT"
+                )
+                notifyDocker()
+            }
+        }
+
+        stage('Deploy API Gateway') {
+            when {
+                expression { env.BRANCH_NAME == 'developmnet' }
+            }
+            steps {
+                triggerSpinnakerDevDeployment(
+                    image: "containers.cisco.com/it_cvc_i2c_ai_core/subscription_orders_ai:api-gateway-$GIT_COMMIT",
+                    environments: [
+                        "dev-subscription-python",
+                    ]
+                )
+            }
+        }
+
         stage('SAST Security Scan') {
             steps {
                 sastSecurityScan()
