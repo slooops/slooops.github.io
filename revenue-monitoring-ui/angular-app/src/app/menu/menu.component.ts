@@ -573,6 +573,13 @@ export class MenuComponent {
     return item.roles.some((role) => this.userRoles.includes(role));
   }
 
+  canViewOnboardingFooter(): boolean {
+    if (this.isAdmin) return true;
+    return this.userRoles.some((role) =>
+      role?.toUpperCase().endsWith('_ADMIN'),
+    );
+  }
+
   isRouteActive(route?: string): boolean {
     if (!route) return false;
     return this.currentUrl.includes(route);

@@ -112,6 +112,40 @@
             [singleSelect]="!!filter.singleSelect"
             (selectionChange)="onSelectChange(filter.id, $event)"
           ></app-multi-select-dropdown>
+
+          @if (shouldShowCustomDateRange(filter.id)) {
+            <div class="fbb__date-range-inline">
+              <label class="fbb__date-range-field">
+                <span class="fbb__date-range-label">From</span>
+                <input
+                  type="date"
+                  class="fbb__date-range-input"
+                  [value]="customDateRangeStart"
+                  (input)="
+                    onCustomDateRangeStartInput(
+                      filter.id,
+                      $any($event.target).value
+                    )
+                  "
+                />
+              </label>
+
+              <label class="fbb__date-range-field">
+                <span class="fbb__date-range-label">To</span>
+                <input
+                  type="date"
+                  class="fbb__date-range-input"
+                  [value]="customDateRangeEnd"
+                  (input)="
+                    onCustomDateRangeEndInput(
+                      filter.id,
+                      $any($event.target).value
+                    )
+                  "
+                />
+              </label>
+            </div>
+          }
         </div>
       }
       @for (filter of textFilters; track filter.id) {

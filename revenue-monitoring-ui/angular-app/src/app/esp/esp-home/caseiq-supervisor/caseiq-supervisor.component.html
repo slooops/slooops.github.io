@@ -2,6 +2,7 @@
 @if (!selectedIncident) {
   <app-caseiq-incidents
     (sharedStateOpen)="onSharedStateOpen($event)"
+    [caseReopenMetrics]="caseReopenMetrics"
   ></app-caseiq-incidents>
 }
 

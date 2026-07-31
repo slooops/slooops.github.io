@@ -259,7 +259,70 @@
                           }
                         </div>
                       } @else {
-                        @if (filterOption.id === "incidentNumber") {
+                        @if (filterOption.id === "analyzedBy") {
+                          <div class="multi-select-wrapper in-popup">
+                            <button
+                              type="button"
+                              class="multi-select-trigger"
+                              (click)="toggleAnalyzedByInner($event)"
+                            >
+                              Select
+                              <span
+                                class="chevron"
+                                [class.open]="showAnalyzedByInner"
+                                >▾</span
+                              >
+                            </button>
+                            @if (showAnalyzedByInner) {
+                              <div
+                                class="multi-select-dropdown inner"
+                                (click)="$event.stopPropagation()"
+                              >
+                                <div class="multi-select-options">
+                                  @for (
+                                    value of filterOption.values;
+                                    track value
+                                  ) {
+                                    <div
+                                      class="multi-option"
+                                      [class.selected]="
+                                        isFilterActive('analyzedBy', value)
+                                      "
+                                      (click)="
+                                        toggleAnalyzedByValue(
+                                          value,
+                                          filterOption.label
+                                        )
+                                      "
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        [checked]="
+                                          isFilterActive('analyzedBy', value)
+                                        "
+                                      />
+                                      <span class="option-label">{{
+                                        value
+                                      }}</span>
+                                    </div>
+                                  }
+                                </div>
+                                <div class="multi-select-actions">
+                                  <button
+                                    type="button"
+                                    class="clear-btn"
+                                    (click)="clearFiltersFor('analyzedBy')"
+                                    [disabled]="
+                                      getSelectedCount('analyzedBy') === 0
+                                    "
+                                  >
+                                    Clear
+                                  </button>
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        } @else if (filterOption.id === "incidentNumber") {
                           <div class="incident-number-search">
                             <input
                               type="text"
@@ -367,7 +430,52 @@
                 <th
                   [class.extra-wide-column]="extraWideColumns.includes(column)"
                 >
-                  {{ removeUnderscores(column) }}
+                  @if (isIncidentNumberColumn(column)) {
+                    <button
+                      type="button"
+                      class="ciq-sort-header-btn"
+                      (click)="toggleIncidentNumberAnalyzedSort($event)"
+                      [matTooltip]="'Sort by: ' + analyzedSortLabel"
+                    >
+                      <span>{{ removeUnderscores(column) }}</span>
+                      <svg
+                        class="ciq-sort-icon"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 12 12"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        @if (analyzedSortMode === "supervisor") {
+                          <!-- Up arrow active (supervisor = top) -->
+                          <path
+                            d="M6 2L10 7H2L6 2Z"
+                            fill="currentColor"
+                            opacity="1"
+                          />
+                          <path
+                            d="M6 10L2 5H10L6 10Z"
+                            fill="currentColor"
+                            opacity="0.3"
+                          />
+                        } @else {
+                          <!-- Down arrow active (caseiq = bottom priority shown) -->
+                          <path
+                            d="M6 2L10 7H2L6 2Z"
+                            fill="currentColor"
+                            opacity="0.3"
+                          />
+                          <path
+                            d="M6 10L2 5H10L6 10Z"
+                            fill="currentColor"
+                            opacity="1"
+                          />
+                        }
+                      </svg>
+                    </button>
+                  } @else {
+                    {{ removeUnderscores(column) }}
+                  }
                 </th>
               }
             </tr>
@@ -436,13 +544,24 @@
                       row["ANALYZED_BY"] === "Supervisor Analyzed"
                     ) {
                       <div class="incident-number-cell">
-                        {{ row[column] }} &nbsp;
-                        <ng-icon
-                          name="phosphorSparkleBold"
-                          size="13"
-                          class="analyzed-icon"
-                          [matTooltip]="'Analyzed by: Supervisor Agent'"
-                        ></ng-icon>
+                        <div class="incident-icons">
+                          <ng-icon
+                            name="phosphorSparkleBold"
+                            size="13"
+                            class="analyzed-icon"
+                            [matTooltip]="'Analyzed by: Supervisor Agent'"
+                          ></ng-icon>
+
+                          @if (isReopenedIncident(row, column)) {
+                            <ng-icon
+                              name="phosphorArrowClockwiseBold"
+                              size="13"
+                              class="reopened-icon"
+                              [matTooltip]="'Case reopened'"
+                            ></ng-icon>
+                          }
+                        </div>
+                        &nbsp; {{ row[column] }}
                       </div>
                     } @else {
                       {{ row[column] }}
@@ -450,6 +569,24 @@
                   </td>
                 }
               </tr>
+
+              @if (
+                rowDetailTemplate &&
+                expandedRowKey &&
+                expandedRowKey === getRowId(row)
+              ) {
+                <tr class="ciq-detail-row">
+                  <td
+                    [attr.colspan]="filteredColumns.length"
+                    class="ciq-detail-cell"
+                  >
+                    <ng-template
+                      [ngTemplateOutlet]="rowDetailTemplate"
+                      [ngTemplateOutletContext]="{ $implicit: row }"
+                    ></ng-template>
+                  </td>
+                </tr>
+              }
 
               @if (isI2CSource && isRowExpanded(row, rowIndex)) {
                 <tr class="timeline-row">

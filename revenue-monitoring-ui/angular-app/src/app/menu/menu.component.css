@@ -63,7 +63,8 @@
   display: flex;
   flex-direction: column;
   padding: 0.5rem 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   z-index: 21;
 }
 
@@ -111,9 +112,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
+  flex: 0 0 auto;
   align-items: flex-start;
 }
 
@@ -376,6 +375,7 @@
 .ms-footer-items {
   margin-top: auto;
   padding: 2rem 0;
+  flex: 0 0 auto;
   /* border-top: 1px solid var(--ms-border); */
 }
 
@@ -538,6 +538,20 @@
   gap: 2px;
   overflow-y: auto;
   flex: 1;
+}
+
+/* ── Drawer footer (pinned to bottom) ── */
+.ms-drawer-footer {
+  flex: 0 0 auto;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--ms-border);
+}
+
+.ms-drawer-footer-item {
+  width: 100%;
+  color: var(--ms-active-border);
+  font-weight: 600;
 }
 
 .ms-drawer-item {

@@ -23,13 +23,36 @@ import {
   phosphorFunnelSimpleBold,
 } from '@ng-icons/phosphor-icons/bold';
 import { coolExpand } from '@ng-icons/coolicons';
-import { CaseiqExpandModalComponent } from 'src/app/components/caseiq-expand-modal/caseiq-expand-modal.component';
 import { CaseiqIncidentDetailComponent } from '../caseiq-incident-detail/caseiq-incident-detail.component';
 import { BarChartComponent } from '../../../components/bar-chart/bar-chart.component';
 import { ThemeService } from '../../../providers/theme.service';
 import { HttpClient } from '@angular/common/http';
 import { SupervisorIncident } from '../caseiq-incidents/caseiq-incidents.component';
 import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.component';
+
+interface PipelineHop {
+  hopNumber: number;
+  team: string;
+  agent: string;
+  category: string;
+  coreIssue: string;
+  outcome: string;
+  durationMs: number;
+  resolvedBy: string;
+}
+
+interface PipelineGroup {
+  label: string;
+  hops: PipelineHop[];
+}
+
+interface PipelineDetail {
+  sharedStateId: string;
+  incidentNumber: string;
+  outcome: string;
+  totalHops: number;
+  groups: PipelineGroup[];
+}
 
 export interface TeamConfig {
   /** Display name: 'OM', 'SM', 'Capital', etc. */
@@ -62,7 +85,6 @@ interface AccuracyData {
     NgIcon,
     BarChartComponent,
     CaseiqTableComponent,
-    CaseiqExpandModalComponent,
     CaseiqIncidentDetailComponent,
     LoadingSymbolComponent,
   ],
@@ -83,18 +105,35 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
   @Input() teamConfig!: TeamConfig;
   @Input() selectedQuarter!: string;
   @Input() caseIqMetrics: any;
+  @Input() caseReopenMetrics: any;
   @Output() uploadSuccess = new EventEmitter<void>();
+  reopenedIncidentNumbers: string[] = [];
 
   /* ── View switching (0 = Classification Summary, 1 = Incidents) ── */
   activeViewIndex = 0;
   viewLabels = ['Classification Summary'];
   selectedIncidentNumber: string | null = null;
+  selectedReopenMetric: any | null = null;
   selectedTimelineIncident: SupervisorIncident | null = null;
-  incidentDetailData: Record<string, unknown> | null = null;
-  incidentDetailLoading = false;
-  incidentDetailError: string | null = null;
 
-  private readonly dashboardIncidentDetailUrl =
+  incidentSharedStateIds: string[] = [];
+  sharedStateIdsLoading = false;
+  sharedStateIdsError: string | null = null;
+  pipelineDetailsBySharedStateId: Record<string, PipelineDetail> = {};
+  pipelineDetailLoadingBySharedStateId: Record<string, boolean> = {};
+  pipelineDetailErrorBySharedStateId: Record<string, string> = {};
+
+  showFullIncidentDetail = false;
+  fullDetailSharedStateId: string | null = null;
+  fullDetailData: Record<string, unknown> | null = null;
+  fullDetailLoading = false;
+  fullDetailError: string | null = null;
+
+  private readonly sharedStateIdsSearchUrl =
+    '/api/caseiq-supervisor/api/v1/shared-state-ids/search/incident_number';
+  private readonly pipelineDetailUrl =
+    '/api/caseiq-supervisor/metrics/executions';
+  private readonly incidentDetailUrl =
     '/api/caseiq-supervisor/api/v1/incidents';
 
   onIncidentCellClick(event: { column: string; value: any; row: any }): void {
@@ -103,35 +142,336 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
       event.column === 'INCIDENT_NUMBER'
     ) {
       this.selectedIncidentNumber = event.value;
-      this.loadIncidentDetail(event.value);
+
+      // Look up a matching reopen metric for this incident
+      const normalized = String(event.value ?? '')
+        .trim()
+        .toUpperCase();
+      this.selectedReopenMetric = Array.isArray(this.caseReopenMetrics)
+        ? (this.caseReopenMetrics.find(
+            (m: any) =>
+              String(m?.INCIDENT_NUMBER ?? '')
+                .trim()
+                .toUpperCase() === normalized,
+          ) ?? null)
+        : null;
+
+      this.loadPipelinesForIncident(event.value);
     }
   }
 
-  private loadIncidentDetail(incidentNumber: string): void {
-    this.incidentDetailLoading = true;
-    this.incidentDetailError = null;
+  private loadPipelinesForIncident(incidentNumber: string): void {
+    this.sharedStateIdsLoading = true;
+    this.sharedStateIdsError = null;
+    this.incidentSharedStateIds = [];
+    this.pipelineDetailsBySharedStateId = {};
+    this.pipelineDetailLoadingBySharedStateId = {};
+    this.pipelineDetailErrorBySharedStateId = {};
 
-    const url = `${this.dashboardIncidentDetailUrl}/${encodeURIComponent(incidentNumber)}`;
+    const url = `${this.sharedStateIdsSearchUrl}/${encodeURIComponent(incidentNumber)}`;
     this.httpClient.get<unknown>(url).subscribe({
       next: (response) => {
-        this.incidentDetailData =
-          typeof response === 'object' && response !== null
-            ? (response as Record<string, unknown>)
-            : {};
-        this.incidentDetailLoading = false;
+        const ids = this.extractSharedStateIds(response);
+        this.sharedStateIdsLoading = false;
+        this.incidentSharedStateIds = ids;
+
+        if (ids.length === 0) {
+          this.sharedStateIdsError =
+            'No pipeline executions found for this incident.';
+          return;
+        }
+
+        ids.forEach((id) => {
+          this.pipelineDetailLoadingBySharedStateId[id] = true;
+          this.pipelineDetailErrorBySharedStateId[id] = '';
+
+          const detailUrl = `${this.pipelineDetailUrl}/${encodeURIComponent(id)}`;
+          this.httpClient.get<unknown>(detailUrl).subscribe({
+            next: (detailResponse) => {
+              this.pipelineDetailsBySharedStateId[id] =
+                this.normalizePipelineDetail(
+                  detailResponse,
+                  id,
+                  incidentNumber,
+                );
+              this.pipelineDetailLoadingBySharedStateId[id] = false;
+            },
+            error: () => {
+              this.pipelineDetailLoadingBySharedStateId[id] = false;
+              this.pipelineDetailErrorBySharedStateId[id] =
+                'Failed to load pipeline detail.';
+            },
+          });
+        });
       },
       error: () => {
-        this.incidentDetailError = 'Failed to load incident detail.';
-        this.incidentDetailLoading = false;
+        this.sharedStateIdsLoading = false;
+        this.sharedStateIdsError =
+          'Failed to retrieve pipeline executions for this incident.';
       },
     });
   }
 
-  closeIncidentDetail(): void {
+  private extractSharedStateIds(response: unknown): string[] {
+    if (Array.isArray(response)) {
+      return response
+        .map((item) => {
+          if (typeof item === 'string') return item;
+          if (typeof item === 'object' && item !== null) {
+            const obj = item as Record<string, unknown>;
+            return (
+              (obj['shared_state_id'] as string) ||
+              (obj['sharedStateId'] as string) ||
+              (obj['id'] as string) ||
+              null
+            );
+          }
+          return null;
+        })
+        .filter((id): id is string => !!id);
+    }
+    if (typeof response === 'object' && response !== null) {
+      const obj = response as Record<string, unknown>;
+      const candidates = [
+        'shared_state_ids',
+        'sharedStateIds',
+        'ids',
+        'data',
+        'results',
+      ];
+      for (const key of candidates) {
+        if (Array.isArray(obj[key])) {
+          return this.extractSharedStateIds(obj[key]);
+        }
+      }
+    }
+    return [];
+  }
+
+  getPipelineDetail(sharedStateId: string): PipelineDetail | null {
+    return this.pipelineDetailsBySharedStateId[sharedStateId] ?? null;
+  }
+
+  isPipelineDetailLoading(sharedStateId: string): boolean {
+    return !!this.pipelineDetailLoadingBySharedStateId[sharedStateId];
+  }
+
+  getPipelineDetailError(sharedStateId: string): string {
+    return this.pipelineDetailErrorBySharedStateId[sharedStateId] || '';
+  }
+
+  getOutcomeClass(outcome: string): string {
+    const normalized = (outcome || '')
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, '_');
+    switch (normalized) {
+      case 'RESOLVED':
+        return 'outcome--resolved';
+      case 'ROUTED':
+      case 'ROUTED_OUT':
+        return 'outcome--routed';
+      case 'CANCELLED':
+      case 'CANCELED':
+        return 'outcome--cancelled';
+      case 'FAILED':
+        return 'outcome--failed';
+      case 'BOT_HANDOFF':
+      case 'HANDOFF':
+        return 'outcome--bot-handoff';
+      case 'IN_PROGRESS':
+      case 'PENDING':
+      case 'NEED_INFO':
+        return 'outcome--in-progress';
+      default:
+        return '';
+    }
+  }
+
+  formatDuration(ms: number): string {
+    if (!ms || ms <= 0) return '--';
+    if (ms < 1000) return `${ms}ms`;
+    return `${(ms / 1000).toFixed(1)}s`;
+  }
+
+  private normalizePipelineDetail(
+    response: unknown,
+    sharedStateId: string,
+    incidentNumber: string,
+  ): PipelineDetail {
+    const data =
+      typeof response === 'object' && response !== null
+        ? (response as Record<string, unknown>)
+        : {};
+
+    const outcome = this.normalizeOutcome(
+      this.pickStr(data, ['outcome', 'final_outcome', 'status']),
+    );
+
+    let groups: PipelineGroup[] = [];
+
+    if (Array.isArray(data['pipeline'])) {
+      groups = (data['pipeline'] as Record<string, unknown>[]).map((g, gi) => {
+        const rawLabel = this.pickStr(g, ['group_label', 'label', 'team']);
+        const grpOutcome = this.normalizeOutcome(
+          this.pickStr(g, ['outcome', 'status']),
+        );
+        const label = rawLabel
+          ? `${gi + 1}. ${rawLabel} (${grpOutcome})`
+          : `Group ${gi + 1}`;
+        return { label, hops: this.normalizeHops(g['hops']) };
+      });
+    } else if (Array.isArray(data['hops'])) {
+      const flat = this.normalizeHops(data['hops']);
+      const teamGroups: Array<{ team: string; hops: PipelineHop[] }> = [];
+      flat.forEach((h) => {
+        const last = teamGroups[teamGroups.length - 1];
+        if (last && last.team === h.team) {
+          last.hops.push(h);
+        } else {
+          teamGroups.push({ team: h.team, hops: [h] });
+        }
+      });
+      groups = teamGroups.map((g, i) => {
+        const lastOutcome = g.hops[g.hops.length - 1]?.outcome ?? '';
+        return {
+          label: `${i + 1}. ${g.team} (${lastOutcome})`,
+          hops: g.hops,
+        };
+      });
+    }
+
+    if (groups.length === 0) {
+      groups = [{ label: `1. (${outcome})`, hops: [] }];
+    }
+
+    return {
+      sharedStateId,
+      incidentNumber: (data['incident_number'] as string) || incidentNumber,
+      outcome,
+      totalHops: groups.reduce((sum, g) => sum + g.hops.length, 0),
+      groups,
+    };
+  }
+
+  private normalizeHops(raw: unknown): PipelineHop[] {
+    if (!Array.isArray(raw)) return [];
+    return (raw as Record<string, unknown>[]).map((h, i) => ({
+      hopNumber:
+        this.pickNum(h, ['hop_number', 'hop_sequence', 'hop', 'sequence']) ??
+        i + 1,
+      team: this.pickStr(h, ['team', 'team_name']) ?? '--',
+      agent: this.pickStr(h, ['agent', 'agent_name', 'handler']) ?? '--',
+      category: this.pickStr(h, ['category']) ?? '--',
+      coreIssue: this.pickStr(h, ['core_issue', 'coreIssue', 'issue']) ?? '--',
+      outcome: this.normalizeOutcome(
+        this.pickStr(h, ['outcome', 'status', 'resolution_status']),
+      ),
+      resolvedBy: this.formatResolvedBy(
+        this.pickStr(h, ['resolved_by', 'resolvedBy']),
+      ),
+      durationMs:
+        this.pickNum(h, [
+          'duration_ms',
+          'durationMs',
+          'elapsed_ms',
+          'execution_ms',
+        ]) ?? 0,
+    }));
+  }
+
+  private normalizeOutcome(value: string | null): string {
+    if (!value) return '--';
+    return value.trim();
+  }
+
+  private formatResolvedBy(value: string | null): string {
+    if (!value) return '--';
+    return value
+      .split('_')
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join(' ');
+  }
+
+  private pickStr(
+    source: Record<string, unknown>,
+    keys: string[],
+  ): string | null {
+    for (const key of keys) {
+      const value = source[key];
+      if (typeof value === 'string' && value.trim()) return value.trim();
+    }
+    return null;
+  }
+
+  private pickNum(
+    source: Record<string, unknown>,
+    keys: string[],
+  ): number | null {
+    for (const key of keys) {
+      const value = source[key];
+      if (typeof value === 'number' && Number.isFinite(value)) return value;
+      if (typeof value === 'string') {
+        const parsed = Number(value);
+        if (Number.isFinite(parsed)) return parsed;
+      }
+    }
+    return null;
+  }
+
+  openFullPipelineDetail(sharedStateId: string): void {
+    this.fullDetailSharedStateId = sharedStateId;
+    this.showFullIncidentDetail = true;
+    this.fullDetailData = null;
+    this.fullDetailError = null;
+    this.fullDetailLoading = true;
+
+    const incidentNumber =
+      this.getPipelineDetail(sharedStateId)?.incidentNumber ||
+      this.selectedIncidentNumber ||
+      '';
+    const url = `${this.incidentDetailUrl}/${encodeURIComponent(
+      incidentNumber,
+    )}?ssid=${encodeURIComponent(sharedStateId)}`;
+    this.httpClient.get<unknown>(url).subscribe({
+      next: (response) => {
+        this.fullDetailData =
+          typeof response === 'object' && response !== null
+            ? (response as Record<string, unknown>)
+            : {};
+        this.fullDetailLoading = false;
+      },
+      error: () => {
+        this.fullDetailError = 'Failed to load full incident detail.';
+        this.fullDetailLoading = false;
+      },
+    });
+  }
+
+  closeFullPipelineDetail(): void {
+    this.showFullIncidentDetail = false;
+    this.fullDetailSharedStateId = null;
+    this.fullDetailData = null;
+    this.fullDetailError = null;
+    this.fullDetailLoading = false;
+  }
+
+  closePipelineSection(): void {
     this.selectedIncidentNumber = null;
-    this.incidentDetailData = null;
-    this.incidentDetailLoading = false;
-    this.incidentDetailError = null;
+    this.selectedReopenMetric = null;
+    this.incidentSharedStateIds = [];
+    this.sharedStateIdsLoading = false;
+    this.sharedStateIdsError = null;
+    this.pipelineDetailsBySharedStateId = {};
+    this.pipelineDetailLoadingBySharedStateId = {};
+    this.pipelineDetailErrorBySharedStateId = {};
+    this.showFullIncidentDetail = false;
+    this.fullDetailSharedStateId = null;
+  }
+
+  closeIncidentDetail(): void {
+    this.closePipelineSection();
   }
 
   onTimelineDetailOpen(incident: SupervisorIncident): void {
@@ -256,10 +596,15 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    this.syncReopenedIncidentNumbers();
     this.loadAllData();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['caseReopenMetrics'] || changes['teamConfig']) {
+      this.syncReopenedIncidentNumbers();
+    }
+
     if (
       (changes['selectedQuarter'] && changes['selectedQuarter'].currentValue) ||
       (changes['caseIqMetrics'] && !changes['caseIqMetrics'].firstChange)
@@ -267,6 +612,27 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
       this.refreshingData = true;
       this.loadAllData();
     }
+  }
+
+  private syncReopenedIncidentNumbers(): void {
+    if (!Array.isArray(this.caseReopenMetrics)) {
+      this.reopenedIncidentNumbers = [];
+      return;
+    }
+
+    const unique = new Set<string>();
+    for (const metric of this.caseReopenMetrics) {
+      const incidentRaw = metric?.INCIDENT_NUMBER;
+      if (incidentRaw === null || incidentRaw === undefined) {
+        continue;
+      }
+      const normalized = String(incidentRaw).trim().toUpperCase();
+      if (normalized) {
+        unique.add(normalized);
+      }
+    }
+
+    this.reopenedIncidentNumbers = Array.from(unique);
   }
 
   /**

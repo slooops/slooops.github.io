@@ -38,6 +38,12 @@ export interface FilterValues {
   [key: string]: string[] | string;
 }
 
+export interface DateRangeChangeEvent {
+  filterId: string;
+  start: string;
+  end: string;
+}
+
 @Component({
   selector: 'app-filter-button-bar',
   templateUrl: './filter-button-bar.component.html',
@@ -62,10 +68,15 @@ export class FilterButtonBarComponent {
   @Input() filteredCount: number = 0;
   @Input() showFilterToggle: boolean = true;
   @Input() countLabel: string = 'results';
+  @Input() customDateRangeFilterId: string | null = null;
+  @Input() customDateRangeTriggerValue: string = 'Date range';
+  @Input() customDateRangeStart: string = '';
+  @Input() customDateRangeEnd: string = '';
 
   @Output() filterChange = new EventEmitter<FilterValues>();
   @Output() filterClear = new EventEmitter<void>();
   @Output() actionClick = new EventEmitter<string>();
+  @Output() customDateRangeChange = new EventEmitter<DateRangeChangeEvent>();
 
   filtersExpanded = false;
   textInputValues: { [key: string]: string } = {};
@@ -174,6 +185,34 @@ export class FilterButtonBarComponent {
   getSelectedValues(filterId: string): string[] {
     const val = this.filterValues[filterId];
     return Array.isArray(val) ? val : [];
+  }
+
+  shouldShowCustomDateRange(filterId: string): boolean {
+    if (
+      !this.customDateRangeFilterId ||
+      this.customDateRangeFilterId !== filterId
+    ) {
+      return false;
+    }
+    return this.getSelectedValues(filterId).includes(
+      this.customDateRangeTriggerValue,
+    );
+  }
+
+  onCustomDateRangeStartInput(filterId: string, value: string): void {
+    this.customDateRangeChange.emit({
+      filterId,
+      start: value,
+      end: this.customDateRangeEnd,
+    });
+  }
+
+  onCustomDateRangeEndInput(filterId: string, value: string): void {
+    this.customDateRangeChange.emit({
+      filterId,
+      start: this.customDateRangeStart,
+      end: value,
+    });
   }
 
   @HostListener('document:click', ['$event'])

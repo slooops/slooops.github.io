@@ -22,6 +22,7 @@ import { ControlMDashboardComponent } from './control-m/control-m-dashboard.comp
 import { SelfHealingComponent } from './self-healing/self-healing.component';
 import { ExceptionDetailsComponent } from './self-healing/exception-details/exception-details.component';
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
+import { MonitoringOnboardingComponent } from './monitoring-onboarding/monitoring-onboarding.component';
 
 export const routes: Routes = [
   {
@@ -379,6 +380,15 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'ESP Case Manager > CaseIQ QBR',
+    },
+  },
+  {
+    path: 'onboard-exception-monitoring',
+    component: MonitoringOnboardingComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Onboard Exception Monitoring',
       supportsDarkMode: true,
     },
   },

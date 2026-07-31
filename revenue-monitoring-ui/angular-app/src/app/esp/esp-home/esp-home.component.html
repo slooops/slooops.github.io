@@ -163,6 +163,7 @@
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['CAPITAL']"
+          [caseReopenMetrics]="reopenMetricsPerComponent['CAPITAL']"
         ></app-caseiq-team>
       </div>
     }
@@ -173,6 +174,7 @@
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['FPP']"
+          [caseReopenMetrics]="reopenMetricsPerComponent['FPP']"
         ></app-caseiq-team>
       </div>
     }
@@ -183,6 +185,7 @@
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['I2C']"
+          [caseReopenMetrics]="reopenMetricsPerComponent['I2C']"
         ></app-caseiq-team>
       </div>
     }
@@ -193,6 +196,7 @@
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['OM']"
+          [caseReopenMetrics]="reopenMetricsPerComponent['OM']"
         ></app-caseiq-team>
       </div>
     }
@@ -203,6 +207,7 @@
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['P2P']"
+          [caseReopenMetrics]="reopenMetricsPerComponent['P2P']"
         ></app-caseiq-team>
       </div>
     }
@@ -213,6 +218,7 @@
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['SM']"
+          [caseReopenMetrics]="reopenMetricsPerComponent['SM']"
         ></app-caseiq-team>
       </div>
     }
@@ -223,12 +229,15 @@
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['AIT']"
+          [caseReopenMetrics]="reopenMetricsPerComponent['AIT']"
         ></app-caseiq-team>
       </div>
     }
     @case ("Orchestrator") {
       <div class="tile-content">
-        <app-caseiq-supervisor></app-caseiq-supervisor>
+        <app-caseiq-supervisor
+          [caseReopenMetrics]="caseReopenMetrics"
+        ></app-caseiq-supervisor>
       </div>
     }
     <!-- Default case when no tile is selected -->

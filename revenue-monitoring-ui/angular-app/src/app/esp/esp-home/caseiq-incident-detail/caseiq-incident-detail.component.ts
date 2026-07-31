@@ -8,8 +8,11 @@ import {
   HostBinding,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { NgIconComponent } from '@ng-icons/core';
 import { ThemeService } from '../../../providers/theme.service';
+import { ApiHttpService } from 'src/app/providers/http.service';
 
 interface PipelineStep {
   name: string;
@@ -46,10 +49,31 @@ interface IncidentSummary {
   history: Array<{ sharedStateId: string }>;
 }
 
+export interface CaseReopenMetric {
+  ID: number;
+  TEAM_NAME: string;
+  INCIDENT_NUMBER: string;
+  ORIGINAL_CASE_SUMMARY: string;
+  NEW_ASK_SUMMARY: string;
+  PREVIOUS_CATEGORY: string | null;
+  CURRENT_CATEGORY: string | null;
+  PREVIOUS_CORE_ISSUE: string | null;
+  CURRENT_CORE_ISSUE: string | null;
+  PREVIOUS_CONTEXT_EXTRACTED: string | null;
+  CURRENT_CONTEXT_EXTRACTED: string | null;
+  REOPEN_DECISION: string | null;
+  REOPEN_REJECT_REASON: string | null;
+  REOPEN_REJECT_TEAM: string | null;
+  REOPEN_REJECT_CATEGORY: string | null;
+  REOPEN_REJECT_CORE_ISSUE: string | null;
+  CREATED_AT: string;
+  UPDATED_AT: string;
+}
+
 @Component({
   selector: 'app-caseiq-incident-detail',
   standalone: true,
-  imports: [CommonModule, NgIconComponent],
+  imports: [CommonModule, FormsModule, NgIconComponent],
   templateUrl: './caseiq-incident-detail.component.html',
   styleUrls: ['./caseiq-incident-detail.component.css'],
 })
@@ -61,18 +85,42 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
   @Input() incident: IncidentSummary | null = null;
   @Input() incidentDetailData: Record<string, any> | null = null;
   @Input() backLabel: string = 'Back to Incidents';
+  @Input() reopenMetric: CaseReopenMetric | null = null;
   @Output() back = new EventEmitter<void>();
+  @Output() reopenDecision = new EventEmitter<'yes' | 'no'>();
 
   isLoading = false;
   error: string | null = null;
   incidentNumber = '';
   incidentViewModel: any = null;
 
-  activeTab: 'pipeline' | 'notifications' = 'pipeline';
+  activeTab: 'pipeline' | 'reopen' = 'pipeline';
   pipelineSteps: PipelineStep[] = [];
   notifications: NotificationEvent[] = [];
 
-  constructor(public themeService: ThemeService) {}
+  showRejectForm = false;
+  rejectCategory = '';
+  rejectCoreIssue = '';
+  rejectReason = '';
+  rejectTeam = '';
+  reopenUpdateLoading = false;
+  reopenUpdateSuccess = '';
+  reopenUpdateError = '';
+  readonly rejectTeamOptions = [
+    'OM',
+    'I2C',
+    'AIT',
+    'P2P',
+    'SM',
+    'FPP',
+    'CAPITAL',
+  ];
+  private readonly reopenUpdateUrl = 'xxcaseiq-reopen-update';
+
+  constructor(
+    public themeService: ThemeService,
+    private readonly httpClient: ApiHttpService,
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['incident'] || changes['incidentDetailData']) {
@@ -540,5 +588,180 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
 
   isArray(val: any): boolean {
     return Array.isArray(val);
+  }
+
+  // ── Reopen tab helpers ────────────────────────────────────────
+
+  get categoryChanged(): boolean {
+    return (
+      !!this.reopenMetric &&
+      (this.reopenMetric.PREVIOUS_CATEGORY ?? '') !==
+        (this.reopenMetric.CURRENT_CATEGORY ?? '')
+    );
+  }
+
+  get coreIssueChanged(): boolean {
+    return (
+      !!this.reopenMetric &&
+      (this.reopenMetric.PREVIOUS_CORE_ISSUE ?? '') !==
+        (this.reopenMetric.CURRENT_CORE_ISSUE ?? '')
+    );
+  }
+
+  getContextDiffs(): {
+    key: string;
+    prev: string;
+    curr: string;
+    prevCount: number;
+    currCount: number;
+  }[] {
+    if (!this.reopenMetric) return [];
+
+    const parseCtx = (raw: string | null): Record<string, unknown[]> => {
+      if (!raw) return {};
+      try {
+        const parsed = JSON.parse(raw);
+        if (typeof parsed === 'object' && parsed !== null) {
+          return parsed as Record<string, unknown[]>;
+        }
+      } catch {
+        // ignore
+      }
+      return {};
+    };
+
+    const prev = parseCtx(this.reopenMetric.PREVIOUS_CONTEXT_EXTRACTED);
+    const curr = parseCtx(this.reopenMetric.CURRENT_CONTEXT_EXTRACTED);
+    const allKeys = new Set([...Object.keys(prev), ...Object.keys(curr)]);
+    const diffs: ReturnType<typeof this.getContextDiffs> = [];
+
+    for (const key of allKeys) {
+      const prevArr = Array.isArray(prev[key]) ? (prev[key] as string[]) : [];
+      const currArr = Array.isArray(curr[key]) ? (curr[key] as string[]) : [];
+
+      const PREVIEW = 4;
+      const prevPreview = prevArr.slice(0, PREVIEW).join(', ') || 'empty';
+      const currPreview = currArr.slice(0, PREVIEW).join(', ') || 'empty';
+      const prevExtra =
+        prevArr.length > PREVIEW ? ` + ${prevArr.length - PREVIEW} more` : '';
+      const currExtra =
+        currArr.length > PREVIEW ? ` + ${currArr.length - PREVIEW} more` : '';
+
+      diffs.push({
+        key,
+        prev: prevPreview + prevExtra,
+        curr: currPreview + currExtra,
+        prevCount: prevArr.length,
+        currCount: currArr.length,
+      });
+    }
+
+    return diffs;
+  }
+
+  onYesDecision(): void {
+    if (!this.reopenMetric || this.reopenUpdateLoading) {
+      return;
+    }
+
+    const payload: {
+      reopenDecision: 'Y' | 'N';
+      reopenRejectCategory: string;
+      reopenRejectCoreIssue: string;
+      updateRejectReason: string;
+      reopenRejectTeam: string;
+      incidentNumber: string;
+    } = {
+      reopenDecision: 'Y',
+      reopenRejectCategory: '',
+      reopenRejectCoreIssue: '',
+      updateRejectReason: '',
+      reopenRejectTeam: '',
+      incidentNumber: this.reopenMetric.INCIDENT_NUMBER || this.incidentNumber,
+    };
+
+    this.submitReopenUpdate(payload, 'yes');
+  }
+
+  onNoDecision(): void {
+    this.reopenUpdateSuccess = '';
+    this.reopenUpdateError = '';
+    this.showRejectForm = true;
+  }
+
+  submitNoDecision(): void {
+    if (
+      !this.reopenMetric ||
+      this.reopenUpdateLoading ||
+      !this.isRejectFormValid()
+    ) {
+      return;
+    }
+
+    const payload: {
+      reopenDecision: 'Y' | 'N';
+      reopenRejectCategory: string;
+      reopenRejectCoreIssue: string;
+      updateRejectReason: string;
+      reopenRejectTeam: string;
+      incidentNumber: string;
+    } = {
+      reopenDecision: 'N',
+      reopenRejectCategory: this.rejectCategory.trim(),
+      reopenRejectCoreIssue: this.rejectCoreIssue.trim(),
+      updateRejectReason: this.rejectReason.trim(),
+      reopenRejectTeam: this.rejectTeam,
+      incidentNumber: this.reopenMetric.INCIDENT_NUMBER || this.incidentNumber,
+    };
+
+    this.submitReopenUpdate(payload, 'no');
+  }
+
+  isRejectFormValid(): boolean {
+    return !!(
+      this.rejectCategory.trim() &&
+      this.rejectCoreIssue.trim() &&
+      this.rejectReason.trim() &&
+      this.rejectTeam
+    );
+  }
+
+  private submitReopenUpdate(
+    payload: {
+      reopenDecision: 'Y' | 'N';
+      reopenRejectCategory: string;
+      reopenRejectCoreIssue: string;
+      updateRejectReason: string;
+      reopenRejectTeam: string;
+      incidentNumber: string;
+    },
+    decisionType: 'yes' | 'no',
+  ): void {
+    this.reopenUpdateLoading = true;
+    this.reopenUpdateSuccess = '';
+    this.reopenUpdateError = '';
+
+    this.httpClient.post<number>(this.reopenUpdateUrl, payload).subscribe({
+      next: () => {
+        this.reopenUpdateLoading = false;
+        this.reopenUpdateSuccess =
+          decisionType === 'yes'
+            ? 'Reopen decision saved successfully.'
+            : 'Reopen rejection details saved successfully.';
+        this.reopenDecision.emit(decisionType);
+        if (decisionType === 'yes') {
+          this.showRejectForm = false;
+          this.rejectCategory = '';
+          this.rejectCoreIssue = '';
+          this.rejectReason = '';
+          this.rejectTeam = '';
+        }
+      },
+      error: () => {
+        this.reopenUpdateLoading = false;
+        this.reopenUpdateError =
+          'Failed to save reopen decision. Please try again.';
+      },
+    });
   }
 }

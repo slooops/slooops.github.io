@@ -10,12 +10,13 @@ import {
   SimpleChanges,
   HostListener,
   HostBinding,
+  TemplateRef,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { UploadScreenComponent } from 'src/app/esp/esp-home/upload-screen/upload-screen.component';
 import { MatTableDataSource } from '@angular/material/table';
 import ExcelJS from 'exceljs';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
@@ -25,6 +26,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { SupervisorIncident } from '../../esp/esp-home/caseiq-incidents/caseiq-incidents.component';
 import {
   phosphorArrowLineDownBold,
+  phosphorArrowClockwiseBold,
   phosphorCaretDownBold,
   phosphorCaretUpBold,
   phosphorCloudArrowUpBold,
@@ -52,10 +54,12 @@ interface FilterTag {
     NgIcon,
     LoadingSymbolComponent,
     PaginationComponent,
+    NgTemplateOutlet,
   ],
   providers: [
     provideIcons({
       phosphorArrowLineDownBold,
+      phosphorArrowClockwiseBold,
       phosphorCaretDownBold,
       phosphorCaretUpBold,
       phosphorCloudArrowUpBold,
@@ -97,8 +101,13 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   @Output() timelineDetailOpen = new EventEmitter<SupervisorIncident>();
   @Input() clickableColumns: string[] = [];
   @Input() backendLoading: boolean = false; // Show loading overlay during backend fetch
+  @Input() reopenedIncidentNumbers: string[] = [];
+  @Input() rowDetailTemplate: TemplateRef<{ $implicit: any }> | null = null;
+  @Input() expandedRowKey: string | null = null;
 
   currentPage: number = 0;
+  analyzedSortMode: 'supervisor' | 'caseiq' = 'supervisor';
+  private reopenedIncidentNumberSet = new Set<string>();
 
   constructor(
     private dialog: MatDialog,
@@ -118,6 +127,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   showIncidentStateInner: boolean = false;
   showCancelPredictionInner: boolean = false;
   showImpactedServiceOfferingInner: boolean = false;
+  showAnalyzedByInner: boolean = false;
   incidentNumberSearch: string = '';
 
   // I2C-only expandable agent processing timeline mockup
@@ -150,6 +160,11 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       values: [], // Will be populated dynamically from data
     },
     {
+      id: 'analyzedBy',
+      label: 'Analyzed By',
+      values: ['Supervisor', 'CaseIQ'],
+    },
+    {
       id: 'coreIssueMatch',
       label: 'Core Issue Match',
       values: ['Y', 'N'],
@@ -167,6 +182,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   ];
 
   ngOnInit() {
+    this.syncReopenedIncidentSet();
     console.log(
       'CaseIQ Table initialized with dataSource:',
       this.dataSource.data.length,
@@ -212,6 +228,10 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    if (changes['reopenedIncidentNumbers']) {
+      this.syncReopenedIncidentSet();
+    }
+
     // Only reprocess fullData if the actual data length changed
     const hasData = this.dataSource?.data?.length > 0;
     const dataLengthChanged =
@@ -308,7 +328,9 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   private enforceCurrentFilterState(): void {
     if (this.activeFilters.length === 0) {
       // No filters active: always show originalData (without Y,Y rows)
-      this.dataSource.data = [...this.originalData];
+      this.dataSource.data = this.prioritizeSupervisorAnalyzedRows(
+        this.originalData,
+      );
       this.dataSource._updateChangeSubscription();
     } else {
       // Filters active: apply the filter logic
@@ -358,6 +380,66 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         return w.charAt(0).toUpperCase() + w.slice(1);
       })
       .join(' ');
+  }
+
+  isReopenedIncident(row: any, column: string): boolean {
+    if (!this.reopenedIncidentNumberSet.size) {
+      return false;
+    }
+
+    const valueFromColumn = this.normalizeIncidentNumber(row?.[column]);
+    if (
+      valueFromColumn &&
+      this.reopenedIncidentNumberSet.has(valueFromColumn)
+    ) {
+      return true;
+    }
+
+    const valueFromUpper = this.normalizeIncidentNumber(
+      row?.['INCIDENT_NUMBER'],
+    );
+    if (valueFromUpper && this.reopenedIncidentNumberSet.has(valueFromUpper)) {
+      return true;
+    }
+
+    const valueFromLower = this.normalizeIncidentNumber(
+      row?.['incident_number'],
+    );
+    return (
+      !!valueFromLower && this.reopenedIncidentNumberSet.has(valueFromLower)
+    );
+  }
+
+  private syncReopenedIncidentSet(): void {
+    const normalized = (this.reopenedIncidentNumbers || [])
+      .map((incident) => this.normalizeIncidentNumber(incident))
+      .filter((incident): incident is string => !!incident);
+
+    this.reopenedIncidentNumberSet = new Set(normalized);
+  }
+
+  private normalizeIncidentNumber(value: unknown): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    return String(value).trim().toUpperCase();
+  }
+
+  isIncidentNumberColumn(column: string): boolean {
+    return column === 'incident_number' || column === 'INCIDENT_NUMBER';
+  }
+
+  get analyzedSortLabel(): string {
+    return this.analyzedSortMode === 'supervisor'
+      ? 'Supervisor Analyzed'
+      : 'CaseIQ Analyzed';
+  }
+
+  toggleIncidentNumberAnalyzedSort(event?: Event): void {
+    event?.stopPropagation();
+    this.analyzedSortMode =
+      this.analyzedSortMode === 'supervisor' ? 'caseiq' : 'supervisor';
+    this.enforceCurrentFilterState();
   }
 
   async exportTableToExcel(): Promise<void> {
@@ -470,6 +552,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       this.showIncidentStateInner = false;
       this.showCancelPredictionInner = false;
       this.showImpactedServiceOfferingInner = false;
+      this.showAnalyzedByInner = false;
     }
   }
 
@@ -501,6 +584,15 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   }
   toggleImpactedServiceOfferingValue(value: string, label: string) {
     this.addFilter('impactedServiceOffering', label, value);
+  }
+
+  // Analyzed By inner multi-select
+  toggleAnalyzedByInner(event: Event) {
+    event.stopPropagation();
+    this.showAnalyzedByInner = !this.showAnalyzedByInner;
+  }
+  toggleAnalyzedByValue(value: string, label: string) {
+    this.addFilter('analyzedBy', label, value);
   }
 
   // Incident Number search handler
@@ -612,6 +704,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     this.showIncidentStateInner = false;
     this.showCancelPredictionInner = false;
     this.showImpactedServiceOfferingInner = false;
+    this.showAnalyzedByInner = false;
   }
 
   // Method to get match status for Category and Core issue columns
@@ -747,7 +840,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     });
   }
 
-  private getRowId(row: any): string {
+  getRowId(row: any): string {
     // Use incident number as primary stable identifier
     const incident = this.getTimelineIncidentNumber(row);
     if (incident) {
@@ -965,6 +1058,39 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         }
       }
 
+      // Check analyzedBy filter
+      if (matchesAllFilters && activeFiltersMap.has('analyzedBy')) {
+        const selectedValues = activeFiltersMap.get('analyzedBy')!;
+        const analyzedByRaw =
+          row?.['ANALYZED_BY'] ?? row?.['analyzed_by'] ?? '';
+        const analyzedBy = String(analyzedByRaw).trim().toLowerCase();
+
+        let matches = false;
+        for (const value of selectedValues) {
+          const valueLower = value.toLowerCase();
+          if (valueLower === 'supervisor') {
+            if (
+              analyzedBy === 'supervisor analyzed' ||
+              analyzedBy === 'supervisor agent' ||
+              analyzedBy === 'true'
+            ) {
+              matches = true;
+              break;
+            }
+          } else if (valueLower === 'caseiq') {
+            if (
+              analyzedBy === 'caseiq analyzed' ||
+              analyzedBy === 'case iq analyzed' ||
+              analyzedBy === 'caseiq agent'
+            ) {
+              matches = true;
+              break;
+            }
+          }
+        }
+        if (!matches) matchesAllFilters = false;
+      }
+
       // Check incidentNumber filter (text-based search)
       if (matchesAllFilters && activeFiltersMap.has('incidentNumber')) {
         const selectedValues = activeFiltersMap.get('incidentNumber')!;
@@ -991,15 +1117,83 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     });
 
     // Update the dataSource with filtered results
-    this.dataSource.data = filtered;
+    const prioritizedFiltered = this.prioritizeSupervisorAnalyzedRows(filtered);
+    this.dataSource.data = prioritizedFiltered;
 
     // Update the table change subscription first
     this.dataSource._updateChangeSubscription();
 
     // Then update pagination after a micro-task to ensure data is synced
     setTimeout(() => {
-      this.updatePagination(filtered.length);
+      this.updatePagination(prioritizedFiltered.length);
     }, 0);
+  }
+
+  private prioritizeSupervisorAnalyzedRows(rows: any[]): any[] {
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return [];
+    }
+
+    return [...rows].sort((a, b) => {
+      const aPriority = this.getAnalyzedSortPriority(a);
+      const bPriority = this.getAnalyzedSortPriority(b);
+
+      if (aPriority === bPriority) {
+        return 0;
+      }
+
+      return bPriority - aPriority;
+    });
+  }
+
+  private getAnalyzedSortPriority(row: any): number {
+    if (this.analyzedSortMode === 'supervisor') {
+      return this.isSupervisorAnalyzed(row) ? 1 : 0;
+    }
+    return this.isCaseIqAnalyzed(row) ? 1 : 0;
+  }
+
+  private isSupervisorAnalyzed(row: any): boolean {
+    const analyzedByRaw = row?.['ANALYZED_BY'] ?? row?.['analyzed_by'];
+    const analyzedBy =
+      analyzedByRaw === null || analyzedByRaw === undefined
+        ? ''
+        : String(analyzedByRaw).trim().toLowerCase();
+
+    if (
+      analyzedBy === 'supervisor analyzed' ||
+      analyzedBy === 'supervisor agent' ||
+      analyzedBy === 'true'
+    ) {
+      return true;
+    }
+
+    const supervisorAgentRaw =
+      row?.['SUPERVISOR_AGENT'] ?? row?.['supervisor_agent'];
+
+    if (typeof supervisorAgentRaw === 'boolean') {
+      return supervisorAgentRaw;
+    }
+
+    if (typeof supervisorAgentRaw === 'string') {
+      return supervisorAgentRaw.trim().toLowerCase() === 'true';
+    }
+
+    return false;
+  }
+
+  private isCaseIqAnalyzed(row: any): boolean {
+    const analyzedByRaw = row?.['ANALYZED_BY'] ?? row?.['analyzed_by'];
+    const analyzedBy =
+      analyzedByRaw === null || analyzedByRaw === undefined
+        ? ''
+        : String(analyzedByRaw).trim().toLowerCase();
+
+    return (
+      analyzedBy === 'caseiq analyzed' ||
+      analyzedBy === 'case iq analyzed' ||
+      analyzedBy === 'caseiq agent'
+    );
   }
 
   // Allow parent to externally set data (e.g., backend both-Y fetch) without overwriting original baseline unless requested

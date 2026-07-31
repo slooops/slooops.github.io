@@ -1,0 +1,1079 @@
+<div class="mo-dashboard">
+  <!-- ── Sticky header ── -->
+  <header class="mo-header">
+    <div class="mo-header-titles">
+      <ng-icon name="phosphorSparkleBold" size="22" class="mo-header-icon" />
+      <div>
+        <h1 class="mo-title">
+          Onboard for <span class="mo-accent">Exception Monitoring</span>
+        </h1>
+        <p class="mo-subtitle">
+          Complete the guided form to generate backend and UI implementation
+          documents for new monitoring dashboards.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Result view ── -->
+  @if (generated) {
+    <section class="mo-body">
+      <div class="mo-card mo-result-card">
+        <div class="mo-result-head">
+          <div class="mo-result-title">
+            <ng-icon name="phosphorSparkleBold" size="20" />
+            <span>Code generated successfully</span>
+          </div>
+          <div class="mo-result-actions">
+            <button
+              class="mo-btn mo-btn-ghost"
+              type="button"
+              (click)="editForRegeneration()"
+            >
+              <ng-icon name="phosphorSlidersHorizontalBold" size="16" />
+              Edit &amp; regenerate
+            </button>
+            <button
+              class="mo-btn mo-btn-ghost"
+              type="button"
+              (click)="resetForm()"
+            >
+              <ng-icon name="phosphorArrowClockwiseBold" size="16" />
+              Start over
+            </button>
+          </div>
+        </div>
+
+        <div class="mo-generated-grid">
+          <section class="mo-generated-section">
+            <div class="mo-doc-head">
+              <div class="mo-doc-title-wrap">
+                <span class="mo-doc-label">Backend onboarding document</span>
+                <span class="mo-doc-subtitle"
+                  >Service, controller, config, and env handoff</span
+                >
+              </div>
+              <div class="mo-doc-actions">
+                <button
+                  class="mo-btn mo-btn-ghost mo-btn-sm"
+                  type="button"
+                  (click)="copyToClipboard(generated.backend)"
+                  [disabled]="!generated.backend"
+                >
+                  <ng-icon name="phosphorClipboardTextBold" size="14" />
+                  Copy
+                </button>
+                <button
+                  class="mo-btn mo-btn-ghost mo-btn-sm"
+                  type="button"
+                  (click)="downloadGeneratedDoc('backend')"
+                  [disabled]="!generated.backend"
+                >
+                  <ng-icon name="phosphorClipboardTextBold" size="14" />
+                  Download .md
+                </button>
+              </div>
+            </div>
+            @if (generated.backend) {
+              <div class="mo-doc-surface" data-doc-kind="backend">
+                <div class="mo-rendered-doc__banner">
+                  <span class="mo-rendered-doc__eyebrow"
+                    >Backend onboarding guide</span
+                  >
+                  <span class="mo-rendered-doc__meta"
+                    >Structured for quick review and handoff</span
+                  >
+                </div>
+                <ng-container
+                  [ngTemplateOutlet]="docBlocks"
+                  [ngTemplateOutletContext]="{ blocks: backendBlocks }"
+                />
+              </div>
+            } @else {
+              <div class="mo-result-empty">No backend document returned.</div>
+            }
+          </section>
+
+          <section class="mo-generated-section">
+            <div class="mo-doc-head">
+              <div class="mo-doc-title-wrap">
+                <span class="mo-doc-label">Frontend onboarding document</span>
+                <span class="mo-doc-subtitle"
+                  >Component scaffold, mappings, and template handoff</span
+                >
+              </div>
+              <div class="mo-doc-actions">
+                <button
+                  class="mo-btn mo-btn-ghost mo-btn-sm"
+                  type="button"
+                  (click)="copyToClipboard(generated.ui)"
+                  [disabled]="!generated.ui"
+                >
+                  <ng-icon name="phosphorClipboardTextBold" size="14" />
+                  Copy
+                </button>
+                <button
+                  class="mo-btn mo-btn-ghost mo-btn-sm"
+                  type="button"
+                  (click)="downloadGeneratedDoc('frontend')"
+                  [disabled]="!generated.ui"
+                >
+                  <ng-icon name="phosphorClipboardTextBold" size="14" />
+                  Download .md
+                </button>
+              </div>
+            </div>
+            @if (generated.ui) {
+              <div class="mo-doc-surface" data-doc-kind="frontend">
+                <div class="mo-rendered-doc__banner">
+                  <span class="mo-rendered-doc__eyebrow"
+                    >Frontend onboarding guide</span
+                  >
+                  <span class="mo-rendered-doc__meta"
+                    >Structured for quick review and handoff</span
+                  >
+                </div>
+                <ng-container
+                  [ngTemplateOutlet]="docBlocks"
+                  [ngTemplateOutletContext]="{ blocks: frontendBlocks }"
+                />
+              </div>
+            } @else {
+              <div class="mo-result-empty">No frontend document returned.</div>
+            }
+          </section>
+        </div>
+      </div>
+    </section>
+  } @else {
+    <!-- ── Form view ── -->
+    <section class="mo-body">
+      <!-- Stepper -->
+      <nav class="mo-stepper" aria-label="Progress">
+        @for (step of steps; track step.key; let i = $index) {
+          <button
+            type="button"
+            class="mo-step"
+            [class.active]="currentStep === i"
+            [class.done]="currentStep > i && isStepValid(i)"
+            [disabled]="!canAccessStep(i)"
+            (click)="goToStep(i)"
+          >
+            <span class="mo-step-badge">
+              <ng-icon [name]="step.icon" size="16" />
+            </span>
+            <span class="mo-step-label">{{ step.label }}</span>
+          </button>
+          @if (i < steps.length - 1) {
+            <span class="mo-step-line"></span>
+          }
+        }
+      </nav>
+
+      <form
+        [formGroup]="form"
+        class="mo-card mo-form-card"
+        (ngSubmit)="submit()"
+      >
+        <!-- STEP 0 · Identity -->
+        @if (steps[currentStep].key === "identity") {
+          <div class="mo-step-panel">
+            <h2 class="mo-section-title">Identity &amp; access</h2>
+            <p class="mo-section-hint">
+              Set the names and access metadata used by generated code and UI
+              navigation.
+            </p>
+
+            <div class="mo-grid">
+              <div class="mo-field">
+                <label class="mo-label" for="componentName">
+                  Dashboard / Tab name <span class="mo-req">*</span>
+                </label>
+                <input
+                  id="componentName"
+                  class="mo-input"
+                  formControlName="componentName"
+                  placeholder="e.g. AIT Jobs"
+                  autocomplete="off"
+                />
+                <span class="mo-help"
+                  >Human-readable tab label (example: <code>AIT Jobs</code>).
+                  This drives query, field, method, and endpoint names.</span
+                >
+                @if (hasError(form.get("componentName"), "required")) {
+                  <span class="mo-error"
+                    >Dashboard / Tab name is required.</span
+                  >
+                }
+              </div>
+
+              <div class="mo-field">
+                <label class="mo-label" for="featureName">
+                  Component name <span class="mo-req">*</span>
+                </label>
+                <input
+                  id="featureName"
+                  class="mo-input"
+                  formControlName="featureName"
+                  placeholder="e.g. ait-monitoring"
+                  autocomplete="off"
+                />
+                <span class="mo-help"
+                  >Kebab-case identifier (example: <code>ait-monitoring</code>).
+                  Used for schematic generation and service/controller class
+                  naming.</span
+                >
+                @if (hasError(form.get("featureName"), "required")) {
+                  <span class="mo-error">Component name is required.</span>
+                }
+                @if (hasError(form.get("featureName"), "pattern")) {
+                  <span class="mo-error"
+                    >Must be kebab-case (e.g.
+                    <code>ait-monitoring</code>).</span
+                  >
+                }
+              </div>
+
+              <div class="mo-field">
+                <label class="mo-label" for="roleName">
+                  Role name <span class="mo-req">*</span>
+                </label>
+                <input
+                  id="roleName"
+                  class="mo-input"
+                  formControlName="roleName"
+                  placeholder="e.g. AIT_JOBS"
+                  autocomplete="off"
+                />
+                <span class="mo-help"
+                  >Primary role key in UPPER_SNAKE_CASE (example:
+                  <code>AIT_JOBS</code>).</span
+                >
+                @if (hasError(form.get("roleName"), "required")) {
+                  <span class="mo-error">Role name is required.</span>
+                }
+                @if (hasError(form.get("roleName"), "pattern")) {
+                  <span class="mo-error"
+                    >Must be UPPER_SNAKE_CASE (e.g.
+                    <code>AIT_JOBS</code>).</span
+                  >
+                }
+              </div>
+
+              <div class="mo-field">
+                <label class="mo-label" for="assignmentUsersKey">
+                  Assignment users key <span class="mo-req">*</span>
+                </label>
+                <input
+                  id="assignmentUsersKey"
+                  class="mo-input"
+                  formControlName="assignmentUsersKey"
+                  placeholder="e.g. AIT_USERS"
+                  autocomplete="off"
+                />
+                <span class="mo-help"
+                  >Lookup key used to fetch assignable users for the exception
+                  assignment dialog.</span
+                >
+                @if (hasError(form.get("assignmentUsersKey"), "required")) {
+                  <span class="mo-error"
+                    >Assignment users key is required.</span
+                  >
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- STEP 1 · SQL Queries -->
+        @if (steps[currentStep].key === "queries") {
+          <div class="mo-step-panel" formGroupName="queries">
+            <h2 class="mo-section-title">SQL queries</h2>
+            <p class="mo-section-hint">
+              Provide the four SQL statements used by the dashboard:
+              <strong>summary</strong>, <strong>details</strong>,
+              <strong>detailsFiltered</strong>, and
+              <strong>summaryUpdate</strong>. Use <code>?</code> placeholders
+              for bound parameters.
+            </p>
+
+            <div class="mo-field">
+              <label class="mo-label" for="q-summary"
+                >Summary query <span class="mo-req">*</span></label
+              >
+              <textarea
+                id="q-summary"
+                class="mo-textarea mo-mono"
+                formControlName="summary"
+                rows="3"
+                placeholder="SELECT ... FROM ..._summary"
+              ></textarea>
+              <span class="mo-help"
+                >Returns the top-level rows shown in the summary table.</span
+              >
+              @if (hasError(queries.get("summary"), "required")) {
+                <span class="mo-error">Summary query is required.</span>
+              }
+            </div>
+
+            <div class="mo-field">
+              <label class="mo-label" for="q-details"
+                >Details query <span class="mo-req">*</span></label
+              >
+              <textarea
+                id="q-details"
+                class="mo-textarea mo-mono"
+                formControlName="details"
+                rows="3"
+                placeholder="SELECT * FROM ..._details"
+              ></textarea>
+              <span class="mo-help"
+                >Returns detailed rows before any UI-applied filtering.</span
+              >
+              @if (hasError(queries.get("details"), "required")) {
+                <span class="mo-error">Details query is required.</span>
+              }
+            </div>
+
+            <div class="mo-field">
+              <label class="mo-label" for="q-details-filtered"
+                >Details (filtered) query <span class="mo-req">*</span></label
+              >
+              <textarea
+                id="q-details-filtered"
+                class="mo-textarea mo-mono"
+                formControlName="detailsFiltered"
+                rows="3"
+                placeholder="SELECT * FROM ..._details WHERE col=? AND col2=?"
+              ></textarea>
+              <span class="mo-help"
+                >WHERE <code>?</code> columns become the filter keys.</span
+              >
+              @if (hasError(queries.get("detailsFiltered"), "required")) {
+                <span class="mo-error"
+                  >Filtered details query is required.</span
+                >
+              }
+            </div>
+
+            <div class="mo-field">
+              <label class="mo-label" for="q-summary-update"
+                >Summary update query <span class="mo-req">*</span></label
+              >
+              <textarea
+                id="q-summary-update"
+                class="mo-textarea mo-mono"
+                formControlName="summaryUpdate"
+                rows="3"
+                placeholder="UPDATE ..._summary SET assigned_to=? ... WHERE key=?"
+              ></textarea>
+              <span class="mo-help"
+                >Used when users assign exceptions or update comments from the
+                summary table.</span
+              >
+              @if (hasError(queries.get("summaryUpdate"), "required")) {
+                <span class="mo-error">Summary update query is required.</span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- STEP 2 · Columns & Filters -->
+        @if (steps[currentStep].key === "columns") {
+          <div class="mo-step-panel">
+            <h2 class="mo-section-title">Summary columns</h2>
+            <p class="mo-section-hint">
+              Provide at least five summary-table columns in
+              <code>snake_case</code> (either <code>UPPER_SNAKE_CASE</code> or
+              <code>lower_snake_case</code>). These become the fixed fields
+              shown in the assignment form.
+            </p>
+
+            <div class="mo-rows" formArrayName="summaryColumns">
+              @for (
+                col of summaryColumns.controls;
+                track $index;
+                let i = $index
+              ) {
+                <div class="mo-row">
+                  <span class="mo-row-index">{{ i + 1 }}</span>
+                  <input
+                    class="mo-input"
+                    [formControlName]="i"
+                    placeholder="e.g. CTM_FOLDER or ctm_folder"
+                    autocomplete="off"
+                  />
+                  <button
+                    type="button"
+                    class="mo-icon-btn"
+                    [disabled]="summaryColumns.length <= 5"
+                    (click)="removeSummaryColumn(i)"
+                    aria-label="Remove column"
+                  >
+                    <ng-icon name="phosphorXBold" size="14" />
+                  </button>
+                </div>
+              }
+            </div>
+            <button
+              type="button"
+              class="mo-btn mo-btn-ghost mo-btn-sm"
+              (click)="addSummaryColumn()"
+            >
+              <ng-icon name="phosphorPlusCircleBold" size="15" />
+              Add column
+            </button>
+            @if (hasError(summaryColumns, "minNonEmpty")) {
+              <span class="mo-error"
+                >&nbsp;&nbsp;Provide at least five columns.</span
+              >
+            }
+
+            <h2 class="mo-section-title mo-mt">Details-table filters</h2>
+            <p class="mo-section-hint">
+              Configure <strong>UI filters</strong> for the details table:
+              provide each filter column and its input type (<code>select</code>
+              or <code>text</code>). These are frontend filter controls and are
+              separate from the SQL <code>detailsFiltered</code> query.
+            </p>
+
+            <div class="mo-rows" formArrayName="detailsTableFilters">
+              @for (
+                filter of detailsTableFilters.controls;
+                track $index;
+                let i = $index
+              ) {
+                <div class="mo-row mo-row-filter" [formGroupName]="i">
+                  <input
+                    class="mo-input"
+                    formControlName="columnName"
+                    placeholder="e.g. RUN_DATE or run_date"
+                    autocomplete="off"
+                  />
+                  <select class="mo-select" formControlName="type">
+                    @for (t of filterTypes; track t) {
+                      <option [value]="t">{{ t }}</option>
+                    }
+                  </select>
+                  <button
+                    type="button"
+                    class="mo-icon-btn"
+                    [disabled]="detailsTableFilters.length <= 1"
+                    (click)="removeFilter(i)"
+                    aria-label="Remove filter"
+                  >
+                    <ng-icon name="phosphorXBold" size="14" />
+                  </button>
+                </div>
+              }
+            </div>
+            <button
+              type="button"
+              class="mo-btn mo-btn-ghost mo-btn-sm"
+              (click)="addFilter()"
+            >
+              <ng-icon name="phosphorPlusCircleBold" size="15" />
+              Add filter
+            </button>
+          </div>
+        }
+
+        <!-- STEP 3 · Advanced -->
+        @if (steps[currentStep].key === "advanced") {
+          <div class="mo-step-panel">
+            <h2 class="mo-section-title">
+              Column mapping between summary and update queries
+            </h2>
+            <p class="mo-section-hint">
+              Optional. Use this only when a column name in the
+              <code>summaryUpdate</code> SQL differs from the corresponding
+              summary/UI field name. Map <strong>update-query column</strong> →
+              <strong>summary/UI column</strong> (for example,
+              <code>entity_name</code> → <code>org_name</code>). If names are
+              already the same, leave this section empty.
+            </p>
+
+            <div class="mo-rows" formArrayName="paramAliases">
+              @for (
+                alias of paramAliases.controls;
+                track $index;
+                let i = $index
+              ) {
+                <div class="mo-row mo-row-alias" [formGroupName]="i">
+                  <input
+                    class="mo-input"
+                    formControlName="updateColumn"
+                    placeholder="update column (e.g. entity_name)"
+                    autocomplete="off"
+                  />
+                  <ng-icon
+                    name="phosphorCaretRightBold"
+                    size="14"
+                    class="mo-arrow"
+                  />
+                  <input
+                    class="mo-input"
+                    formControlName="summaryColumn"
+                    placeholder="summary column (e.g. org_name)"
+                    autocomplete="off"
+                  />
+                  <button
+                    type="button"
+                    class="mo-icon-btn"
+                    (click)="removeAlias(i)"
+                    aria-label="Remove alias"
+                  >
+                    <ng-icon name="phosphorXBold" size="14" />
+                  </button>
+                </div>
+              }
+              @if (paramAliases.length === 0) {
+                <p class="mo-empty">
+                  No aliases — summary and update columns match.
+                </p>
+              }
+            </div>
+            <button
+              type="button"
+              class="mo-btn mo-btn-ghost mo-btn-sm"
+              (click)="addAlias()"
+            >
+              <ng-icon name="phosphorPlusCircleBold" size="15" />
+              Add alias
+            </button>
+          </div>
+        }
+
+        <!-- STEP 4 · Review -->
+        @if (steps[currentStep].key === "review") {
+          <div class="mo-step-panel">
+            <h2 class="mo-section-title">Review &amp; generate</h2>
+            <p class="mo-section-hint">
+              Review your onboarding configuration before submitting. This
+              request is submitted to Control Tower Support Agent to generate
+              your backend and UI implementation code.
+            </p>
+
+            <div class="mo-review-grid">
+              <section
+                class="mo-review-card mo-review-card-full mo-review-card-identity"
+              >
+                <div class="mo-review-head">
+                  <ng-icon name="phosphorIdentificationCardBold" size="16" />
+                  <h3 class="mo-review-title">Identity &amp; access</h3>
+                </div>
+                <dl class="mo-kv-grid mo-kv-grid-inline">
+                  <div class="mo-kv-item">
+                    <dt>Dashboard / Tab name</dt>
+                    <dd>{{ form.get("componentName")?.value || "—" }}</dd>
+                  </div>
+                  <div class="mo-kv-item">
+                    <dt>Component name</dt>
+                    <dd>{{ form.get("featureName")?.value || "—" }}</dd>
+                  </div>
+                  <div class="mo-kv-item">
+                    <dt>Role name</dt>
+                    <dd>{{ form.get("roleName")?.value || "—" }}</dd>
+                  </div>
+                  <div class="mo-kv-item">
+                    <dt>Assignment users key</dt>
+                    <dd>{{ form.get("assignmentUsersKey")?.value || "—" }}</dd>
+                  </div>
+                </dl>
+              </section>
+
+              <section class="mo-review-card mo-review-card-full">
+                <div class="mo-review-head">
+                  <ng-icon name="phosphorBookOpenBold" size="16" />
+                  <h3 class="mo-review-title">SQL queries</h3>
+                  <span class="mo-status-pill mo-status-pill-success"
+                    >4 required queries configured</span
+                  >
+                </div>
+
+                <div class="mo-review-stack">
+                  <div class="mo-query-table-head" aria-hidden="true">
+                    <span>Query</span>
+                    <span>Bindings</span>
+                    <span>Status</span>
+                  </div>
+
+                  <details class="mo-query-accordion" open>
+                    <summary class="mo-query-summary">
+                      <span class="mo-query-left">
+                        <span class="mo-query-number">01</span>
+                        <span class="mo-query-name">Summary query</span>
+                      </span>
+                      <span class="mo-query-right">
+                        <span class="mo-query-metric"
+                          >{{
+                            (queries.get("summary")?.value || "").split("?")
+                              .length - 1
+                          }}
+                          params</span
+                        >
+                        <span class="mo-query-state">Configured</span>
+                      </span>
+                    </summary>
+                    <div class="mo-query-body">
+                      <textarea
+                        class="mo-textarea mo-mono mo-review-textarea"
+                        [value]="queries.get('summary')?.value || ''"
+                        readonly
+                      ></textarea>
+                    </div>
+                  </details>
+
+                  <details class="mo-query-accordion">
+                    <summary class="mo-query-summary">
+                      <span class="mo-query-left">
+                        <span class="mo-query-number">02</span>
+                        <span class="mo-query-name">Details query</span>
+                      </span>
+                      <span class="mo-query-right">
+                        <span class="mo-query-metric"
+                          >{{
+                            (queries.get("details")?.value || "").split("?")
+                              .length - 1
+                          }}
+                          params</span
+                        >
+                        <span class="mo-query-state">Configured</span>
+                      </span>
+                    </summary>
+                    <div class="mo-query-body">
+                      <textarea
+                        class="mo-textarea mo-mono mo-review-textarea"
+                        [value]="queries.get('details')?.value || ''"
+                        readonly
+                      ></textarea>
+                    </div>
+                  </details>
+
+                  <details class="mo-query-accordion">
+                    <summary class="mo-query-summary">
+                      <span class="mo-query-left">
+                        <span class="mo-query-number">03</span>
+                        <span class="mo-query-name"
+                          >Details (filtered) query</span
+                        >
+                      </span>
+                      <span class="mo-query-right">
+                        <span class="mo-query-metric"
+                          >{{
+                            (queries.get("detailsFiltered")?.value || "").split(
+                              "?"
+                            ).length - 1
+                          }}
+                          params</span
+                        >
+                        <span class="mo-query-state">Configured</span>
+                      </span>
+                    </summary>
+                    <div class="mo-query-body">
+                      <textarea
+                        class="mo-textarea mo-mono mo-review-textarea"
+                        [value]="queries.get('detailsFiltered')?.value || ''"
+                        readonly
+                      ></textarea>
+                    </div>
+                  </details>
+
+                  <details class="mo-query-accordion">
+                    <summary class="mo-query-summary">
+                      <span class="mo-query-left">
+                        <span class="mo-query-number">04</span>
+                        <span class="mo-query-name">Summary update query</span>
+                      </span>
+                      <span class="mo-query-right">
+                        <span class="mo-query-metric"
+                          >{{
+                            (queries.get("summaryUpdate")?.value || "").split(
+                              "?"
+                            ).length - 1
+                          }}
+                          params</span
+                        >
+                        <span class="mo-query-state">Configured</span>
+                      </span>
+                    </summary>
+                    <div class="mo-query-body">
+                      <textarea
+                        class="mo-textarea mo-mono mo-review-textarea"
+                        [value]="queries.get('summaryUpdate')?.value || ''"
+                        readonly
+                      ></textarea>
+                    </div>
+                  </details>
+                </div>
+              </section>
+
+              <section class="mo-review-card">
+                <div class="mo-review-head">
+                  <ng-icon name="phosphorSlidersHorizontalBold" size="16" />
+                  <h3 class="mo-review-title">Summary columns</h3>
+                  <span class="mo-status-pill"
+                    >{{ summaryColumns.length }} columns</span
+                  >
+                </div>
+
+                @if (summaryColumns.length === 0) {
+                  <p class="mo-empty">No summary columns configured.</p>
+                } @else {
+                  <div class="mo-chip-wrap mo-chip-wrap-rich">
+                    @for (col of summaryColumns.controls; track $index) {
+                      @if ((col.value ?? "").toString().trim()) {
+                        <span class="mo-chip">
+                          <span class="mo-chip-index">{{ $index + 1 }}</span>
+                          {{ col.value }}
+                        </span>
+                      }
+                    }
+                  </div>
+                }
+              </section>
+
+              <section class="mo-review-card">
+                <div class="mo-review-head">
+                  <ng-icon name="phosphorSlidersHorizontalBold" size="16" />
+                  <h3 class="mo-review-title">Details table filters</h3>
+                  <span class="mo-status-pill"
+                    >{{ detailsTableFilters.length }} filters</span
+                  >
+                </div>
+
+                <div class="mo-chip-wrap mo-chip-wrap-rich">
+                  @for (
+                    filter of detailsTableFilters.controls;
+                    track $index;
+                    let i = $index
+                  ) {
+                    <div class="mo-filter-chip">
+                      <span class="mo-chip-index">{{ i + 1 }}</span>
+                      <span class="mo-filter-chip-name">{{
+                        filter.get("columnName")?.value || "—"
+                      }}</span>
+                      <span class="mo-filter-chip-type">{{
+                        filter.get("type")?.value || "—"
+                      }}</span>
+                    </div>
+                  }
+                </div>
+              </section>
+
+              <section
+                class="mo-review-card mo-review-card-full mo-review-card-aliases"
+              >
+                <div class="mo-review-head">
+                  <ng-icon name="phosphorCrosshairBold" size="16" />
+                  <h3 class="mo-review-title">Advanced aliases</h3>
+                  <span class="mo-status-pill"
+                    >{{ paramAliases.length }} mappings</span
+                  >
+                </div>
+
+                @if (paramAliases.length === 0) {
+                  <p class="mo-empty">No aliases configured.</p>
+                } @else {
+                  <div class="mo-review-stack mo-review-list">
+                    @for (
+                      alias of paramAliases.controls;
+                      track $index;
+                      let i = $index
+                    ) {
+                      <div class="mo-filter-row">
+                        <span class="mo-filter-index">{{ i + 1 }}</span>
+                        <span class="mo-filter-col">{{
+                          alias.get("updateColumn")?.value || "—"
+                        }}</span>
+                        <ng-icon
+                          name="phosphorCaretRightBold"
+                          size="14"
+                          class="mo-arrow"
+                        />
+                        <span class="mo-filter-col">{{
+                          alias.get("summaryColumn")?.value || "—"
+                        }}</span>
+                      </div>
+                    }
+                  </div>
+                }
+              </section>
+
+              <section class="mo-review-card mo-review-card-full">
+                <div class="mo-review-head">
+                  <ng-icon name="phosphorClipboardTextBold" size="16" />
+                  <h3 class="mo-review-title">Technical payload (optional)</h3>
+                  <button
+                    class="mo-btn mo-btn-ghost mo-btn-sm"
+                    type="button"
+                    (click)="copyToClipboard(payloadPreview)"
+                  >
+                    <ng-icon name="phosphorClipboardTextBold" size="14" />
+                    Copy JSON
+                  </button>
+                </div>
+                <details class="mo-json-details">
+                  <summary>Show request JSON</summary>
+                  <pre class="mo-doc-pre mo-mono">{{ payloadPreview }}</pre>
+                </details>
+              </section>
+            </div>
+
+            @if (submitError) {
+              <div class="mo-alert mo-alert-error">
+                <ng-icon name="phosphorWarningBold" size="16" />
+                <span>{{ submitError }}</span>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Footer actions -->
+        <div class="mo-actions">
+          <button
+            type="button"
+            class="mo-btn mo-btn-ghost"
+            [disabled]="currentStep === 0 || submitting"
+            (click)="prevStep()"
+          >
+            <ng-icon name="phosphorCaretUpBold" size="14" class="mo-rot-left" />
+            Back
+          </button>
+
+          @if (currentStep < steps.length - 1) {
+            <button
+              type="button"
+              class="mo-btn mo-btn-primary"
+              [disabled]="!canProceedFromCurrent()"
+              (click)="nextStep()"
+            >
+              Next
+              <ng-icon
+                name="phosphorCaretDownBold"
+                size="14"
+                class="mo-rot-right"
+              />
+            </button>
+          } @else {
+            <button
+              type="submit"
+              class="mo-btn mo-btn-primary"
+              [disabled]="submitting || form.invalid"
+            >
+              <ng-icon name="phosphorSparkleBold" size="15" />
+              Generate code
+            </button>
+          }
+        </div>
+
+        @if (submitting) {
+          <div class="mo-generate-progress" aria-live="polite">
+            <app-loading-symbol></app-loading-symbol>
+            <p class="mo-generate-progress__text">
+              Generating your implementation guide… This can take a minute or
+              two.
+            </p>
+          </div>
+        }
+      </form>
+    </section>
+  }
+</div>
+
+<!-- ── Reusable renderer for parsed document blocks ── -->
+<ng-template #docBlocks let-blocks="blocks">
+  <article class="mo-rendered-doc">
+    @for (block of blocks; track $index) {
+      @switch (block.kind) {
+        @case ("heading") {
+          @switch (block.level) {
+            @case (1) {
+              <h2
+                [id]="block.id"
+                class="mo-rendered-doc__heading mo-rendered-doc__heading--2"
+              >
+                <ng-container
+                  [ngTemplateOutlet]="inlineSpans"
+                  [ngTemplateOutletContext]="{ spans: block.spans }"
+                />
+              </h2>
+            }
+            @case (2) {
+              <h2
+                [id]="block.id"
+                class="mo-rendered-doc__heading mo-rendered-doc__heading--2"
+              >
+                <ng-container
+                  [ngTemplateOutlet]="inlineSpans"
+                  [ngTemplateOutletContext]="{ spans: block.spans }"
+                />
+              </h2>
+            }
+            @case (3) {
+              <h3
+                [id]="block.id"
+                class="mo-rendered-doc__heading mo-rendered-doc__heading--3"
+              >
+                <ng-container
+                  [ngTemplateOutlet]="inlineSpans"
+                  [ngTemplateOutletContext]="{ spans: block.spans }"
+                />
+              </h3>
+            }
+            @default {
+              <h4
+                [id]="block.id"
+                class="mo-rendered-doc__heading mo-rendered-doc__heading--4"
+              >
+                <ng-container
+                  [ngTemplateOutlet]="inlineSpans"
+                  [ngTemplateOutletContext]="{ spans: block.spans }"
+                />
+              </h4>
+            }
+          }
+        }
+        @case ("paragraph") {
+          <p class="mo-rendered-doc__paragraph">
+            <ng-container
+              [ngTemplateOutlet]="inlineSpans"
+              [ngTemplateOutletContext]="{ spans: block.spans }"
+            />
+          </p>
+        }
+        @case ("list") {
+          @if (block.ordered) {
+            <ol class="mo-rendered-doc__list mo-rendered-doc__list--ordered">
+              @for (item of block.items; track $index) {
+                <li>
+                  <ng-container
+                    [ngTemplateOutlet]="inlineSpans"
+                    [ngTemplateOutletContext]="{ spans: item }"
+                  />
+                </li>
+              }
+            </ol>
+          } @else {
+            <ul class="mo-rendered-doc__list">
+              @for (item of block.items; track $index) {
+                <li>
+                  <ng-container
+                    [ngTemplateOutlet]="inlineSpans"
+                    [ngTemplateOutletContext]="{ spans: item }"
+                  />
+                </li>
+              }
+            </ul>
+          }
+        }
+        @case ("checklist") {
+          <ul class="mo-rendered-doc__checklist">
+            @for (item of block.items; track $index) {
+              <li
+                class="mo-rendered-doc__check"
+                [class.mo-rendered-doc__check--done]="item.done"
+              >
+                <ng-icon
+                  [name]="
+                    item.done ? 'phosphorCheckSquareBold' : 'phosphorSquareBold'
+                  "
+                  size="15"
+                  class="mo-rendered-doc__check-box"
+                />
+                <span>
+                  <ng-container
+                    [ngTemplateOutlet]="inlineSpans"
+                    [ngTemplateOutletContext]="{ spans: item.spans }"
+                  />
+                </span>
+              </li>
+            }
+          </ul>
+        }
+        @case ("code") {
+          <div class="mo-rendered-doc__code-wrap">
+            @if (block.lang) {
+              <span class="mo-rendered-doc__code-lang">{{ block.lang }}</span>
+            }
+            <button
+              type="button"
+              class="mo-rendered-doc__code-copy"
+              (click)="copyCodeBlock(block.lines)"
+              aria-label="Copy code block"
+              title="Copy code"
+            >
+              <ng-icon name="phosphorCopyBold" size="20" />
+            </button>
+            <pre
+              class="mo-rendered-doc__code"
+            ><code>@for (line of block.lines; track $index) {<span class="mo-rendered-doc__code-line">{{ line }}</span>}</code></pre>
+          </div>
+        }
+        @case ("callout") {
+          <div
+            class="mo-rendered-doc__callout"
+            [class.mo-rendered-doc__callout--copy]="block.tone === 'copy'"
+          >
+            <ng-container
+              [ngTemplateOutlet]="docBlocks"
+              [ngTemplateOutletContext]="{ blocks: block.blocks }"
+            />
+          </div>
+        }
+        @case ("table") {
+          <div class="mo-rendered-doc__table-wrap">
+            <table class="mo-rendered-doc__table">
+              <thead>
+                <tr>
+                  @for (cell of block.headers; track $index) {
+                    <th>
+                      <ng-container
+                        [ngTemplateOutlet]="inlineSpans"
+                        [ngTemplateOutletContext]="{ spans: cell }"
+                      />
+                    </th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of block.rows; track $index) {
+                  <tr>
+                    @for (cell of row; track $index) {
+                      <td>
+                        <ng-container
+                          [ngTemplateOutlet]="inlineSpans"
+                          [ngTemplateOutletContext]="{ spans: cell }"
+                        />
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+    }
+  </article>
+</ng-template>
+
+<!-- ── Inline span renderer (text / code / strong / em) ── -->
+<ng-template #inlineSpans let-spans="spans">
+  @for (span of spans; track $index) {
+    @switch (span.type) {
+      @case ("code") {
+        <code>{{ span.value }}</code>
+      }
+      @case ("strong") {
+        <strong>{{ span.value }}</strong>
+      }
+      @case ("em") {
+        <em>{{ span.value }}</em>
+      }
+      @default {
+        <span>{{ span.value }}</span>
+      }
+    }
+  }
+</ng-template>

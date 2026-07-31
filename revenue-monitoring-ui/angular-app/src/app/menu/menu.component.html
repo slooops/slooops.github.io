@@ -86,6 +86,30 @@
               </button>
             }
           </nav>
+          @if (
+            item.label === "Continuous Monitoring" && canViewOnboardingFooter()
+          ) {
+            <div class="ms-drawer-footer">
+              <button
+                class="ms-drawer-item ms-drawer-footer-item"
+                [class.active]="isRouteActive('/onboard-exception-monitoring')"
+                (click)="
+                  navigateEvent.emit({
+                    route: '/onboard-exception-monitoring',
+                  });
+                  activeDrawer = null;
+                  activeFlyout = null
+                "
+              >
+                <ng-icon
+                  name="phosphorPlusCircleBold"
+                  size="22"
+                  class="ms-drawer-item-icon"
+                />
+                <span class="ms-drawer-item-label">Onboard your Component</span>
+              </button>
+            </div>
+          }
         </div>
       }
     }

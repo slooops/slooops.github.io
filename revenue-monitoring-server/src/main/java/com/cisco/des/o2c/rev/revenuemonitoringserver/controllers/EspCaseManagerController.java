@@ -184,4 +184,15 @@ public class EspCaseManagerController {
     public ResponseEntity<List<Map<String, Object>>> getEspCaseAnalyzerMetrics() {
         return new ResponseEntity<>(service.getEspCaseAnalyzerMetrics(), HttpStatus.OK);
     }
+
+    @GetMapping("/xxcaseiq-reopen-metrics")
+    public ResponseEntity<List<Map<String, Object>>> getEspCaseReopenedMetrics() {
+        return new ResponseEntity<>(service.getEspCaseReopenedMetrics(), HttpStatus.OK);
+    }
+
+    @PostMapping("/xxcaseiq-reopen-update")
+    public ResponseEntity<Integer> espCaseManagerGlobalSearch(@RequestBody Map<String, String> updateData) throws IOException {
+        System.out.println(updateData);
+        return new ResponseEntity<Integer>(service.updateReopenedMetrics(updateData), HttpStatus.OK);
+    }
 }

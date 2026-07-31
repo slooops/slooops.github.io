@@ -67,13 +67,29 @@
         @if (incident.category) {
           <div class="id__meta-item">
             <span class="id__meta-label">CATEGORY</span>
-            <span class="id__meta-value">{{ incident.category }}</span>
+            <span class="id__meta-value-row">
+              <span class="id__meta-value">{{ incident.category }}</span>
+              @if (categoryChanged) {
+                <span
+                  class="id__meta-change-dot"
+                  title="Category changed"
+                ></span>
+              }
+            </span>
           </div>
         }
         @if (incident.core_issue) {
           <div class="id__meta-item">
             <span class="id__meta-label">CORE ISSUE</span>
-            <span class="id__meta-value">{{ incident.core_issue }}</span>
+            <span class="id__meta-value-row">
+              <span class="id__meta-value">{{ incident.core_issue }}</span>
+              @if (coreIssueChanged) {
+                <span
+                  class="id__meta-change-dot"
+                  title="Core issue changed"
+                ></span>
+              }
+            </span>
           </div>
         }
         @if (incident.resolution_path) {
@@ -100,204 +116,376 @@
     </header>
 
     <!-- Tabs -->
-    <!-- <div class="id__tabs">
+    <div class="id__tabs">
       <button
         class="id__tab"
         [class.id__tab--active]="activeTab === 'pipeline'"
         (click)="activeTab = 'pipeline'"
       >
-        Pipeline Execution
+        Agentic Pipeline
       </button>
-    </div> -->
+      @if (reopenMetric) {
+        <button
+          class="id__tab id__tab--reopen"
+          [class.id__tab--active]="activeTab === 'reopen'"
+          (click)="activeTab = 'reopen'"
+        >
+          <span class="id__tab-reopen-dot"></span>
+          Case Reopened — Updated Analysis
+        </button>
+      }
+    </div>
 
     <!-- Pipeline Tab -->
-    <div class="id__pipeline">
-      <div class="id__pipeline-header">
-        <h3 class="id__section-title">Agentic Pipeline</h3>
-        <button
-          class="id__expand-all-btn"
-          (click)="pipelineSteps[0]?.expanded ? collapseAll() : expandAll()"
-        >
-          {{ pipelineSteps[0]?.expanded ? "Collapse All" : "Expand All" }}
-        </button>
-      </div>
+    @if (activeTab === "pipeline") {
+      <div class="id__pipeline">
+        <div class="id__pipeline-header">
+          <h3 class="id__section-title">Agentic Pipeline</h3>
+          <button
+            class="id__expand-all-btn"
+            (click)="pipelineSteps[0]?.expanded ? collapseAll() : expandAll()"
+          >
+            {{ pipelineSteps[0]?.expanded ? "Collapse All" : "Expand All" }}
+          </button>
+        </div>
 
-      @if (pipelineSteps.length === 0) {
-        <div class="id__empty">No pipeline data available.</div>
-      }
+        @if (pipelineSteps.length === 0) {
+          <div class="id__empty">No pipeline data available.</div>
+        }
 
-      @for (step of pipelineSteps; track step.name; let i = $index) {
-        <div class="id__step" [class.id__step--expanded]="step.expanded">
-          <div class="id__step-header" (click)="toggleStep(i)">
-            <div class="id__step-left">
-              <div
-                class="id__step-icon"
-                [ngClass]="getStatusClass(step.status)"
-              >
-                @if (
-                  step.status === "completed" || step.status === "resolved"
-                ) {
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="3"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                } @else {
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                  </svg>
-                }
+        @for (step of pipelineSteps; track step.name; let i = $index) {
+          <div class="id__step" [class.id__step--expanded]="step.expanded">
+            <div class="id__step-header" (click)="toggleStep(i)">
+              <div class="id__step-left">
+                <div
+                  class="id__step-icon"
+                  [ngClass]="getStatusClass(step.status)"
+                >
+                  @if (
+                    step.status === "completed" || step.status === "resolved"
+                  ) {
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="3"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  } @else {
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                    </svg>
+                  }
+                </div>
+                <h4 class="id__step-name">{{ step.name }}</h4>
               </div>
-              <h4 class="id__step-name">{{ step.name }}</h4>
+              <div class="id__step-right">
+                <span
+                  class="id__step-status"
+                  [ngClass]="getStatusClass(step.status)"
+                  >{{ step.status }}</span
+                >
+                <span class="id__step-toggle">{{
+                  step.expanded ? "—" : "+"
+                }}</span>
+              </div>
             </div>
-            <div class="id__step-right">
-              <span
-                class="id__step-status"
-                [ngClass]="getStatusClass(step.status)"
-                >{{ step.status }}</span
-              >
-              <span class="id__step-toggle">{{
-                step.expanded ? "—" : "+"
-              }}</span>
-            </div>
-          </div>
 
-          @if (step.expanded) {
-            <div class="id__step-body">
-              <div class="id__step-fields">
-                @for (field of getStepFields(step); track field.key) {
-                  <div class="id__field">
-                    <span class="id__field-key">{{ field.key }}</span>
-                    @if (isObject(field.value) || isArray(field.value)) {
-                      <details class="id__field-details" #fieldDetails>
-                        <summary>
-                          {{ fieldDetails.open ? "▼" : "▶" }} {{ field.key }}
+            @if (step.expanded) {
+              <div class="id__step-body">
+                <div class="id__step-fields">
+                  @for (field of getStepFields(step); track field.key) {
+                    <div class="id__field">
+                      <span class="id__field-key">{{ field.key }}</span>
+                      @if (isObject(field.value) || isArray(field.value)) {
+                        <details class="id__field-details" #fieldDetails>
+                          <summary>
+                            {{ fieldDetails.open ? "▼" : "▶" }} {{ field.key }}
+                          </summary>
+                          <pre class="id__field-json">{{
+                            field.value | json
+                          }}</pre>
+                        </details>
+                      } @else {
+                        <span class="id__field-value">{{ field.value }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+
+                @if (step.subAgentCalls && step.subAgentCalls.length > 0) {
+                  <div class="id__sub-agents">
+                    <h5 class="id__sub-agents-title">
+                      Sub-Agent Calls ({{ step.subAgentCalls.length }})
+                    </h5>
+                    @for (agent of step.subAgentCalls; track agent.name) {
+                      <details class="id__sub-agent-item" #agentItem>
+                        <summary class="id__sub-agent-row">
+                          <div class="id__sub-agent-left">
+                            <span class="id__sub-agent-name">{{
+                              agent.name
+                            }}</span>
+                            @if (agent.team) {
+                              <span class="id__sub-agent-team">{{
+                                agent.team
+                              }}</span>
+                            }
+                          </div>
+                          <div class="id__sub-agent-right">
+                            <span
+                              class="id__sub-agent-status"
+                              [ngClass]="getStatusClass(agent.status)"
+                              >{{ agent.status }}</span
+                            >
+                            <span
+                              class="id__sub-agent-toggle"
+                              aria-hidden="true"
+                            >
+                              {{ agentItem.open ? "—" : "+" }}
+                            </span>
+                          </div>
                         </summary>
-                        <pre class="id__field-json">{{
-                          field.value | json
-                        }}</pre>
+
+                        <div class="id__sub-agent-body">
+                          @if (agent.details?.request_payload) {
+                            <details class="id__field-details" #requestDetails>
+                              <summary>
+                                {{ requestDetails.open ? "▼" : "▶" }} Request
+                                Payload
+                              </summary>
+                              <pre class="id__field-json">{{
+                                agent.details.request_payload | json
+                              }}</pre>
+                            </details>
+                          }
+
+                          @if (agent.details?.response_payload) {
+                            <details class="id__field-details" #responseDetails>
+                              <summary>
+                                {{ responseDetails.open ? "▼" : "▶" }} Response
+                                Payload
+                              </summary>
+                              <pre class="id__field-json">{{
+                                agent.details.response_payload | json
+                              }}</pre>
+                            </details>
+                          }
+                        </div>
                       </details>
-                    } @else {
-                      <span class="id__field-value">{{ field.value }}</span>
                     }
                   </div>
                 }
               </div>
+            }
+          </div>
+        }
+      </div>
 
-              @if (step.subAgentCalls && step.subAgentCalls.length > 0) {
-                <div class="id__sub-agents">
-                  <h5 class="id__sub-agents-title">
-                    Sub-Agent Calls ({{ step.subAgentCalls.length }})
-                  </h5>
-                  @for (agent of step.subAgentCalls; track agent.name) {
-                    <details class="id__sub-agent-item" #agentItem>
-                      <summary class="id__sub-agent-row">
-                        <div class="id__sub-agent-left">
-                          <span class="id__sub-agent-name">{{
-                            agent.name
-                          }}</span>
-                          @if (agent.team) {
-                            <span class="id__sub-agent-team">{{
-                              agent.team
-                            }}</span>
-                          }
-                        </div>
-                        <div class="id__sub-agent-right">
-                          <span
-                            class="id__sub-agent-status"
-                            [ngClass]="getStatusClass(agent.status)"
-                            >{{ agent.status }}</span
-                          >
-                          <span class="id__sub-agent-toggle" aria-hidden="true">
-                            {{ agentItem.open ? "—" : "+" }}
-                          </span>
-                        </div>
-                      </summary>
+      <!-- Notifications Tab -->
+      <!-- @if (activeTab === "notifications") { ... } -->
+    }
+    <!-- end pipeline @if -->
 
-                      <div class="id__sub-agent-body">
-                        @if (agent.details?.request_payload) {
-                          <details class="id__field-details" #requestDetails>
-                            <summary>
-                              {{ requestDetails.open ? "▼" : "▶" }} Request
-                              Payload
-                            </summary>
-                            <pre class="id__field-json">{{
-                              agent.details.request_payload | json
-                            }}</pre>
-                          </details>
-                        }
+    <!-- Reopen Tab -->
+    @if (activeTab === "reopen" && reopenMetric) {
+      <div class="id__reopen">
+        <div class="id__reopen-banner">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M23 4v6h-6" />
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+          </svg>
+          This case has been reopened. The latest case updates have been
+          analyzed, and the refreshed findings are summarized below.
+        </div>
 
-                        @if (agent.details?.response_payload) {
-                          <details class="id__field-details" #responseDetails>
-                            <summary>
-                              {{ responseDetails.open ? "▼" : "▶" }} Response
-                              Payload
-                            </summary>
-                            <pre class="id__field-json">{{
-                              agent.details.response_payload | json
-                            }}</pre>
-                          </details>
-                        }
-                      </div>
-                    </details>
-                  }
-                </div>
+        <!-- Original Incident Overview -->
+        <section class="id__reopen-section">
+          <h4 class="id__reopen-section-title">Original Incident Overview</h4>
+          <p class="id__reopen-body-text">
+            {{ reopenMetric.ORIGINAL_CASE_SUMMARY }}
+          </p>
+        </section>
+
+        <!-- Updated Request -->
+        <section class="id__reopen-section">
+          <h4 class="id__reopen-section-title">Updated Request</h4>
+          <p class="id__reopen-body-text">{{ reopenMetric.NEW_ASK_SUMMARY }}</p>
+        </section>
+
+        <!-- Case Analysis -->
+        <section class="id__reopen-section">
+          <h4 class="id__reopen-section-title">Case Analysis</h4>
+          <ul class="id__reopen-analysis-list">
+            <li>
+              <span class="id__reopen-field-label">Category:</span>
+              <span class="id__reopen-field-value">{{
+                reopenMetric.CURRENT_CATEGORY || "—"
+              }}</span>
+              @if (categoryChanged) {
+                <span class="id__reopen-badge id__reopen-badge--changed"
+                  >Changed from {{ reopenMetric.PREVIOUS_CATEGORY }}</span
+                >
               }
+            </li>
+            <li>
+              <span class="id__reopen-field-label">Core Issue:</span>
+              <span class="id__reopen-field-value">{{
+                reopenMetric.CURRENT_CORE_ISSUE || "—"
+              }}</span>
+              @if (coreIssueChanged) {
+                <span class="id__reopen-badge id__reopen-badge--changed"
+                  >Changed from {{ reopenMetric.PREVIOUS_CORE_ISSUE }}</span
+                >
+              }
+            </li>
+          </ul>
+
+          @if (getContextDiffs().length > 0) {
+            <div class="id__reopen-context-block">
+              <h5 class="id__reopen-context-title">Context Changes:</h5>
+              <ul class="id__reopen-context-list">
+                @for (diff of getContextDiffs(); track diff.key) {
+                  <li class="id__reopen-context-item">
+                    <span class="id__reopen-context-key">{{ diff.key }}:</span>
+                    <span class="id__reopen-context-prev">{{ diff.prev }}</span>
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="id__reopen-arrow"
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                    <span class="id__reopen-context-curr">{{ diff.curr }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </section>
+
+        <!-- Decision prompt -->
+        <div class="id__reopen-decision">
+          <p class="id__reopen-decision-prompt">
+            Would you like to proceed with the recommended resolution using this
+            updated analysis?
+          </p>
+          <div class="id__reopen-decision-btns">
+            <button
+              class="id__reopen-btn id__reopen-btn--yes"
+              (click)="onYesDecision()"
+              [disabled]="reopenUpdateLoading"
+            >
+              Yes
+            </button>
+            <button
+              class="id__reopen-btn id__reopen-btn--no"
+              (click)="onNoDecision()"
+              [disabled]="reopenUpdateLoading"
+            >
+              No
+            </button>
+          </div>
+
+          @if (showRejectForm) {
+            <div class="id__reject-card">
+              <h5 class="id__reject-title">Reopen Rejection Details</h5>
+              <div class="id__reject-grid">
+                <label class="id__reject-field">
+                  <span class="id__reject-label">Category</span>
+                  <input
+                    class="id__reject-input"
+                    type="text"
+                    [(ngModel)]="rejectCategory"
+                    placeholder="Enter category"
+                  />
+                </label>
+
+                <label class="id__reject-field">
+                  <span class="id__reject-label">Core Issue</span>
+                  <input
+                    class="id__reject-input"
+                    type="text"
+                    [(ngModel)]="rejectCoreIssue"
+                    placeholder="Enter core issue"
+                  />
+                </label>
+
+                <label class="id__reject-field">
+                  <span class="id__reject-label">Reason</span>
+                  <input
+                    class="id__reject-input"
+                    type="text"
+                    [(ngModel)]="rejectReason"
+                    placeholder="Enter reason"
+                  />
+                </label>
+
+                <label class="id__reject-field">
+                  <span class="id__reject-label">Team</span>
+                  <select class="id__reject-select" [(ngModel)]="rejectTeam">
+                    <option value="" disabled>Select team</option>
+                    @for (team of rejectTeamOptions; track team) {
+                      <option [value]="team">{{ team }}</option>
+                    }
+                  </select>
+                </label>
+              </div>
+
+              <div class="id__reject-actions">
+                <button
+                  class="id__reopen-btn id__reopen-btn--yes"
+                  (click)="submitNoDecision()"
+                  [disabled]="!isRejectFormValid() || reopenUpdateLoading"
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          }
+
+          @if (reopenUpdateSuccess) {
+            <div class="id__reopen-feedback id__reopen-feedback--success">
+              {{ reopenUpdateSuccess }}
+            </div>
+          }
+
+          @if (reopenUpdateError) {
+            <div class="id__reopen-feedback id__reopen-feedback--error">
+              {{ reopenUpdateError }}
             </div>
           }
         </div>
-      }
-    </div>
-
-    <!-- Notifications Tab -->
-    <!-- @if (activeTab === "notifications") {
-      <div class="id__notifications">
-        @if (notifications.length === 0) {
-          <div class="id__empty">No notifications available.</div>
-        }
-
-        @for (evt of notifications; track evt; let i = $index) {
-          <div class="id__event-row" (click)="toggleNotification(i)">
-            <div class="id__event-left">
-              <span
-                class="id__event-type"
-                [ngClass]="getEventTypeClass(evt.type)"
-                >{{ evt.type }}</span
-              >
-              <span class="id__event-desc">{{ evt.description }}</span>
-            </div>
-            <div class="id__event-right">
-              <span class="id__event-time">{{
-                formatTimestamp(evt.timestamp)
-              }}</span>
-              <span class="id__event-toggle">{{
-                evt.expanded ? "—" : "+"
-              }}</span>
-            </div>
-          </div>
-          @if (evt.expanded && evt.details) {
-            <div class="id__event-details">
-              <pre class="id__field-json">{{ evt.details | json }}</pre>
-            </div>
-          }
-        }
       </div>
-    } -->
+    }
   }
 </div>

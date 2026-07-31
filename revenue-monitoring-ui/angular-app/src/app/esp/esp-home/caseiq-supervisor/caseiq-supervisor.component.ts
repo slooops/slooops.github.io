@@ -1,4 +1,4 @@
-import { Component, HostBinding } from '@angular/core';
+import { Component, HostBinding, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from 'src/app/providers/theme.service';
 import {
@@ -27,6 +27,7 @@ export class CaseiqSupervisorComponent {
 
   selectedIncident: SupervisorIncident | null = null;
   selectedIncidentDetailData: Record<string, unknown> | null = null;
+  @Input() caseReopenMetrics: any;
 
   periodStatus = {
     periodName: 'JUN-26',

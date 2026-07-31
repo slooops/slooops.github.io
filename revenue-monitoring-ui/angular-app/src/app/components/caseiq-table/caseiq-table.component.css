@@ -67,6 +67,28 @@
   white-space: nowrap;
 }
 
+.ciq-sort-header-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
+.ciq-sort-header-btn:hover {
+  color: #0070d2;
+}
+
+.ciq-sort-icon {
+  flex-shrink: 0;
+  color: #4f5d75;
+  vertical-align: middle;
+}
+
 .ciq-table td {
   padding: 8px 12px;
   border-bottom: 1px solid var(--fit-color-border, #e2e8f0);
@@ -116,6 +138,15 @@
 .timeline-row td {
   border-bottom: none;
   padding: 0.8rem 0.6rem 0.8rem;
+}
+
+.ciq-detail-row td {
+  border-bottom: none;
+  padding: 0;
+}
+
+.ciq-detail-cell {
+  padding: 0 !important;
 }
 
 .timeline-cell {
@@ -295,13 +326,28 @@
   white-space: nowrap;
 }
 
+.incident-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
 .analyzed-icon {
   color: #0070d2;
   flex-shrink: 0;
 }
 
+.reopened-icon {
+  color: #f39d12;
+  flex-shrink: 0;
+}
+
 :host(.dark-theme) .analyzed-icon {
   color: #00bceb;
+}
+
+:host(.dark-theme) .reopened-icon {
+  color: #ffb74d;
 }
 
 :host(.dark-theme) .ciq-table td.clickable-cell {
@@ -312,6 +358,14 @@
   background: rgba(26, 39, 51, 0.9);
   color: #9fb0bf;
   border-bottom-color: #2a3f50;
+}
+
+:host(.dark-theme) .ciq-sort-header-btn:hover {
+  color: #00bceb;
+}
+
+:host(.dark-theme) .ciq-sort-icon {
+  color: #8899a6;
 }
 
 :host(.dark-theme) .ciq-table td {
@@ -561,7 +615,7 @@
   overflow-y: visible;
   padding: 0.75rem;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 1rem;
   column-gap: 2rem;
 }
@@ -739,6 +793,11 @@
   display: flex;
   flex-direction: column;
 }
+
+.multi-select-wrapper.in-popup .multi-select-dropdown {
+  width: max-content;
+  min-width: 100%;
+}
 .multi-select-options {
   overflow-y: auto;
   padding: 4px 0;
@@ -750,6 +809,10 @@
   padding: 4px 10px;
   font-size: 12px;
   cursor: pointer;
+}
+
+.multi-select-wrapper.in-popup .multi-option {
+  white-space: nowrap;
 }
 .multi-option:hover {
   background: #f3f4f6;

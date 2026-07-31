@@ -3,15 +3,22 @@ import {
   EventEmitter,
   HostBinding,
   OnInit,
+  OnChanges,
   Output,
+  Input,
+  SimpleChanges,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorArrowClockwiseBold } from '@ng-icons/phosphor-icons/bold';
 import { ThemeService } from 'src/app/providers/theme.service';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
 import {
   FilterButtonBarComponent,
+  DateRangeChangeEvent,
   FilterConfig,
   FilterValues,
 } from 'src/app/components/filter-button-bar/filter-button-bar.component';
@@ -58,6 +65,7 @@ interface PipelineHop {
   coreIssue: string;
   outcome: string;
   durationMs: number;
+  resolvedBy: string;
 }
 
 interface PipelineGroup {
@@ -79,29 +87,42 @@ interface DynamicKpi {
 }
 
 interface SupervisorMetricsSummary {
-  total_involvements: number;
   unique_incidents: number;
   outcomes?: Record<string, number>;
+}
+
+interface CaseReopenMetric {
+  TEAM_NAME: string;
+  INCIDENT_NUMBER: string;
 }
 
 @Component({
   selector: 'app-caseiq-incidents',
   templateUrl: './caseiq-incidents.component.html',
   styleUrl: './caseiq-incidents.component.css',
+  providers: [
+    provideIcons({
+      phosphorArrowClockwiseBold,
+    }),
+  ],
   standalone: true,
   imports: [
     CommonModule,
     FormsModule,
+    NgIcon,
     FilterButtonBarComponent,
     PaginationComponent,
   ],
 })
-export class CaseiqIncidentsComponent implements OnInit {
+export class CaseiqIncidentsComponent implements OnInit, OnChanges {
   @Output() sharedStateOpen = new EventEmitter<SharedStateOpenEvent>();
+  @Input() caseReopenMetrics: CaseReopenMetric[] = [];
+  private static readonly CUSTOM_DATE_RANGE_VALUE = 'Date range';
 
-  private readonly metricsSummaryUrl = '/api/caseiq-supervisor/metrics/summary';
+  private readonly metricsSummaryUrl =
+    '/api/caseiq-supervisor/api/v2/metrics/summary';
   private readonly metricsIncidentsUrl =
-    '/api/caseiq-supervisor/metrics/incidents';
+    '/api/caseiq-supervisor/api/v1/incidents';
   private readonly dashboardIncidentDetailUrl =
     '/api/caseiq-supervisor/api/v1/incidents';
 
@@ -118,6 +139,9 @@ export class CaseiqIncidentsComponent implements OnInit {
   pipelineDetailLoading = false;
   pipelineDetailError: string | null = null;
   pipelineDetailIncident: SupervisorIncident | null = null;
+  pipelineDetailsBySharedStateId: Record<string, PipelineDetail> = {};
+  pipelineDetailLoadingBySharedStateId: Record<string, boolean> = {};
+  pipelineDetailErrorBySharedStateId: Record<string, string> = {};
   inlineDetailIncidentNumber: string | null = null;
   inlineDetailSharedStateId: string | null = null;
   inlineDetailLoading = false;
@@ -126,6 +150,8 @@ export class CaseiqIncidentsComponent implements OnInit {
   selectedSearchField: 'incidentNumber' | 'category' | 'coreIssue' =
     'incidentNumber';
   selectedRange = '';
+  customDateRangeStart = '';
+  customDateRangeEnd = '';
 
   // Pagination
   currentPage = 0;
@@ -156,6 +182,7 @@ export class CaseiqIncidentsComponent implements OnInit {
     'Last 3 days',
     'Last 7 days',
     'Last 30 days',
+    CaseiqIncidentsComponent.CUSTOM_DATE_RANGE_VALUE,
   ];
 
   readonly topFilterConfigs: FilterConfig[] = [
@@ -184,7 +211,17 @@ export class CaseiqIncidentsComponent implements OnInit {
         value: range,
       })),
     },
+    {
+      id: 'coreIssue',
+      label: 'Core Issue',
+      type: 'multi-select',
+      placeholder: 'All core issues',
+      options: [],
+    },
   ];
+
+  readonly topFilterConfigsWithoutTeam: FilterConfig[] =
+    this.topFilterConfigs.filter((config) => config.id !== 'team');
 
   topFilterValues: FilterValues = {};
 
@@ -193,12 +230,20 @@ export class CaseiqIncidentsComponent implements OnInit {
   private allIncidents: SupervisorIncident[] = [];
   private userTeamFilters: string[] = [];
   private isAdminOrManager = false;
+  showTeamFilter = true;
+  private readonly reopenedIncidentTeamKeys = new Set<string>();
 
   constructor(
     public themeService: ThemeService,
-    private readonly http: HttpClient,
-    private readonly authService: AuthenticationService,
+    private readonly httpClient: HttpClient,
+    private authService: AuthenticationService,
   ) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['caseReopenMetrics']) {
+      this.syncReopenedIncidentTeamKeys();
+    }
+  }
 
   /**
    * Determines user's access level and team restrictions
@@ -296,29 +341,78 @@ export class CaseiqIncidentsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const accessLevel = this.getUserAccessLevel();
+    this.isAdminOrManager = accessLevel.isAdmin;
+    this.userTeamFilters = accessLevel.teams;
+    this.showTeamFilter = accessLevel.isAdmin || accessLevel.teams.length !== 1;
+
     this.applyFilter();
     this.loadMetricsSummary();
     this.loadIncidents();
   }
 
   private loadIncidents(): void {
-    this.http.get<unknown>(this.getMetricsIncidentsUrl()).subscribe({
+    this.httpClient.get(this.getMetricsIncidentsUrl()).subscribe({
       next: (response) => {
         const apiIncidents = this.extractIncidentRows(response);
         // Apply client-side filtering for multiple team access
         const filteredIncidents = this.filterIncidentsByTeam(apiIncidents);
         this.incidents = this.groupIncidents(filteredIncidents);
         this.allIncidents = [...this.incidents];
+        this.syncReopenedIncidentTeamKeys();
         this.updateDynamicFilterOptionsFromIncidents();
         this.applyFilter();
       },
       error: () => {
         this.incidents = [];
         this.allIncidents = [];
+        this.syncReopenedIncidentTeamKeys();
         this.updateDynamicFilterOptionsFromIncidents();
         this.applyFilter();
       },
     });
+  }
+
+  isReopenedIncident(row: SupervisorIncident): boolean {
+    const key = this.buildIncidentTeamKey(row.incidentNumber, row.team);
+    return this.reopenedIncidentTeamKeys.has(key);
+  }
+
+  private syncReopenedIncidentTeamKeys(): void {
+    this.reopenedIncidentTeamKeys.clear();
+
+    const visibleTeams = new Set(
+      (this.allIncidents || []).map((item) => this.normalizeKeyPart(item.team)),
+    );
+
+    for (const metric of this.caseReopenMetrics || []) {
+      const team = this.normalizeKeyPart(metric?.TEAM_NAME);
+      const incident = this.normalizeKeyPart(metric?.INCIDENT_NUMBER);
+      if (!team || !incident) {
+        continue;
+      }
+
+      if (visibleTeams.size > 0 && !visibleTeams.has(team)) {
+        continue;
+      }
+
+      this.reopenedIncidentTeamKeys.add(
+        this.buildIncidentTeamKey(incident, team),
+      );
+    }
+  }
+
+  private buildIncidentTeamKey(
+    incidentNumber: string,
+    teamName: string,
+  ): string {
+    return `${this.normalizeKeyPart(teamName)}::${this.normalizeKeyPart(incidentNumber)}`;
+  }
+
+  private normalizeKeyPart(value: unknown): string {
+    return String(value ?? '')
+      .trim()
+      .toUpperCase();
   }
 
   private extractIncidentRows(response: unknown): Record<string, unknown>[] {
@@ -585,28 +679,58 @@ export class CaseiqIncidentsComponent implements OnInit {
   }
 
   private loadMetricsSummary(): void {
-    this.http
-      .get<SupervisorMetricsSummary>(this.getMetricsSummaryUrl())
-      .subscribe({
-        next: (response) => {
-          this.metricsSummary = this.buildMetricsSummary(response);
-          this.kpiConfig = this.buildKpiConfig(this.metricsSummary);
-        },
-        error: () => {
-          this.metricsSummary = {};
-          this.kpiConfig = [];
-        },
-      });
+    this.reloadKpis([]);
+  }
+
+  private reloadKpis(selectedTeams: string[]): void {
+    const requests =
+      selectedTeams.length === 0
+        ? [this.httpClient.get(this.getMetricsSummaryUrl())]
+        : selectedTeams.map((team) =>
+            this.httpClient.get(
+              `${this.metricsSummaryUrl}?team=${encodeURIComponent(team)}`,
+            ),
+          );
+
+    forkJoin(requests).subscribe({
+      next: (responses) => {
+        const aggregated = this.aggregateMetricsSummaries(responses as any);
+        this.metricsSummary = this.buildMetricsSummary(aggregated);
+        this.kpiConfig = this.buildKpiConfig(this.metricsSummary);
+      },
+      error: () => {
+        this.metricsSummary = {};
+        this.kpiConfig = [];
+      },
+    });
+  }
+
+  private aggregateMetricsSummaries(
+    responses: SupervisorMetricsSummary[],
+  ): SupervisorMetricsSummary {
+    const result: SupervisorMetricsSummary = {
+      unique_incidents: 0,
+      outcomes: {},
+    };
+    for (const response of responses) {
+      if (typeof response?.unique_incidents === 'number') {
+        result.unique_incidents += response.unique_incidents;
+      }
+      if (response?.outcomes && typeof response.outcomes === 'object') {
+        for (const [key, value] of Object.entries(response.outcomes)) {
+          if (typeof value === 'number') {
+            result.outcomes![key] = (result.outcomes![key] ?? 0) + value;
+          }
+        }
+      }
+    }
+    return result;
   }
 
   private buildMetricsSummary(
     response: SupervisorMetricsSummary,
   ): Record<string, number> {
     const result: Record<string, number> = {};
-
-    if (typeof response?.total_involvements === 'number') {
-      result['total_involvements'] = response.total_involvements;
-    }
 
     if (typeof response?.unique_incidents === 'number') {
       result['unique_incidents'] = response.unique_incidents;
@@ -661,14 +785,19 @@ export class CaseiqIncidentsComponent implements OnInit {
       );
     }
 
+    const selectedCoreIssues = this.getSelectedFilterValues('coreIssue');
+    if (selectedCoreIssues.length > 0) {
+      result = result.filter((row) =>
+        selectedCoreIssues.includes(row.coreIssue),
+      );
+    }
+
     const term = this.searchTerm.toLowerCase().trim();
     if (term) {
       result = result.filter((row) => this.matchesSearch(row, term));
     }
 
-    this.filteredIncidents = result.sort(
-      (a, b) => b.processedEpoch - a.processedEpoch,
-    );
+    this.filteredIncidents = result;
 
     if (
       this.expandedIncidentKey &&
@@ -679,6 +808,24 @@ export class CaseiqIncidentsComponent implements OnInit {
     ) {
       this.expandedIncidentKey = null;
     }
+  }
+
+  private compareIncidentsForDisplay(
+    a: SupervisorIncident,
+    b: SupervisorIncident,
+  ): number {
+    const aFailed = this.isFailedOutcome(a.outcome);
+    const bFailed = this.isFailedOutcome(b.outcome);
+
+    if (aFailed !== bFailed) {
+      return aFailed ? -1 : 1;
+    }
+
+    return b.processedEpoch - a.processedEpoch;
+  }
+
+  private isFailedOutcome(outcome: string): boolean {
+    return outcome.trim().toUpperCase() === 'FAILED';
   }
 
   get totalProcessed(): number {
@@ -726,7 +873,80 @@ export class CaseiqIncidentsComponent implements OnInit {
       this.closePipelineDetail();
     } else {
       this.expandedIncidentKey = key;
+      this.loadAllExecutionPipelines(incident);
     }
+  }
+
+  private loadAllExecutionPipelines(incident: SupervisorIncident): void {
+    this.pipelineDetailIncident = incident;
+    this.pipelineDetailsBySharedStateId = {};
+    this.pipelineDetailLoadingBySharedStateId = {};
+    this.pipelineDetailErrorBySharedStateId = {};
+
+    if (!incident.history.length) {
+      this.openPipelineSharedStateId = null;
+      this.pipelineDetail = null;
+      this.pipelineDetailLoading = false;
+      this.pipelineDetailError = 'No execution history available.';
+      return;
+    }
+
+    this.pipelineDetail = null;
+    this.pipelineDetailError = null;
+    this.pipelineDetailLoading = true;
+    this.openPipelineSharedStateId = incident.history[0].sharedStateId;
+
+    incident.history.forEach((execution) => {
+      const id = execution.sharedStateId;
+      this.pipelineDetailLoadingBySharedStateId[id] = true;
+      this.pipelineDetailErrorBySharedStateId[id] = '';
+
+      const url = `/api/caseiq-supervisor/metrics/executions/${encodeURIComponent(id)}`;
+      this.httpClient.get(url).subscribe({
+        next: (response) => {
+          this.pipelineDetailsBySharedStateId[id] =
+            this.normalizePipelineDetail(response, id, incident);
+          this.pipelineDetailLoadingBySharedStateId[id] = false;
+          this.pipelineDetailErrorBySharedStateId[id] = '';
+          this.updateAggregatePipelineLoadState();
+        },
+        error: () => {
+          this.pipelineDetailLoadingBySharedStateId[id] = false;
+          this.pipelineDetailErrorBySharedStateId[id] =
+            'Failed to load pipeline detail.';
+          this.updateAggregatePipelineLoadState();
+        },
+      });
+    });
+  }
+
+  private updateAggregatePipelineLoadState(): void {
+    const loadingValues = Object.values(
+      this.pipelineDetailLoadingBySharedStateId,
+    );
+    const isAnyLoading = loadingValues.some((value) => value);
+    this.pipelineDetailLoading = isAnyLoading;
+
+    const detailValues = Object.values(this.pipelineDetailsBySharedStateId);
+    this.pipelineDetail = detailValues.length > 0 ? detailValues[0] : null;
+
+    const errorValues = Object.values(
+      this.pipelineDetailErrorBySharedStateId,
+    ).filter((value) => !!value);
+    this.pipelineDetailError =
+      !detailValues.length && errorValues.length ? errorValues[0] : null;
+  }
+
+  getPipelineDetail(sharedStateId: string): PipelineDetail | null {
+    return this.pipelineDetailsBySharedStateId[sharedStateId] ?? null;
+  }
+
+  isPipelineDetailLoading(sharedStateId: string): boolean {
+    return !!this.pipelineDetailLoadingBySharedStateId[sharedStateId];
+  }
+
+  getPipelineDetailError(sharedStateId: string): string {
+    return this.pipelineDetailErrorBySharedStateId[sharedStateId] || '';
   }
 
   isTimelineExpanded(incident: SupervisorIncident, index: number): boolean {
@@ -769,9 +989,14 @@ export class CaseiqIncidentsComponent implements OnInit {
     return `ss-${incident.processedEpoch}-${index.toString().padStart(2, '0')}`;
   }
 
-  openSharedStateDetails(incident: SupervisorIncident): void {
+  openSharedStateDetails(
+    incident: SupervisorIncident,
+    preferredSharedStateId?: string,
+  ): void {
     const sharedStateId =
-      this.openPipelineSharedStateId || incident.history[0]?.sharedStateId;
+      preferredSharedStateId ||
+      this.openPipelineSharedStateId ||
+      incident.history[0]?.sharedStateId;
     if (!sharedStateId) {
       return;
     }
@@ -798,7 +1023,7 @@ export class CaseiqIncidentsComponent implements OnInit {
     this.closeInlineIncidentDetail();
 
     const url = `/api/caseiq-supervisor/metrics/executions/${encodeURIComponent(execution.sharedStateId)}`;
-    this.http.get<unknown>(url).subscribe({
+    this.httpClient.get(url).subscribe({
       next: (response) => {
         this.pipelineDetail = this.normalizePipelineDetail(
           response,
@@ -820,6 +1045,9 @@ export class CaseiqIncidentsComponent implements OnInit {
     this.pipelineDetailLoading = false;
     this.pipelineDetailError = null;
     this.pipelineDetailIncident = null;
+    this.pipelineDetailsBySharedStateId = {};
+    this.pipelineDetailLoadingBySharedStateId = {};
+    this.pipelineDetailErrorBySharedStateId = {};
     this.closeInlineIncidentDetail();
   }
 
@@ -840,11 +1068,11 @@ export class CaseiqIncidentsComponent implements OnInit {
     this.inlineDetailError = null;
 
     const url = `${this.dashboardIncidentDetailUrl}/${encodeURIComponent(incident.incidentNumber)}?ssid=${encodeURIComponent(sharedStateId)}`;
-    this.http.get<unknown>(url).subscribe({
+    this.httpClient.get(url).subscribe({
       next: (response) => {
         const detailData =
           typeof response === 'object' && response !== null
-            ? (response as Record<string, unknown>)
+            ? (response as any)
             : {};
         this.sharedStateOpen.emit({
           incident,
@@ -937,6 +1165,9 @@ export class CaseiqIncidentsComponent implements OnInit {
       coreIssue:
         this.pickString(h, ['core_issue', 'coreIssue', 'issue']) ?? '--',
       outcome: this.normalizeOutcome(this.pickString(h, ['outcome', 'status'])),
+      resolvedBy: this.formatResolvedBy(
+        this.pickString(h, ['resolved_by', 'resolvedBy']),
+      ),
       durationMs:
         this.pickNumber(h, [
           'duration_ms',
@@ -951,13 +1182,33 @@ export class CaseiqIncidentsComponent implements OnInit {
     const normalizedValues = this.normalizeTopFilterValues(values);
     this.topFilterValues = normalizedValues;
     this.selectedRange = this.getSelectedDateRange(normalizedValues);
+    if (
+      this.selectedRange !== CaseiqIncidentsComponent.CUSTOM_DATE_RANGE_VALUE
+    ) {
+      this.customDateRangeStart = '';
+      this.customDateRangeEnd = '';
+    }
     this.applyFilter();
+    this.reloadKpis(this.getSelectedFilterValues('team'));
   }
 
   onTopFilterClear(): void {
-    this.topFilterValues = { outcome: [], team: [], date: [] };
+    this.topFilterValues = { outcome: [], team: [], date: [], coreIssue: [] };
     this.selectedRange = '';
+    this.customDateRangeStart = '';
+    this.customDateRangeEnd = '';
     this.applyFilter();
+    this.reloadKpis([]);
+  }
+
+  onCustomDateRangeSelection(event: DateRangeChangeEvent): void {
+    this.customDateRangeStart = event.start;
+    this.customDateRangeEnd = event.end;
+    if (
+      this.selectedRange === CaseiqIncidentsComponent.CUSTOM_DATE_RANGE_VALUE
+    ) {
+      this.applyFilter();
+    }
   }
 
   onSearchFieldChange(): void {
@@ -990,11 +1241,15 @@ export class CaseiqIncidentsComponent implements OnInit {
       : [];
     const teamValues = Array.isArray(values['team']) ? values['team'] : [];
     const dateValues = Array.isArray(values['date']) ? values['date'] : [];
+    const coreIssueValues = Array.isArray(values['coreIssue'])
+      ? values['coreIssue']
+      : [];
 
     return {
       outcome: outcomeValues,
       team: teamValues,
       date: dateValues.length > 0 ? [dateValues[dateValues.length - 1]] : [],
+      coreIssue: coreIssueValues,
     };
   }
 
@@ -1044,6 +1299,14 @@ export class CaseiqIncidentsComponent implements OnInit {
       ),
     ).sort((a, b) => a.localeCompare(b));
 
+    const uniqueCoreIssues = Array.from(
+      new Set(
+        this.incidents
+          .map((incident) => incident.coreIssue)
+          .filter((coreIssue) => !!coreIssue && coreIssue !== '--'),
+      ),
+    ).sort((a, b) => a.localeCompare(b));
+
     this.patchFilterOptions(
       'outcome',
       uniqueOutcomes.map((value) => ({
@@ -1055,6 +1318,14 @@ export class CaseiqIncidentsComponent implements OnInit {
     this.patchFilterOptions(
       'team',
       uniqueTeams.map((value) => ({
+        value,
+        label: value,
+      })),
+    );
+
+    this.patchFilterOptions(
+      'coreIssue',
+      uniqueCoreIssues.map((value) => ({
         value,
         label: value,
       })),
@@ -1079,6 +1350,22 @@ export class CaseiqIncidentsComponent implements OnInit {
       return false;
     }
 
+    if (selectedRange === CaseiqIncidentsComponent.CUSTOM_DATE_RANGE_VALUE) {
+      if (!this.customDateRangeStart || !this.customDateRangeEnd) {
+        return true;
+      }
+
+      const start = this.parseDateInputToLocalEpoch(this.customDateRangeStart);
+      const end = this.parseDateInputToLocalEpoch(this.customDateRangeEnd);
+
+      if (start === null || end === null || end < start) {
+        return true;
+      }
+
+      const endOfDay = end + (24 * 60 * 60 * 1000 - 1);
+      return epoch >= start && epoch <= endOfDay;
+    }
+
     const normalized = selectedRange.trim().toLowerCase();
     const dayMatch = normalized.match(/(\d+)\s*day/);
     const hourMatch = normalized.match(/(\d+)\s*hour/);
@@ -1094,6 +1381,28 @@ export class CaseiqIncidentsComponent implements OnInit {
 
     const now = Date.now();
     return epoch >= now - durationMs;
+  }
+
+  private parseDateInputToLocalEpoch(value: string): number | null {
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) {
+      return null;
+    }
+
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+
+    if (
+      !Number.isFinite(year) ||
+      !Number.isFinite(month) ||
+      !Number.isFinite(day)
+    ) {
+      return null;
+    }
+
+    const dt = new Date(year, month - 1, day);
+    return Number.isFinite(dt.getTime()) ? dt.getTime() : null;
   }
 
   private formatFilterLabel(value: string): string {

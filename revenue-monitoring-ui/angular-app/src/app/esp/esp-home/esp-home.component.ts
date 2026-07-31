@@ -45,6 +45,27 @@ interface AccuracyData {
   'Core Issue Accuracy'?: number;
 }
 
+interface CaseReopenMetric {
+  ID: number;
+  TEAM_NAME: string;
+  INCIDENT_NUMBER: string;
+  ORIGINAL_CASE_SUMMARY: string;
+  NEW_ASK_SUMMARY: string;
+  PREVIOUS_CATEGORY: string | null;
+  CURRENT_CATEGORY: string | null;
+  PREVIOUS_CORE_ISSUE: string | null;
+  CURRENT_CORE_ISSUE: string | null;
+  PREVIOUS_CONTEXT_EXTRACTED: string | null;
+  CURRENT_CONTEXT_EXTRACTED: string | null;
+  REOPEN_DECISION: string | null;
+  REOPEN_REJECT_REASON: string | null;
+  REOPEN_REJECT_TEAM: string | null;
+  REOPEN_REJECT_CATEGORY: string | null;
+  REOPEN_REJECT_CORE_ISSUE: string | null;
+  CREATED_AT: string;
+  UPDATED_AT: string;
+}
+
 @Component({
   selector: 'app-esp-home',
   templateUrl: './esp-home.component.html',
@@ -337,6 +358,7 @@ export class EspHomeComponent implements OnInit {
     this.getXxcaseiqValidatedCasesAccuracyV();
     this.loadPeriodInfo();
     this.loadCaseAnalyzerMetrics();
+    this.loadCaseReopenMetrics();
 
     // Close dropdown when clicking outside
     document.addEventListener('click', () => {
@@ -365,6 +387,7 @@ export class EspHomeComponent implements OnInit {
       this.getXxcaseiqValidatedCasesAccuracyV();
       this.loadPeriodInfo();
       this.loadCaseAnalyzerMetrics();
+      this.loadCaseReopenMetrics();
     }
 
     if (currentHour >= 0 && currentHour < 6) {
@@ -382,6 +405,7 @@ export class EspHomeComponent implements OnInit {
 
   // Pre-computed metrics per component to avoid calling .filter() in templates
   metricsPerComponent: Record<string, any[]> = {};
+  reopenMetricsPerComponent: Record<string, CaseReopenMetric[]> = {};
 
   loadCaseAnalyzerMetrics(): void {
     this.dataService.getCaseIqMetrics(this.destroyManager).subscribe({
@@ -394,6 +418,19 @@ export class EspHomeComponent implements OnInit {
         console.error('Error loading Case Analyzer metrics:', error);
       },
     });
+  }
+
+  caseReopenMetrics: CaseReopenMetric[] = [];
+  loadCaseReopenMetrics(): void {
+    this.http
+      .get('xxcaseiq-reopen-metrics', this.destroyManager)
+      .subscribe((data: any) => {
+        this.caseReopenMetrics = Array.isArray(data)
+          ? (data as CaseReopenMetric[])
+          : [];
+        this.buildReopenMetricsPerComponent();
+        console.log('Reopen metrics data:', this.caseReopenMetrics);
+      });
   }
 
   /**
@@ -414,6 +451,26 @@ export class EspHomeComponent implements OnInit {
       }
     }
     this.metricsPerComponent = map;
+  }
+
+  private buildReopenMetricsPerComponent(): void {
+    const map: Record<string, CaseReopenMetric[]> = {};
+    if (Array.isArray(this.caseReopenMetrics)) {
+      for (const item of this.caseReopenMetrics) {
+        if (item?.TEAM_NAME) {
+          const key = item.TEAM_NAME;
+          if (!map[key]) {
+            map[key] = [];
+          }
+          map[key].push(item);
+        }
+      }
+    }
+    this.reopenMetricsPerComponent = map;
+    console.log(
+      'Reopen metrics per component:',
+      this.reopenMetricsPerComponent,
+    );
   }
 
   private loadPeriodInfo(): void {

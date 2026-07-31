@@ -1767,6 +1767,22 @@ public class QueryConfigs {
         return this.xxcaseiqI2cCaseDetailsMatchY;
     }
 
+    @Value(("${xxcaseiq.esp.case.reopened.metrics}"))
+    public String xxcaseiqEspCaseReopenedMetrics;
+
+    @Bean(name = "xxcaseiqEspCaseReopenedMetrics")
+    public String getXxcaseiqEspCaseReopenedMetrics() {
+        return this.xxcaseiqEspCaseReopenedMetrics;
+    }
+
+    @Value(("${xxcaseiq.esp.case.reopened.update}"))
+    public String xxcaseiqEspCaseReopenedUpdate;
+
+    @Bean(name = "xxcaseiqEspCaseReopenedUpdate")
+    public String getXxcaseiqEspCaseReopenedUpdate() {
+        return this.xxcaseiqEspCaseReopenedUpdate;
+    }
+
     @Value(("${admin.table.q}"))
     public String adminTable;
 

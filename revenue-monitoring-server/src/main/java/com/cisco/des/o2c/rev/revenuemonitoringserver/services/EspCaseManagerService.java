@@ -50,6 +50,8 @@ public class EspCaseManagerService {
     private String xxcaseiqI2cCaseDetailsMatchY;
     private String espCaseAnalyzerGlobalSearch;
     private String espCaseAnalyzerMetrics;
+    private String xxcaseiqEspCaseReopenedMetrics;
+    private String xxcaseiqEspCaseReopenedUpdate;
     @Autowired
     private Common common;
 
@@ -83,7 +85,7 @@ public class EspCaseManagerService {
             String xxcaseiqP2pCaseDetailsV,
             String xxcaseiqCapitalCaseDetailsV,
                                  String xxcaseiqEspCaseAnalyzerTblUpdate, String xxcaseiqI2cCaseDetailsMatchY, String espCaseAnalyzerGlobalSearch,
-                                 String espCaseAnalyzerMetrics) {
+                                 String espCaseAnalyzerMetrics, String xxcaseiqEspCaseReopenedMetrics, String xxcaseiqEspCaseReopenedUpdate) {
         this.jdbcManager = jdbcManager;
         this.espAgingCaseSummary = espAgingCaseSummary;
         this.espCaseServiceMetricSummary = espCaseServiceMetricSummary;
@@ -120,8 +122,18 @@ public class EspCaseManagerService {
         this.xxcaseiqI2cCaseDetailsMatchY = xxcaseiqI2cCaseDetailsMatchY;
         this.espCaseAnalyzerGlobalSearch = espCaseAnalyzerGlobalSearch;
         this.espCaseAnalyzerMetrics = espCaseAnalyzerMetrics;
+        this.xxcaseiqEspCaseReopenedMetrics = xxcaseiqEspCaseReopenedMetrics;
+        this.xxcaseiqEspCaseReopenedUpdate = xxcaseiqEspCaseReopenedUpdate;
     }
 
+    public int updateReopenedMetrics(Map<String, String> updateData) {
+        return jdbcManager.executeUpdate(xxcaseiqEspCaseReopenedUpdate, updateData.get("reopenDecision"), updateData.get("reopenRejectCategory"),
+                updateData.get("reopenRejectCoreIssue"), updateData.get("updateRejectReason"), updateData.get("reopenRejectTeam"), updateData.get("incidentNumber"));
+    }
+
+    public List<Map<String, Object>> getEspCaseReopenedMetrics() {
+        return jdbcManager.queryForList(xxcaseiqEspCaseReopenedMetrics);
+    }
     public List<Map<String, Object>> getEspCaseServiceMetricSummary() {
         return jdbcManager.queryForList(espCaseServiceMetricSummary);
     }
