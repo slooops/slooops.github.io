@@ -179,10 +179,6 @@ export class AuthenticationService {
     //   .then((response) => response.json())
     //   .then((info) => {
     //     console.log('User roles fetched:', info);
-    //     this.userRoles = [
-    //       'CASE_IQ_MONITORING',
-    //       ...info['userRoles'].map((role: any) => role.roleName),
-    //     ];
     //   })
     //   .catch((error) => {
     //     console.error('Error fetching user roles:', error);
