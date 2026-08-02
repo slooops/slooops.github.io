@@ -1,0 +1,165 @@
+<div class="fbb">
+  @if (showFilterToggle && filters.length > 0) {
+    <button class="fbb__filter-toggle" (click)="toggleFilters()">
+      <svg
+        class="fbb__filter-icon"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <line x1="4" y1="6" x2="20" y2="6"></line>
+        <line x1="7" y1="12" x2="17" y2="12"></line>
+        <line x1="10" y1="18" x2="14" y2="18"></line>
+      </svg>
+      <span>Filters</span>
+      @if (activeFilterCount > 0) {
+        <span class="fbb__badge">{{ activeFilterCount }}</span>
+      }
+    </button>
+    <span class="fbb__result-count"
+      >{{ filteredCount }} / {{ totalCount }} {{ countLabel }}</span
+    >
+    <button
+      class="fbb__reset-link"
+      [class.fbb__reset-link--active]="activeFilterCount > 0"
+      (click)="clearAll()"
+    >
+      Reset filters
+    </button>
+    @for (chip of activeChips; track chip.value + chip.filterId) {
+      <span class="fbb__chip">
+        <span class="fbb__chip-label">{{ chip.label }}</span>
+        <span class="fbb__chip-value">{{ chip.value }}</span>
+        <button class="fbb__chip-remove" (click)="removeChip(chip)">×</button>
+      </span>
+    }
+  }
+
+  <div class="fbb__actions">
+    @for (action of primaryActions; track action.id) {
+      <button
+        class="fbb__btn"
+        [class.fbb__btn--primary]="action.variant === 'primary'"
+        [class.fbb__btn--secondary]="
+          action.variant === 'secondary' || !action.variant
+        "
+        [class.fbb__btn--success]="action.variant === 'success'"
+        [class.fbb__btn--danger]="action.variant === 'danger'"
+        [class.fbb__btn--icon]="action.variant === 'icon'"
+        [disabled]="action.disabled"
+        (click)="onActionClick(action.id)"
+      >
+        @if (action.icon) {
+          <ng-icon [name]="action.icon" size="16" />
+        }
+        @if (action.label) {
+          {{ action.label }}
+        }
+      </button>
+    }
+
+    @if (menuActions.length > 0) {
+      <div class="fbb__menu-wrap">
+        <button
+          class="fbb__menu-trigger"
+          [class.fbb__menu-trigger--active]="optionsMenuOpen"
+          (click)="toggleOptionsMenu($event)"
+          title="More actions"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <circle cx="8" cy="3" r="1.5" />
+            <circle cx="8" cy="8" r="1.5" />
+            <circle cx="8" cy="13" r="1.5" />
+          </svg>
+        </button>
+        @if (optionsMenuOpen) {
+          <div class="fbb__menu">
+            <div class="fbb__menu-header">Actions</div>
+            @for (action of menuActions; track action.id; let last = $last) {
+              <button
+                class="fbb__menu-item"
+                [class.fbb__menu-item--danger]="action.variant === 'danger'"
+                [disabled]="action.disabled"
+                (click)="onMenuActionClick(action.id)"
+              >
+                {{ action.label }}
+              </button>
+              @if (action.variant === "danger" && !last) {
+                <div class="fbb__menu-divider"></div>
+              }
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+@if (showFilterToggle && filtersExpanded) {
+  <div class="fbb__panel" (click)="$event.stopPropagation()">
+    <div class="fbb__panel-grid">
+      @for (filter of selectFilters; track filter.id) {
+        <div class="fbb__panel-section">
+          <div class="fbb__panel-label">{{ filter.label }}</div>
+          <app-multi-select-dropdown
+            [options]="filter.options || []"
+            [selected]="getSelectedValues(filter.id)"
+            [placeholder]="filter.placeholder || 'Select...'"
+            [showSearch]="true"
+            [singleSelect]="!!filter.singleSelect"
+            (selectionChange)="onSelectChange(filter.id, $event)"
+          ></app-multi-select-dropdown>
+
+          @if (shouldShowCustomDateRange(filter.id)) {
+            <div class="fbb__date-range-inline">
+              <label class="fbb__date-range-field">
+                <span class="fbb__date-range-label">From</span>
+                <input
+                  type="date"
+                  class="fbb__date-range-input"
+                  [value]="customDateRangeStart"
+                  (input)="
+                    onCustomDateRangeStartInput(
+                      filter.id,
+                      $any($event.target).value
+                    )
+                  "
+                />
+              </label>
+
+              <label class="fbb__date-range-field">
+                <span class="fbb__date-range-label">To</span>
+                <input
+                  type="date"
+                  class="fbb__date-range-input"
+                  [value]="customDateRangeEnd"
+                  (input)="
+                    onCustomDateRangeEndInput(
+                      filter.id,
+                      $any($event.target).value
+                    )
+                  "
+                />
+              </label>
+            </div>
+          }
+        </div>
+      }
+      @for (filter of textFilters; track filter.id) {
+        <div class="fbb__panel-section">
+          <div class="fbb__panel-label">{{ filter.label }}</div>
+          <input
+            type="text"
+            class="fbb__text-input"
+            [placeholder]="filter.placeholder || ''"
+            [value]="textInputValues[filter.id] || ''"
+            (input)="onTextChange(filter.id, $any($event.target).value)"
+          />
+        </div>
+      }
+    </div>
+  </div>
+}

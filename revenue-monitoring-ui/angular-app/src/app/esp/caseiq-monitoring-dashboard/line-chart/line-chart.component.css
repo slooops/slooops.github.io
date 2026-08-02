@@ -1,0 +1,86 @@
+:host {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.lc-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.lc-grid {
+  stroke: rgba(0, 0, 0, 0.08);
+  stroke-dasharray: 3 3;
+  stroke-width: 0.5;
+}
+
+.lc-y-label {
+  font-size: 9px;
+  fill: #888;
+  text-anchor: end;
+}
+
+.lc-x-label {
+  font-size: 8px;
+  fill: #888;
+  text-anchor: middle;
+}
+
+.lc-dot {
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.15));
+}
+
+.lc-data-label {
+  font-size: 9px;
+  fill: #333;
+  text-anchor: middle;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.lc-hit {
+  cursor: pointer;
+}
+
+/* Tooltip */
+.lc-tooltip {
+  position: absolute;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(30, 30, 30, 0.88);
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.lc-tooltip-value {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.lc-tooltip-label {
+  opacity: 0.7;
+  font-size: 10px;
+}
+
+/* Dark theme */
+:host(.dark-theme) .lc-grid {
+  stroke: rgba(255, 255, 255, 0.08);
+}
+:host(.dark-theme) .lc-y-label,
+:host(.dark-theme) .lc-x-label {
+  fill: #8899a6;
+}
+:host(.dark-theme) .lc-data-label {
+  fill: #e0e6ed;
+}

@@ -16,51 +16,88 @@ import java.util.regex.Pattern;
 public class JdbcManager {
 
     private final JdbcTemplate primaryJdbcTemplate;
+    private final JdbcTemplate secondaryJdbcTemplate;
 
     @Autowired
-    public JdbcManager(@Qualifier("primaryJdbcTemplate") JdbcTemplate primaryJdbcTemplate) {
+    public JdbcManager(@Qualifier("primaryJdbcTemplate") JdbcTemplate primaryJdbcTemplate,
+            @Qualifier("secondaryJdbcTemplate") JdbcTemplate secondaryJdbcTemplate) {
         this.primaryJdbcTemplate = primaryJdbcTemplate;
+        this.secondaryJdbcTemplate = secondaryJdbcTemplate;
     }
 
     public List<Map<String, Object>> queryForList(String sql) {
         return primaryJdbcTemplate.queryForList(sql);
     }
 
+    /**
+     * Executes a parameterized query with a single string parameter.
+     * Used for filtered queries where one value needs to be bound.
+     * 
+     * @param sql   The SQL query with a single ? placeholder
+     * @param param The parameter value to bind
+     * @return List of result maps
+     */
+    public List<Map<String, Object>> queryForListWithSingleParam(String sql, String param) {
+        return primaryJdbcTemplate.queryForList(sql, param);
+    }
+
+    /**
+     * Executes a parameterized query with multiple parameters.
+     * Used for IN clauses or queries with multiple placeholders.
+     * 
+     * @param sql    The SQL query with ? placeholders
+     * @param params The parameter values to bind (varargs)
+     * @return List of result maps
+     */
+    public List<Map<String, Object>> queryForListWithParams(String sql, Object... params) {
+        return primaryJdbcTemplate.queryForList(sql, params);
+    }
+
     public List<Map<String, Object>> queryForO2CData(String sql) {
         return primaryJdbcTemplate.queryForList(sql);
     }
 
-//    public List<Map<String, Object>> queryForO2CConnectorData(String sql, String field, String value) {
-//        Map<String, String> allowedFields = Map.of(
-//                "SUBSCRIPTION_REF_ID", "SUBSCRIPTION_REF_ID",
-//                "TRX_NUMBER", "TRX_NUMBER",
-//                "WEBORDER_ID", "WEBORDER_ID"
-//        );
-//        if (field == null || !allowedFields.containsKey(field.toUpperCase())) {
-//            throw new IllegalArgumentException("Invalid field name: " + field);
-//        }
-//        String validatedField = allowedFields.get(field.toUpperCase());
-//
-//        String query = sql + " WHERE " + validatedField + " = ?";
-//        return primaryJdbcTemplate.queryForList(query, value);
-//    }
+    // public List<Map<String, Object>> queryForO2CConnectorData(String sql, String
+    // field, String value) {
+    // Map<String, String> allowedFields = Map.of(
+    // "SUBSCRIPTION_REF_ID", "SUBSCRIPTION_REF_ID",
+    // "TRX_NUMBER", "TRX_NUMBER",
+    // "WEBORDER_ID", "WEBORDER_ID");
+    // if (field == null || !allowedFields.containsKey(field.toUpperCase())) {
+    // throw new IllegalArgumentException("Invalid field name: " + field);
+    // }
+    // String validatedField = allowedFields.get(field.toUpperCase());
 
+    // String query = sql + " WHERE " + validatedField + " = ?";
+    // return primaryJdbcTemplate.queryForList(query, value);
+    // }
 
     private static final Map<String, String> ALLOWED_FIELD_CLAUSES = Map.of(
             "SUBSCRIPTION_REF_ID", "SUBSCRIPTION_REF_ID = :value",
             "TRX_NUMBER", "TRX_NUMBER = :value",
-            "WEBORDER_ID", "WEBORDER_ID = :value"
-    );
+            "WEBORDER_ID", "WEBORDER_ID = :value");
 
-    private static final Pattern SQL_INJECTION_PATTERN = Pattern.compile("(?i)(.*\\b(union|select|from|where|insert|delete|update|drop|execute|exec|alter|truncate|declare|create)\\b.*)");
+    private static final Pattern SQL_INJECTION_PATTERN = Pattern.compile(
+            "(?i)(.*\\b(union|insert|delete|update|drop|execute|exec|alter|truncate|declare|create)\\b.*)");
 
     public List<Map<String, Object>> queryForO2CConnectorData(String sql, String field, String value) {
         if (!ALLOWED_FIELD_CLAUSES.containsKey(field)) {
             throw new IllegalArgumentException("Invalid field name");
         }
+
+        // Validate base SQL for security
         validateBaseSql(sql);
+
+        // Use validated field clause with named parameter
         String whereClause = ALLOWED_FIELD_CLAUSES.get(field);
-        String query = sql + " WHERE " + whereClause;
+        String additionalCondition = "";
+
+        // Add latest_flag condition for SUBSCRIPTION_REF_ID
+        if (field.equals("SUBSCRIPTION_REF_ID")) {
+            additionalCondition = " AND latest_flag='Y'";
+        }
+
+        String query = sql + " WHERE " + whereClause + additionalCondition;
         System.out.println("Executing query with parameters: " + query);
         MapSqlParameterSource params = new MapSqlParameterSource("value", value);
         NamedParameterJdbcTemplate namedTemplate = new NamedParameterJdbcTemplate(primaryJdbcTemplate);
@@ -89,12 +126,38 @@ public class JdbcManager {
                 SQL_INJECTION_PATTERN.matcher(sql).matches();
     }
 
+    public List<Map<String, Object>> callFinancialSummaryView(String sql, String field, String value) {
+        String condition = " WHERE 1=1 and ";
+        String query = sql + condition + field + "=?";
+        return primaryJdbcTemplate.queryForList(query, value);
+    }
+
+    public void callFinancialSummaryPkgProc(String pkgProc, String subscription, String webOrderId, String invoiceId) {
+        primaryJdbcTemplate.update(pkgProc, subscription, webOrderId, invoiceId);
+    }
+
+    public void callTsvPkgProc(String pkgProc, String subscription, String uniqueId) {
+        primaryJdbcTemplate.update(pkgProc, subscription, null, uniqueId);
+    }
+
+    public List<Map<String, Object>> tsvTopSku(String sql, String subscription, String uniqueId) {
+        return primaryJdbcTemplate.queryForList(sql, subscription, uniqueId);
+    }
+
+    public List<Map<String, Object>> tsvSubSku(String sql, String subscription, String uniqueId) {
+        return primaryJdbcTemplate.queryForList(sql, subscription, uniqueId);
+    }
+
+    public List<Map<String, Object>> tsvAccounts(String sql, String subscription, String uniqueId) {
+        return primaryJdbcTemplate.queryForList(sql, subscription, uniqueId);
+    }
+
     public List<Map<String, Object>> o2cInvoiceSummary(String sql, String value) {
         return primaryJdbcTemplate.queryForList(sql, value);
     }
 
-    public List<Map<String, Object>> o2cSubscriptionSummary(String sql, String value) {
-        return primaryJdbcTemplate.queryForList(sql, value);
+    public List<Map<String, Object>> o2cSubscriptionSummary(String sql, String value, String code) {
+        return primaryJdbcTemplate.queryForList(sql, value, code);
     }
 
     public List<Map<String, Object>> o2cOrderSummary(String sql, String value) {
@@ -105,7 +168,11 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql, value);
     }
 
-    public List<Map<String, Object>> o2cSubscriptionLineSummary(String sql, String value) {
+    public List<Map<String, Object>> o2cSubscriptionLineSummary(String sql, String value, String code) {
+        return primaryJdbcTemplate.queryForList(sql, value, code);
+    }
+
+    public List<Map<String, Object>> sbpBillScheduleHeader(String sql, String value) {
         return primaryJdbcTemplate.queryForList(sql, value);
     }
 
@@ -193,11 +260,8 @@ public class JdbcManager {
     }
 
     public int updateGlErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments,
-            String processFlow, String ledgerName, String applicationName, String journalSource, String glbatch,
-            String transactionDate) {
-        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, processFlow, ledgerName,
-                applicationName,
-                journalSource, glbatch, transactionDate);
+            String glbatchName) {
+        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, glbatchName);
     }
 
     public List<Map<String, Object>> getEInvoicingDetailsFilter(String sql, String ouName, String periodName,
@@ -247,7 +311,7 @@ public class JdbcManager {
     }
 
     public List<Map<String, Object>> getCreditCardDetailsFiltered(String sql, String periodName,
-                                                             String appName, String processFlow, String ouName, String transactionDate) {
+            String appName, String processFlow, String ouName, String transactionDate) {
         return primaryJdbcTemplate.queryForList(sql, periodName, appName, processFlow, ouName, transactionDate);
     }
 
@@ -364,13 +428,21 @@ public class JdbcManager {
                 flooringBid);
     }
 
+    public List<Map<String, Object>> getO2CBillSchedules(String sql, String offsetId) {
+        return primaryJdbcTemplate.queryForList(sql, offsetId);
+    }
+
+    public List<Map<String, Object>> getO2CBillScheduleList(String sql, String offsetId, String billDate) {
+        return primaryJdbcTemplate.queryForList(sql, offsetId, billDate);
+    }
+
     public List<Map<String, Object>> getPCMApplicationDetailsFiltered(String sql, String periodName,
-                                                                       String appName, String processFlow, String ouName, String transactionDate) {
+            String appName, String processFlow, String ouName, String transactionDate) {
         return primaryJdbcTemplate.queryForList(sql, appName, ouName, periodName, processFlow, transactionDate);
     }
 
     public int updatePCMApplicationSummary(String sql, String assignedTo, String assignedBy, String comments,
-                                            String periodName, String batchSource, String processFlow, String entityName, String transactionDate) {
+            String periodName, String batchSource, String processFlow, String entityName, String transactionDate) {
         return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, periodName, batchSource,
                 processFlow, entityName, transactionDate);
     }
@@ -380,17 +452,280 @@ public class JdbcManager {
     }
 
     public List<Map<String, Object>> filterI2cControls(String sql, String periodName, String appName,
-                                                                 String operatingUnit, String transactionDate) {
+            String operatingUnit, String transactionDate) {
         return primaryJdbcTemplate.queryForList(sql, periodName, appName, operatingUnit, transactionDate);
     }
 
+    public List<Map<String, Object>> espCaseAnalyzerGlobalSearch(String sql, String incidentNumber) {
+        return primaryJdbcTemplate.queryForList(sql, incidentNumber);
+    }
+
     public List<Map<String, Object>> filterRevControls(String sql, String periodName, String appName,
-                                                       String operatingUnit, String transactionDate) {
+            String operatingUnit, String transactionDate) {
         return primaryJdbcTemplate.queryForList(sql, periodName, appName, operatingUnit, transactionDate);
     }
 
     public List<Map<String, Object>> filterGtcControls(String sql, String processFlow, String entityName,
-                                                        String transactionDate) {
+            String transactionDate) {
         return primaryJdbcTemplate.queryForList(sql, processFlow, entityName, transactionDate);
+    }
+
+    public int espCaseAnalyzerTableUpdate(String sql, String username, String category, String categoryActual,
+            String comments, String coreIssue, String coreIssueActual, String incidentNumber,
+            String impactedServiceOffering) {
+        return primaryJdbcTemplate.update(sql, username, categoryActual, coreIssueActual, comments, category,
+                categoryActual, coreIssue, coreIssueActual, category, categoryActual, categoryActual, coreIssue,
+                coreIssueActual, coreIssueActual, incidentNumber, impactedServiceOffering);
+    }
+
+    /**
+     * Inserts a new user role into the database with duplicate prevention and
+     * CREATED_BY tracking.
+     * 
+     * Query: INSERT INTO ... (USER_NAME, USER_EMAIL, ROLE_ID, USER_ROLE,
+     * ENABLED_FLAG, CREATION_DATE, CREATED_BY)
+     * SELECT ?, ?, ?, ?, ?, SYSDATE, ? FROM DUAL
+     * WHERE NOT EXISTS (
+     * SELECT 1 FROM ... WHERE USER_NAME = ? AND USER_ROLE = ? AND ENABLED_FLAG =
+     * 'Y'
+     * )
+     * 
+     * This prevents creating duplicate USER_NAME + USER_ROLE combinations that are
+     * active.
+     * Soft-deleted records (ENABLED_FLAG = NULL) won't interfere with this check.
+     * 
+     * @param sql         The INSERT SELECT SQL statement with NOT EXISTS check
+     * @param userName    The user's username (e.g., "JASLOOP")
+     * @param userEmail   The user's email address
+     * @param roleId      The role ID (can be null)
+     * @param userRole    The role name (e.g., "ADMIN", "PERIOD_CLOSE")
+     * @param enabledFlag 'Y' for enabled, 'N' for disabled
+     * @param createdBy   The username of the person creating this user (can be
+     *                    null)
+     * @return Number of rows inserted (1 = success, 0 = duplicate exists)
+     */
+    public int insertUserRole(String sql, String userName, String userEmail,
+            Integer roleId, String userRole, String enabledFlag, String createdBy) {
+        // Parameters: userName, userEmail, roleId, userRole, enabledFlag, createdBy,
+        // userName (for EXISTS), userRole (for EXISTS)
+        return primaryJdbcTemplate.update(sql, userName, userEmail, roleId, userRole, enabledFlag,
+                createdBy, userName, userRole);
+    }
+
+    /**
+     * Updates an existing user role in the database using composite key.
+     * 
+     * IMPORTANT: This updates based on USER_NAME + USER_ROLE composite key.
+     * This ensures only the specific role for a specific user is updated,
+     * not all roles for that user.
+     * 
+     * Query: UPDATE ... SET USER_EMAIL=?, ROLE_ID=?, ENABLED_FLAG=? WHERE
+     * USER_NAME=? AND USER_ROLE=?
+     * 
+     * @param sql         The UPDATE SQL statement with placeholders (?)
+     * @param userEmail   The user's email address
+     * @param roleId      The role ID
+     * @param enabledFlag 'Y' for enabled, 'N' for disabled
+     * @param userName    The user's username (WHERE clause)
+     * @param userRole    The role name (WHERE clause)
+     * @return Number of rows updated (should be 1 on success, 0 if not found)
+     */
+    public int updateUserRole(String sql, String userEmail, Integer roleId,
+            String enabledFlag, String userName, String userRole) {
+        return primaryJdbcTemplate.update(sql, userEmail, roleId, enabledFlag, userName, userRole);
+    }
+
+    /**
+     * Soft deletes a user role with forensic tracking.
+     * 
+     * SOFT DELETE: Does NOT remove the row from database.
+     * Instead, it:
+     * 1. Sets USER_EMAIL to "deleted by: {deleterUsername}"
+     * 2. Sets ENABLED_FLAG to NULL
+     * 
+     * This maintains forensic record while hiding the row from normal queries.
+     * GET queries filter WHERE ENABLED_FLAG IS NOT NULL to exclude deleted rows.
+     * 
+     * Query: UPDATE ... SET USER_EMAIL=?, ENABLED_FLAG=NULL WHERE USER_NAME=? AND
+     * USER_ROLE=? AND CREATION_DATE=?
+     * Uses userName + userRole + creationDate for precise row targeting to prevent
+     * accidental deletions.
+     * 
+     * IMPORTANT: creationDate is passed as raw string from database to ensure exact
+     * match.
+     * Database has inconsistent formats: "2024-02-23" vs "2024-03-21 09:11:15"
+     * JDBC PreparedStatement will handle the string-to-date conversion
+     * automatically.
+     * 
+     * @param sql           The soft delete SQL statement
+     * @param forensicEmail Forensic string "deleted by: username"
+     * @param userName      The user's username (WHERE clause)
+     * @param userRole      The role name (WHERE clause)
+     * @param creationDate  Raw creation date string from database (exact format
+     *                      match)
+     * @return Number of rows soft-deleted (1 = success, 0 = not found)
+     */
+    public int deleteUserRole(String sql, String forensicEmail, String userName, String userRole,
+            String creationDate) {
+        return primaryJdbcTemplate.update(sql, forensicEmail, userName, userRole, creationDate);
+    }
+
+
+    /**
+     * Inserts a new role into XXCFI_CTL_TOWER_ROLE_DEF.
+     * role_id is auto-generated via ARFINRO.XXCFI_CTL_TOWER_ROLE_SEQ.
+     *
+     * Query params: role_name, role_value, description, dashboard_name, last_updated_by
+     *
+     * @return Number of rows inserted (1 = success)
+     */
+    public int insertCtlTwrRole(String sql, String roleName, String roleValue,
+            String description, String dashboardName, String lastUpdatedBy) {
+        return primaryJdbcTemplate.update(sql, roleName, roleValue, description,
+                dashboardName, lastUpdatedBy);
+    }
+
+    /**
+     * Updates an existing role in XXCFI_CTL_TOWER_ROLE_DEF by role_id.
+     *
+     * Query params: role_name, role_value, description, enabled_flag,
+     *               dashboard_name, last_updated_by, role_id (WHERE)
+     *
+     * @return Number of rows updated (1 = success, 0 = not found)
+     */
+    public int updateCtlTwrRole(String sql, String roleName, String roleValue,
+            String description, String enabledFlag, String dashboardName,
+            String lastUpdatedBy, int roleId) {
+        return primaryJdbcTemplate.update(sql, roleName, roleValue, description,
+                enabledFlag, dashboardName, lastUpdatedBy, roleId);
+    }
+
+    public List<Map<String, Object>> queryForListAIT(String sql) {
+        return secondaryJdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> getAITGlInterfaceDetailsFilter(String sql, String userJeSourceName, String ledgerName,
+            String periodName, String batchName,
+            String dateCreated) {
+        return secondaryJdbcTemplate.queryForList(sql, userJeSourceName, ledgerName, periodName, batchName);
+    }
+
+    public int AITGlInterfaceSummaryUpdate(String sql, String assignedTo, String comments,
+                                                                    String userJeSourceName, String ledgerName,
+                                                                    String periodName, String batchName, String reference4) {
+        return secondaryJdbcTemplate.update(sql, assignedTo, comments, userJeSourceName, ledgerName, periodName, batchName, reference4);
+    }
+
+    public List<Map<String, Object>> getGlFaDetailsFilter(String sql, String jobDate, String module,
+                                                          String ctmFolder, String ctmStatus) {
+        return secondaryJdbcTemplate.queryForList(sql, jobDate, module, ctmFolder, ctmStatus);
+    }
+
+    public int glFaSummaryUpdate(String sql, String assignedTo, String comments, String jobDate,
+                                              String module, String ctmFolder,
+                                              String ctmStatus) {
+        return secondaryJdbcTemplate.update(sql, assignedTo, comments, jobDate, module, ctmFolder, ctmStatus);
+    }
+
+    public List<Map<String, Object>> getAITGlUnpostedDetailsFilter(String sql, String userJeSourceName, String ledgerName,
+                                                                   String periodName, String batchName) {
+        return secondaryJdbcTemplate.queryForList(sql, userJeSourceName, ledgerName, periodName, batchName);
+    }
+
+    public int AITGlUnpostedSummaryUpdate(String sql, String assignedTo, String comments, String batchName,
+                                           String userJeSourceName, String ledgerName,
+                                           String periodName) {
+        return secondaryJdbcTemplate.update(sql, assignedTo, comments, batchName, userJeSourceName, ledgerName, periodName);
+    }
+
+    // public int updateGlInterfaceErrorsSummaryData(String sql, String assignedTo,
+    // String assignedBy, String comments, String glbatchName) {
+    // return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments,
+    // glbatchName);
+    // }
+
+    public int insertSummaryAssignmentUser(String sql, String userName, String userEmail, String teamName) {
+        return primaryJdbcTemplate.update(sql, userName, userEmail, userEmail, teamName);
+    }
+
+    public int disableSummaryAssignmentUser(String sql, String userEmail) {
+        return primaryJdbcTemplate.update(sql, userEmail);
+    }
+
+    /**
+     * Executes a read-only query using named parameters (e.g. :lookback_hours).
+     * Used by CaseIQ Monitoring Dashboard queries.
+     */
+    public List<Map<String, Object>> queryWithNamedParams(String sql, Map<String, Object> params) {
+        NamedParameterJdbcTemplate namedTemplate = new NamedParameterJdbcTemplate(primaryJdbcTemplate);
+        MapSqlParameterSource paramSource = new MapSqlParameterSource(params);
+        return namedTemplate.queryForList(sql, paramSource);
+    }
+
+    /**
+     * Inserts a new user access role row into XXCFI_CTL_TOWER_USER_ACCESS.
+     * Uses INSERT ... SELECT FROM XXCFI_CTL_TOWER_ROLE_DEF to auto-populate
+     * ROLE_NAME and DASHBOARD_NAME, with NOT EXISTS to prevent duplicates.
+     *
+     * Query positional params (11 total):
+     *   userName, userEmail, fullName,
+     *   admin, readOnly, createdBy, lastUpdatedBy,
+     *   roleId (WHERE r.ROLE_ID = ?),
+     *   userName (EXISTS check), roleId (EXISTS check)
+     *
+     * @return Number of rows inserted (1 = success, 0 = duplicate exists)
+     */
+    public int insertCtlTwrUserAccessRole(String sql, String userName, String userEmail,
+                                          String fullName, int roleId,
+                                          String admin, String readOnly,
+                                          String createdBy, String lastUpdatedBy) {
+        return primaryJdbcTemplate.update(sql,
+                userName, userEmail, fullName,
+                admin, readOnly, createdBy, lastUpdatedBy,
+                roleId, userName, roleId);
+    }
+
+    /**
+     * Updates or soft-deletes a user access role in XXCFI_CTL_TOWER_USER_ACCESS.
+     * Uses CASE WHEN on each value: '0' means null/preserve, anything else sets the value.
+     *
+     * Query positional params (9 total):
+     *   enabledFlag, enabledFlag, admin, admin, readOnly, readOnly,
+     *   lastUpdatedBy, userName, roleId
+     *
+     * @return Number of rows updated (1 = success, 0 = not found)
+     */
+    public int updateCtlTwrUserAccessRole(String sql, String enabledFlag,
+                                          String admin, String readOnly,
+                                          String lastUpdatedBy, String userName, int roleId) {
+        return primaryJdbcTemplate.update(sql,
+                enabledFlag, enabledFlag, admin, admin, readOnly, readOnly,
+                lastUpdatedBy, userName, roleId);
+    }
+
+
+    /**
+     * generic method for exception summary, details gathering
+     */
+    // For SELECT queries
+    public List<Map<String, Object>> executeQueryForList(String sql) {
+        return secondaryJdbcTemplate.queryForList(sql);
+    }
+
+    /**
+     * generic method for exception details filtering
+     */
+
+    // For SELECT with params queries
+    public List<Map<String, Object>> executeQueryForListWithParams(String sql, Object... params) {
+        return secondaryJdbcTemplate.queryForList(sql, params);
+    }
+
+    /**
+     * generic method for exception summary assignment
+     */
+    // For UPDATE/INSERT/DELETE queries
+    public int executeUpdate(String sql, Object... params) {
+        return primaryJdbcTemplate.update(sql, params);
     }
 }

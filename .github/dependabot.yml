@@ -9,12 +9,12 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
-      time: "10:00" 
+      time: "10:00"
       timezone: "America/Los_Angeles"
     open-pull-requests-limit: 12
-    reviewers: 
-     - "avudutha_cisco"
-     - "jasloop_cisco"
-    target-branch: 
-     - "develop"
-     - "UI2.0"
+    reviewers:
+      - "avudutha_cisco"
+      - "jasloop_cisco"
+    target-branch:
+      - "develop"
+      - "UI2.0"

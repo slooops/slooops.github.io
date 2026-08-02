@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.18</version>
+		<version>3.5.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.cisco.des.o2c.rev</groupId>
@@ -14,22 +14,71 @@
 	<name>revenue-monitoring-server</name>
 	<description>API Server and backend for Accruals Monitoring Framework</description>
 	<properties>
-		<java.version>11</java.version>
-		<tomcat.version>9.0.99</tomcat.version>
+		<java.version>25</java.version>
+		<!-- SonarQube: exclude boilerplate packages from coverage analysis -->
+		<sonar.coverage.exclusions>
+			**/models/**,
+			**/configs/**,
+			**/queue/**,
+			**/RevenueMonitoringServerApplication.java,
+			**/CMSMonitoringService.java,
+			**/CMSMonitoringController.java,
+			**/O2CMonitoringService.java,
+			**/O2CMonitoringController.java,
+			**/ScorecardService.java,
+			**/ScorecardController.java,
+			**/SdlcAdoptService.java,
+			**/SdlcExecService.java,
+			**/SdlcController.java,
+			**/ExecSummaryService.java,
+			**/ExecSummaryController.java,
+			**/CaseIQMonitoringService.java,
+			**/CaseIQMonitoringController.java
+		</sonar.coverage.exclusions>
+		<sonar.newCode.referenceBranch>UI2.0</sonar.newCode.referenceBranch>
 	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- Override Spring Boot 3.5.5's Netty 4.1.124 with 4.2.x to silence sun.misc.Unsafe deprecation warnings on JDK 24+ -->
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty-bom</artifactId>
+				<version>4.2.6.Final</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<repositories>
 		<repository>
-			<id>cisco maven</id>
-			<name>Maven Repository Switchboard</name>
-			<layout>default</layout>
-			<url>https://repo-art.cisco.com/artifactory/cisco-shared-libs-local</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>warn</checksumPolicy>
-			</snapshots>
+			<id>jcenter-cache</id>
+			<url>https://repo-art.cisco.com/artifactory/jcenter-cache</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</repository>
+		<repository>
+			<id>central</id>
+			<url>https://repo1.maven.org/maven2</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
 		</repository>
 	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>jcenter-cache-plugins</id>
+			<url>https://repo-art.cisco.com/artifactory/jcenter-cache</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>central-plugins</id>
+			<url>https://repo1.maven.org/maven2</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -56,10 +105,8 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.cisco.oracle</groupId>
-			<artifactId>ojdbc7</artifactId>
-			<version>12.1.0.2</version>
-			<scope>compile</scope>
+			<groupId>com.oracle.database.jdbc</groupId>
+			<artifactId>ojdbc11</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -74,35 +121,10 @@
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.googlecode.json-simple</groupId>
-			<artifactId>json-simple</artifactId>
-			<version>1.1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20211205</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-api</artifactId>
-			<version>0.11.5</version>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-impl</artifactId>
-			<version>0.11.5</version>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-jackson</artifactId>
-			<version>0.11.5</version>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>
@@ -130,9 +152,13 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>5.2.3</version> <!-- Use the latest version -->
+			<version>5.3.0</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<profiles>
@@ -147,8 +173,7 @@
 				<dependency>
 					<groupId>io.netty</groupId>
 					<artifactId>netty-resolver-dns-native-macos</artifactId>
-					<version>4.1.94.Final</version>
-					<classifier>osx-aarch_64</classifier> <!-- or osx-x86_64 -->
+					<classifier>osx-aarch_64</classifier> <!-- managed by netty-bom -->
 				</dependency>
 			</dependencies>
 		</profile>
@@ -160,32 +185,67 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-				</executions>
 				<configuration>
-					<outputDirectory>${project.build.directory}/../package/repo</outputDirectory>
+					<jvmArguments>--enable-native-access=ALL-UNNAMED</jvmArguments>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-clean-plugin</artifactId>
-				<version>3.1.0</version>
+				<version>3.3.2</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.3.1</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.13.0</version>
 				<configuration>
-					<filesets>
-						<fileset>
-							<directory>package</directory>
-							<includes>
-								<include>repo/*.jar</include>
-							</includes>
-							<followSymlinks>false</followSymlinks>
-						</fileset>
-					</filesets>
+					<release>${java.version}</release>
+					<encoding>UTF-8</encoding>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.2.5</version>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.13</version>
+				<configuration>
+					<excludes>
+						<exclude>**/models/**</exclude>
+						<exclude>**/configs/**</exclude>
+						<exclude>**/queue/**</exclude>
+						<exclude>**/RevenueMonitoringServerApplication.class</exclude>
+						<exclude>**/CMSMonitoringService.class</exclude>
+						<exclude>**/CMSMonitoringController.class</exclude>
+						<exclude>**/O2CMonitoringService.class</exclude>
+						<exclude>**/O2CMonitoringController.class</exclude>
+						<exclude>**/ScorecardService.class</exclude>
+						<exclude>**/ScorecardController.class</exclude>
+						<exclude>**/SdlcAdoptService.class</exclude>
+						<exclude>**/SdlcExecService.class</exclude>
+						<exclude>**/SdlcController.class</exclude>
+						<exclude>**/ExecSummaryService.class</exclude>
+						<exclude>**/ExecSummaryController.class</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals><goal>prepare-agent</goal></goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals><goal>report</goal></goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

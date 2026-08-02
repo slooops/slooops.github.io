@@ -1,0 +1,88 @@
+/* ── Native Table Styles ── */
+.atmf-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.6875rem;
+}
+
+.atmf-table th {
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.5rem 0.5rem;
+  color: #4b5563;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.atmf-table td {
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  padding: 0.4rem 0.5rem;
+  color: #374151;
+  border-bottom: 1px solid #f3f4f6;
+  white-space: nowrap;
+}
+
+.atmf-table tbody tr:hover {
+  background: rgba(0, 112, 210, 0.03);
+}
+
+.pct-up {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.pct-down {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.pct-muted {
+  color: var(--fit-color-text-muted, #8899a6);
+  opacity: 0.7;
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28vw;
+  min-height: 14vw;
+  width: 100%;
+  height: 100%;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.section-title {
+  margin: 0;
+}
+
+/* ── Dark Mode ── */
+:host-context(.dark-theme) .atmf-table th {
+  color: #8899a6;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+:host-context(.dark-theme) .atmf-table td {
+  color: #e0e6ed;
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+:host-context(.dark-theme) .atmf-table tbody tr:hover {
+  background: rgba(0, 188, 235, 0.05);
+}
+
+:host-context(.dark-theme) .pct-up {
+  color: #4ade80;
+}
+
+:host-context(.dark-theme) .pct-down {
+  color: #f87171;
+}

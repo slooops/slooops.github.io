@@ -6,13 +6,16 @@ import {
 } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
-  HttpClientTestingModule,
   HttpTestingController,
+  provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { of } from 'rxjs';
 import { OrderLifecycleUploadComponent } from './order-lifecycle-upload.component';
 import { ApiHttpService } from '../../providers/http.service';
-import { TemplateRef } from '@angular/core';
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('OrderLifecycleUploadComponent', () => {
   let component: OrderLifecycleUploadComponent;
@@ -21,20 +24,20 @@ describe('OrderLifecycleUploadComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MatDialogModule, ReactiveFormsModule, HttpClientTestingModule],
-      declarations: [OrderLifecycleUploadComponent],
+      imports: [OrderLifecycleUploadComponent, MatDialogModule, ReactiveFormsModule, BrowserAnimationsModule],
       providers: [
         { provide: MatDialogRef, useValue: {} },
         { provide: MAT_DIALOG_DATA, useValue: {} },
         ApiHttpService,
         FormBuilder,
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OrderLifecycleUploadComponent);
     component = fixture.componentInstance;
     httpMock = TestBed.inject(HttpTestingController);
-
     fixture.detectChanges();
   });
 
@@ -48,9 +51,7 @@ describe('OrderLifecycleUploadComponent', () => {
 
   it('should close dialog', () => {
     spyOn(component.dialog, 'closeAll');
-
     component.closeOkDialog();
-
     expect(component.dialog.closeAll).toHaveBeenCalled();
   });
 });

@@ -1,98 +1,208 @@
-<div class="modal-overlay" (click)="closeDialog('cancel')">
-  <div class="modal-content container" (click)="$event.stopPropagation()">
-    <div
-      style="
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #08ace4;
-        margin: -20px -20px 0 -20px;
-        padding: 15px;
-      "
-    >
-      <h5
-        class="section-title"
-        style="margin: 0; font-weight: lighter; color: white"
-      >
-        Assign User
-      </h5>
-      <i
-        class="svg-icon close-icon-white"
-        (click)="closeDialog('cancel')"
-        style="cursor: pointer; font-size: 16px; color: white"
-      ></i>
-    </div>
-
-    <div class="modal-body">
-      <form [formGroup]="updateForm" class="form-stack">
-        <!-- <div class="input-stack" *ngFor="let field of fieldConfig">
-          <label>{{ field.label }}</label>
-
-          <ng-container *ngIf="field.controlName === 'assignedTo'">
-            <select [formControlName]="field.controlName" required>
-              <option value="" disabled>Select User</option>
-              <option *ngFor="let data of assignmentUsers" [value]="data.NAME">
-                {{ data.NAME }}
-              </option>
-            </select>
-          </ng-container>
-
-          <ng-container *ngIf="field.controlName !== 'assignedTo'">
-            <input
-              type="text"
-              [formControlName]="field.controlName"
-              [placeholder]="'Enter ' + field.label"
-            />
-          </ng-container>
-        </div> -->
-
-        <div class="input-stack" *ngFor="let field of fieldConfig">
-          <label>{{ field.label }}</label>
-
-          <ng-container *ngIf="field.controlName === 'assignedTo'">
-            <select [formControlName]="field.controlName" required>
-              <option value="" disabled>Select User</option>
-              <option *ngFor="let data of assignmentUsers" [value]="data.NAME">
-                {{ data.NAME }}
-              </option>
-            </select>
-          </ng-container>
-
-          <ng-container *ngIf="field.controlName !== 'assignedTo'">
-            <ng-container *ngIf="field.options?.length; else inputField">
-              <select [formControlName]="field.controlName">
-                <option value="" disabled>Select {{ field.label }}</option>
-                <option
-                  *ngFor="let option of field.options"
-                  [value]="option.value"
-                >
-                  {{ option.label }}
-                </option>
-              </select>
-            </ng-container>
-            <ng-template #inputField>
-              <input
-                type="text"
-                [formControlName]="field.controlName"
-                [placeholder]="'Enter ' + field.label"
-              />
-            </ng-template>
-          </ng-container>
-        </div>
+<app-modal-shell
+  title="Assign User"
+  [isOpen]="true"
+  (close)="closeDialog('cancel')"
+>
+  <div class="fit-assign-body">
+    @if (refreshingUsers()) {
+      <div class="fit-assign-loading">
+        <app-loading-symbol></app-loading-symbol>
+      </div>
+    } @else if (formReady()) {
+      <form [formGroup]="updateForm" class="fit-assign-form">
+        @for (field of fieldConfig(); track field.controlName) {
+          <div class="fit-assign-field">
+            <label class="fit-assign-label">{{ field.label }}</label>
+            @if (field.controlName === "assignedTo") {
+              <app-single-select-dropdown
+                [options]="assignmentUserOptions()"
+                [selected]="updateForm.get('assignedTo')?.value || ''"
+                placeholder="Select User"
+                (selectionChange)="onAssignedToChange($event)"
+              ></app-single-select-dropdown>
+            } @else {
+              @if (field.options?.length) {
+                <app-single-select-dropdown
+                  [options]="field.options"
+                  [selected]="updateForm.get(field.controlName)?.value || ''"
+                  [placeholder]="'Select ' + field.label"
+                  (selectionChange)="onFieldChange(field.controlName, $event)"
+                ></app-single-select-dropdown>
+              } @else {
+                <input
+                  class="fit-assign-control"
+                  type="text"
+                  [formControlName]="field.controlName"
+                  [placeholder]="'Enter ' + field.label"
+                />
+              }
+            }
+          </div>
+        }
       </form>
-    </div>
+    }
+  </div>
 
-    <div class="modal-footer">
-      <button class="custom-button-tertiary" (click)="closeDialog('cancel')">
+  <div slot="footer" class="fit-assign-footer">
+    @if (isAdminUser()) {
+      <a class="fit-assign-users-link" (click)="openUsersModal()">
+        Update Assignment Users
+      </a>
+    }
+    <div class="fit-assign-footer-buttons">
+      <button
+        class="fit-btn fit-btn--secondary"
+        type="button"
+        (click)="closeDialog('cancel')"
+      >
         Cancel
       </button>
       <button
-        class="custom-button-primary"
-        [disabled]="updateForm.invalid"
+        class="fit-btn fit-btn--primary"
+        type="button"
+        [disabled]="!formReady() || updateForm.invalid"
         (click)="submitData()"
       >
         Save
       </button>
     </div>
   </div>
-</div>
+</app-modal-shell>
+
+<!-- ── Full-screen Assignment Users Modal ── -->
+@if (showUsersModal) {
+  <div class="users-modal-backdrop" (click)="closeUsersModal()">
+    <div class="users-modal" (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="users-modal__header">
+        <h3 class="users-modal__title">Assignment Users</h3>
+        <button
+          class="users-modal__close"
+          (click)="closeUsersModal()"
+          title="Close"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="users-modal__toolbar">
+        <input
+          class="users-modal__search"
+          type="text"
+          placeholder="Search by name or email..."
+          [(ngModel)]="usersSearch"
+        />
+        <span class="users-modal__count">
+          Showing {{ filteredTeamUsers.length }} of
+          {{ allTeamUsers.length }} users
+        </span>
+        <button
+          class="fit-btn fit-btn--primary users-modal__add-btn"
+          (click)="onAddUserClick()"
+        >
+          + Add User
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div class="users-modal__table-wrap">
+        <table class="users-modal__table">
+          <thead>
+            <tr>
+              <th class="users-modal__th users-modal__th--num">#</th>
+              <th class="users-modal__th">Name</th>
+              <th class="users-modal__th">Email</th>
+              <th class="users-modal__th users-modal__th--status">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (showInlineAddRow) {
+              <tr class="users-modal__row users-modal__row--inline-add">
+                <td class="users-modal__td users-modal__td--num">—</td>
+                <td class="users-modal__td">
+                  <input
+                    type="text"
+                    class="users-modal__inline-input"
+                    [class.users-modal__inline-input--error]="
+                      inlineValidation.name
+                    "
+                    placeholder="Username"
+                    [(ngModel)]="newUserName"
+                  />
+                  @if (inlineValidation.name) {
+                    <span class="users-modal__inline-error">{{
+                      inlineValidation.name
+                    }}</span>
+                  }
+                </td>
+                <td class="users-modal__td">
+                  <input
+                    type="email"
+                    class="users-modal__inline-input"
+                    [class.users-modal__inline-input--error]="
+                      inlineValidation.email
+                    "
+                    placeholder="Email"
+                    [(ngModel)]="newUserEmail"
+                  />
+                  @if (inlineValidation.email) {
+                    <span class="users-modal__inline-error">{{
+                      inlineValidation.email
+                    }}</span>
+                  }
+                </td>
+                <td class="users-modal__td users-modal__td--status">
+                  <div class="users-modal__inline-actions">
+                    <button
+                      class="users-modal__inline-btn users-modal__inline-btn--save"
+                      (click)="onSaveInlineAdd()"
+                      [disabled]="inlineSaving"
+                      title="Save user"
+                    >
+                      {{ inlineSaving ? "..." : "✓" }}
+                    </button>
+                    <button
+                      class="users-modal__inline-btn users-modal__inline-btn--cancel"
+                      (click)="onCancelInlineAdd()"
+                      [disabled]="inlineSaving"
+                      title="Cancel"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+            @for (user of filteredTeamUsers; track user.EMAIL; let i = $index) {
+              <tr class="users-modal__row">
+                <td class="users-modal__td users-modal__td--num">
+                  {{ i + 1 }}
+                </td>
+                <td class="users-modal__td users-modal__td--name">
+                  {{ user.NAME }}
+                </td>
+                <td class="users-modal__td users-modal__td--email">
+                  {{ user.EMAIL }}
+                </td>
+                <td class="users-modal__td users-modal__td--status">
+                  <app-toggle-switch
+                    [checked]="user.FLAG === 'Y'"
+                    (checkedChange)="onToggleUserFlag(user, $event)"
+                  ></app-toggle-switch>
+                </td>
+              </tr>
+            }
+            @if (!filteredTeamUsers.length) {
+              <tr>
+                <td class="users-modal__td users-modal__empty" colspan="4">
+                  No users found.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}

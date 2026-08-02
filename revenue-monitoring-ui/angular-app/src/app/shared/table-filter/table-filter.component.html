@@ -1,0 +1,17 @@
+<div class="filter-wrapper">
+  @if (isOpen) {
+    <div class="dropdown">
+      @for (opt of options; track opt) {
+        <div
+          class="dropdown-option"
+          (click)="selectOption(opt)"
+          >
+          @if (selectedOption === opt.value) {
+            <mat-icon>check</mat-icon>
+          }
+          {{ opt.label }}
+        </div>
+      }
+    </div>
+  }
+</div>

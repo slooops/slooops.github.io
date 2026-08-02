@@ -1,0 +1,11 @@
+{
+  "/api/control-m": {
+    "target": "https://i2c-control-m-dev.cisco.com",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api/control-m": "/api/ctm"
+    },
+    "logLevel": "info"
+  }
+}

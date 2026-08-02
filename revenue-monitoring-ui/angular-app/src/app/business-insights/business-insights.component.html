@@ -1,37 +1,67 @@
-<mat-tab-group
-  [selectedIndex]="selectedIndex"
-  (selectedIndexChange)="onTabChange($event)"
->
-  <mat-tab
-    *ngFor="let tab of filteredTabs; let i = index"
-    [label]="tab.label"
-    [disabled]="tab.disabled"
-  >
-    <ng-container [ngSwitch]="tab.component">
-      <ng-container *ngSwitchCase="'app-large-deal'">
-        <app-invoice-status *ngIf="selectedIndex === i"></app-invoice-status>
-      </ng-container>
+<div class="dashboard-header">
+  <div class="header-main">
+    <div class="header-left">
+      <h2>{{ filteredTabs[selectedIndex]?.label || "Business Insights" }}</h2>
+    </div>
+    @if (periodInfo) {
+      <div class="period-info">
+        <span><b>Period name:</b> {{ periodInfo.periodName }}</span>
+        <span class="period-divider">|</span>
+        <span><b>Period end date:</b> {{ periodInfo.periodEndDate }}</span>
+        <span class="period-divider">|</span>
+        @if (isLargeDealTab) {
+          <span><b>Last Updated:</b> {{ timeNow || "" }} &nbsp;</span>
+          <span
+            matTooltip="Data is refreshed at 8 AM, 12 PM, 4 PM and 11 PM PST everyday."
+            matTooltipPosition="right"
+            style="
+              cursor: pointer;
+              display: inline-flex;
+              align-items: center;
+              padding: 4px;
+              vertical-align: middle;
+            "
+          >
+            <mat-icon
+              style="
+                color: gray;
+                font-size: 15px;
+                width: 15px;
+                height: 15px;
+                line-height: 15px;
+                overflow: visible;
+              "
+            >
+              info_outline
+            </mat-icon>
+          </span>
+        } @else {
+          <span><b>Last Updated:</b> {{ timeNow || "" }}</span>
+        }
+      </div>
+    }
+    <div class="header-right"></div>
+  </div>
+</div>
 
-      <ng-container *ngSwitchCase="'app-wd0-status'">
-        <app-wd0-dash *ngIf="selectedIndex === i"></app-wd0-dash>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="'app-wd0-historical-data'">
-        <app-wd0-historical-data
-          *ngIf="selectedIndex === i"
-        ></app-wd0-historical-data>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="'app-issue-reporting'">
-        <app-issue-reporting *ngIf="selectedIndex === i"></app-issue-reporting>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="'app-o2c-360'">
-        <app-o2c-360
-          *ngIf="selectedIndex === i"
-          [searchParams]="o2cSearchParams"
-        ></app-o2c-360>
-      </ng-container>
-    </ng-container>
-  </mat-tab>
-</mat-tab-group>
+<div class="bi-content">
+  @if (filteredTabs.length > 0) {
+    @switch (filteredTabs[selectedIndex]?.component) {
+      @case ("app-large-deal") {
+        <app-invoice-status></app-invoice-status>
+      }
+      @case ("app-wd0-status") {
+        <app-wd0-dash></app-wd0-dash>
+      }
+      @case ("app-wd0-historical-data") {
+        <app-wd0-historical-data></app-wd0-historical-data>
+      }
+      @case ("app-issue-reporting") {
+        <app-issue-reporting></app-issue-reporting>
+      }
+      @case ("o2c-insights") {
+        <app-o2c-embed></app-o2c-embed>
+      }
+    }
+  }
+</div>

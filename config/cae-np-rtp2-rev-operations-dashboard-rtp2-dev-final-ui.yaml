@@ -1,4 +1,3 @@
----
 # Source: templates/dev-ui.yaml
 
 # codectl version : 1.5.6
@@ -53,3 +52,95 @@ spec:
             - containerPort: 3000
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: operations-control-tower-ingress
+  namespace: rev-operations-dashboard-rtp2
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - operations-control-tower-dev.cisco.com
+      secretName: operations-control-tower-tls
+  rules:
+    - host: operations-control-tower-dev.cisco.com
+      http:
+        paths:
+          # /o2c → React app (more specific path matched first)
+          - path: /o2c
+            pathType: Prefix
+            backend:
+              service:
+                name: subscription-ai-frontend-service
+                port:
+                  number: 3500
+          # / → Angular app (catch-all)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rev-ops-monitoring-ui-final-service
+                port:
+                  number: 3000
+---
+apiVersion: cae.cisco.com/v1
+kind: SSOAuthConfig
+metadata:
+  name: operations-control-tower-dev.cisco.com
+  namespace: rev-operations-dashboard-rtp2
+spec:
+  contexts:
+    - context: /api/
+      contextMatch: prefix
+      policyType: public
+      methods:
+        - "*"
+    - context: /snoop.jsp
+      contextMatch: exact
+      policyType: public
+    - context: /pingpong.html
+      contextMatch: exact
+      policyType: public
+    - context: /favicon.ico
+      contextMatch: exact
+      policyType: public
+    - context: /.emantest.html
+      contextMatch: exact
+      policyType: public
+    - context: /pub/
+      contextMatch: prefix
+      policyType: public
+    - context: ^/.*/pingpong\.html$
+      contextMatch: regex
+      policyType: public
+    - context: /
+      contextMatch: prefix
+      policyType: web
+  policy:
+    api:
+      allow:
+        - paths:
+            - path: /api/
+              pathMatch: prefix
+          when:
+            - kind: clientId
+              values:
+                - "frs-oauth-prod"
+    web:
+      allow:
+        - paths:
+            - path: /
+              pathMatch: prefix
+          when:
+            - kind: userId
+              values:
+                - "*"
+  provider:
+    cors: platform
+    idp: duo
+    sso: platform

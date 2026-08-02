@@ -1,0 +1,168 @@
+/* Host element styling - this is the actual flex child */
+:host {
+  flex: 1;
+  min-width: 0; /* Allow flex items to shrink below content size */
+}
+
+/* Individual metric tiles */
+.metric-tile {
+  height: 3rem;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  position: relative;
+}
+
+/* Permanent outlines at 50% opacity */
+.status-high {
+  outline: 1px solid rgba(0, 112, 210, 0.5); /* #0070D2 at 50% opacity */
+}
+
+.status-medium {
+  outline: 1px solid rgba(144, 164, 174, 0.5); /* Keep your grey at 50% */
+}
+
+.status-low {
+  outline: 1px solid rgba(255, 215, 152, 0.5); /* #FFD798 at 50% opacity */
+}
+
+/* Hover effects with colored outlines and box shadow */
+.status-high:hover {
+  outline: 1px solid #0070d2;
+  box-shadow: 0 2px 8px rgba(0, 112, 210, 0.2);
+}
+
+.status-medium:hover {
+  outline: 1px solid #90a4ae;
+  box-shadow: 0 2px 8px rgba(144, 164, 174, 0.2);
+}
+
+.status-low:hover {
+  outline: 1px solid #ffd798;
+  box-shadow: 0 2px 8px rgba(255, 215, 152, 0.3);
+}
+
+/* Font weight changes on hover and active states */
+.metric-tile:hover .metric-name,
+.metric-tile:hover .metric-percentage,
+.metric-tile.active .metric-name,
+.metric-tile.active .metric-percentage {
+  font-weight: 700;
+}
+
+/* Active tile triangle/caret */
+.metric-tile.active::after {
+  content: "";
+  position: absolute;
+  bottom: -8px; /* Position below the tile */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  z-index: 10;
+}
+
+/* Triangle colors based on status */
+.metric-tile.active.status-high::after {
+  border-top: 8px solid #0070d2;
+}
+
+.metric-tile.active.status-medium::after {
+  border-top: 8px solid #90a4ae;
+}
+
+.metric-tile.active.status-low::after {
+  border-top: 8px solid #ffd798;
+}
+
+.metric-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 0.25rem;
+  gap: 1rem; /* 16px gap between name and percentage */
+}
+
+.metric-name {
+  color: #606162;
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1;
+  margin: 0;
+  text-align: center;
+}
+
+.metric-percentage {
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1;
+  margin: 0;
+  text-align: center;
+}
+
+/* Reduce font size for screens less than 1400px */
+@media (max-width: 1399px) {
+  .metric-name,
+  .metric-percentage {
+    font-size: 0.7rem;
+  }
+}
+
+/* Percentage colors based on status */
+.status-high .metric-percentage {
+  color: #0070d2; /* Blue at full opacity */
+}
+
+.status-medium .metric-percentage {
+  color: #90a4ae; /* Keep your grey as is */
+}
+
+.status-low .metric-percentage {
+  color: #e3241b; /* Red as specified */
+}
+
+/* Status-based background colors (10% opacity versions) */
+.status-high {
+  background-color: rgba(0, 112, 210, 0.1); /* #0070D2 at 10% */
+  outline: 1px solid rgba(0, 112, 210, 0.5); /* #0070D2 at 50% opacity */
+}
+
+.status-medium {
+  background-color: rgba(144, 164, 174, 0.1); /* #90a4ae at 10% */
+  outline: 1px solid rgba(144, 164, 174, 0.5); /* Keep your grey at 50% */
+}
+
+.status-low {
+  background-color: rgba(255, 215, 152, 0.1); /* #FFD798 at 10% */
+  outline: 1px solid rgba(255, 215, 152, 0.5); /* #FFD798 at 50% opacity */
+}
+
+/* Non-clickable tile styling */
+.metric-tile.non-clickable {
+  cursor: default;
+  opacity: 0.8;
+}
+
+/* Prevent hover effects on non-clickable tiles while maintaining the outline */
+.metric-tile.non-clickable.status-high:hover {
+  outline: 1px solid rgba(0, 112, 210, 0.5) !important;
+  box-shadow: none !important;
+}
+
+.metric-tile.non-clickable.status-medium:hover {
+  outline: 1px solid rgba(144, 164, 174, 0.5) !important;
+  box-shadow: none !important;
+}
+
+.metric-tile.non-clickable.status-low:hover {
+  outline: 1px solid rgba(255, 215, 152, 0.5) !important;
+  box-shadow: none !important;
+}
+
+.metric-tile.non-clickable:hover .metric-name,
+.metric-tile.non-clickable:hover .metric-percentage {
+  font-weight: 400 !important;
+}

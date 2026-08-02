@@ -1,0 +1,59 @@
+@import "src/assets/o2c-common-styles.css";
+
+.back-btn-floating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0px;
+  background: transparent;
+  border: none;
+  font-weight: 500;
+  color: #0076d5;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.order-table {
+  border-radius: 12px 12px 0px 0px;
+  border: 0px solid #e4e4e4;
+  background: #f7f4f4;
+  padding: 10px 20px 6px 20px;
+}
+
+.mat-mdc-table {
+  background: none;
+}
+
+.tool-bar-container {
+  width: 100%;
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row-reverse;
+  background-color: #f4f6f8;
+  padding: 10px 14px;
+  border: 1px solid #e4e4e4;
+}
+
+.o2c-toolbar {
+  display: inline-flex;
+  overflow: hidden;
+  border: none;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0px 12px;
+  font-size: 14px;
+  color: #0175a2;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: transparent;
+}
+
+.late-billing {
+  color: #dd3633;
+}

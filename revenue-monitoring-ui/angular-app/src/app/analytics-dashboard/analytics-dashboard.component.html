@@ -1,0 +1,292 @@
+<div class="analytics-container">
+  <!-- Header -->
+  <div class="analytics-header">
+    <div class="header-left">
+      <div class="header-icon-slot">
+        <ng-icon name="phosphorPresentationChartDuotone" size="40" />
+      </div>
+      <div class="header-text">
+        <h1 class="header-title">Analytics Dashboard</h1>
+        <p class="header-subtitle">
+          Page Visit Analytics &amp; Usage Insights from last
+          {{ selectedDays }} days
+        </p>
+      </div>
+    </div>
+    <div class="header-right">
+      <select
+        class="ciq-select"
+        [(ngModel)]="selectedDays"
+        (ngModelChange)="onPeriodChange()"
+        [disabled]="isLoading"
+      >
+        @for (opt of periodOptions; track opt.value) {
+          <option [ngValue]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+      <button class="ciq-btn" (click)="refreshData()" [disabled]="isLoading">
+        <ng-icon
+          name="phosphorArrowClockwiseBold"
+          size="14"
+          [class.spinning]="isLoading"
+          class="refresh-icon"
+        />
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="loading-container">
+      <app-loading-symbol></app-loading-symbol>
+      <p>Loading analytics data...</p>
+    </div>
+  }
+
+  <!-- Stats + Donut Charts Grid (3x2) -->
+  @if (!isLoading) {
+    <div class="overview-grid">
+      <!-- Row 1: Stats Cards -->
+      <div class="stat-card stat-card--blue">
+        <div class="stat-icon-slot">
+          <ng-icon name="phosphorUsersDuotone" size="32" />
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ totalVisits | number }}</div>
+          <div class="stat-label">Total Page Visits</div>
+        </div>
+        <div class="stat-glow stat-glow--blue"></div>
+      </div>
+      <div class="stat-card stat-card--green">
+        <div class="stat-icon-slot">
+          <ng-icon name="phosphorChartDonutDuotone" size="32" />
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ summaryData.length }}</div>
+          <div class="stat-label">Unique Pages Tracked</div>
+        </div>
+        <div class="stat-glow stat-glow--green"></div>
+      </div>
+      <div class="stat-card stat-card--purple">
+        <div class="stat-icon-slot">
+          <ng-icon name="phosphorTrophyDuotone" size="32" />
+        </div>
+        <div class="stat-content">
+          <div class="stat-value top-page">{{ topPage || "N/A" }}</div>
+          <div class="stat-label">Most Visited Page</div>
+        </div>
+        <div class="stat-glow stat-glow--purple"></div>
+      </div>
+
+      <!-- Row 2: Donut Charts -->
+      <div class="chart-card">
+        <div class="card-header">
+          <div class="card-header-icon card-header-icon--blue">
+            <ng-icon name="phosphorShieldCheckDuotone" size="20" />
+          </div>
+          <span>Continuous Monitoring Overview</span>
+        </div>
+        <div class="chart-wrapper">
+          <div
+            echarts
+            [options]="continuousMonitoringChartOptions"
+            style="height: 100%; width: 100%"
+          ></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="card-header">
+          <div class="card-header-icon card-header-icon--purple">
+            <ng-icon name="phosphorBrainDuotone" size="20" />
+          </div>
+          <span>Case IQ Teams</span>
+        </div>
+        <div class="chart-wrapper">
+          <div
+            echarts
+            [options]="caseIqChartOptions"
+            style="height: 100%; width: 100%"
+          ></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="card-header">
+          <div class="card-header-icon card-header-icon--green">
+            <ng-icon name="phosphorLightbulbDuotone" size="20" />
+          </div>
+          <span>Business Insights</span>
+        </div>
+        <div class="chart-wrapper">
+          <div
+            echarts
+            [options]="businessInsightsChartOptions"
+            style="height: 100%; width: 100%"
+          ></div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Bar Charts (Full Width) -->
+  @if (!isLoading) {
+    <div class="bar-charts-section">
+      <div class="chart-card full-width">
+        <div class="card-header">
+          <div class="card-header-icon card-header-icon--orange">
+            <ng-icon name="phosphorFireDuotone" size="20" />
+          </div>
+          <span>Top 10 Most Visited Pages</span>
+        </div>
+        <div class="chart-wrapper tall">
+          <div
+            echarts
+            [options]="topPagesChartOptions"
+            style="height: 100%; width: 100%"
+          ></div>
+        </div>
+      </div>
+
+      <div class="chart-card full-width">
+        <div class="card-header">
+          <div class="card-header-icon card-header-icon--cyan">
+            <ng-icon name="phosphorUsersDuotone" size="20" />
+          </div>
+          <span>Pages by Unique Users</span>
+        </div>
+        <div class="chart-wrapper tall">
+          <div
+            echarts
+            [options]="uniqueUsersChartOptions"
+            style="height: 100%; width: 100%"
+          ></div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Data Table -->
+  @if (!isLoading && summaryData.length > 0) {
+    <div class="data-table-card">
+      <div class="card-header">
+        <div class="card-header-icon card-header-icon--blue">
+          <ng-icon name="phosphorTableDuotone" size="20" />
+        </div>
+        <span>Detailed Page Visit Data</span>
+      </div>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Page Route</th>
+              <th>Total Visits</th>
+              <th>Unique Users</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of summaryData; track item.PAGE_ROUTE; let i = $index) {
+              <tr>
+                <td class="rank">
+                  <span
+                    class="rank-badge"
+                    [ngClass]="{
+                      gold: i === 0,
+                      silver: i === 1,
+                      bronze: i === 2,
+                    }"
+                  >
+                    {{ i + 1 }}
+                  </span>
+                </td>
+                <td
+                  class="route clickable"
+                  (click)="openRouteDetail(item.PAGE_ROUTE)"
+                >
+                  {{ item.PAGE_ROUTE }}
+                </td>
+                <td class="visits">{{ item.TOTAL_VISITS | number }}</td>
+                <td class="users">{{ item.UNIQUE_USERS | number }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading && summaryData.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon-slot">
+        <ng-icon name="phosphorChartBarDuotone" size="64" />
+      </div>
+      <h3>No Analytics Data Yet</h3>
+      <p>Start using the application to generate page visit analytics!</p>
+    </div>
+  }
+</div>
+
+<!-- Route Detail Modal -->
+@if (modalOpen) {
+  <div class="ciq-modal-backdrop" (click)="closeRouteDetail()">
+    <dialog
+      class="ciq-modal"
+      open
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="ciq-modal__header">
+        <h3 class="ciq-modal__title">{{ modalRoute }}</h3>
+        <button
+          class="ciq-modal__close"
+          (click)="closeRouteDetail()"
+          aria-label="Close modal"
+        >
+          ✕
+        </button>
+      </div>
+      <div class="ciq-modal__body">
+        @if (modalLoading) {
+          <div class="modal-loading">Loading visitor data…</div>
+        } @else if (modalDetails.length === 0) {
+          <div class="modal-loading">No visitor data found for this route.</div>
+        } @else {
+          <p class="ciq-modal__subtitle">
+            {{ modalDetails.length }} user{{
+              modalDetails.length !== 1 ? "s" : ""
+            }}
+            · {{ modalTotalVisits | number }} total visits · Last
+            {{ selectedDays }} days
+          </p>
+          <div class="modal-table-wrapper">
+            <table class="data-table modal-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>User</th>
+                  <th>Total Visits</th>
+                  <th>Active Days</th>
+                  <th>First Visit</th>
+                  <th>Last Visit</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (d of modalDetails; track d.USER_NAME; let i = $index) {
+                  <tr>
+                    <td>{{ i + 1 }}</td>
+                    <td class="user-cell">{{ d.USER_NAME }}</td>
+                    <td class="visits">{{ d.VISIT_COUNT | number }}</td>
+                    <td>{{ d.VISIT_DATE }}</td>
+                    <td class="timestamp">{{ d.FIRST_VISIT_TIME }}</td>
+                    <td class="timestamp">{{ d.LAST_VISIT_TIME }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </dialog>
+  </div>
+}

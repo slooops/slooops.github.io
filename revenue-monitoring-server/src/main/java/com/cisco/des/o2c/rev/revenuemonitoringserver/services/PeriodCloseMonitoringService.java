@@ -1,7 +1,11 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
+
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -19,15 +23,13 @@ public class PeriodCloseMonitoringService {
     private Boolean isQuarterEnd;
     private String periodName;
 
-
     @Autowired
     public PeriodCloseMonitoringService(JdbcManager jdbcManager, String closeInvStats,
             String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
             String closeMEStatus, String closeQECashCollected, String dashboardComments,
             String updateComments,
             String estimatedCompletionTime,
-                                          String periodName
-                                        ) {
+            String periodName) {
         this.jdbcManager = jdbcManager;
         this.closeInvStats = closeInvStats;
         this.closeInterfaceLoad = closeInterfaceLoad;
@@ -48,7 +50,8 @@ public class PeriodCloseMonitoringService {
     public Map<String, List<Map<String, Object>>> getPeriodCloseInterfaceLoad() {
         List<Map<String, Object>> pName = jdbcManager.queryForList(periodName);
         String[] period = pName.get(0).get("PERIOD_NAME").toString().split("-");
-        boolean isQuarterEnd = period[0].equals("JAN") || period[0].equals("APR") || period[0].equals("JUL") || period[0].equals("OCT");
+        boolean isQuarterEnd = period[0].equals("JAN") || period[0].equals("APR") || period[0].equals("JUL")
+                || period[0].equals("OCT");
 
         List<Map<String, Object>> data = jdbcManager.queryForList(closeInterfaceLoad);
 
@@ -58,7 +61,13 @@ public class PeriodCloseMonitoringService {
 
         Map<String, Map<String, Object>> preCloseResults = new LinkedHashMap<>();
         Map<String, Map<String, Object>> midCloseResults = new LinkedHashMap<>();
-        Map<String, List<Map<String, Object>>> percentageBuffer = new HashMap<>();
+        // Track only the LATEST row's percentages per (LINE_TYPE + CLOSE_TYPE).
+        // Rows are pre-ordered by period_year, quarter, period_num in the SQL,
+        // so each successive put() during the loop overwrites and the final value
+        // corresponds to the latest quarter/period for that key. This prevents
+        // stale prior-period percentages from leaking into the latest column
+        // when the current period's QOQ/YOY (or MOM/PQM) values are NULL.
+        Map<String, Map<String, Object>> latestPercentages = new HashMap<>();
 
         for (Map<String, Object> row : data) {
             String lineType = row.get("LINE_TYPE").toString();
@@ -74,38 +83,30 @@ public class PeriodCloseMonitoringService {
             String periodKey = isQuarterEnd ? row.get("QUARTER").toString() : row.get("PERIOD_NAME").toString();
             resultMap.put(periodKey, row.get("LINE_COUNT"));
 
-            Map<String, Object> temp = new LinkedHashMap<>();
+            // Emit percentage keys unconditionally (null values allowed) so the FE
+            // always shows the latest quarter's actual %s, even if they are blank.
+            Map<String, Object> latest = new LinkedHashMap<>();
             if (isQuarterEnd) {
-                if (row.get("QOQ_PERCENTAGE") != null) temp.put("QUARTER OVER QUARTER", row.get("QOQ_PERCENTAGE"));
-                if (row.get("YOY_PERCENTAGE") != null) temp.put("YEAR OVER YEAR", row.get("YOY_PERCENTAGE"));
+                latest.put("QUARTER OVER QUARTER", row.get("QOQ_PERCENTAGE"));
+                latest.put("YEAR OVER YEAR", row.get("YOY_PERCENTAGE"));
             } else {
-                if (row.get("MOM_PERCENTAGE") != null) temp.put("MONTH OVER MONTH", row.get("MOM_PERCENTAGE"));
-                if (row.get("PQM_PERCENTAGE") != null) temp.put("PRIOR QUARTER MONTH", row.get("PQM_PERCENTAGE"));
+                latest.put("MONTH OVER MONTH", row.get("MOM_PERCENTAGE"));
+                latest.put("PRIOR QUARTER MONTH", row.get("PQM_PERCENTAGE"));
             }
-
-            if (!temp.isEmpty()) {
-                String percentKey = lineType + "-" + closeType;
-                percentageBuffer.computeIfAbsent(percentKey, k -> new ArrayList<>()).add(temp);
-            }
+            latestPercentages.put(uniqueKey, latest);
         }
 
         for (Map.Entry<String, Map<String, Object>> entry : preCloseResults.entrySet()) {
-            String key = entry.getKey();
-            List<Map<String, Object>> percentList = percentageBuffer.getOrDefault(key, Collections.emptyList());
-            for (Map<String, Object> percentMap : percentList) {
-                for (Map.Entry<String, Object> p : percentMap.entrySet()) {
-                    entry.getValue().put(p.getKey(), p.getValue());
-                }
+            Map<String, Object> latest = latestPercentages.get(entry.getKey());
+            if (latest != null) {
+                entry.getValue().putAll(latest);
             }
         }
 
         for (Map.Entry<String, Map<String, Object>> entry : midCloseResults.entrySet()) {
-            String key = entry.getKey();
-            List<Map<String, Object>> percentList = percentageBuffer.getOrDefault(key, Collections.emptyList());
-            for (Map<String, Object> percentMap : percentList) {
-                for (Map.Entry<String, Object> p : percentMap.entrySet()) {
-                    entry.getValue().put(p.getKey(), p.getValue());
-                }
+            Map<String, Object> latest = latestPercentages.get(entry.getKey());
+            if (latest != null) {
+                entry.getValue().putAll(latest);
             }
         }
 
@@ -114,7 +115,6 @@ public class PeriodCloseMonitoringService {
 
         return finalResult;
     }
-
 
     public List<Map<String, Object>> getCloseStartEndTime() {
         return jdbcManager.queryForList(closeStartEndTime);
@@ -140,10 +140,21 @@ public class PeriodCloseMonitoringService {
         return jdbcManager.updateComments(updateComments, closeType, comments);
     }
 
-
     public List<Map<String, Object>> getEstimatedCompletionTime() {
-        return jdbcManager.queryForList(estimatedCompletionTime);
-    }
+        List<Map<String, Object>> results = jdbcManager.queryForList(estimatedCompletionTime);
 
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+        for (Map<String, Object> row : results) {
+            Object value = row.get("ESTIMATED_COMPLETION_TIME"); // <-- change key if needed
+
+            if (value instanceof String) {
+                OffsetDateTime dateTime = OffsetDateTime.parse((String) value);
+                row.put("ESTIMATED_COMPLETION_TIME", dateTime.format(timeFormatter));
+            }
+        }
+
+        return results;
+    }
 
 }

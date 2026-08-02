@@ -1,124 +1,59 @@
-import { ChangeDetectorRef, Component, OnChanges, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, HostBinding, OnInit } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
-
-import { DatePipe } from '@angular/common';
 import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
-import * as XLSX from 'xlsx';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { DataService } from '../providers/data.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MenuService } from '../providers/menu.service';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { AtmfCardComponent } from '../components/atmf/atmf-card/atmf-card.component';
+import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
+import { AtmfBarLineChartComponent } from '../components/atmf/atmf-bar-line-chart/atmf-bar-line-chart.component';
+import { AtmfStackedChartComponent } from '../components/atmf/atmf-stacked-chart/atmf-stacked-chart.component';
+import { AtmfTableComponent } from '../components/atmf/atmf-table/atmf-table.component';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+import { provideIcons } from '@ng-icons/core';
+import { ThemeService } from '../providers/theme.service';
 
 @Component({
   selector: 'app-period-close-tracking',
   templateUrl: './period-close-tracking.component.html',
   styleUrls: ['./period-close-tracking.component.css'],
-  providers: [DestroyManager],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
+  ],
+  imports: [
+    CommonModule,
+    MatTooltipModule,
+    AtmfCardComponent,
+    LoadingSymbolComponent,
+    AtmfBarLineChartComponent,
+    AtmfStackedChartComponent,
+    AtmfTableComponent,
+  ],
+  standalone: true,
 })
 export class PeriodCloseTrackingComponent implements OnInit {
-  refreshInterval = 30000; //ms
-  timeNow: any;
-  now: any;
-  startTimeEdit = false;
-  closeTimeEdit = false;
-  editComments = false;
-  showpreStatusFilter = true;
-  showmidStatusFilter = true;
-  showComments: boolean = false;
-  roles: string[] = [];
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
 
-  monthMap = {
-    '01': 'January',
-    '02': 'February',
-    '03': 'March',
-    '04': 'April',
-    '05': 'May',
-    '06': 'June',
-    '07': 'July',
-    '08': 'August',
-    '09': 'September',
-    '10': 'October',
-    '11': 'November',
-    '12': 'December',
-  };
+  refreshInterval = 300000; //ms
+  timeNow: any;
+  roles: string[] = [];
+  periodStatus: any;
+
+  // Tab state
+  precloseActiveTab: 'invoices' | 'cash' = 'invoices';
+  midcloseActiveTab: 'invoices' | 'cash' = 'invoices';
 
   templateObject = Object;
-  datePipe: DatePipe = new DatePipe('en-US');
-  precloseSelectedEntities: string[] = [];
-  precloseSelectedStatuses: string[] = [];
-
-  midcloseSelectedEntities: string[] = [];
-  midcloseSelectedStatuses: string[] = [];
-
-  precloseDefaultSelectedEntities: string[] = localStorage.getItem(
-    'precloseentity'
-  )
-    ? JSON.parse(localStorage.getItem('precloseentity')).includes('All')
-      ? ['All']
-      : JSON.parse(localStorage.getItem('precloseentity'))
-    : ['All'];
-
-  precloseAllEntitiesSelected: boolean = localStorage.getItem('precloseentity')
-    ? JSON.parse(localStorage.getItem('precloseentity')).includes('All')
-      ? true
-      : false
-    : true;
-
-  precloseAllStatusSelected: boolean = localStorage.getItem('preclosestatus')
-    ? JSON.parse(localStorage.getItem('preclosestatus')).includes('All')
-      ? true
-      : false
-    : true;
-
-  precloseDefaultStatus: string[] = localStorage.getItem('preclosestatus')
-    ? JSON.parse(localStorage.getItem('preclosestatus')).includes('All')
-      ? ['All']
-      : JSON.parse(localStorage.getItem('preclosestatus'))
-    : ['All'];
-
-  midcloseAllEntitiesSelected: boolean = localStorage.getItem('midcloseentity')
-    ? JSON.parse(localStorage.getItem('midcloseentity')).includes('All')
-      ? true
-      : false
-    : true;
-
-  midcloseAllStatusSelected: boolean = localStorage.getItem('midclosestatus')
-    ? JSON.parse(localStorage.getItem('midclosestatus')).includes('All')
-      ? true
-      : false
-    : true;
-
-  midcloseDefaultSelectedEntities: string[] = localStorage.getItem(
-    'midcloseentity'
-  )
-    ? JSON.parse(localStorage.getItem('midcloseentity')).includes('All')
-      ? ['All']
-      : JSON.parse(localStorage.getItem('midcloseentity'))
-    : ['All'];
-  midcloseDefaultStatus: string[] = localStorage.getItem('midclosestatus')
-    ? JSON.parse(localStorage.getItem('midclosestatus')).includes('All')
-      ? ['All']
-      : JSON.parse(localStorage.getItem('midclosestatus'))
-    : ['All'];
-
-  pcloseEntityvalueSetOnload: boolean = true;
-
-  pcloseStatusvalueSetOnload: boolean = true;
-
-  mcloseEntityvalueSetOnload: boolean = true;
-
-  mcloseStatusvalueSetOnload: boolean = true;
-
-  precloseStatuses = new FormControl(this.precloseDefaultStatus);
-
-  precloseEntities = new FormControl(this.precloseDefaultSelectedEntities);
-
-  midcloseStatuses = new FormControl(this.midcloseDefaultStatus);
-
-  midcloseEntities = new FormControl(this.midcloseDefaultSelectedEntities);
 
   preCloseStartTime: String;
   preCloseEndTime: String;
@@ -126,52 +61,41 @@ export class PeriodCloseTrackingComponent implements OnInit {
   midCloseStartTime: String;
   midCloseEndTime: String;
   midCloseActualEndTime: String;
-  productVolume: Number;
-  serviceVolume: Number;
-
-  dashComments: commentsModel[];
-
-  // pcloseInvGenTableOptions!: CuiTableOptions;
-  // mcloseInvGenTableOptions!: CuiTableOptions;
 
   preCloseProgramTableData: any[] = [];
   midCloseProgramTableData: any[] = [];
 
-  interfaceLoadHeaders: any[] = [];
   precloseInterfaceLoadData: any[] = [];
   midcloseInterfaceLoadData: any[] = [];
-  precloseInterfaceLoadTableData: any[] = [];
-  midcloseInterfaceLoadTableData: any[] = [];
 
   qeCashCollectedData: any[] = [];
-  // qeCashCollectedTableOptions!: CuiTableOptions;
 
-  entityList: string[] = [];
-  statusList: string[] = [];
   pcloseMonthEndStatusData: any[] = [];
   mcloseMonthEndStatusData: any[] = [];
   pcloseMonthEndStatusTableData: any[] = [];
   mcloseMonthEndStatusTableData: any[] = [];
 
-  pcloseSelectedOUData: any[] = [];
-  pcloseSelectedStatusData: any[] = [];
-  pcloseSelectedMonthEndStatusTableData: any[] = [];
-
-  mcloseSelectedOUData: any[] = [];
-  mcloseSelectedStatusData: any[] = [];
-  mcloseSelectedMonthEndStatusTableData: any[] = [];
-
   pcloseEstimatedCompletionTime: string;
   mcloseEstimatedCompletionTime: string;
 
+  // Chart data for Invoices Generated and Cash Posted
+  precloseInvChartLabels: string[] = [];
+  precloseInvChartDatasets: any[] = [];
+  midcloseInvChartLabels: string[] = [];
+  midcloseInvChartDatasets: any[] = [];
+  precloseCashChartLabels: string[] = [];
+  precloseCashChartDatasets: any[] = [];
+  midcloseCashChartLabels: string[] = [];
+  midcloseCashChartDatasets: any[] = [];
+
   meStatusColumns: string[] = [
-    'OPERATING UNIT',
-    'ELIGIBLE FOR INVOICING',
-    'INVOICING',
-    'ACCOUNTING',
-    'INTERCOMPANY',
-    'DEFERRALS',
-    'GL POSTING',
+    'Operating Unit',
+    'Eligible for Invoicing',
+    'Invoicing',
+    'Accounting',
+    'Intercompany',
+    'Deferrals',
+    'GL Posting',
   ];
   meStatusDesiredOrder: string[] = [
     'OPERATING_UNIT',
@@ -182,49 +106,46 @@ export class PeriodCloseTrackingComponent implements OnInit {
     'DEFERRALS',
     'GL_POSTING',
   ];
-  meStatusCategories: string[] = [
-    'ELIGIBLE_FOR_INVOICING',
-    'INVOICING',
-    'ACCOUNTING',
-    'INTERCOMPANY',
-    'DEFERRALS',
-    'GL_POSTING',
-  ];
 
   // 'AR_INTERFACE', 'INVOICING', 'ACCOUNTING', 'INTERCOMPANY','NGCCRM', 'GL_POSTING'
   pcloseExecutionWindow: string[] = [
-    '',
-    '07:00 - 08:30 PST',
-    '08:30 - 09:30 PST',
-    '09:30 - 14:30 PST',
-    '12:30 - 14:30 PST',
-    '12:30 - 14:30 PST',
-    '14:30 - 15:00 PST',
-  ];
-  mcloseExecutionWindow: string[] = [
-    '',
-    '00:25 - 01:10 PST',
-    '01:10 - 02:10 PST',
-    '02:10 - 05:40 PST',
-    '03:40 - 05:40 PST',
-    '03:40 - 05:40 PST',
-    '05:40 - 06:40 PST',
+    'Estimated time',
+    '07:00 - 08:30',
+    '08:30 - 09:30',
+    '09:30 - 14:30',
+    '12:30 - 14:30',
+    '12:30 - 14:30',
+    '14:30 - 15:00',
   ];
 
-  pCloseProgBarStatusMapping: any = {};
-  mCloseProgBarStatusMapping: any = {};
+  pcloseActualsTime: string[] = [
+    'Actual time',
+    ' - ',
+    ' - ',
+    ' - ',
+    ' - ',
+    ' - ',
+    ' - ',
+  ];
+  mcloseExecutionWindow: string[] = [
+    'Estimated time',
+    '00:25 - 01:10',
+    '01:10 - 02:10',
+    '02:10 - 05:40',
+    '03:40 - 05:40',
+    '03:40 - 05:40',
+    '05:40 - 06:40',
+  ];
+
   pcloseOuStatusMapping: any = {};
   mcloseOuStatusMapping: any = {};
 
   preclosePeriod: String = '';
   midclosePeriod: String = '';
   isQuarterEnd: boolean = false;
-  // pclose_last_period = 'JUL-23'; // hardcoded for now
-  // mclose_last_period = 'JUL-23'; // hardcoded for now
   precloseQuarter: String = '';
   midcloseQuarter: String = '';
 
-  dynamicInterfaceLoadColumns: string[] = [];
   pcloseInterfaceLoadColumns: string[] = [];
   mcloseInterfaceLoadColumns: string[] = [];
 
@@ -236,17 +157,11 @@ export class PeriodCloseTrackingComponent implements OnInit {
     destroyManager: DestroyManager,
     private authService: AuthenticationService,
     private menuService: MenuService,
-    private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef,
-    private router: Router
+    private dataService: DataService,
+    public themeService: ThemeService,
   ) {
     this.http = http;
     this.destroyManager = destroyManager;
-
-    window.onbeforeunload = function () {
-      localStorage.clear();
-      return '';
-    };
   }
 
   ngOnInit(): void {
@@ -255,11 +170,17 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.getInterfaceLoad();
     this.getQECashCollected();
     this.getPrecloseMeStatus();
-    this.getComments();
     this.getCurrentTime();
     this.getEstimatedCompletionTime();
-    this.roles = this.authService.getRoles();
-    this.getDefaultTabIndex();
+    this.roles = this.authService.getUserAccessRoles();
+    this.dataService.periodStatus$.subscribe((data) => {
+      if (data) {
+        this.periodStatus = {
+          ...data,
+          lastUpdated: new Date().toLocaleString(),
+        };
+      }
+    });
 
     this.menuService.updateMenuItems([
       {
@@ -270,156 +191,24 @@ export class PeriodCloseTrackingComponent implements OnInit {
       {
         label: 'Invoice to Cash',
         route: '/invoice-to-cash',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+        role: ['ADMIN', 'MONITORING_I2C', 'MONITORING_I2C_ADMIN'],
       },
       {
         label: 'Revenue Accounting',
         route: '/revenue-accounting',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+        role: [
+          'ADMIN',
+          'MONITORING_REVENUE_ACCOUNTING',
+          'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+          'ACCOUNT_RECON',
+        ],
       },
       {
         label: 'GL Posting',
         route: '/gl-posting',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+        role: ['ADMIN', 'MONITORING_GL_AR', 'MONITORING_GL_AR_ADMIN'],
       },
-      {
-        label: 'Operations Controls',
-        route: '',
-        role: [''],
-      },
-
-      // {
-      //   category: 'Invoice to Cash',
-      //   items: [
-      //     {
-      //       label: 'Pre Invoicing',
-      //       route: '/pre-invoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Invoicing',
-      //       route: '/invoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Post Invoicing',
-      //       route: '/post-invoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'eInvoicing',
-      //       route: '/einvoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Fusion',
-      //       route: '/fusion',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //   ],
-      // },
-      // {
-      //   category: 'Revenue Accounting',
-      //   items: [
-      //     {
-      //       label: 'Standard Revenue',
-      //       route: '/standard-revenue',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Rol',
-      //       route: '/rol',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Accruals',
-      //       route: '/accruals',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Accounts',
-      //       route: '/accounts',
-      //       role: ['ADMIN', 'ACCOUNT_RECON'],
-      //     },
-      //   ],
-      // },
-      // {
-      //   category: 'GL Posting',
-      //   items: [
-      //     {
-      //       label: 'General Ledger',
-      //       route: '/general-ledger',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //   ],
-      // },
-      // {
-      //   category: 'Operations Controls',
-      //   items: [
-      //     {
-      //       label: 'Invoice to Cash',
-      //       route: '',
-      //       role: ['ADMIN'],
-      //     },
-      //     {
-      //       label: 'Revenue',
-      //       route: '',
-      //       role: ['ADMIN'],
-      //     },
-      //   ],
-      // },
     ]);
-    // this.router.events.subscribe((event) => {
-    //   if (event instanceof NavigationEnd) {
-    //     console.log('🔹 Navigated to:', event.url);
-
-    //     if (event.url.includes('/period-close-tracking')) {
-    //       console.log('✅ First load detected for Period Close Tracking');
-    //       this.updateHeaderToPreclose();
-    //     }
-    //   }
-    // });
-  }
-
-  onTabChange(index: number) {
-    this.selectedIndex = index;
-    const newHeader = `Continuous Monitoring > ${this.filteredTabs[index]?.label}`;
-    console.log('🔹 Tab changed, updating header:', newHeader);
-    this.menuService.updateHeader(newHeader);
-  }
-
-  updateHeaderToPreclose() {
-    const newHeader = 'Continuous Monitoring > Preclose';
-    console.log('🔹 Setting initial header:', newHeader);
-    this.menuService.updateHeader(newHeader);
-  }
-
-  menuOpen = false;
-
-  toggleMenu() {
-    console.log('Burger menu clicked!');
-    // Implement menu toggle logic here
-  }
-  visibleTabs: { label: string; component: string; role: string[] }[] = [
-    {
-      label: 'Pre-close (Internal)',
-      component: 'app-preclose',
-      role: ['ADMIN', 'PERIOD_CLOSE'],
-    },
-    {
-      label: 'Mid-close (Internal)',
-      component: 'app-midclose',
-      role: ['ADMIN', 'PERIOD_CLOSE'],
-    },
-  ];
-
-  selectedIndex: number = 0;
-  filteredTabs: { label: string; component: string }[] = [];
-
-  getDefaultTabIndex() {
-    this.filteredTabs = this.visibleTabs.filter((tab) =>
-      tab.role.some((role) => this.roles.includes(role))
-    );
   }
 
   getIsQuarterEnd(): void {
@@ -437,22 +226,88 @@ export class PeriodCloseTrackingComponent implements OnInit {
     }
   }
 
-  extractDatePrettify(date: string) {
-    let dateParts = date.split('T')[0].split('-');
-    let year = dateParts[0];
-    let month;
-    for (const ele in this.monthMap) {
-      if (ele === dateParts[1]) {
-        month = this.monthMap[ele];
-      }
+  // Format for Expected dates: "April 26, 2025 at 07:00:00 PST"
+  extractDatePrettifyFull(date: string): string {
+    if (!date || typeof date !== 'string') {
+      return 'N/A';
     }
-    let day = dateParts[2];
 
-    let timeParts = date.split('T')[1].split('.');
-    let time = timeParts[0];
+    // Check if it's a plain TO_CHAR string: "YYYY-MM-DD HH24:MI:SS" (production)
+    const plainMatch = date.match(
+      /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/,
+    );
 
-    let prettyDate = `${month} ${day}, ${year} at ${time} PST`;
-    return prettyDate;
+    if (plainMatch) {
+      // Plain string from TO_CHAR - already in PST, display as-is
+      const [, year, month, day, hours, minutes, seconds] = plainMatch;
+      const monthNames = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ];
+      const monthName = monthNames[parseInt(month, 10) - 1];
+      return `${monthName} ${parseInt(
+        day,
+        10,
+      )}, ${year} at ${hours}:${minutes}:${seconds} PST`;
+    }
+
+    // Otherwise, parse as ISO 8601 timestamp (local dev) and convert UTC to PST
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) {
+      return 'N/A';
+    }
+
+    const pstDate = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }).format(dateObj);
+
+    return pstDate.replace(',', '').replace(/at /, 'at ') + ' PST';
+  }
+
+  // Format for Actual dates: "13:05:00 PST"
+  extractDatePrettifyTimeOnly(date: string): string {
+    if (!date || typeof date !== 'string') {
+      return 'N/A';
+    }
+
+    // Case 1: Already time-only (HH:mm:ss)
+    const timeOnlyMatch = date.match(/^(\d{2}):(\d{2}):(\d{2})$/);
+    if (timeOnlyMatch) {
+      return `${timeOnlyMatch[1]}:${timeOnlyMatch[2]}:${timeOnlyMatch[3]} PST`;
+    }
+
+    // Case 2: "YYYY-MM-DD HH:mm:ss"
+    const dateTimeMatch = date.match(
+      /^\d{4}-\d{2}-\d{2}\s+(\d{2}):(\d{2}):(\d{2})$/,
+    );
+    if (dateTimeMatch) {
+      return `${dateTimeMatch[1]}:${dateTimeMatch[2]}:${dateTimeMatch[3]} PST`;
+    }
+
+    // Case 3: ISO 8601 timestamp (e.g. 2025-01-24T15:30:00.000+00:00)
+    const isoMatch = date.match(/T(\d{2}):(\d{2}):(\d{2})/);
+    if (isoMatch) {
+      return `${isoMatch[1]}:${isoMatch[2]}:${isoMatch[3]} PST`;
+    }
+
+    return 'N/A';
   }
 
   getCurrentTime() {
@@ -467,39 +322,31 @@ export class PeriodCloseTrackingComponent implements OnInit {
   getPeriodQuarterStartEndTime() {
     this.getEndpointData('preclose-start-end-time').subscribe((data: any) => {
       data.forEach((row) => {
-        if (row['CLOSE_TYPE'] == 'PRECLOSE') {
-          this.preclosePeriod = row['PERIOD_NAME'];
-          this.precloseQuarter = row['QUARTER'];
-          this.preCloseStartTime =
-            row['CLOSE_START_TIME'] != null
-              ? this.extractDatePrettify(row['CLOSE_START_TIME'])
-              : 'N/A';
-          this.preCloseEndTime =
-            row['CLOSE_END_TIME'] != null
-              ? this.extractDatePrettify(row['CLOSE_END_TIME'])
-              : 'N/A';
-          this.preCloseActualEndTime =
-            row['ACTUAL_CLOSE_END_TIME'] != null
-              ? this.extractDatePrettify(row['ACTUAL_CLOSE_END_TIME'])
-              : 'N/A';
-        } else if (row['CLOSE_TYPE'] == 'MIDCLOSE') {
-          this.midclosePeriod = row['PERIOD_NAME'];
-          this.midcloseQuarter = row['QUARTER'];
-          this.midCloseStartTime =
-            row['CLOSE_START_TIME'] != null
-              ? this.extractDatePrettify(row['CLOSE_START_TIME'])
-              : 'N/A';
-          this.midCloseEndTime =
-            row['CLOSE_END_TIME'] != null
-              ? this.extractDatePrettify(row['CLOSE_END_TIME'])
-              : 'N/A';
-          this.midCloseActualEndTime =
-            row['ACTUAL_CLOSE_END_TIME'] != null
-              ? this.extractDatePrettify(row['ACTUAL_CLOSE_END_TIME'])
-              : 'N/A';
+        const closeType = row['CLOSE_TYPE'];
+        const periodName = row['PERIOD_NAME'];
+        const quarter = row['QUARTER'];
+        const startTime = this.extractDatePrettifyFull(row['CLOSE_START_TIME']);
+        const endTime = this.extractDatePrettifyFull(row['CLOSE_END_TIME']);
+        const actualEndTime = this.extractDatePrettifyTimeOnly(
+          row['ACTUAL_CLOSE_END_TIME'],
+        );
+
+        if (closeType === 'PRECLOSE') {
+          this.preclosePeriod = periodName;
+          this.precloseQuarter = quarter;
+          this.preCloseStartTime = startTime;
+          this.preCloseEndTime = endTime;
+          this.preCloseActualEndTime = actualEndTime;
+        } else if (closeType === 'MIDCLOSE') {
+          this.midclosePeriod = periodName;
+          this.midcloseQuarter = quarter;
+          this.midCloseStartTime = startTime;
+          this.midCloseEndTime = endTime;
+          this.midCloseActualEndTime = actualEndTime;
         }
-        this.getIsQuarterEnd();
       });
+
+      this.getIsQuarterEnd();
     });
   }
 
@@ -507,15 +354,53 @@ export class PeriodCloseTrackingComponent implements OnInit {
   qeCashCollectedDatasource: any;
   getQECashCollected() {
     this.getEndpointData('pclose-qe-cash-collected').subscribe((data: any) => {
-      console.log(data);
+      // Save raw data for chart before formatting
+      const rawCashData = data.map((row: any) => ({ ...row }));
+      this.buildCashChartData(rawCashData);
+
       data.map((cashData) => {
-        cashData.WD_0 = '$' + cashData.WD_0.toLocaleString('en-US');
-        cashData.WD_1 = '$' + cashData.WD_1.toLocaleString('en-US');
-        cashData.WD_2 = '$' + cashData.WD_2.toLocaleString('en-US');
-        cashData.WD_3 = '$' + cashData.WD_3.toLocaleString('en-US');
-        cashData.WD_4 = '$' + cashData.WD_4.toLocaleString('en-US');
-        cashData.WD_5 = '$' + cashData.WD_5.toLocaleString('en-US');
-        cashData.TOTAL = '$' + cashData.TOTAL.toLocaleString('en-US');
+        cashData.WD_0 =
+          '$' +
+          cashData.WD_0.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        cashData.WD_1 =
+          '$' +
+          cashData.WD_1.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        cashData.WD_2 =
+          '$' +
+          cashData.WD_2.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        cashData.WD_3 =
+          '$' +
+          cashData.WD_3.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        cashData.WD_4 =
+          '$' +
+          cashData.WD_4.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        cashData.WD_5 =
+          '$' +
+          cashData.WD_5.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        cashData.TOTAL =
+          '$' +
+          cashData.TOTAL.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
         return cashData;
       });
       this.qeCashCollectedData = data;
@@ -523,40 +408,33 @@ export class PeriodCloseTrackingComponent implements OnInit {
       let tableColumns: any[] = [];
 
       for (let column_name of Object.keys(data[0])) {
-        tableColumns.push(column_name);
+        if (column_name !== 'STATUS') {
+          tableColumns.push(column_name);
+        }
       }
 
       this.qeCashCollectedTableColumns = tableColumns;
       this.qeCashCollectedDatasource = new MatTableDataSource<any>(
-        this.qeCashCollectedData
+        this.qeCashCollectedData,
       );
     });
-  }
-
-  replaceUnderscoreWithDash(column: string): string {
-    return column.replace(/_/g, '-').split(' ').join(' ');
   }
 
   getPrecloseMeStatus() {
     this.getEndpointData('preclose-me-status').subscribe((data: any) => {
       this.pcloseMonthEndStatusTableData = [];
-      this.pcloseSelectedMonthEndStatusTableData = [];
       this.pcloseOuStatusMapping = {};
 
       this.mcloseMonthEndStatusTableData = [];
-      this.mcloseSelectedMonthEndStatusTableData = [];
       this.mcloseOuStatusMapping = {};
 
       // create ou category status mappings { ou -> { category -> status } }
       this.pcloseMonthEndStatusData = data.filter(
-        (obj) => obj['CLOSE_TYPE'] == 'PRECLOSE'
+        (obj) => obj['CLOSE_TYPE'] == 'PRECLOSE',
       );
       this.mcloseMonthEndStatusData = data.filter(
-        (obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE'
+        (obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE',
       );
-
-      this.statusList = [];
-      this.statusList.push('All');
 
       // setup preclose data (pcloseOuStatusMapping)
       this.pcloseMonthEndStatusData.forEach((row) => {
@@ -564,10 +442,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
         let category = row['CATEGORY'];
         let stepsCompleted = row['STEPS_COMPLETED'];
         let closeStatus = row['CLOSE_STATUS'];
-        // if closeStatus is not in statusList Array, add it in
-        if (this.statusList.indexOf(closeStatus) === -1) {
-          this.statusList.push(closeStatus);
-        }
 
         if (!(operatingUnit in this.pcloseOuStatusMapping)) {
           this.pcloseOuStatusMapping[operatingUnit] = {};
@@ -593,10 +467,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
         let category = row['CATEGORY'];
         let closeStatus = row['CLOSE_STATUS'];
         let stepsCompleted = row['STEPS_COMPLETED'];
-        // if closeStatus is not in statusList Array, add it in
-        if (this.statusList.indexOf(closeStatus) === -1) {
-          this.statusList.push(closeStatus);
-        }
 
         if (!(operatingUnit in this.mcloseOuStatusMapping)) {
           this.mcloseOuStatusMapping[operatingUnit] = {};
@@ -616,30 +486,14 @@ export class PeriodCloseTrackingComponent implements OnInit {
         }
       });
 
-      // For any operating unit, iterate through all the categories
-      // These categories will be columns for the new table and keys for pCloseProgBarStatusMapping
-      let tempOperatingUnit = data[0]['OPERATING_UNIT'];
-      for (let category of Object.keys(
-        this.pcloseOuStatusMapping[tempOperatingUnit]
-      ).sort(this.customMeStatusCatSort.bind(this))) {
-        // this.meStatusColumns.push(category.replace(/_/g, ' '));
-        // create new object for progress bar category mappings
-        this.pCloseProgBarStatusMapping[category] = {};
-        this.mCloseProgBarStatusMapping[category] = {};
-      }
-
       // Get rows of table by building each row as an object and pushing it to array
       // Preclose
-      this.entityList = [];
-      this.entityList.push('All');
       for (let ou of Object.keys(this.pcloseOuStatusMapping)) {
-        this.entityList.push(ou);
-        this.entityList.sort((a, b) => a.localeCompare(b));
         let tableRowObj = {};
         let ouStatusesObj = this.pcloseOuStatusMapping[ou];
         tableRowObj['OPERATING_UNIT'] = ou;
         for (let category of Object.keys(ouStatusesObj).sort(
-          this.customMeStatusCatSort.bind(this)
+          this.customMeStatusCatSort.bind(this),
         )) {
           tableRowObj[category] =
             this.pcloseOuStatusMapping[ou][category]['closeStatus'];
@@ -652,62 +506,13 @@ export class PeriodCloseTrackingComponent implements OnInit {
         let ouStatusesObj = this.mcloseOuStatusMapping[ou];
         tableRowObj['OPERATING_UNIT'] = ou;
         for (let category of Object.keys(ouStatusesObj).sort(
-          this.customMeStatusCatSort.bind(this)
+          this.customMeStatusCatSort.bind(this),
         )) {
           tableRowObj[category] =
             this.mcloseOuStatusMapping[ou][category]['closeStatus'];
         }
         this.mcloseMonthEndStatusTableData.push(tableRowObj);
       }
-
-      if (
-        !localStorage.getItem('precloseentity') &&
-        this.precloseEntities.value.includes('All')
-      ) {
-        this.selectedEntity(['All'], 'PRECLOSE');
-      }
-
-      if (
-        !localStorage.getItem('midcloseentity') &&
-        this.precloseEntities.value.includes('All')
-      ) {
-        this.selectedEntity(['All'], 'MIDCLOSE');
-      }
-
-      if (
-        !localStorage.getItem('preclosestatus') &&
-        this.precloseStatuses.value.includes('All')
-      ) {
-        this.selectedStatus(['All'], 'PRECLOSE');
-      }
-
-      if (
-        !localStorage.getItem('midclosestatus') &&
-        this.precloseStatuses.value.includes('All')
-      ) {
-        this.selectedStatus(['All'], 'MIDCLOSE');
-      }
-
-      if (localStorage.getItem('precloseentity')) {
-        const data = JSON.parse(localStorage.getItem('precloseentity'));
-        this.selectedEntity(data, 'PRECLOSE');
-      }
-
-      if (localStorage.getItem('midcloseentity')) {
-        const data = JSON.parse(localStorage.getItem('midcloseentity'));
-        this.selectedEntity(data, 'MIDCLOSE');
-      }
-
-      if (localStorage.getItem('preclosestatus')) {
-        const data = JSON.parse(localStorage.getItem('preclosestatus'));
-        this.selectedStatus(data, 'PRECLOSE');
-      }
-
-      if (localStorage.getItem('midclosestatus')) {
-        const data = JSON.parse(localStorage.getItem('midclosestatus'));
-        this.selectedStatus(data, 'MIDCLOSE');
-      }
-      this.showComments = this.roles.includes('ADMIN');
     });
   }
 
@@ -718,22 +523,45 @@ export class PeriodCloseTrackingComponent implements OnInit {
   getPeriodCloseInvoice() {
     this.getEndpointData('period-close-invoice-stats').subscribe(
       (data: any) => {
+        // Save raw data for charts before formatting
+        const rawPreclose = data
+          .filter((obj: any) => obj['CLOSE_TYPE'] === 'PRECLOSE')
+          .map((row: any) => ({ ...row }));
+        const rawMidclose = data
+          .filter((obj: any) => obj['CLOSE_TYPE'] === 'MIDCLOSE')
+          .map((row: any) => ({ ...row }));
+
+        // Build chart data from raw numbers
+        this.buildInvoiceChartData(rawPreclose, 'preclose');
+        this.buildInvoiceChartData(rawMidclose, 'midclose');
+
+        // Format for table display (2 decimal places for amounts)
         data.map((invData) => {
           for (let col of Object.keys(invData)) {
             if (col.includes('AMOUNT')) {
-              invData[col] = '$' + invData[col].toLocaleString('en-US');
+              const val = invData[col];
+              invData[col] =
+                val == null
+                  ? '$0.00'
+                  : '$' +
+                    Number(val).toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    });
             }
             if (col.includes('COUNT')) {
-              invData[col] = invData[col].toLocaleString('en-US');
+              const val = invData[col];
+              invData[col] =
+                val == null ? '0' : Number(val).toLocaleString('en-US');
             }
           }
           return invData;
         });
         this.preCloseProgramTableData = data.filter(
-          (obj) => obj['CLOSE_TYPE'] == 'PRECLOSE'
+          (obj) => obj['CLOSE_TYPE'] == 'PRECLOSE',
         );
         this.midCloseProgramTableData = data.filter(
-          (obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE'
+          (obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE',
         );
         let programColumns: any[] = [];
 
@@ -752,396 +580,219 @@ export class PeriodCloseTrackingComponent implements OnInit {
         this.pcloseInvGenTableColumns = programColumns;
         this.mcloseInvGenTableColumns = programColumns;
         this.precloseInvGenDatasource = new MatTableDataSource<any>(
-          this.preCloseProgramTableData
+          this.preCloseProgramTableData,
         );
         this.midcloseInvGenDatasource = new MatTableDataSource<any>(
-          this.midCloseProgramTableData
+          this.midCloseProgramTableData,
         );
-      }
+      },
     );
-  }
-
-  replaceUnderscoreWithEmpty(column: string): string {
-    return column.replace(/_/g, ' ');
   }
 
   getEstimatedCompletionTime() {
     this.getEndpointData('estimated-completion-time').subscribe((data: any) => {
-      const pcloseesttime = data.find((obj) => obj['CLOSE_TYPE'] == 'PRECLOSE');
-      const mcloseesttime = data.find((obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE');
+      const precloseData = data.find((obj) => obj['CLOSE_TYPE'] === 'PRECLOSE');
+      const midcloseData = data.find((obj) => obj['CLOSE_TYPE'] === 'MIDCLOSE');
 
-      this.pcloseEstimatedCompletionTime = this.extractDatePrettify(
-        pcloseesttime['ESTIMATED_COMPLETION_TIME']
-      );
-      this.mcloseEstimatedCompletionTime = this.extractDatePrettify(
-        mcloseesttime['ESTIMATED_COMPLETION_TIME']
-      );
+      console.log('Estimated Completion Time Data:', data);
+
+      this.pcloseEstimatedCompletionTime = precloseData
+        ? this.extractDatePrettifyTimeOnly(
+            precloseData['ESTIMATED_COMPLETION_TIME'],
+          )
+        : 'N/A';
+      this.mcloseEstimatedCompletionTime = midcloseData
+        ? this.extractDatePrettifyTimeOnly(
+            midcloseData['ESTIMATED_COMPLETION_TIME'],
+          )
+        : 'N/A';
     });
   }
 
   precloseInterfaceLoadDatasource: any;
   midcloseInterfaceLoadDatasource: any;
-  percentageColumn: boolean = false;
+  precloseChartData: any;
+  midcloseChartData: any;
+
   getInterfaceLoad() {
     this.getEndpointData('period-close-interface-load').subscribe(
       (data: any) => {
         this.precloseInterfaceLoadData = data['PRECLOSE'];
         this.midcloseInterfaceLoadData = data['MIDCLOSE'];
-        this.pcloseInterfaceLoadColumns = [];
-        this.mcloseInterfaceLoadColumns = [];
 
-        if (this.precloseInterfaceLoadData.length > 0) {
-          this.pcloseInterfaceLoadColumns = Object.keys(
-            this.precloseInterfaceLoadData[0]
+        // Reorder data: SERVICE first, then PRODUCT
+        const reorderData = (dataArray: any[]) => {
+          const serviceRow = dataArray.find(
+            (row) => row.LINE_TYPE === 'SERVICE',
           );
-        }
+          const productRow = dataArray.find(
+            (row) => row.LINE_TYPE === 'PRODUCT',
+          );
+          return [serviceRow, productRow].filter(Boolean); // filter out undefined
+        };
 
-        if (this.midcloseInterfaceLoadData.length > 0) {
-          this.mcloseInterfaceLoadColumns = Object.keys(
-            this.midcloseInterfaceLoadData[0]
+        this.precloseInterfaceLoadData = reorderData(
+          this.precloseInterfaceLoadData,
+        );
+        this.midcloseInterfaceLoadData = reorderData(
+          this.midcloseInterfaceLoadData,
+        );
+
+        // Helper function to get period keys (exclude LINE_TYPE and percentage columns)
+        const getPeriodKeys = (row: any) => {
+          return Object.keys(row).filter(
+            (key) =>
+              key !== 'LINE_TYPE' &&
+              key !== 'QUARTER OVER QUARTER' &&
+              key !== 'YEAR OVER YEAR' &&
+              key !== 'MONTH OVER MONTH' &&
+              key !== 'PRIOR QUARTER MONTH',
           );
-        }
+        };
+
+        // Helper function to determine if data has QoQ/YoY or MoM/PQM
+        const hasQuarterlyData = (row: any) => {
+          return 'QUARTER OVER QUARTER' in row || 'YEAR OVER YEAR' in row;
+        };
+
+        const hasMonthlyData = (row: any) => {
+          return 'MONTH OVER MONTH' in row || 'PRIOR QUARTER MONTH' in row;
+        };
+
+        // Transform table data - handle both quarterly and monthly percentages
+        const transformTableData = (dataArray: any[]) => {
+          if (!dataArray || dataArray.length === 0) return [];
+
+          const isQuarterly = hasQuarterlyData(dataArray[0]);
+          const isMonthly = hasMonthlyData(dataArray[0]);
+
+          return dataArray.map((row) => {
+            const periods = getPeriodKeys(row);
+            const latestPeriod = periods[periods.length - 1];
+            const latestPeriodValue = row[latestPeriod];
+
+            const transformedRow: any = {
+              LINE_TYPE: row['LINE_TYPE'],
+              [latestPeriod]: latestPeriodValue,
+            };
+
+            // Add appropriate percentage columns based on data type
+            if (isQuarterly) {
+              transformedRow['QoQ %'] = row['QUARTER OVER QUARTER'];
+              transformedRow['YoY %'] = row['YEAR OVER YEAR'];
+            }
+            if (isMonthly) {
+              transformedRow['MoM %'] = row['MONTH OVER MONTH'];
+              transformedRow['PQM %'] = row['PRIOR QUARTER MONTH'];
+            }
+
+            return transformedRow;
+          });
+        };
+
+        const precloseTableData = transformTableData(
+          this.precloseInterfaceLoadData,
+        );
+        const midcloseTableData = transformTableData(
+          this.midcloseInterfaceLoadData,
+        );
+
+        // Build column arrays dynamically based on what's in the data
+        const buildColumns = (dataArray: any[]) => {
+          if (!dataArray || dataArray.length === 0) return ['LINE_TYPE'];
+
+          const periods = getPeriodKeys(dataArray[0]);
+          const latestPeriod = periods[periods.length - 1];
+          const columns = ['LINE_TYPE', latestPeriod];
+
+          const isQuarterly = hasQuarterlyData(dataArray[0]);
+          const isMonthly = hasMonthlyData(dataArray[0]);
+
+          if (isQuarterly) {
+            columns.push('QoQ %', 'YoY %');
+          }
+          if (isMonthly) {
+            columns.push('MoM %', 'PQM %');
+          }
+
+          return columns;
+        };
+
+        this.pcloseInterfaceLoadColumns = buildColumns(
+          this.precloseInterfaceLoadData,
+        );
+        this.mcloseInterfaceLoadColumns = buildColumns(
+          this.midcloseInterfaceLoadData,
+        );
 
         this.precloseInterfaceLoadDatasource = new MatTableDataSource<any>(
-          this.precloseInterfaceLoadData
+          precloseTableData,
         );
         this.midcloseInterfaceLoadDatasource = new MatTableDataSource<any>(
-          this.midcloseInterfaceLoadData
+          midcloseTableData,
         );
-      }
+
+        // Transform data for chart component
+        this.precloseChartData = this.transformInterfaceDataForChart(
+          this.precloseInterfaceLoadData,
+        );
+        this.midcloseChartData = this.transformInterfaceDataForChart(
+          this.midcloseInterfaceLoadData,
+        );
+      },
     );
   }
 
-  isPercentageColumn(column: string): boolean {
-    return (
-      column === 'QUARTER OVER QUARTER' ||
-      column === 'MONTH OVER MONTH' ||
-      column === 'YEAR OVER YEAR' ||
-      column === 'PRIOR QUARTER MONTH'
+  transformInterfaceDataForChart(data: any[]): any {
+    if (!data || data.length === 0) return null;
+
+    // Extract periods (exclude LINE_TYPE and all percentage columns)
+    const periods = Object.keys(data[0]).filter(
+      (key) =>
+        key !== 'LINE_TYPE' &&
+        key !== 'QUARTER OVER QUARTER' &&
+        key !== 'YEAR OVER YEAR' &&
+        key !== 'MONTH OVER MONTH' &&
+        key !== 'PRIOR QUARTER MONTH',
     );
-  }
 
-  entityChange(closeType: string) {
-    if (closeType === 'PRECLOSE') {
-      this.pcloseEntityvalueSetOnload = false;
-      this.precloseEntities.valueChanges.subscribe((data) => {
-        if (data.length === 0) {
-          this.showpreStatusFilter = false;
-          this.precloseSelectedStatuses = [];
-        } else {
-          this.showpreStatusFilter = true;
-        }
-        if (data.includes('All')) {
-          data = data.filter((ele) => ele === 'All');
-          this.precloseAllEntitiesSelected = true;
-          this.precloseEntities.patchValue(['All'], {
-            emitEvent: false,
-            onlySelf: true,
-          });
-        } else {
-          this.precloseAllEntitiesSelected = false;
-        }
-        this.selectedEntity(data, closeType);
-      });
-    } else if (closeType === 'MIDCLOSE') {
-      this.mcloseEntityvalueSetOnload = false;
-      this.midcloseEntities.valueChanges.subscribe((data) => {
-        if (data.length === 0) {
-          this.showmidStatusFilter = false;
-          this.midcloseSelectedStatuses = [];
-        } else {
-          this.showmidStatusFilter = true;
-        }
-        if (data.includes('All')) {
-          data = data.filter((ele) => ele === 'All');
-          this.midcloseAllEntitiesSelected = true;
-          this.midcloseEntities.patchValue(['All'], {
-            emitEvent: false,
-            onlySelf: true,
-          });
-        } else {
-          this.midcloseAllEntitiesSelected = false;
-        }
-        this.selectedEntity(data, closeType);
-      });
-    }
-  }
+    // Find PRODUCT and SERVICE rows
+    const productRow = data.find((row) => row.LINE_TYPE === 'PRODUCT');
+    const serviceRow = data.find((row) => row.LINE_TYPE === 'SERVICE');
 
-  statusChange(closeType: string) {
-    if (closeType === 'PRECLOSE') {
-      this.pcloseStatusvalueSetOnload = false;
-      this.precloseStatuses.valueChanges.subscribe((data) => {
-        if (data.includes('All')) {
-          data = data.filter((ele) => ele === 'All');
-          this.precloseAllStatusSelected = true;
-          this.precloseStatuses.patchValue(['All'], {
-            emitEvent: false,
-            onlySelf: true,
-          });
-        } else {
-          this.precloseAllStatusSelected = false;
-        }
-        this.selectedStatus(data, closeType);
-      });
-    } else if (closeType === 'MIDCLOSE') {
-      this.mcloseStatusvalueSetOnload = false;
-      this.midcloseStatuses.valueChanges.subscribe((data) => {
-        if (data.includes('All')) {
-          data = data.filter((ele) => ele === 'All');
-          this.midcloseAllStatusSelected = true;
-          this.midcloseStatuses.patchValue(['All'], {
-            emitEvent: false,
-            onlySelf: true,
-          });
-        } else {
-          this.midcloseAllStatusSelected = false;
-        }
-        this.selectedStatus(data, closeType);
-      });
-    }
-  }
+    // Build datasets
+    const productValues = periods.map((p) => productRow?.[p] || 0);
+    const serviceValues = periods.map((p) => serviceRow?.[p] || 0);
 
-  selectedEntity(data: any, closeType: string) {
-    if (closeType === 'PRECLOSE') {
-      this.precloseSelectedEntities = data;
-      if (this.precloseSelectedEntities.includes('All')) {
-        this.precloseSelectedEntities = [];
-        for (let entity of this.entityList) {
-          this.precloseSelectedEntities.push(entity);
-        }
-      }
+    // Calculate period-over-period percent changes for Product
+    const productPercentChanges = periods.map((p, index) => {
+      if (index === 0) return 0; // No previous period for first data point
 
-      if (!this.pcloseEntityvalueSetOnload) {
-        localStorage.setItem(
-          'precloseentity',
-          JSON.stringify(this.precloseSelectedEntities)
-        );
-      }
-    } else if (closeType === 'MIDCLOSE') {
-      this.midcloseSelectedEntities = data;
-      if (this.midcloseSelectedEntities.includes('All')) {
-        this.midcloseSelectedEntities = [];
-        for (let entity of this.entityList) {
-          this.midcloseSelectedEntities.push(entity);
-        }
-      }
+      const prevValue = productRow?.[periods[index - 1]] || 0;
+      const currentValue = productRow?.[p] || 0;
 
-      if (!this.mcloseEntityvalueSetOnload) {
-        localStorage.setItem(
-          'midcloseentity',
-          JSON.stringify(this.midcloseSelectedEntities)
-        );
-      }
-    }
+      if (prevValue === 0) return 0;
+      return Math.round(((currentValue - prevValue) / prevValue) * 100);
+    });
 
-    // Reset and update pCloseProgBarStatusMapping
-    // Get categories list and use them to reset progress bar
-    if (Object.keys(this.pcloseOuStatusMapping).length !== 0) {
-      // Reset pCloseProgBarStatusMapping before reupdating it with new selected entities
-      let ouStatusesObj = this.pcloseOuStatusMapping['America'];
-      for (let category of Object.keys(ouStatusesObj)) {
-        this.pCloseProgBarStatusMapping[category]['steps'] = 0;
-        this.pCloseProgBarStatusMapping[category]['total'] = 0;
-        this.pCloseProgBarStatusMapping[category]['value'] = 0;
+    // Calculate period-over-period percent changes for Service
+    const servicePercentChanges = periods.map((p, index) => {
+      if (index === 0) return 0; // No previous period for first data point
 
-        this.mCloseProgBarStatusMapping[category]['steps'] = 0;
-        this.mCloseProgBarStatusMapping[category]['total'] = 0;
-        this.mCloseProgBarStatusMapping[category]['value'] = 0;
-      }
+      const prevValue = serviceRow?.[periods[index - 1]] || 0;
+      const currentValue = serviceRow?.[p] || 0;
 
-      // Update pCloseProgBarStatusMapping
-      // Preclose
-      for (let ou of Object.keys(this.pcloseOuStatusMapping)) {
-        if (this.precloseSelectedEntities.includes(ou)) {
-          let ouStatusesObj = this.pcloseOuStatusMapping[ou];
-          for (let category of Object.keys(ouStatusesObj)) {
-            this.pCloseProgBarStatusMapping[category]['steps'] +=
-              this.pcloseOuStatusMapping[ou][category]['stepsCompleted'];
-            this.pCloseProgBarStatusMapping[category]['total'] += 100;
-            this.pCloseProgBarStatusMapping[category]['value'] =
-              (100 * this.pCloseProgBarStatusMapping[category]['steps']) /
-              this.pCloseProgBarStatusMapping[category]['total'];
-          }
-        }
-      }
-      // Midclose
-      for (let ou of Object.keys(this.mcloseOuStatusMapping)) {
-        if (this.midcloseSelectedEntities.includes(ou)) {
-          let ouStatusesObj = this.mcloseOuStatusMapping[ou];
-          for (let category of Object.keys(ouStatusesObj)) {
-            this.mCloseProgBarStatusMapping[category]['steps'] +=
-              this.mcloseOuStatusMapping[ou][category]['stepsCompleted'];
-            this.mCloseProgBarStatusMapping[category]['total'] += 100;
-            this.mCloseProgBarStatusMapping[category]['value'] =
-              (100 * this.mCloseProgBarStatusMapping[category]['steps']) /
-              this.mCloseProgBarStatusMapping[category]['total'];
-          }
-        }
-      }
-    }
+      if (prevValue === 0) return 0;
+      return Math.round(((currentValue - prevValue) / prevValue) * 100);
+    });
 
-    // preclose
-    this.pcloseSelectedOUData = this.pcloseMonthEndStatusTableData.filter(
-      (data) => this.precloseSelectedEntities.includes(data.OPERATING_UNIT)
-    );
-    if (
-      this.precloseSelectedEntities.length !== 0 &&
-      this.precloseSelectedStatuses.length === 0
-    ) {
-      this.pcloseSelectedMonthEndStatusTableData = this.pcloseSelectedOUData;
-    } else if (
-      this.precloseSelectedStatuses.length !== 0 &&
-      this.precloseSelectedEntities.length === 0
-    ) {
-      this.pcloseSelectedMonthEndStatusTableData =
-        this.pcloseSelectedStatusData;
-    } else {
-      this.pcloseSelectedMonthEndStatusTableData =
-        this.pcloseSelectedOUData.filter((element) =>
-          this.pcloseSelectedStatusData.includes(element)
-        );
-    }
-
-    // midclose
-    this.mcloseSelectedOUData = this.mcloseMonthEndStatusTableData.filter(
-      (data) => this.midcloseSelectedEntities.includes(data.OPERATING_UNIT)
-    );
-    if (
-      this.midcloseSelectedEntities.length !== 0 &&
-      this.midcloseSelectedStatuses.length === 0
-    ) {
-      this.mcloseSelectedMonthEndStatusTableData = this.mcloseSelectedOUData;
-    } else if (
-      this.midcloseSelectedStatuses.length !== 0 &&
-      this.midcloseSelectedEntities.length === 0
-    ) {
-      this.mcloseSelectedMonthEndStatusTableData =
-        this.mcloseSelectedStatusData;
-    } else {
-      this.mcloseSelectedMonthEndStatusTableData =
-        this.mcloseSelectedOUData.filter((element) =>
-          this.mcloseSelectedStatusData.includes(element)
-        );
-    }
-  }
-
-  selectedStatus(data: any, closeType: string) {
-    if (closeType === 'PRECLOSE') {
-      this.precloseSelectedStatuses = data;
-      if (this.precloseSelectedStatuses.includes('All')) {
-        this.precloseSelectedStatuses = [];
-        for (let status of this.statusList) {
-          this.precloseSelectedStatuses.push(status);
-        }
-      }
-
-      if (!this.pcloseStatusvalueSetOnload) {
-        localStorage.setItem(
-          'preclosestatus',
-          JSON.stringify(this.precloseSelectedStatuses)
-        );
-      }
-    } else if (closeType === 'MIDCLOSE') {
-      this.midcloseSelectedStatuses = data;
-      if (this.midcloseSelectedStatuses.includes('All')) {
-        this.midcloseSelectedStatuses = [];
-        for (let status of this.statusList) {
-          this.midcloseSelectedStatuses.push(status);
-        }
-      }
-
-      if (!this.mcloseStatusvalueSetOnload) {
-        localStorage.setItem(
-          'midclosestatus',
-          JSON.stringify(this.midcloseSelectedStatuses)
-        );
-      }
-    }
-
-    // preclose
-    this.pcloseSelectedStatusData = this.pcloseMonthEndStatusTableData.filter(
-      this.precloseSelectedStatusFilter.bind(this)
-    );
-    if (
-      this.precloseSelectedEntities.length !== 0 &&
-      this.precloseSelectedStatuses.length === 0
-    ) {
-      this.pcloseSelectedMonthEndStatusTableData = this.pcloseSelectedOUData;
-    } else if (
-      // Status selected and no statuses selected means table data is just filtered OU data
-      this.precloseSelectedStatuses.length !== 0 &&
-      this.precloseSelectedEntities.length === 0
-    ) {
-      this.pcloseSelectedMonthEndStatusTableData =
-        this.pcloseSelectedStatusData;
-    } else {
-      this.pcloseSelectedMonthEndStatusTableData =
-        this.pcloseSelectedOUData.filter((element) =>
-          this.pcloseSelectedStatusData.includes(element)
-        );
-    }
-
-    // midclose
-    this.mcloseSelectedStatusData = this.mcloseMonthEndStatusTableData.filter(
-      this.midcloseSelectedStatusFilter.bind(this)
-    );
-    if (
-      this.midcloseSelectedEntities.length !== 0 &&
-      this.midcloseSelectedStatuses.length === 0
-    ) {
-      this.mcloseSelectedMonthEndStatusTableData = this.mcloseSelectedOUData;
-    } else if (
-      this.midcloseSelectedStatuses.length !== 0 &&
-      this.midcloseSelectedEntities.length === 0
-    ) {
-      this.mcloseSelectedMonthEndStatusTableData =
-        this.mcloseSelectedStatusData;
-    } else {
-      this.mcloseSelectedMonthEndStatusTableData =
-        this.mcloseSelectedOUData.filter((element) =>
-          this.mcloseSelectedStatusData.includes(element)
-        );
-    }
-  }
-
-  precloseSelectedStatusFilter(data) {
-    for (let category of this.meStatusCategories) {
-      if (this.precloseSelectedStatuses.includes(data[category])) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  midcloseSelectedStatusFilter(data) {
-    for (let category of this.meStatusCategories) {
-      if (this.midcloseSelectedStatuses.includes(data[category])) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  getCircleColor(category: string, data: any[]): string {
-    const hasStoppedItem = data.some(
-      (row) => row[category] && row[category].toLowerCase() === 'stopped'
-    );
-    if (hasStoppedItem) {
-      return '#FF0000'; // Red for stopped
-    }
-
-    const hasDelayedItem = data.some(
-      (row) => row[category] && row[category].toLowerCase() === 'delayed'
-    );
-    if (hasDelayedItem) {
-      return '#FFD429'; // Yellow for delayed
-    }
-
-    return '#78C000'; // Default green
-  }
-
-  getAbsoluteValue(number: number) {
-    return Math.abs(number);
+    return {
+      labels: periods,
+      productValues,
+      serviceValues,
+      productPercentChanges,
+      servicePercentChanges,
+    };
   }
 
   customMeStatusCatSort(a: string, b: string): number {
@@ -1157,42 +808,140 @@ export class PeriodCloseTrackingComponent implements OnInit {
     return indexA - indexB;
   }
 
+  /**
+   * Build chart data for Invoices Generated.
+   * Stacked bars: Product Amount, Service Amount, Tax Amount
+   * Line on secondary axis: Invoice Count
+   */
+  buildInvoiceChartData(rawData: any[], type: 'preclose' | 'midclose'): void {
+    if (!rawData || rawData.length === 0) return;
+
+    // Determine label key: use QUARTER on quarter-end, PERIOD_NAME otherwise
+    const labelKey = this.isQuarterEnd ? 'QUARTER' : 'PERIOD_NAME';
+    const labels = rawData.map((row) => row[labelKey] || '');
+
+    // Find amount column names dynamically
+    const keys = Object.keys(rawData[0]);
+    const productAmtKey = keys.find(
+      (k) => k.includes('PRODUCT') && k.includes('AMOUNT'),
+    );
+    const serviceAmtKey = keys.find(
+      (k) => k.includes('SERVICE') && k.includes('AMOUNT'),
+    );
+    const taxAmtKey = keys.find(
+      (k) => k.includes('TAX') && k.includes('AMOUNT'),
+    );
+    const countKey = keys.find((k) => k.includes('COUNT'));
+
+    const datasets: any[] = [
+      {
+        type: 'bar',
+        label: 'Service Amount',
+        data: rawData.map((row) => row[serviceAmtKey] || 0),
+        backgroundColor: '#7d8affe4',
+        borderColor: '#7D8AFF',
+        borderWidth: 1,
+        yAxisID: 'y',
+        order: 2,
+      },
+      {
+        type: 'bar',
+        label: 'Product Amount',
+        data: rawData.map((row) => row[productAmtKey] || 0),
+        backgroundColor: '#b02863ff',
+        borderColor: '#B02863',
+        borderWidth: 1,
+        yAxisID: 'y',
+        order: 1,
+      },
+      {
+        type: 'bar',
+        label: 'Tax Amount',
+        data: rawData.map((row) => row[taxAmtKey] || 0),
+        backgroundColor: '#e6971099',
+        borderColor: '#e69710',
+        borderWidth: 1,
+        yAxisID: 'y',
+        order: 3,
+      },
+    ];
+
+    // Add Invoice Count as a line on secondary axis — same style as Interface Load product % line
+    if (countKey) {
+      datasets.unshift({
+        type: 'line',
+        label: 'Invoice Count',
+        data: rawData.map((row) => row[countKey] || 0),
+        borderColor: '#e69710ff',
+        backgroundColor: '#e69710ff',
+        borderWidth: 3,
+        borderDash: [5, 5],
+        fill: false,
+        yAxisID: 'y1',
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#e69710ff',
+        pointBorderColor: '#e69710ff',
+        order: 0,
+        tension: 0.3,
+      });
+    }
+
+    if (type === 'preclose') {
+      this.precloseInvChartLabels = labels;
+      this.precloseInvChartDatasets = datasets;
+    } else {
+      this.midcloseInvChartLabels = labels;
+      this.midcloseInvChartDatasets = datasets;
+    }
+  }
+
+  /**
+   * Build chart data for Cash Posted.
+   * Stacked bars: WD_5 through WD_0
+   */
+  buildCashChartData(rawData: any[]): void {
+    if (!rawData || rawData.length === 0) return;
+
+    // Use PERIOD_NAME for labels
+    const labels = rawData.map((row) => row['PERIOD_NAME'] || '');
+
+    const wdColors = [
+      { bg: '#7d8affee', border: '#7D8AFF' }, // WD 5
+      { bg: '#5b6edbe4', border: '#5b6edb' }, // WD 4
+      { bg: '#9a6bffe4', border: '#9a6bff' }, // WD 3
+      { bg: '#b02863e4', border: '#B02863' }, // WD 2
+      { bg: '#7d3f8fe4', border: '#7d3f8f' }, // WD 1
+      { bg: '#4a2080e4', border: '#4a2080' }, // WD 0
+    ];
+
+    const wdKeys = ['WD_5', 'WD_4', 'WD_3', 'WD_2', 'WD_1', 'WD_0'];
+    const datasets: any[] = wdKeys.map((key, idx) => ({
+      type: 'bar',
+      label: key.replace('_', ' '),
+      data: rawData.map((row) => row[key] || 0),
+      backgroundColor: wdColors[idx].bg,
+      borderColor: wdColors[idx].border,
+      borderWidth: 1,
+      yAxisID: 'y',
+      order: wdKeys.length - idx,
+    }));
+
+    // Same data for both preclose and midclose cash charts
+    this.precloseCashChartLabels = labels;
+    this.precloseCashChartDatasets = datasets;
+    this.midcloseCashChartLabels = labels;
+    this.midcloseCashChartDatasets = datasets;
+  }
+
   getEndpointData(endpoint: string): Observable<any> {
     let uniqueId = Date.now();
     let cacheBustingUrl = `${endpoint}?cacheBuster=${uniqueId}`;
 
     const polling$ = interval(this.refreshInterval).pipe(
       startWith(0), // Emit initial value immediately
-      switchMap(() => this.http.get(cacheBustingUrl, this.destroyManager))
+      switchMap(() => this.http.get(cacheBustingUrl, this.destroyManager)),
     );
     return polling$;
   }
-
-  getComments() {
-    this.getEndpointData('pclose-dashboard-comments').subscribe((data: any) => {
-      data = data.sort(
-        (a, b) =>
-          new Date(b['CREATION_DATE']).getTime() -
-          new Date(a['CREATION_DATE']).getTime()
-      );
-      data.forEach((ele) => {
-        ele['CREATION_DATE'] = this.extractDatePrettify(ele['CREATION_DATE']);
-      });
-      this.dashComments = data;
-    });
-  }
-
-  exportTableToExcel(data: any[], sheetName: string, filename: string) {
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
-    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    XLSX.writeFile(workbook, `${filename}.xlsx`);
-  }
-}
-
-interface commentsModel {
-  CLOSE_TYPE: string;
-  COMMENTS: string;
-  PERIOD_NAME: string;
-  CREATION_DATE: Date;
 }

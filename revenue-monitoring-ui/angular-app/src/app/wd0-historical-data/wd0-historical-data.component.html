@@ -1,4 +1,4 @@
-<p
+<!-- <p
   class="card-subtitle"
   style="
     display: flex;
@@ -10,132 +10,289 @@
   "
 >
   {{ dataTimestamp }}
-</p>
+</p> -->
 
 <!-- Product Modal -->
 <!-- [data]="productMidCloseActuals" -->
-<app-modal
-  *ngIf="showProductModal"
-  [headerBgColor]="'#ffffff'"
-  [title]="'WD-0 Mid-Close Product Actuals'"
-  (close)="showProductModal = false"
->
-  <div class="mc-modal-container">
-    <div class="mc-scroll-inner">
-      <div class="mc-h2" style="margin-top: 0">
-        Mid-Close Product Actual Counts Breakdown
-      </div>
-      <p>
-        For each category of our products, the following tables show the
-        breakdown of midclose actual counts for the most current month by batch
-        source.
-      </p>
-
-      <ng-container *ngIf="productActualsLoading">
-        <div style="text-align: center; height: 10vh">
-          <app-loading-symbol></app-loading-symbol>
+@if (showProductModal) {
+  <app-modal
+    [darkMode]="themeService.isDarkMode"
+    [headerBgColor]="'transparent'"
+    [title]="'WD-0 Mid-Close Product Actuals'"
+    (close)="showProductModal = false"
+  >
+    <div class="mc-modal-container">
+      <div class="mc-scroll-inner">
+        <div class="mc-h2" style="margin-top: 0">
+          Mid-Close Product Actual Counts Breakdown
         </div>
-      </ng-container>
-      <div *ngIf="!productActualsLoading" class="chart-legend-wrapper">
-        <div class="chart-container">
-          <canvas id="productPieChart"></canvas>
-        </div>
-
-        <div class="custom-legend">
-          <div *ngFor="let item of customLegend" class="legend-item">
-            <span
-              class="legend-color-box"
-              [style.background]="item.color"
-            ></span>
-            {{ item.label }}
+        <p>
+          For each category of our products, the following tables show the
+          breakdown of midclose actual counts for the most current month by
+          batch source.
+        </p>
+        @if (productActualsLoading) {
+          <div style="text-align: center; height: 10vh">
+            <app-loading-symbol></app-loading-symbol>
           </div>
+        }
+        @if (!productActualsLoading) {
+          <div class="chart-legend-wrapper">
+            <div class="chart-container">
+              <div
+                echarts
+                [options]="chartOptionsMap['productPieChart']"
+                style="height: 100%; width: 100%"
+              ></div>
+            </div>
+            <div class="custom-legend">
+              @for (item of customLegend; track item) {
+                <div class="legend-item">
+                  <span
+                    class="legend-color-box"
+                    [style.background]="item.color"
+                  ></span>
+                  {{ item.label }}
+                </div>
+              }
+            </div>
+          </div>
+        }
+        <div class="mc-h3">Significant Attributes from Regression Analysis</div>
+        <div class="mc-body-section">
+          <ul class="mc-ul">
+            <li>
+              Promise Date* (Supply chain fulfillment) on a booked order (54%)
+            </li>
+            <li>Request date for License (39%)</li>
+            <li>Return Order (RMA) date (1.6%)</li>
+            <li>Others (Ex Training SKUs) (5.4%)</li>
+          </ul>
+          <p style="color: #666; margin-top: 1em">
+            Note: Order in ”Booked” status are considered
+          </p>
+          <p style="color: #666; margin-top: 1em">
+            Based on linear regression analysis, we apply weightages to the main
+            attributes contributing to midclose. We apply different weightages
+            on different WDs to account for variability and dispersion. Our
+            underlying assumption is as we approach WD-0, the variability range
+            will decrease. These weightages are based on historical data.
+          </p>
+          <p style="color: #666">
+            For product lines predictions, we look at the promise date counts
+            for WD-1 and WD+1 in CG1. For promise date counts on WD-1, we
+            multiply by 0.45 and on counts for WD+1, we multiply by 0.65. Once
+            multiplied, we add the counts.
+          </p>
+        </div>
+        <div class="mc-h3">Steps on WD Weightage Calculations</div>
+        <div class="mc-body-section">
+          <ul class="mc-ul">
+            <li>
+              For product predictions on WD-3/-2/-1, we first apply date
+              weightages to promise date counts, sum them up, and then apply WD
+              weightages to the totals. In CG1, we use the same date weightages
+              on promise date counts, sum them, and apply WD weightages to
+              minimum and maximum predictions for accuracy and variability.
+            </li>
+            <li>
+              The following table is the breakdown of weightages by WD and the
+              approximate times we run the predictions. The weightages for
+              product / service lines are the same.
+            </li>
+          </ul>
+        </div>
+        <div class="mc-h4">WD Weightage Table</div>
+        <div class="mc-body-section">
+          <table class="mc-table">
+            <thead>
+              <tr>
+                <th>Workday</th>
+                <th>Weightage Minimum</th>
+                <th>Weightage Maximum</th>
+                <th>Time Model Runs</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>WD-3</td>
+                <td>0.35</td>
+                <td>1.89</td>
+                <td>3PM PST</td>
+              </tr>
+              <tr>
+                <td>WD-2</td>
+                <td>0.47</td>
+                <td>1.65</td>
+                <td>3PM PST</td>
+              </tr>
+              <tr>
+                <td>WD-1</td>
+                <td>0.65</td>
+                <td>1.35</td>
+                <td>3PM PST / 11:59PM PST</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mc-h4">Notes</div>
+        <div class="mc-body-section">
+          <ul class="mc-ul">
+            <li>
+              As we approach WD-0, we assume that more interfaced lines will
+              count for midclose; thus, the weightage variability range
+              decreases.
+            </li>
+            <li>
+              The weightages indicate that, based on historical volumes, 35% of
+              interfaced lines contribute to the midclose minimum and 189% to
+              the midclose maximum on WD-3. On WD-2, it's 47% for the minimum
+              and 165% for the maximum, while on WD-1, it's 65% for the minimum
+              and 135% for the maximum.
+            </li>
+          </ul>
         </div>
       </div>
+    </div>
+  </app-modal>
+}
 
-      <div class="mc-h3">Significant Attributes from Regression Analysis</div>
-      <div class="mc-body-section">
-        <ul class="mc-ul">
-          <li>
-            Promise Date* (Supply chain fulfillment) on a booked order (54%)
-          </li>
-          <li>Request date for License (39%)</li>
-          <li>Return Order (RMA) date (1.6%)</li>
-          <li>Others (Ex Training SKUs) (5.4%)</li>
-        </ul>
-        <p style="color: #666; margin-top: 1em">
-          Note: Order in ”Booked” status are considered
+<!-- Service Modal [data]="serviceMidCloseActuals" -->
+@if (showServiceModal) {
+  <app-modal
+    [darkMode]="themeService.isDarkMode"
+    [title]="'WD-0 Mid-Close Service Actuals'"
+    (close)="showServiceModal = false"
+    [headerBgColor]="'transparent'"
+  >
+    <div class="mc-modal-container">
+      <div class="mc-scroll-inner">
+        <div class="mc-h2" style="margin-top: 0">
+          Mid-close Service Actual Counts Breakdown
+        </div>
+        <p>
+          For each category of our services, the following tables show the
+          breakdown of midclose actual counts for the most current month by
+          batch source.
         </p>
-
-        <p style="color: #666; margin-top: 1em">
-          Based on linear regression analysis, we apply weightages to the main
-          attributes contributing to midclose. We apply different weightages on
-          different WDs to account for variability and dispersion. Our
-          underlying assumption is as we approach WD-0, the variability range
-          will decrease. These weightages are based on historical data.
-        </p>
-        <p style="color: #666">
-          For product lines predictions, we look at the promise date counts for
-          WD-1 and WD+1 in CG1. For promise date counts on WD-1, we multiply by
-          0.45 and on counts for WD+1, we multiply by 0.65. Once multiplied, we
-          add the counts.
-        </p>
-      </div>
-
-      <div class="mc-h3">Steps on WD Weightage Calculations</div>
-      <div class="mc-body-section">
-        <ul class="mc-ul">
-          <li>
-            For product predictions on WD-3/-2/-1, we first apply date
-            weightages to promise date counts, sum them up, and then apply WD
-            weightages to the totals. In CG1, we use the same date weightages on
-            promise date counts, sum them, and apply WD weightages to minimum
-            and maximum predictions for accuracy and variability.
-          </li>
-          <li>
-            The following table is the breakdown of weightages by WD and the
-            approximate times we run the predictions. The weightages for product
-            / service lines are the same.
-          </li>
-        </ul>
-      </div>
-
-      <div class="mc-h4">WD Weightage Table</div>
-      <div class="mc-body-section">
-        <table class="mc-table">
-          <thead>
-            <tr>
-              <th>Workday</th>
-              <th>Weightage Minimum</th>
-              <th>Weightage Maximum</th>
-              <th>Time Model Runs</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>WD-3</td>
-              <td>0.35</td>
-              <td>1.89</td>
-              <td>3PM PST</td>
-            </tr>
-            <tr>
-              <td>WD-2</td>
-              <td>0.47</td>
-              <td>1.65</td>
-              <td>3PM PST</td>
-            </tr>
-            <tr>
-              <td>WD-1</td>
-              <td>0.65</td>
-              <td>1.35</td>
-              <td>3PM PST / 11:59PM PST</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="mc-h4">Notes</div>
-      <div class="mc-body-section">
-        <ul class="mc-ul">
+        @if (serviceActualsLoading) {
+          <div style="text-align: center; height: 10vh">
+            <app-loading-symbol></app-loading-symbol>
+          </div>
+        }
+        @if (!serviceActualsLoading) {
+          <div class="chart-legend-wrapper">
+            <div class="chart-container">
+              <div
+                echarts
+                [options]="chartOptionsMap['servicePieChart']"
+                style="height: 100%; width: 100%"
+              ></div>
+            </div>
+            <div class="custom-legend">
+              @for (item of customLegend; track item) {
+                <div class="legend-item">
+                  <span
+                    class="legend-color-box"
+                    [style.background]="item.color"
+                  ></span>
+                  {{ item.label }}
+                </div>
+              }
+            </div>
+          </div>
+        }
+        <div class="mc-h3">Significant Attributes from Regression Analysis</div>
+        <div class="mc-body-section">
+          <ul class="mc-ul">
+            <li>
+              Future Invoice Release Date*: Flexible Invoicing, Quote and
+              Renewal (Invoice only) orders (80%)
+            </li>
+            <li>
+              Promise Date*: For Service lines associated with HW shipment (12%)
+            </li>
+            <li>Quote and Renewal (Invoice only) orders booked on WD-0 (8%)</li>
+          </ul>
+          <p style="color: #666; margin-top: 1em">
+            Note: Order in ”Booked” status are considered
+          </p>
+          <p style="color: #666; margin-top: 1em">
+            Based on linear regression analysis, we apply weightages to the main
+            attributes contributing to midclose. We apply different weightages
+            on different WDs to account for variability and dispersion. Our
+            underlying assumption is as we approach WD-0, the variability range
+            will decrease. These weightages are based on historical data.
+          </p>
+          <p style="color: #666">
+            For service lines predictions, we look at the flexible invoicing
+            date counts for WD-0 and WD+0 in CG1. For those counts on WD-1, we
+            multiply by 0.65 and on counts for WD+1, we multiply by 1. Once
+            multiplied, we add the counts.
+          </p>
+          <p style="color: #666">
+            Additionally, for service lines predictions, we look at the future
+            invoice release date counts for WD-1 to WD+2. We multiply the count
+            for WD-1 by 0.47, WD-0 by 0.65, WD+0 by 1, WD+1 by 0.65 and WD+2 by
+            0.45. Once multiplied, we add the counts.
+          </p>
+          <p style="color: #666">
+            This date weightage process is the same for all WD-3/-2/-1.
+          </p>
+        </div>
+        <div class="mc-h3">Steps on WD Weightage Calculations</div>
+        <div class="mc-body-section">
+          <ul class="mc-ul">
+            <li>
+              For service predictions on WD-3/-2/-1, we follow the same process:
+              apply date weightages to counts for flexible invoicing and future
+              invoice release dates, sum them, and then apply WD weightages. In
+              CG1, we repeat this for flexible invoice and future invoice
+              release counts, summing and applying WD weightages to minimum and
+              maximum predictions.
+            </li>
+            <li>
+              The following table is the breakdown of weightages by WD and the
+              approximate times we run the predictions. The weightages for
+              product / service lines are the same.
+            </li>
+          </ul>
+        </div>
+        <div class="mc-h4">WD Weightage Table</div>
+        <div class="mc-body-section">
+          <table class="mc-table">
+            <thead>
+              <tr>
+                <th>Workday</th>
+                <th>Weightage Minimum</th>
+                <th>Weightage Maximum</th>
+                <th>Time Model Runs</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>WD-3</td>
+                <td>0.35</td>
+                <td>1.89</td>
+                <td>3PM PST</td>
+              </tr>
+              <tr>
+                <td>WD-2</td>
+                <td>0.47</td>
+                <td>1.65</td>
+                <td>3PM PST</td>
+              </tr>
+              <tr>
+                <td>WD-1</td>
+                <td>0.65</td>
+                <td>1.35</td>
+                <td>3PM PST / 11:59PM PST</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mc-h4">Notes</div>
+        <ul class="mc-ul" style="color: #666">
           <li>
             As we approach WD-0, we assume that more interfaced lines will count
             for midclose; thus, the weightage variability range decreases.
@@ -150,192 +307,40 @@
         </ul>
       </div>
     </div>
-  </div>
-</app-modal>
-
-<!-- Service Modal [data]="serviceMidCloseActuals" -->
-<app-modal
-  *ngIf="showServiceModal"
-  [title]="'WD-0 Mid-Close Service Actuals'"
-  (close)="showServiceModal = false"
-  [headerBgColor]="'#ffffff'"
->
-  <div class="mc-modal-container">
-    <div class="mc-scroll-inner">
-      <div class="mc-h2" style="margin-top: 0">
-        Mid-close Service Actual Counts Breakdown
-      </div>
-      <p>
-        For each category of our services, the following tables show the
-        breakdown of midclose actual counts for the most current month by batch
-        source.
-      </p>
-
-      <ng-container *ngIf="serviceActualsLoading">
-        <div style="text-align: center; height: 10vh">
-          <app-loading-symbol></app-loading-symbol>
-        </div>
-      </ng-container>
-      <div *ngIf="!serviceActualsLoading" class="chart-legend-wrapper">
-        <div class="chart-container">
-          <canvas id="servicePieChart"></canvas>
-        </div>
-        <div class="custom-legend">
-          <div *ngFor="let item of customLegend" class="legend-item">
-            <span
-              class="legend-color-box"
-              [style.background]="item.color"
-            ></span>
-            {{ item.label }}
-          </div>
-        </div>
-      </div>
-
-      <div class="mc-h3">Significant Attributes from Regression Analysis</div>
-      <div class="mc-body-section">
-        <ul class="mc-ul">
-          <li>
-            Future Invoice Release Date*: Flexible Invoicing, Quote and Renewal
-            (Invoice only) orders (80%)
-          </li>
-          <li>
-            Promise Date*: For Service lines associated with HW shipment (12%)
-          </li>
-          <li>Quote and Renewal (Invoice only) orders booked on WD-0 (8%)</li>
-        </ul>
-
-        <p style="color: #666; margin-top: 1em">
-          Note: Order in ”Booked” status are considered
-        </p>
-
-        <p style="color: #666; margin-top: 1em">
-          Based on linear regression analysis, we apply weightages to the main
-          attributes contributing to midclose. We apply different weightages on
-          different WDs to account for variability and dispersion. Our
-          underlying assumption is as we approach WD-0, the variability range
-          will decrease. These weightages are based on historical data.
-        </p>
-        <p style="color: #666">
-          For service lines predictions, we look at the flexible invoicing date
-          counts for WD-0 and WD+0 in CG1. For those counts on WD-1, we multiply
-          by 0.65 and on counts for WD+1, we multiply by 1. Once multiplied, we
-          add the counts.
-        </p>
-        <p style="color: #666">
-          Additionally, for service lines predictions, we look at the future
-          invoice release date counts for WD-1 to WD+2. We multiply the count
-          for WD-1 by 0.47, WD-0 by 0.65, WD+0 by 1, WD+1 by 0.65 and WD+2 by
-          0.45. Once multiplied, we add the counts.
-        </p>
-        <p style="color: #666">
-          This date weightage process is the same for all WD-3/-2/-1.
-        </p>
-      </div>
-
-      <div class="mc-h3">Steps on WD Weightage Calculations</div>
-      <div class="mc-body-section">
-        <ul class="mc-ul">
-          <li>
-            For service predictions on WD-3/-2/-1, we follow the same process:
-            apply date weightages to counts for flexible invoicing and future
-            invoice release dates, sum them, and then apply WD weightages. In
-            CG1, we repeat this for flexible invoice and future invoice release
-            counts, summing and applying WD weightages to minimum and maximum
-            predictions.
-          </li>
-          <li>
-            The following table is the breakdown of weightages by WD and the
-            approximate times we run the predictions. The weightages for product
-            / service lines are the same.
-          </li>
-        </ul>
-      </div>
-
-      <div class="mc-h4">WD Weightage Table</div>
-      <div class="mc-body-section">
-        <table class="mc-table">
-          <thead>
-            <tr>
-              <th>Workday</th>
-              <th>Weightage Minimum</th>
-              <th>Weightage Maximum</th>
-              <th>Time Model Runs</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>WD-3</td>
-              <td>0.35</td>
-              <td>1.89</td>
-              <td>3PM PST</td>
-            </tr>
-            <tr>
-              <td>WD-2</td>
-              <td>0.47</td>
-              <td>1.65</td>
-              <td>3PM PST</td>
-            </tr>
-            <tr>
-              <td>WD-1</td>
-              <td>0.65</td>
-              <td>1.35</td>
-              <td>3PM PST / 11:59PM PST</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="mc-h4">Notes</div>
-      <ul class="mc-ul" style="color: #666">
-        <li>
-          As we approach WD-0, we assume that more interfaced lines will count
-          for midclose; thus, the weightage variability range decreases.
-        </li>
-        <li>
-          The weightages indicate that, based on historical volumes, 35% of
-          interfaced lines contribute to the midclose minimum and 189% to the
-          midclose maximum on WD-3. On WD-2, it's 47% for the minimum and 165%
-          for the maximum, while on WD-1, it's 65% for the minimum and 135% for
-          the maximum.
-        </li>
-      </ul>
-    </div>
-  </div>
-</app-modal>
+  </app-modal>
+}
 
 <div
   style="
     width: 100%;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding-left: 1.2rem;
+    padding: 0.7rem 1rem 0rem 1rem;
     align-items: stretch;
     display: flex;
-    flex: 0 1 auto;
-    flex-flow: wrap;
-    gap: 12px;
-    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 1rem;
   "
-  class="grid-2"
 >
-  <div style="width: 33%; flex: 1 1 20%" class="card">
-    <ng-container *ngIf="serviceLoading">
-      <div style="text-align: center; height: 10vh">
+  <div style="flex: 1 1 33%; min-width: 0" class="card">
+    @if (serviceLoading) {
+      <div style="text-align: center; height: 4vh">
         <app-loading-symbol></app-loading-symbol>
       </div>
-    </ng-container>
+    }
 
     <div style="position: relative">
-      <!-- Canvas element for the graph -->
-      <canvas id="q3ServiceLinePredictiveModel"></canvas>
+      <!-- ECharts element for the graph -->
+      <div
+        echarts
+        [options]="chartOptionsMap['q3ServiceLinePredictiveModel']"
+        style="height: 300px; width: 100%"
+      ></div>
 
       <!-- <div *ngIf="isOutdated" class="data-outdated-overlay">
-        <p>
-          Warning: The model data displayed is out of date. Please ask the
-          database team to update their tables.
-        </p>
-      </div> -->
+      <p>
+        Warning: The model data displayed is out of date. Please ask the
+        database team to update their tables.
+      </p>
+    </div> -->
     </div>
 
     <div
@@ -348,33 +353,39 @@
         <b>{{ latestPeriodName }}</b> Service line projection based on booked
         orders and promise date
       </p>
-      <i
-        class="svg-icon info-icon"
-        [class.icon-disabled]="serviceActualsLoading"
-        [style.pointerEvents]="serviceActualsLoading ? 'none' : 'auto'"
-        style="font-size: 20px; cursor: pointer"
-        (click)="openWd0ServiceModal()"
-      ></i>
+      @if (serviceActualsLoading) {
+        <span class="icon-shimmer"></span>
+      } @else {
+        <i
+          class="svg-icon info-icon"
+          style="font-size: 20px; cursor: pointer"
+          (click)="openWd0ServiceModal()"
+        ></i>
+      }
     </div>
   </div>
 
-  <div style="width: 33%" class="card">
-    <ng-container *ngIf="productLoading">
-      <div style="text-align: center; height: 10vh">
+  <div style="flex: 1 1 33%; min-width: 0" class="card">
+    @if (productLoading) {
+      <div style="text-align: center; height: 4vh">
         <app-loading-symbol></app-loading-symbol>
       </div>
-    </ng-container>
+    }
 
     <div style="position: relative">
-      <!-- Canvas element for the graph -->
-      <canvas id="productLinePredictiveModel"></canvas>
+      <!-- ECharts element for the graph -->
+      <div
+        echarts
+        [options]="chartOptionsMap['productLinePredictiveModel']"
+        style="height: 300px; width: 100%"
+      ></div>
 
       <!-- <div *ngIf="isOutdated" class="data-outdated-overlay">
-        <p>
-          Warning: The model data displayed is out of date. Please ask the
-          database team to update their tables.
-        </p>
-      </div> -->
+    <p>
+      Warning: The model data displayed is out of date. Please ask the
+      database team to update their tables.
+    </p>
+  </div> -->
     </div>
     <div
       style="display: flex; justify-content: space-between; align-items: center"
@@ -386,185 +397,174 @@
         <b>{{ latestPeriodName }}</b> Product line projection based on booked
         orders and promise date
       </p>
-      <i
-        class="svg-icon info-icon"
-        [class.icon-disabled]="productActualsLoading"
-        [style.pointerEvents]="productActualsLoading ? 'none' : 'auto'"
-        style="font-size: 20px; cursor: pointer"
-        (click)="openWd0ProductModal()"
-      ></i>
+      @if (productActualsLoading) {
+        <span class="icon-shimmer"></span>
+      } @else {
+        <i
+          class="svg-icon info-icon"
+          style="font-size: 20px; cursor: pointer"
+          (click)="openWd0ProductModal()"
+        ></i>
+      }
     </div>
   </div>
 
-  <div style="width: 33%" class="card">
-    <ng-container *ngIf="loading">
-      <div style="text-align: center; height: 10vh">
+  <div style="flex: 1 1 33%; min-width: 0" class="card">
+    @if (loading) {
+      <div style="text-align: center; height: 5vh">
         <app-loading-symbol></app-loading-symbol>
         <div class="chart-description">
           The DB queries behind this chart may take 30+ seconds to run. Thank
           you for your patience.
         </div>
       </div>
-    </ng-container>
+    }
     <!-- <ng-container *ngIf="errorMessage">
-      <div style="text-align: center; height: 10vh">
-        <div class="chart-description" style="margin-bottom: -40px">
-          Fatal regression data error. Chart unable to initalize.
-        </div>
-      </div>
-    </ng-container> -->
+  <div style="text-align: center; height: 10vh">
+    <div class="chart-description" style="margin-bottom: -40px">
+      Fatal regression data error. Chart unable to initalize.
+    </div>
+  </div>
+</ng-container> -->
     <ng-container>
-      <canvas id="lineChartCanvas"></canvas>
+      <div
+        echarts
+        [options]="chartOptionsMap['lineChartCanvas']"
+        style="height: 300px; width: 100%"
+      ></div>
     </ng-container>
     <p class="chart-description">
       Projection of Period close completion based on predicted volume
     </p>
   </div>
-
-  <br />
 </div>
 
-<div class="container grid-1" style="max-width: 100%; padding-top: 0px">
-  <div class="row" style="margin-top: 1vh">
-    <div class="col-sm-4">
-      <p style="margin: 0 0 -6px 0; font-size: 20px" class="page-title">
-        &nbsp;All Entities (Historical)
-      </p>
-    </div>
-    <div
-      class="col-sm-5 justify-content-center align-items-center"
-      style="display: flex; align-items: center; padding-top: 16px"
-    >
-      <!-- <p>Legend: Number of Lines. Data refreshed every 5 minutes.</p> -->
-    </div>
+<div class="grid-1 hotfix" style="max-width: 100%; padding-top: 0px">
+  <div class="wd0-table-header-row">
+    <p class="page-title wd0-table-title">&nbsp;All Entities (Historical)</p>
 
     <div
-      class="col-sm-3 justify-content-end align-items-center"
-      style="display: flex"
+      class="wd0-table-actions"
+      (click)="
+        refreshExportData();
+        exportTableToExcel(
+          exportData,
+          'HistoricalData',
+          'WD0 Mid Close Volumes Historical Data Report'
+        )
+      "
     >
-      <i
-        class="svg-icon download-icon"
-        style="font-size: 20px; color: gray; cursor: pointer"
+      <ng-icon
+        name="phosphorArrowLineDownBold"
+        size="16"
+        class="wd0-export-icon"
         aria-hidden="true"
-        (click)="
-          refreshExportData();
-          exportTableToExcel(
-            exportData,
-            'HistoricalData',
-            'WD0 Mid Close Volumes Historical Data Report'
-          )
-        "
-      ></i
-      >&nbsp;&nbsp;&nbsp;
+      ></ng-icon>
+      &nbsp; Download
     </div>
   </div>
 
-  <div class="sortArrow" style="overflow: auto; max-width: unset">
-    <table
-      mat-table
-      [dataSource]="dataSource"
-      class="table table-responsive table-striped"
-      aria-label="WD+0 Mid Close Volumes Table"
-    >
-      <ng-container
-        *ngFor="let column of displayedColumns; let i = index"
-        [matColumnDef]="column"
-      >
-        <th mat-header-cell *matHeaderCellDef>
-          <ng-container *ngIf="column === 'trend'; else otherHeader">
-            QoQ Trend
-          </ng-container>
-          <ng-template #otherHeader>
-            {{ formatColumnHeader(column) | uppercase }}
-          </ng-template>
-        </th>
-
-        <td
-          mat-cell
-          *matCellDef="let row; let rowIndex = index"
-          [ngStyle]="
-            isProductTotalRow(row)
-              ? { 'border-bottom': '2px solid rgb(0, 158, 220)' }
-              : {}
-          "
-        >
-          <ng-container *ngIf="column !== 'trend'; else trendContent">
-            <span *ngIf="column === 'ENTITY' || column === 'LINE_TYPE'"
-              ><b> {{ row[column] }}</b></span
-            >
-            <span *ngIf="column !== 'ENTITY' && column !== 'LINE_TYPE'">
-              {{ row[column] | formatNumber }}
-            </span>
-          </ng-container>
-          <ng-template #trendContent>
-            <span
-              *ngIf="
-                getTrend(row, displayedColumns[i - 2], displayedColumns[i - 1])
-                  .trend === 'up'
-              "
-            >
-              ⬆
-              {{
-                getTrend(row, displayedColumns[i - 2], displayedColumns[i - 1])
-                  .change === "—"
-                  ? "—"
-                  : (getTrend(
-                      row,
-                      displayedColumns[i - 2],
-                      displayedColumns[i - 1]
-                    ).change | number : "1.0-0") + "%"
-              }}
-            </span>
-            <span
-              *ngIf="
-                getTrend(row, displayedColumns[i - 2], displayedColumns[i - 1])
-                  .trend === 'down'
-              "
-            >
-              ⬇
-              {{
-                getTrend(row, displayedColumns[i - 2], displayedColumns[i - 1])
-                  .change === "—"
-                  ? "—"
-                  : (getTrend(
-                      row,
-                      displayedColumns[i - 2],
-                      displayedColumns[i - 1]
-                    ).change | number : "1.0-0") + "%"
-              }}
-            </span>
-            <span
-              *ngIf="
-                getTrend(row, displayedColumns[i - 2], displayedColumns[i - 1])
-                  .trend === 'same'
-              "
-            >
-              —
-            </span>
-          </ng-template>
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumns"
-        [ngStyle]="
-          isProductTotalRow(row)
-            ? { 'total-row-separator': 'total-row-separator' }
-            : {}
-        "
-      ></tr>
-    </table>
+  <div class="wd0-table-shell">
+    <div class="wd0-table-scroll">
+      <table class="wd0-table" aria-label="WD+0 Mid Close Volumes Table">
+        <thead>
+          <tr>
+            @for (column of displayedColumns; track column) {
+              <th>
+                @if (column === "trend") {
+                  QoQ Trend
+                } @else {
+                  {{ formatColumnHeader(column) | uppercase }}
+                }
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of dataSource?.data; track row; let i = $index) {
+            <tr [class.product-total-row]="isProductTotalRow(row)">
+              @for (column of displayedColumns; track column; let ci = $index) {
+                <td [class.product-total-border]="isProductTotalRow(row)">
+                  @if (column !== "trend") {
+                    @if (column === "ENTITY" || column === "LINE_TYPE") {
+                      <strong>{{ row[column] }}</strong>
+                    } @else {
+                      {{ row[column] | formatNumber }}
+                    }
+                  } @else {
+                    @if (
+                      getTrend(
+                        row,
+                        displayedColumns[ci - 2],
+                        displayedColumns[ci - 1]
+                      ).trend === "up"
+                    ) {
+                      <span class="trend-up">
+                        <ng-icon name="phosphorCaretUpBold" size="14" />
+                        {{
+                          getTrend(
+                            row,
+                            displayedColumns[ci - 2],
+                            displayedColumns[ci - 1]
+                          ).change === "—"
+                            ? "—"
+                            : (getTrend(
+                                row,
+                                displayedColumns[ci - 2],
+                                displayedColumns[ci - 1]
+                              ).change | number: "1.0-0") + "%"
+                        }}
+                      </span>
+                    }
+                    @if (
+                      getTrend(
+                        row,
+                        displayedColumns[ci - 2],
+                        displayedColumns[ci - 1]
+                      ).trend === "down"
+                    ) {
+                      <span class="trend-down">
+                        <ng-icon name="phosphorCaretDownBold" size="14" />
+                        {{
+                          getTrend(
+                            row,
+                            displayedColumns[ci - 2],
+                            displayedColumns[ci - 1]
+                          ).change === "—"
+                            ? "—"
+                            : (getTrend(
+                                row,
+                                displayedColumns[ci - 2],
+                                displayedColumns[ci - 1]
+                              ).change | number: "1.0-0") + "%"
+                        }}
+                      </span>
+                    }
+                    @if (
+                      getTrend(
+                        row,
+                        displayedColumns[ci - 2],
+                        displayedColumns[ci - 1]
+                      ).trend === "same"
+                    ) {
+                      <span> — </span>
+                    }
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div style="display: flex; justify-content: center">
-    <ng-container *ngIf="!dataSource?.data?.length">
-      <tr>
-        <td colspan="100%" style="text-align: center">
-          <app-loading-symbol></app-loading-symbol>
-        </td>
-      </tr>
-    </ng-container>
+    @if (!dataSource?.data?.length) {
+      <div style="text-align: center; padding: 2rem">
+        <app-loading-symbol></app-loading-symbol>
+      </div>
+    }
   </div>
 </div>
 

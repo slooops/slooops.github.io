@@ -1,0 +1,129 @@
+<div class="eq">
+  <!-- Filter Bar -->
+  <div class="eq__filters">
+    <div class="eq__search-wrap">
+      <app-text-input
+        [value]="searchQuery"
+        placeholder="Search by transaction ID, category, status..."
+        type="search"
+        iconName="search"
+        iconPosition="left"
+        [debounceMs]="300"
+        (valueChange)="onSearchChange($event)"
+      ></app-text-input>
+    </div>
+
+    <span class="eq__divider"></span>
+
+    <div class="eq__filter-selects">
+      <app-multi-select-dropdown
+        [options]="modeOptions"
+        [selected]="selectedModes"
+        placeholder="All Modes"
+        label="Analysis Mode"
+        (selectionChange)="onModeChange($event)"
+      ></app-multi-select-dropdown>
+
+      <app-multi-select-dropdown
+        [options]="statusOptions"
+        [selected]="selectedStatuses"
+        placeholder="All Status"
+        label="Exception Status"
+        [showSearch]="false"
+        (selectionChange)="onStatusChange($event)"
+      ></app-multi-select-dropdown>
+    </div>
+
+    <span class="eq__count">{{ totalExceptions }} exceptions</span>
+  </div>
+
+  <!-- Loading state -->
+  @if (isLoading) {
+    <div class="eq__loading">Loading exceptions…</div>
+  }
+
+  <!-- Exceptions Table -->
+  @if (!isLoading) {
+    <div class="eq__table-wrap" style="margin-bottom: 10px">
+      <table class="eq__table">
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Category</th>
+            <th>Analysis Status</th>
+            <th>Review Status</th>
+            <th>Analysis Mode</th>
+            <th>Exception Date</th>
+            <th>Session Status</th>
+            <th>Assigned To</th>
+            <th>Follow-ups</th>
+            <th>Last Activity</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (run of paginatedExceptions; track run.run_id) {
+            <tr
+              class="eq__row"
+              (click)="onViewException(run.run_id.toString())"
+            >
+              <td>
+                <span class="eq__mono-id">{{ run.record_id || "—" }}</span>
+              </td>
+              <td>{{ run.category || "—" }}</td>
+              <td>
+                <span
+                  class="eq__status-pill"
+                  [ngClass]="getStatusClass(run.run_status)"
+                >
+                  {{ formatStatus(run.run_status) }}
+                </span>
+              </td>
+              <td>
+                <span
+                  class="eq__review-pill"
+                  [ngClass]="getReviewClass(run.review_status)"
+                >
+                  {{ formatStatus(run.review_status) }}
+                </span>
+              </td>
+              <td>
+                <span class="eq__mode-badge">{{
+                  run.analysis_mode || "—"
+                }}</span>
+              </td>
+              <td class="eq__date-cell">
+                {{ formatDateShort(run.run_created_at) }}
+              </td>
+              <td>
+                <span class="eq__status-pill">{{
+                  formatStatus(run.session_status || "")
+                }}</span>
+              </td>
+              <td>{{ run.upstream_contact || "—" }}</td>
+              <td>{{ run.follow_up_count ?? "—" }}</td>
+              <td class="eq__date-cell">
+                {{ formatDateShort(run.last_activity_at) }}
+              </td>
+            </tr>
+          }
+          @if (paginatedExceptions.length === 0) {
+            <tr>
+              <td colspan="11" class="eq__empty">No exceptions found.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Pagination -->
+  @if (totalExceptions > 0) {
+    <app-pagination
+      [pageIndex]="currentPage - 1"
+      [pageSize]="pageSize"
+      [totalItems]="totalExceptions"
+      [showPageSizeSelector]="true"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  }
+</div>

@@ -1,0 +1,122 @@
+<div class="upload-backdrop" (click)="onClose()">
+  <div
+    class="upload-modal"
+    role="dialog"
+    aria-modal="true"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div class="upload-modal__header">
+      <div class="upload-modal__title">Upload File</div>
+      <button
+        class="upload-modal__close"
+        (click)="onClose()"
+        aria-label="Close"
+      >
+        <ng-icon name="phosphorXBold" size="16" />
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="upload-modal__body">
+      <p class="upload-hint">
+        Upload one file in CSV or XLSX format (max 20 MB).
+      </p>
+
+      <div
+        class="upload-dropzone"
+        [class.file-selected]="selectedFile && !isUploadSuccess"
+        [class.upload-success]="isUploadSuccess"
+        [class.dragover]="isDragOver"
+        (click)="triggerFileInput()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onFileDropped($event)"
+      >
+        <!-- Upload Success State -->
+        @if (isUploadSuccess) {
+          <ng-icon
+            name="phosphorCheckCircleBold"
+            size="32"
+            class="dropzone-icon success-icon"
+          />
+          <div class="dropzone-text-block">
+            <p class="dropzone-title">Upload Complete</p>
+            <p class="dropzone-subtitle">
+              Allow time for accuracy scores to propagate. Check back shortly to
+              see changes reflected.
+            </p>
+          </div>
+        }
+
+        <!-- File Selected State -->
+        @if (selectedFile && !isUploadSuccess) {
+          <ng-icon
+            name="phosphorFileTextBold"
+            size="32"
+            class="dropzone-icon"
+          />
+          <div class="dropzone-text-block">
+            <p class="dropzone-title">{{ selectedFile.name }}</p>
+            <p class="dropzone-subtitle">
+              {{ formatFileSize(selectedFile.size) }}
+            </p>
+          </div>
+        }
+
+        <!-- Default Upload State -->
+        @if (!selectedFile && !isUploadSuccess) {
+          <ng-icon
+            name="phosphorUploadSimpleBold"
+            size="32"
+            class="dropzone-icon"
+          />
+          <p class="dropzone-title">Drag &amp; drop a file here</p>
+          <p class="dropzone-subtitle">or click to browse</p>
+        }
+      </div>
+
+      <input
+        type="file"
+        #fileInput
+        (change)="onFileSelected($event)"
+        accept=".csv,.xlsx"
+        style="display: none"
+      />
+    </div>
+
+    <!-- Footer -->
+    <div class="upload-modal__footer">
+      <button
+        type="button"
+        class="upload-btn upload-btn--primary"
+        [class.file-ready]="selectedFile && !isUploadSuccess && !isUploading"
+        [class.upload-complete]="isUploadSuccess"
+        [disabled]="isUploading"
+        (click)="
+          isUploadSuccess
+            ? resetUpload()
+            : isUploading
+              ? null
+              : selectedFile
+                ? uploadFile()
+                : triggerFileInput()
+        "
+      >
+        @if (isUploading) {
+          <span class="btn-spinner"></span>
+          Uploading...
+        } @else if (isUploadSuccess) {
+          <ng-icon name="phosphorCheckCircleBold" size="14" />
+          Upload Complete
+        } @else if (selectedFile) {
+          <ng-icon name="phosphorUploadSimpleBold" size="14" />
+          Upload File
+        } @else {
+          <ng-icon name="phosphorFolderOpenBold" size="14" />
+          Select File
+        }
+      </button>
+    </div>
+  </div>
+</div>

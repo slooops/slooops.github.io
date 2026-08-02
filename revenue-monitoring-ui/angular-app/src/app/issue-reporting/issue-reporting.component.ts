@@ -1,15 +1,12 @@
 import {
   ChangeDetectorRef,
   Component,
-  Inject,
+  EventEmitter,
+  Input,
   OnInit,
+  Output,
   ViewChild,
 } from '@angular/core';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogRef,
-} from '@angular/material/dialog';
 import { AuthenticationService } from '../providers/authentication.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
@@ -21,28 +18,50 @@ import { IssueUploadComponent } from './issue-upload/issue-upload.component';
 import { MatPaginator } from '@angular/material/paginator';
 import { BulkApproveRejectComponent } from './bulk-approve-reject/bulk-approve-reject.component';
 import { FormGroup, FormControl } from '@angular/forms';
-import * as XLSX from 'xlsx';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
+import { ThemeService } from '../providers/theme.service';
+import {
+  FilterConfig,
+  ActionButtonConfig,
+  FilterValues,
+} from '../components/filter-button-bar/filter-button-bar.component';
+import { SelectOption } from '../ui/types/common.types';
+// Imports needed by inline dialog components that remain standalone
+import { CommonModule } from '@angular/common';
+import { provideIcons } from '@ng-icons/core';
 
 @Component({
   selector: 'app-issue-reporting',
   templateUrl: './issue-reporting.component.html',
   styleUrl: './issue-reporting.component.css',
   providers: [DestroyManager],
+  standalone: false,
 })
 export class IssueReportingComponent implements OnInit {
+  // Modal state — replaces MatDialog usage
+  uploadModalOpen = false;
+  summaryModalOpen = false;
+  summaryModalData: any[] = [];
+  confirmModalOpen = false;
+  confirmModalData: { message: string } = { message: '' };
+  bulkModalOpen = false;
+  bulkModalData: any[] = [];
+  statusModalOpen = false;
+  statusModalData: any = {};
+  private statusModalElement: any = null;
+
   constructor(
     private http: ApiHttpService,
     private destroyManager: DestroyManager,
     private datePipe: DatePipe,
     private cdr: ChangeDetectorRef,
-    private dialog: MatDialog,
     private authService: AuthenticationService,
-    private exportToExcelService: ExportToExcelService
+    private exportToExcelService: ExportToExcelService,
+    public themeService: ThemeService,
   ) {}
   ngOnInit() {
     this.username = this.authService.getUserName();
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
     this.getIssueReporting();
     this.getIssueReportingSummary();
   }
@@ -72,12 +91,182 @@ export class IssueReportingComponent implements OnInit {
   quarterFilter: string[] = [];
   statusFilter: string[] = [];
   incidentNumFilter: string = '';
+  isLoading: boolean = false;
+
+  // Filter-button-bar config
+  filterConfigs: FilterConfig[] = [];
+  filterValues: FilterValues = {
+    track: [],
+    quarter: [],
+    status: [],
+    incidentNum: '',
+  };
+  pageIndex: number = 0;
+  pageSize: number = 10;
+
+  get actionButtons(): ActionButtonConfig[] {
+    return [
+      {
+        id: 'approve',
+        label: 'Approve',
+        variant: 'success',
+        visible:
+          this.roles.includes('ISSUE_APPROVAL') &&
+          this.selection.selected.length === 1,
+      },
+      {
+        id: 'reject',
+        label: 'Reject',
+        variant: 'danger',
+        visible:
+          this.roles.includes('ISSUE_APPROVAL') &&
+          this.selection.selected.length === 1,
+      },
+      {
+        id: 'bulkApproveReject',
+        label: 'Approve / Reject',
+        variant: 'primary',
+        visible:
+          this.roles.includes('ISSUE_APPROVAL') &&
+          this.selection.selected.length > 1,
+      },
+      {
+        id: 'viewSummary',
+        label: 'View Summary',
+        variant: 'secondary',
+        visible: true,
+      },
+      {
+        id: 'upload',
+        label: 'Upload',
+        variant: 'secondary',
+        icon: 'phosphorCloudArrowUpBold',
+        visible: true,
+      },
+      {
+        id: 'download',
+        label: 'Download',
+        variant: 'secondary',
+        icon: 'phosphorArrowLineDownBold',
+        visible: true,
+      },
+    ];
+  }
+
+  onFilterChange(values: FilterValues): void {
+    this.filterValues = values;
+    this.trackFilter = (values['track'] as string[]) || [];
+    this.quarterFilter = (values['quarter'] as string[]) || [];
+    this.statusFilter = (values['status'] as string[]) || [];
+    this.incidentNumFilter = (values['incidentNum'] as string) || '';
+    this.summaryDatasource.filter = JSON.stringify({
+      trackFilter: this.trackFilter,
+      statusFilter: this.statusFilter,
+      quarterFilter: this.quarterFilter,
+      incidentNumFilter: this.incidentNumFilter,
+    });
+    this.pageIndex = 0;
+  }
+
+  onFilterClear(): void {
+    this.filterValues = { track: [], quarter: [], status: [], incidentNum: '' };
+    this.trackFilter = [];
+    this.quarterFilter = [];
+    this.statusFilter = [];
+    this.incidentNumFilter = '';
+    this.summaryDatasource.filter = '';
+  }
+
+  onActionButtonClick(actionId: string): void {
+    switch (actionId) {
+      case 'approve':
+        this.openDialog('Approve');
+        break;
+      case 'reject':
+        this.openDialog('Reject');
+        break;
+      case 'bulkApproveReject':
+        this.bulkApproveReject();
+        break;
+      case 'viewSummary':
+        this.openSummaryDialog();
+        break;
+      case 'upload':
+        this.uploadFile();
+        break;
+      case 'download':
+        this.exportSummaryData();
+        break;
+    }
+  }
+
+  onPageChange(event: any): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    if (this.paginator) {
+      this.paginator.pageIndex = event.pageIndex;
+      this.paginator.pageSize = event.pageSize;
+      this.paginator.page.emit({
+        pageIndex: event.pageIndex,
+        pageSize: event.pageSize,
+        length: this.paginator.length,
+      });
+    }
+  }
+
+  // ── Native paginator helpers ──
+  irTotalItems(): number {
+    return (
+      this.summaryDatasource?.filteredData?.length ??
+      this.summaryDatasource?.data?.length ??
+      0
+    );
+  }
+
+  irTotalPages(): number {
+    return Math.max(1, Math.ceil(this.irTotalItems() / this.pageSize));
+  }
+
+  irPageStart(): number {
+    return this.irTotalItems() === 0 ? 0 : this.pageIndex * this.pageSize + 1;
+  }
+
+  irPageEnd(): number {
+    return Math.min(this.irTotalItems(), (this.pageIndex + 1) * this.pageSize);
+  }
+
+  onIrPageSizeChange(event: Event): void {
+    const value = Number((event.target as HTMLSelectElement).value);
+    this.onPageChange({ pageIndex: 0, pageSize: value });
+  }
+
+  onIrPrev(): void {
+    if (this.pageIndex > 0) {
+      this.onPageChange({
+        pageIndex: this.pageIndex - 1,
+        pageSize: this.pageSize,
+      });
+    }
+  }
+
+  onIrNext(): void {
+    if (this.pageIndex < this.irTotalPages() - 1) {
+      this.onPageChange({
+        pageIndex: this.pageIndex + 1,
+        pageSize: this.pageSize,
+      });
+    }
+  }
 
   statusOps: string[] = ['Open', 'Closed'];
   getIssueReporting() {
+    this.isLoading = true;
     this.http
       .get('issue-reporting', this.destroyManager)
       .subscribe((data: any) => {
+        if (data.length === 0) {
+          this.isLoading = false;
+        }
         this.summaryData = data;
         if (this.summaryData.length > 0) {
           this.summaryColumns = Object.keys(this.summaryData[0]);
@@ -88,7 +277,7 @@ export class IssueReportingComponent implements OnInit {
           row.REPORTED_DATE = this.dateTransform(row.REPORTED_DATE);
         });
         this.summaryDatasource = new MatTableDataSource<IssueReportingModel>(
-          this.summaryData
+          this.summaryData,
         );
         this.filterData();
         this.summaryDatasource.paginator = this.paginator;
@@ -114,6 +303,37 @@ export class IssueReportingComponent implements OnInit {
     this.trackOptions = [...new Set(this.trackTemp)];
     this.quarterOptions = [...new Set(this.quarterTemp)];
     this.statusOptions = [...new Set(this.statusTemp)];
+
+    // Build filter configs for the filter-button-bar
+    this.filterConfigs = [
+      {
+        id: 'track',
+        label: 'Track',
+        type: 'multi-select',
+        placeholder: 'Select Track',
+        options: this.trackOptions.map((t) => ({ label: t, value: t })),
+      },
+      {
+        id: 'quarter',
+        label: 'Quarter',
+        type: 'multi-select',
+        placeholder: 'Select Quarter',
+        options: this.quarterOptions.map((q) => ({ label: q, value: q })),
+      },
+      {
+        id: 'status',
+        label: 'Status',
+        type: 'multi-select',
+        placeholder: 'Select Status',
+        options: this.statusOptions.map((s) => ({ label: s, value: s })),
+      },
+      {
+        id: 'incidentNum',
+        label: 'Incident Number',
+        type: 'text',
+        placeholder: 'e.g., INC1234',
+      },
+    ];
   }
 
   filterPredicate = (data: any, filter: any) => {
@@ -170,13 +390,16 @@ export class IssueReportingComponent implements OnInit {
   }
 
   uploadFile() {
-    const dialogRef = this.dialog.open(IssueUploadComponent, {
-      width: '400px',
-    });
+    this.uploadModalOpen = true;
+  }
+
+  onUploadClosed(_result: string | null) {
+    this.uploadModalOpen = false;
   }
 
   toggleSelectAll(event: any): void {
-    if (event.checked) {
+    const checked = event?.target?.checked ?? event?.checked;
+    if (checked) {
       this.selection.select(...this.summaryDatasource.data);
     } else {
       this.selection.clear();
@@ -197,7 +420,7 @@ export class IssueReportingComponent implements OnInit {
 
   areAllRowsApproved(): boolean {
     return this.summaryDatasource?.data?.every(
-      (row: any) => row.STATUS === 'Closed'
+      (row: any) => row.STATUS === 'Closed',
     );
   }
 
@@ -205,13 +428,14 @@ export class IssueReportingComponent implements OnInit {
   selectedSummaryData: any[] = [];
   isModalOpen: boolean = false;
   selectedRows: any[] = [];
-  onRowSelectionChange(event: MatCheckboxChange, row: any) {
+  onRowSelectionChange(event: any, row: any) {
+    const checked = event?.target?.checked ?? event?.checked;
     this.selection.toggle(row);
-    if (event.checked) {
+    if (checked) {
       this.selectedRows.push(row);
     } else {
       this.selectedRows = this.selectedRows.filter(
-        (selectedRow) => selectedRow !== row
+        (selectedRow) => selectedRow !== row,
       );
     }
   }
@@ -278,7 +502,7 @@ export class IssueReportingComponent implements OnInit {
 
   splitIssueDescription(data: any, incidentNumber: any) {
     const parts = data.split(
-      /(Issue\s*:|Root Cause\s*:|Business Impact\s*:)/gi
+      /(Issue\s*:|Root Cause\s*:|Business Impact\s*:)/gi,
     ); // Split at keywords
     let issue = '';
     let rootCause = '';
@@ -301,7 +525,7 @@ export class IssueReportingComponent implements OnInit {
     issue: any,
     rootCause: any,
     businessImpact: any,
-    incidentNumber: any
+    incidentNumber: any,
   ) {
     const body = {
       incidentNumber: incidentNumber,
@@ -340,7 +564,7 @@ export class IssueReportingComponent implements OnInit {
       .filter((part) => part.trim() !== '') // Remove empty parts
       .map((part, index, array) => {
         const isKeyword = /^(Issue|Root Cause|Business Impact)\s*:$/i.test(
-          part
+          part,
         );
         return {
           text: part.trim(),
@@ -379,32 +603,33 @@ export class IssueReportingComponent implements OnInit {
   }
 
   openDialog(message: string) {
-    const dialogRef = this.dialog.open(DialogBox, {
-      width: '400px',
-      data: { message }, // Pass data to dialog
-    });
+    this.confirmModalData = { message };
+    this.confirmModalOpen = true;
+  }
 
-    // Receive data when dialog is closed
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.selectedRows.find((row) => {
-          this.incidentNumber = row.INCIDENT_NUMBER;
-          return row;
-        });
-        if (message === 'Approve') {
-          this.approveRejectSingleIncident('Approved');
-        } else if (message === 'Reject') {
-          this.approveRejectSingleIncident('Rejected');
-        }
+  onConfirmClosed(result: boolean | null) {
+    this.confirmModalOpen = false;
+    if (result) {
+      this.selectedRows.find((row) => {
+        this.incidentNumber = row.INCIDENT_NUMBER;
+        return row;
+      });
+      const message = this.confirmModalData.message;
+      if (message === 'Approve') {
+        this.approveRejectSingleIncident('Approved');
+      } else if (message === 'Reject') {
+        this.approveRejectSingleIncident('Rejected');
       }
-    });
+    }
   }
 
   openSummaryDialog() {
-    const dialogRef = this.dialog.open(SummaryDialog, {
-      width: '550px',
-      data: this.issueSummaryData,
-    });
+    this.summaryModalData = this.issueSummaryData ?? [];
+    this.summaryModalOpen = true;
+  }
+
+  onSummaryClosed() {
+    this.summaryModalOpen = false;
   }
 
   openIncidentDetails(data: any) {
@@ -442,48 +667,48 @@ export class IssueReportingComponent implements OnInit {
       return;
     }
 
-    const dialogRef = this.dialog.open(BulkApproveRejectComponent, {
-      width: '400px',
-      data: this.selectedRows.map((data) => ({
-        incidentNumber: data.INCIDENT_NUMBER,
-        status: data.IT_APPROVAL, // Default empty status
-        approvedBy: this.username, // Replace with logged-in user
-      })),
-    });
+    this.bulkModalData = this.selectedRows.map((data) => ({
+      incidentNumber: data.INCIDENT_NUMBER,
+      status: data.IT_APPROVAL,
+      approvedBy: this.username,
+    }));
+    this.bulkModalOpen = true;
+  }
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        console.log('Submitted Data:', result);
-        this.selection.clear();
-        this.selectedRows = [];
-        this.summaryDatasource = null;
-        this.getIssueReporting();
-        this.issueSummaryData = [];
-        this.getIssueReportingSummary();
-        this.cdr.detectChanges();
-      }
-    });
+  onBulkClosed(result: string | null) {
+    this.bulkModalOpen = false;
+    if (result) {
+      this.selection.clear();
+      this.selectedRows = [];
+      this.summaryDatasource = null;
+      this.getIssueReporting();
+      this.issueSummaryData = [];
+      this.getIssueReportingSummary();
+      this.cdr.detectChanges();
+    }
   }
 
   onStatusChange(element: any) {
-    const dialogRef = this.dialog.open(StatusDialog, {
-      width: '450px',
-      data: {
-        status: element.STATUS,
-        incidentNumber: element.INCIDENT_NUMBER,
-        approvedBy: this.username,
-      },
-    });
+    this.statusModalElement = element;
+    this.statusModalData = {
+      status: element.STATUS,
+      incidentNumber: element.INCIDENT_NUMBER,
+      approvedBy: this.username,
+    };
+    this.statusModalOpen = true;
+  }
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.updateStatus(element);
-      } else {
-        this.summaryDatasource = null;
-        this.getIssueReporting();
-        this.cdr.detectChanges();
-      }
-    });
+  onStatusClosed(result: boolean | null) {
+    this.statusModalOpen = false;
+    const element = this.statusModalElement;
+    this.statusModalElement = null;
+    if (result) {
+      this.updateStatus(element);
+    } else {
+      this.summaryDatasource = null;
+      this.getIssueReporting();
+      this.cdr.detectChanges();
+    }
   }
 
   updateStatus(element: any) {
@@ -514,7 +739,7 @@ export class IssueReportingComponent implements OnInit {
     this.exportTableToExcel(
       this.summaryData,
       'Active Incidents Summary',
-      'active_incidents_summary'
+      'active_incidents_summary',
     );
   }
 }
@@ -547,11 +772,12 @@ export interface IssueReportingModel {
 }
 
 @Component({
+  selector: 'app-issue-confirm-dialog',
   template: `
-    <mat-dialog-content>
+    <div class="confirm-body">
       <b>Please confirm you want to {{ data.message }} this Incident:</b>
-    </mat-dialog-content>
-    <mat-dialog-actions style="justify-content: center !important;">
+    </div>
+    <div class="confirm-actions">
       <button
         class="btn"
         [class.approve]="data.message === 'Approve'"
@@ -560,217 +786,323 @@ export interface IssueReportingModel {
       >
         {{ data.message }}
       </button>
-      <button
-        class="btn btn-default"
-        style="background-color: white !important;"
-        (click)="closeDialog(false)"
-      >
+      <button class="btn btn-default" (click)="closeDialog(false)">
         Cancel
       </button>
-    </mat-dialog-actions>
+    </div>
   `,
   styles: [
     `
-      .dialog-content {
-        font-size: 16px;
-        color: #333;
+      .confirm-body {
+        font-size: 14px;
+        color: #1b1c1d;
         text-align: center;
+        padding: 16px 20px 8px;
+      }
+      :host-context(body.dark-theme) .confirm-body {
+        color: #e0e6ed;
+      }
+      .confirm-actions {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 20px 16px;
+      }
+      .btn {
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      .btn-default {
+        background-color: #ffffff;
+        border-color: #d0d7de;
+        color: #1b1c1d;
+      }
+      :host-context(body.dark-theme) .btn-default {
+        background-color: #1a2733;
+        border-color: rgba(42, 63, 80, 0.8);
+        color: #e0e6ed;
       }
       .approve {
-        background-color: #04aa6d !important;
-        color: white !important;
+        background-color: #04aa6d;
+        color: white;
       }
       .reject {
-        background-color: #f44336 !important;
-        color: white !important;
+        background-color: #f44336;
+        color: white;
       }
     `,
   ],
+  imports: [CommonModule],
+  standalone: true,
 })
 export class DialogBox {
-  constructor(
-    private dialogRef: MatDialogRef<DialogBox>,
-    @Inject(MAT_DIALOG_DATA) public data: { message: string }
-  ) {}
+  @Input() data: { message: string } = { message: '' };
+  @Output() closed = new EventEmitter<boolean | null>();
 
   closeDialog(isConfirmed: boolean) {
-    this.dialogRef.close(isConfirmed);
+    this.closed.emit(isConfirmed);
   }
 }
 
 @Component({
+  selector: 'app-issue-status-dialog',
   template: `
-    <div>
+    <div class="status-body">
       <b>Please confirm you want to change the status as {{ data.status }}:</b>
     </div>
-    <br />
-    <div style="text-align: center !important;">
+    <div class="status-actions">
       <button class="btn openClose" (click)="closeDialog(true)">Confirm</button>
-      &nbsp;
-      <button
-        class="btn btn-default"
-        style="background-color: white !important;"
-        (click)="closeDialog(false)"
-      >
+      <button class="btn btn-default" (click)="closeDialog(false)">
         Cancel
       </button>
     </div>
   `,
   styles: [
     `
-      .dialog-content {
-        font-size: 16px;
-        color: #333;
+      .status-body {
+        font-size: 14px;
+        color: #1b1c1d;
         text-align: center;
+        padding: 16px 20px 8px;
+      }
+      :host-context(body.dark-theme) .status-body {
+        color: #e0e6ed;
+      }
+      .status-actions {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 20px 16px;
+      }
+      .btn {
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      .btn-default {
+        background-color: #ffffff;
+        border-color: #d0d7de;
+        color: #1b1c1d;
+      }
+      :host-context(body.dark-theme) .btn-default {
+        background-color: #1a2733;
+        border-color: rgba(42, 63, 80, 0.8);
+        color: #e0e6ed;
       }
       .openClose {
-        background-color: #185996 !important;
-        color: white !important;
+        background-color: #185996;
+        color: white;
       }
     `,
   ],
+  imports: [CommonModule],
+  standalone: true,
 })
 export class StatusDialog {
-  constructor(
-    private dialogRef: MatDialogRef<StatusDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+  @Input() data: any = {};
+  @Output() closed = new EventEmitter<boolean | null>();
 
   closeDialog(isConfirmed: boolean) {
-    this.dialogRef.close(isConfirmed);
+    this.closed.emit(isConfirmed);
   }
 }
 
 @Component({
+  selector: 'app-issue-summary-dialog',
   template: `
-    <div
-      style="display: flex; justify-content: space-between; align-items: center;"
-    >
-      <h5 style="margin: 0; font-weight: bold">Summary</h5>
+    <div class="summary-header">
+      <h5 class="summary-title">Summary</h5>
       <button
-        mat-icon-button
+        class="summary-close-btn"
         (click)="closeDialog()"
         aria-label="Close"
-        style="margin-left: auto; font-size: 24px; font-weight: bold;"
       >
-        <mat-icon>close</mat-icon>
+        ✕
       </button>
     </div>
 
-    <div>
-      <table mat-table [dataSource]="dataSource">
-        <!-- Track Column -->
-        <ng-container matColumnDef="Track">
-          <th mat-header-cell *matHeaderCellDef>Track</th>
-          <td mat-cell *matCellDef="let element">{{ element['Track'] }}</td>
-        </ng-container>
-
-        <!-- Count Column -->
-        <ng-container matColumnDef="Count">
-          <th mat-header-cell *matHeaderCellDef>Count</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element['Count'] || '' }}
-          </td>
-        </ng-container>
-
-        <!-- Issue Status Column -->
-        <ng-container matColumnDef="Issue Status">
-          <th mat-header-cell *matHeaderCellDef>Issue Status</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element['Issue Status'] || '' }}
-          </td>
-        </ng-container>
-
-        <!-- IT Approval Column -->
-        <ng-container matColumnDef="IT Approval">
-          <th mat-header-cell *matHeaderCellDef>IT Approval</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element['IT Approval'] || '' }}
-          </td>
-        </ng-container>
-
-        <!-- Approved On Column -->
-        <!-- <ng-container matColumnDef="Approved On">
-          <th mat-header-cell *matHeaderCellDef>Approved On</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element['Approved On'] || '' }}
-          </td>
-        </ng-container> -->
-
-        <!-- Issue Description Column -->
-        <!-- <ng-container matColumnDef="Issue Description">
-          <th mat-header-cell *matHeaderCellDef>Issue Description</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element['Issue Description'] || '' }}
-          </td>
-        </ng-container> -->
-
-        <!-- Header and Row Declarations -->
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: displayedColumns"
-          [ngClass]="{
-            'bold-row':
-              row['Track']?.toLowerCase()?.includes('sub total') ||
-              row['Track']?.toLowerCase()?.includes('total')
-          }"
-        ></tr>
-      </table>
+    <div class="summary-table-wrapper">
+      <div class="summary-table-container">
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th>Track</th>
+              <th>Count</th>
+              <th>Issue Status</th>
+              <th>IT Approval</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of data; track row) {
+              <tr
+                [class.bold-row]="
+                  row['Track']?.toLowerCase()?.includes('sub total') ||
+                  row['Track']?.toLowerCase()?.includes('total')
+                "
+              >
+                <td>{{ row['Track'] }}</td>
+                <td>{{ row['Count'] || '' }}</td>
+                <td>{{ row['Issue Status'] || '' }}</td>
+                <td>{{ row['IT Approval'] || '' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
   `,
   styles: [
     `
-      table {
+      :host {
+        display: block;
+        background: #ffffff;
+        color: #1b1c1d;
+      }
+      :host-context(body.dark-theme) {
+        background: #1a2733;
+        color: #e0e6ed;
+      }
+
+      .summary-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 20px 8px;
+        background: transparent;
+      }
+
+      .summary-title {
+        margin: 0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #1b1c1d;
+      }
+      :host-context(body.dark-theme) .summary-title {
+        color: #e0e6ed;
+      }
+
+      .summary-close-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        background: transparent;
+        border: none;
+        color: #64748b;
+        font-size: 1rem;
+        cursor: pointer;
+        border-radius: 6px;
+        transition:
+          background 150ms,
+          color 150ms;
+      }
+
+      .summary-close-btn:hover {
+        background: rgba(0, 0, 0, 0.06);
+        color: #1b1c1d;
+      }
+      :host-context(body.dark-theme) .summary-close-btn {
+        color: #8899a6;
+      }
+      :host-context(body.dark-theme) .summary-close-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #e0e6ed;
+      }
+
+      .summary-table-wrapper {
+        padding: 8px 20px 20px;
+        background: #ffffff;
+      }
+
+      .summary-table-container {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .summary-table {
         width: 100%;
-        border-collapse: separate; /* Allows spacing between cells */
-        border-spacing: 0 2px; /* Adds vertical spacing between rows (optional) */
+        border-collapse: collapse;
       }
 
-      th.mat-header-cell,
-      td.mat-cell {
-        padding: 8px 12px; /* Horizontal padding creates gap between columns */
-        font-size: 13px;
-        text-align: center;
+      .summary-table thead tr {
+        background-color: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
       }
 
-      th.mat-header-cell {
+      .summary-table th {
+        color: #64748b;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.75rem 1rem;
         white-space: nowrap;
-        font-weight: bold;
-        background-color: #08ace4;
-        color: white;
       }
 
-      td.mat-cell {
+      .summary-table td {
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 400;
+        padding: 0.625rem 1rem;
+        color: #1b1c1d;
+        border-bottom: 1px solid #f1f5f9;
         vertical-align: top;
       }
 
-      /* Bold rows for Sub Total and Total */
-      tr.bold-row td {
-        font-weight: bold;
+      .summary-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      .summary-table tbody tr:hover {
+        background-color: #f8fafc;
+      }
+
+      .bold-row td {
+        font-weight: 600;
+        background-color: #f9fafb;
+      }
+
+      /* Dark mode */
+      :host-context(body.dark-theme) .summary-table-wrapper {
+        background: #1a2733;
+      }
+      :host-context(body.dark-theme) .summary-table-container {
+        border-color: rgba(42, 63, 80, 0.6);
+      }
+      :host-context(body.dark-theme) .summary-table thead tr {
+        background-color: #1e2d3a;
+        border-bottom-color: rgba(42, 63, 80, 0.6);
+      }
+      :host-context(body.dark-theme) .summary-table th {
+        color: #8899a6;
+      }
+      :host-context(body.dark-theme) .summary-table td {
+        color: #e0e6ed;
+        border-bottom-color: rgba(42, 63, 80, 0.4);
+      }
+      :host-context(body.dark-theme) .summary-table tbody tr:hover {
+        background-color: #233544;
+      }
+      :host-context(body.dark-theme) .bold-row td {
+        background-color: #1e2d3a;
       }
     `,
   ],
+  imports: [CommonModule],
+  standalone: true,
 })
 export class SummaryDialog {
-  displayedColumns: string[] = [
-    'Track',
-    'Count',
-    'Issue Status',
-    'IT Approval',
-    // 'Approved On',
-    // 'Issue Description',
-  ];
-  dataSource: MatTableDataSource<any>;
-  constructor(
-    private dialogRef: MatDialogRef<StatusDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: any
-  ) {
-    console.log('Data:', data);
-    this.dataSource = new MatTableDataSource(this.data);
-  }
+  @Input() data: any[] = [];
+  @Output() closed = new EventEmitter<void>();
 
   closeDialog() {
-    this.dialogRef.close();
+    this.closed.emit();
   }
 }

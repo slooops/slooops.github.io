@@ -1,0 +1,56 @@
+@import "src/assets/ui.css";
+
+.fit-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--fit-space-lg);
+  margin-bottom: var(--fit-space-sm);
+}
+
+.fit-filter-bar__search {
+  flex: 0 0 auto;
+  width: 260px;
+}
+
+.fit-filter-bar__filters {
+  display: flex;
+  gap: var(--fit-space-md);
+}
+
+.fit-filter-bar__count {
+  font-size: var(--fit-font-size-sm);
+  color: var(--fit-color-text-muted);
+  white-space: nowrap;
+}
+
+.fit-filter-bar__actions {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+}
+
+/* Override action button text color and size */
+:host .fit-filter-bar__actions ::ng-deep .fit-btn--secondary {
+  color: dodgerblue;
+  font-size: 13px;
+}
+
+/* Search input: smaller font + visible icon */
+:host .fit-filter-bar__search ::ng-deep .fit-input {
+  font-size: 13px;
+  padding-left: 2rem;
+}
+
+:host .fit-filter-bar__search ::ng-deep .fit-input__icon--left {
+  left: 0.6rem;
+}
+
+:host .fit-filter-bar__search ::ng-deep .search-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-image: url("/assets/icons/search-icon.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}

@@ -1,27 +1,28 @@
-import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-bulk-approve-reject',
   templateUrl: './bulk-approve-reject.component.html',
   styleUrl: './bulk-approve-reject.component.css',
+  imports: [CommonModule, FormsModule],
+  standalone: true,
 })
 export class BulkApproveRejectComponent {
-  constructor(
-    public dialogRef: MatDialogRef<BulkApproveRejectComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any[],
-    private http: ApiHttpService
-  ) {}
+  @Input() data: any[] = [];
+  @Output() closed = new EventEmitter<string | null>();
+
+  constructor(private http: ApiHttpService) {}
 
   approvedBy: string = ''; // Replace with actual user info if needed
   ngOnInit() {
-    console.log(this.data);
-    this.approvedBy = this.data[0].approvedBy; // Assuming all rows have the same approvedBy value
+    this.approvedBy = this.data[0]?.approvedBy; // Assuming all rows have the same approvedBy value
   }
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.closed.emit(null);
   }
 
   onCheckboxChange(row: any, action: string): void {
@@ -41,14 +42,13 @@ export class BulkApproveRejectComponent {
         approvedBy: this.approvedBy, // Replace with actual user info if needed
       }));
 
-    console.log(typeof selectedData); // Print to console
     this.http
       .post('issue-reporting-approval-bulk', selectedData, {
         headers: { 'Content-Type': 'application/json' }, // Ensure correct content type
         responseType: 'text',
       })
       .subscribe((data: any) => {
-        this.dialogRef.close('success');
+        this.closed.emit('success');
       });
   }
 }

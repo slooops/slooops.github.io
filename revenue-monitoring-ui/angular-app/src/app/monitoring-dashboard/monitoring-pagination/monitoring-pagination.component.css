@@ -1,0 +1,93 @@
+.md-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0.75rem 0;
+  gap: 1rem;
+}
+
+.md-pagination__info {
+  display: flex;
+  align-items: center;
+}
+
+.md-pagination__text {
+  font-size: 0.75rem;
+  color: var(--md-muted, #555);
+}
+
+.md-pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.md-pagination__select {
+  font-size: 0.75rem;
+  padding: 0.1rem 0.75rem;
+  border: 1px solid var(--md-card-border, rgba(0, 0, 0, 0.08));
+  border-radius: 999px;
+  background: var(--md-surface, #fff);
+  color: var(--md-text, #1b1c1d);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 150ms ease;
+}
+
+.md-pagination__select:hover {
+  border-color: var(--md-text, #1b1c1d);
+}
+
+.md-pagination__btn {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.1rem 1rem;
+  border: 1px solid var(--md-card-border, rgba(0, 0, 0, 0.08));
+  border-radius: 999px;
+  background: var(--md-surface, #fff);
+  color: var(--md-text, #1b1c1d);
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
+}
+
+.md-pagination__btn:hover:not(:disabled) {
+  background: var(--fit-color-bg-subtle, #f0f4f8);
+  border-color: var(--md-text, #1b1c1d);
+}
+
+.md-pagination__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.md-pagination__page-indicator {
+  font-size: 0.75rem;
+  color: var(--md-text, #1b1c1d);
+  padding-inline: 0.5rem;
+}
+
+/* ── Dark mode (inherits from wrapper) ── */
+:host-context(.dark-theme) .md-pagination__text,
+:host-context(.dark-theme) .md-pagination__page-indicator {
+  color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) .md-pagination__text {
+  color: var(--fit-dark-muted, #8899a6);
+}
+:host-context(.dark-theme) .md-pagination__select,
+:host-context(.dark-theme) .md-pagination__btn {
+  background: var(--fit-dark-surface, #1a2733);
+  border-color: var(--fit-dark-border, #2a3f50);
+  color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) .md-pagination__select option {
+  background: var(--fit-dark-surface, #1a2733);
+  color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) .md-pagination__select:hover,
+:host-context(.dark-theme) .md-pagination__btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--fit-dark-text, #e0e6ed);
+}

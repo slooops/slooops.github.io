@@ -1,0 +1,13 @@
+<div class="wips-content">
+  <app-monitoring-dashboard
+    [urls]="wipsUrls"
+    [keysToMap]="['timestamp', 'scenario']"
+    [componentName]="'WIPS'"
+    [columnsToFilter]="wipsFilters"
+    [detailsColumnsToHide]="[]"
+    [assignmentDialogFieldConfig]="fieldConfig"
+    [submitKeysToMap]="['timestamp', 'scenario']"
+    [webexKeysToMap]="['scenario', 'data_source', 'status']"
+    [userContext]="userContextData"
+  ></app-monitoring-dashboard>
+</div>

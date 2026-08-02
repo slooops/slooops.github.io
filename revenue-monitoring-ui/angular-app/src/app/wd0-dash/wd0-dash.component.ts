@@ -10,6 +10,7 @@ import { MenuService } from '../providers/menu.service';
   templateUrl: './wd0-dash.component.html',
   styleUrls: ['./wd0-dash.component.css'],
   providers: [DestroyManager],
+  standalone: false,
 })
 export class Wd0DashComponent implements OnInit {
   protected http: ApiHttpService;

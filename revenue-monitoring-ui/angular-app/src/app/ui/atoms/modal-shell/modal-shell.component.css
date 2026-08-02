@@ -1,0 +1,108 @@
+@import "src/assets/ui.css";
+
+/* Override modal sizing for admin-style dialogs */
+:host ::ng-deep .fit-modal {
+  max-width: 480px;
+  border-radius: var(--fit-radius-lg);
+  padding: 0;
+  overflow: visible;
+  animation: modalSlideIn 0.2s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+:host ::ng-deep .fit-modal-backdrop {
+  animation: backdropFadeIn 0.15s ease;
+}
+
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fit-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem;
+  border-bottom: 1px solid var(--fit-color-border);
+  background-color: #00bceb;
+  border-radius: var(--fit-radius-lg) var(--fit-radius-lg) 0 0;
+}
+
+.fit-modal__title {
+  font-size: var(--fit-font-size-sm);
+  font-weight: var(--fit-font-weight-semibold);
+  color: #fff;
+  margin: 0;
+}
+
+.fit-modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: var(--fit-radius-sm);
+  background: transparent;
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color var(--fit-transition-fast),
+    color var(--fit-transition-fast);
+}
+
+.fit-modal__close:hover {
+  background-color: var(--fit-color-bg-muted);
+  color: var(--fit-color-text);
+}
+
+.fit-modal__body {
+  padding: var(--fit-space-md) var(--fit-space-lg);
+}
+
+.fit-modal__footer {
+  padding: 0 var(--fit-space-lg) var(--fit-space-sm);
+}
+
+/* ── Dark mode ── */
+:host-context(.dark-theme) ::ng-deep .fit-modal,
+:host-context(body.dark-theme) ::ng-deep .fit-modal {
+  background: var(--fit-dark-surface, #1a2733);
+  color: var(--fit-dark-text, #e0e6ed);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+:host-context(.dark-theme) ::ng-deep .fit-modal-backdrop,
+:host-context(body.dark-theme) ::ng-deep .fit-modal-backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+:host-context(.dark-theme) .fit-modal__header,
+:host-context(body.dark-theme) .fit-modal__header {
+  background-color: var(--fit-dark-bg, #0f1923);
+  border-bottom-color: var(--fit-dark-border, #2a3f50);
+}
+
+:host-context(.dark-theme) .fit-modal__close:hover,
+:host-context(body.dark-theme) .fit-modal__close:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--fit-dark-text, #e0e6ed);
+}

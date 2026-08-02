@@ -1,192 +1,189 @@
-<div
-  style="
-    margin: -24px -24px 0 -24px; /* Removes default padding */
-    background-color: #08ace4;
-    padding: 10px;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  "
->
-  <!-- Title on the left -->
-  <h5 style="margin: 0; font-weight: 450">Deal Upload</h5>
+<div class="iu-dialog">
+  <!-- Header -->
+  <div class="iu-header">
+    <h3 class="iu-header__title">Deal Upload</h3>
+    <button class="iu-header__close" (click)="closeDialog('closed')">
+      <ng-icon name="phosphorXBold" size="18" />
+    </button>
+  </div>
 
-  <!-- Icons on the right (Download and Close) -->
-  <a style="text-decoration: none; cursor: pointer">
-    <i
-      class="fa fa-close"
-      style="font-size: 16px; color: white"
-      (click)="closeDialog('closed')"
-    ></i>
-  </a>
-</div>
-
-<mat-tab-group>
-  <mat-tab label="File Upload" style="text-align: center">
-    <br />
-    <div style="display: flex; justify-content: flex-end; align-items: center">
-      <a href="../../assets/Large Order Upload Sample.csv" download
-        ><i class="svg-icon download-icon" aria-hidden="true"></i>
-        <span>&nbsp;Download Sample Template</span>
-      </a>
-    </div>
-    <br />
-    <div
-      class="file-drop-zone"
-      (drop)="onDrop($event)"
-      (dragover)="onDragOver($event)"
-      cdkDropList
-    >
-      <i style="color: gray" class="fa fa-2x fa-cloud-upload"></i>
-      <p>Drag and drop your file here</p>
-      <p>or</p>
-      <button mat-raised-button (click)="fileInput.click()">Select File</button>
-      <input
-        [multiple]="false"
-        style="display: none"
-        (change)="onFileSelected($event)"
-        #fileInput
-        type="file"
-        accept=".csv"
-      />
-      <br />
-      <br />
-      <span *ngIf="selectedFile">
-        <i class="fa fa-close" style="color: gray" (click)="removeFile()"></i>
-        File selected:
+  <mat-tab-group>
+    <!-- File Upload Tab -->
+    <mat-tab label="File Upload">
+      <div class="iu-body">
         <a
-          ><b style="font-weight: 500">{{ selectedFile.name }}</b></a
+          class="iu-template-link"
+          href="../../assets/Large Order Upload Sample.csv"
+          download
         >
-        &nbsp;<i class="fa fa-check-circle" style="color: #32a50f"></i>
-      </span>
+          <ng-icon name="phosphorArrowLineDownBold" size="18" />
+          Download Sample Template
+        </a>
 
-      <mat-error style="text-align: center" *ngIf="validationError"
-        ><i class="fa fa-times-circle" style="color: #ff052b">
-          {{ validationError }}</i
-        ></mat-error
-      >
-    </div>
-    <br />
-    <div style="text-align: center" *ngIf="fileSelected">
-      <button
-        class="btn btn-primary"
-        mat-stroked-button
-        (click)="uploadDealsFile(dialogTemplate)"
-        style="color: white"
-      >
-        Upload
-      </button>
-    </div>
-    <!-- <mat-error
-        style="text-align: center; margin-top: 5px"
-        *ngIf="noFileSelected"
-      >
-        <i class="fa fa-times-circle" style="color: #ff052b"> No file selected</i>
-      </mat-error> -->
-  </mat-tab>
-  <mat-tab label="Enter Deals">
-    <br />
-    <form [formGroup]="updateForm">
-      <mat-form-field appearance="standard">
-        <mat-label>Program Name</mat-label>
-        <input
-          matInput
-          formControlName="programName"
-          placeholder="Enter Program Name"
-          name="programName"
-          required
-        />
-        <mat-error *ngIf="updateForm.get('programName').hasError('required')"
-          >Program Name is required</mat-error
+        <div
+          class="iu-dropzone"
+          (drop)="onDrop($event)"
+          (dragover)="onDragOver($event)"
+          (click)="fileInput.click()"
         >
-        <mat-error *ngIf="updateForm.get('programName').hasError('pattern')"
-          >Invalid input. Please enter only one Program Name using alphabets
-          only.</mat-error
-        >
-      </mat-form-field>
+          <div class="iu-dropzone__icon">
+            <ng-icon name="phosphorArrowLineUpBold" size="36" />
+          </div>
+          <p class="iu-dropzone__text">Drag and drop your file here</p>
+          <p class="iu-dropzone__or">or</p>
+          <button
+            type="button"
+            class="iu-dropzone__btn"
+            (click)="$event.stopPropagation(); fileInput.click()"
+          >
+            Select File
+          </button>
+          <input
+            [multiple]="false"
+            style="display: none"
+            (change)="onFileSelected($event)"
+            #fileInput
+            type="file"
+            accept=".csv"
+          />
+        </div>
 
-      <mat-form-field appearance="standard">
-        <mat-label>Account</mat-label>
-        <input
-          matInput
-          formControlName="account"
-          placeholder="Enter Account"
-          name="account"
-          required
-        />
-        <mat-error *ngIf="updateForm.get('account').hasError('required')"
-          >Account is required</mat-error
-        >
-        <mat-error *ngIf="updateForm.get('account').hasError('pattern')"
-          >Invalid input. Please enter only one Account using alphabets
-          only.</mat-error
-        >
-      </mat-form-field>
+        @if (selectedFile) {
+          <div class="iu-file-info">
+            <ng-icon
+              name="phosphorFileBold"
+              size="20"
+              class="iu-file-info__icon"
+            />
+            <span class="iu-file-info__name">{{ selectedFile.name }}</span>
+            <ng-icon
+              name="phosphorCheckCircleBold"
+              size="18"
+              class="iu-file-info__check"
+            />
+            <button
+              type="button"
+              class="iu-file-info__remove"
+              (click)="removeFile()"
+            >
+              <ng-icon name="phosphorTrashBold" size="16" />
+            </button>
+          </div>
+        }
 
-      <mat-form-field appearance="standard">
-        <mat-label
-          >Deal Ids ( Please enter comma-separated string of numbers
-          )</mat-label
-        >
-        <input
-          matInput
-          formControlName="dealIds"
-          placeholder="Enter Deal Ids"
-          name="dealIds"
-          required
-        />
-        <mat-error *ngIf="updateForm.get('dealIds').hasError('required')"
-          >Deal Ids are required</mat-error
-        >
-        <mat-error *ngIf="updateForm.get('dealIds').hasError('pattern')"
-          >Invalid input. Please enter only numbers.</mat-error
-        >
-      </mat-form-field>
-    </form>
+        @if (validationError) {
+          <div class="iu-error">
+            <ng-icon
+              name="phosphorWarningCircleBold"
+              size="16"
+              class="iu-error__icon"
+            />
+            <span>{{ validationError }}</span>
+          </div>
+        }
 
-    <br />
-    <div style="text-align: center">
-      <button
-        mat-stroked-button
-        class="btn btn-primary"
-        type="submit"
-        (click)="submitDealIds(dialogTemplate)"
-        style="background-color: gray; color: white"
-      >
-        Upload
-      </button>
-    </div>
+        @if (fileSelected) {
+          <button
+            type="button"
+            class="iu-upload-btn"
+            (click)="uploadDealsFile(dialogTemplate)"
+          >
+            <ng-icon name="phosphorArrowLineUpBold" size="18" />
+            Upload
+          </button>
+        }
+      </div>
+    </mat-tab>
 
-    <mat-error style="text-align: center; margin-top: 5px" *ngIf="validForm">
-      <i class="fa fa-times-circle" style="color: #ff052b">
-        Form cannot have empty values</i
-      >
-    </mat-error>
-  </mat-tab>
-</mat-tab-group>
+    <!-- Enter Deals Tab -->
+    <mat-tab label="Enter Deals">
+      <div class="iu-form">
+        <form [formGroup]="updateForm">
+          <div class="iu-field-row">
+            <label class="iu-field-label">Program Name</label>
+            <div class="iu-field-input">
+              <input
+                class="iu-input"
+                formControlName="programName"
+                placeholder="Enter Program Name"
+                required
+              />
+            </div>
+          </div>
 
-<div style="display: flex; justify-content: space-between; align-items: end">
-  <ng-template #dialogTemplate>
-    <br />
-    <h6>
-      <span *ngIf="uploadText === 'Deals upload failed!'"
-        ><i class="fa fa-times-circle fa-lg" style="color: #ff052b"></i
-      ></span>
-      <span *ngIf="uploadText === 'Deals upload successful!'"
-        ><i class="fa fa-check-circle fa-lg" style="color: #32a50f"></i
-      ></span>
-      <b style="font-weight: 500">&nbsp;{{ uploadText }}</b>
-    </h6>
-    <br />
-    <div style="text-align: center">
-      <button
-        class="btn btn-primary"
-        mat-stroked-button
-        (click)="closeOkDialog()"
-      >
-        Ok
-      </button>
-    </div>
-  </ng-template>
+          <div class="iu-field-row">
+            <label class="iu-field-label">Account</label>
+            <div class="iu-field-input">
+              <input
+                class="iu-input"
+                formControlName="account"
+                placeholder="Enter Account"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="iu-field-row">
+            <label class="iu-field-label">Deal IDs</label>
+            <div class="iu-field-input">
+              <input
+                class="iu-input"
+                formControlName="dealIds"
+                placeholder="Enter Deal IDs (comma-separated)"
+                required
+              />
+            </div>
+          </div>
+        </form>
+
+        @if (validForm) {
+          <div class="iu-error">
+            <ng-icon
+              name="phosphorWarningCircleBold"
+              size="16"
+              class="iu-error__icon"
+            />
+            <span>Form cannot have empty values</span>
+          </div>
+        }
+
+        <div class="iu-form-footer">
+          <button
+            type="button"
+            class="fit-btn fit-btn--secondary"
+            (click)="closeDialog('closed')"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="fit-btn fit-btn--primary"
+            (click)="submitDealIds(dialogTemplate)"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
 </div>
+
+<ng-template #dialogTemplate>
+  <div class="iu-result">
+    <p
+      class="iu-result__msg"
+      [class.iu-result__msg--success]="uploadText.includes('successful')"
+      [class.iu-result__msg--error]="uploadText.includes('failed')"
+    >
+      @if (uploadText.includes("failed")) {
+        <ng-icon name="phosphorWarningCircleBold" size="20" />
+      }
+      @if (uploadText.includes("successful")) {
+        <ng-icon name="phosphorCheckCircleBold" size="20" />
+      }
+      {{ uploadText }}
+    </p>
+    <br />
+    <button class="iu-result__ok" (click)="closeOkDialog()">Ok</button>
+  </div>
+</ng-template>

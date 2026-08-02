@@ -1,0 +1,143 @@
+/* ── Light mode (default) ── */
+:host {
+  --gl-bg: #ffffff;
+  --gl-surface: #ffffff;
+  --gl-text: #1b1c1d;
+  --gl-muted: #555;
+  --gl-border: #e1e4e8;
+  --gl-header-h2: #000000;
+  --gl-search-bg: #ffffff;
+  --gl-search-border: #d0d0d0;
+  --gl-search-icon: #888;
+  display: block;
+}
+
+/* ── Dark mode ── */
+:host(.dark-theme) {
+  --gl-bg: var(--fit-dark-bg, #0f1923);
+  --gl-surface: var(--fit-dark-surface, #111b25);
+  --gl-text: var(--fit-dark-text, #e0e6ed);
+  --gl-muted: var(--fit-dark-muted, #8899a6);
+  --gl-border: var(--fit-dark-border, #2a3f50);
+  --gl-header-h2: var(--fit-dark-text, #e0e6ed);
+  --gl-search-bg: var(--fit-dark-surface, #111b25);
+  --gl-search-border: var(--fit-dark-border, #2a3f50);
+  --gl-search-icon: var(--fit-dark-muted, #8899a6);
+  background: var(--gl-bg);
+  color: var(--gl-text);
+}
+
+/* Header & search styling aligned with Order Management / Operations Controls */
+
+.dashboard-header {
+  margin-bottom: 0;
+  text-align: left;
+  padding: 0 2rem;
+}
+
+.header-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 10px 0;
+}
+
+.header-main h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gl-header-h2);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.period-info {
+  font-size: 13px;
+  margin-right: auto;
+}
+
+.global-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--gl-search-bg);
+  border: 1px solid var(--gl-search-border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  margin-left: auto;
+}
+
+.global-search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 4px;
+}
+
+.global-search-icon {
+  font-size: 12px;
+  color: var(--gl-search-icon);
+  cursor: pointer;
+}
+
+.global-search-input {
+  border: none;
+  outline: none;
+  font-size: 12px;
+  min-width: 200px;
+  background: transparent;
+  color: var(--gl-text);
+}
+
+.global-search-input::placeholder {
+  color: var(--gl-muted);
+}
+
+hr {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--gl-border);
+  background: transparent;
+  color: var(--gl-border);
+  height: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-right: auto;
+}
+
+.gl-content {
+  margin-top: 5px;
+}
+
+.ask-ivan-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--landing-space-xs);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #0070d2;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: var(--landing-space-xs) var(--landing-space-sm);
+  border-radius: var(--landing-card-radius);
+  transition: background var(--fit-transition-fast, 150ms);
+}
+
+.ask-ivan-btn:hover {
+  background: var(--fit-color-primary-soft, #e6f0fa);
+}
+
+.ask-ivan-icon {
+  font-size: 1.25rem;
+}
+
+.ask-ivan-label {
+  letter-spacing: 0.5px;
+}

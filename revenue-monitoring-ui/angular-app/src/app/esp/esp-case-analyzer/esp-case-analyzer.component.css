@@ -1,0 +1,150 @@
+/* ── Light mode (default) ── */
+:host {
+  --esp-bg: #ffffff;
+  --esp-surface: #ffffff;
+  --esp-text: #1b1c1d;
+  --esp-muted: #555;
+  --esp-border: #e0e0e0;
+  --esp-card-bg: rgba(255, 255, 255, 0.72);
+  --esp-card-border: rgba(255, 255, 255, 0.6);
+  --esp-hover-bg: rgba(0, 112, 210, 0.04);
+  display: block;
+  background: var(--esp-bg);
+  min-height: 100%;
+}
+
+/* ── Dark mode ── */
+:host(.dark-theme) {
+  --esp-bg: var(--fit-dark-bg);
+  --esp-surface: var(--fit-dark-surface);
+  --esp-text: var(--fit-dark-text);
+  --esp-muted: var(--fit-dark-muted);
+  --esp-border: var(--fit-dark-border);
+  --esp-card-bg: var(--fit-dark-card-bg);
+  --esp-card-border: var(--fit-dark-card-border);
+  --esp-hover-bg: var(--fit-dark-hover-bg);
+}
+
+/* ── Header Bar ── */
+.analyzer-dashboard {
+  width: 100%;
+  color: var(--esp-text);
+}
+
+.dashboard-header {
+  background: var(--esp-surface);
+  padding: 10px 24px 10px 24px;
+  border-bottom: 1px solid var(--esp-border);
+}
+
+.header-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
+}
+
+.header-left h2 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  color: var(--esp-text);
+}
+
+.header-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.period-info {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  white-space: nowrap;
+  color: var(--esp-text);
+}
+
+.period-info .divider {
+  margin: 0 4px;
+  color: var(--esp-muted);
+}
+
+@media (max-width: 1500px) {
+  .period-info {
+    font-size: 12px;
+    gap: 0.5rem;
+  }
+  .period-info span {
+    white-space: nowrap;
+  }
+  .period-info .divider {
+    display: none;
+  }
+}
+
+.tab-content {
+  padding: 0;
+}
+
+.card-subtitle {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 12px;
+  margin: 2px 1.5rem -1rem 0;
+  font-weight: 600;
+  color: var(--esp-muted);
+}
+
+/* ── Charts ── */
+.chart-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+
+.chart-canvas {
+  position: relative;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+/* ── Ask Ivan ── */
+.ask-ivan-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--landing-space-xs);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #0070d2;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: var(--landing-space-xs) var(--landing-space-sm);
+  border-radius: var(--landing-card-radius);
+  transition: background var(--fit-transition-fast, 150ms);
+}
+
+.ask-ivan-btn:hover {
+  background: var(--fit-color-primary-soft, #e6f0fa);
+}
+
+.ask-ivan-icon {
+  font-size: 1.25rem;
+}
+
+.ask-ivan-label {
+  letter-spacing: 0.5px;
+}

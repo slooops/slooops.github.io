@@ -1,35 +1,52 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-column-select',
   templateUrl: './column-select.component.html',
   styleUrls: ['./column-select.component.scss'],
+  imports: [CommonModule, MatDialogModule],
+  standalone: true,
 })
 export class ColumnSelectComponent implements OnInit {
   selectedColumns: string[];
   constructor(
     public dialogRef: MatDialogRef<ColumnSelectComponent>,
-    @Inject(MAT_DIALOG_DATA) public injectData: any
+    @Inject(MAT_DIALOG_DATA) public injectData: any,
   ) {}
 
   ngOnInit(): void {
-    this.selectedColumns = this.injectData;
+    if (this.injectData && this.injectData.length > 0) {
+      this.selectedColumns = this.injectData;
+    } else {
+      // Fall back to default selected columns
+      this.selectedColumns = this.displayedColumns
+        .filter((col) => col.selected)
+        .map((col) => col.name);
+    }
   }
 
-  logSelectedColumns(event: any) {
-    const selectedDisplayNames = event.source.selectedOptions.selected.map(
-      (option) => option.value.displayName
-    );
-    if (selectedDisplayNames.length > 0) {
-      this.selectedColumns = [];
-      for (const column of this.displayedColumns) {
-        if (selectedDisplayNames.includes(column.displayName)) {
-          this.selectedColumns.push(column.name);
-        }
+  isSelected(col: {
+    name: string;
+    displayName: string;
+    selected: boolean;
+  }): boolean {
+    return this.selectedColumns.includes(col.name);
+  }
+
+  toggleColumn(col: { name: string; displayName: string; selected: boolean }) {
+    const idx = this.selectedColumns.indexOf(col.name);
+    if (idx > -1) {
+      // Don't allow deselecting all columns
+      if (this.selectedColumns.length > 1) {
+        this.selectedColumns = this.selectedColumns.filter(
+          (c) => c !== col.name,
+        );
       }
     } else {
-      this.selectedColumns = this.displayedColumns.map((column) => column.name);
+      this.selectedColumns = [...this.selectedColumns, col.name];
     }
   }
 

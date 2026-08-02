@@ -1,0 +1,16 @@
+<div class="chart-wrapper">
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <p>Loading chart...</p>
+    </div>
+  }
+
+  <div class="chart-container">
+    <div
+      echarts
+      [options]="chartOptions"
+      style="width: 100%; height: 100%"
+    ></div>
+  </div>
+</div>

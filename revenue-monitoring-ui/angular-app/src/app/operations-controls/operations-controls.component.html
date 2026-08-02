@@ -1,60 +1,92 @@
-<mat-tab-group>
-  <mat-tab
-    mat-stretch-tabs
-    backgroundColor="primary"
-    color="primary"
-    class="mat-elevation-z8"
-    label="Invoice to Cash"
-  >
-    <app-monitoring-dashboard
-      [apiUrl]="authService.getHostUrl()"
-      [urls]="preInvoicingUrls"
-      [keysToMap]="[
-        'PERIOD_NAME',
-        'APPLICATION_NAME',
-        'ORG_NAME',
-        'TRANSACTION_DATE',
-        'RULE_NAME'
-      ]"
-      [periodStatus]="periodStatus"
-      [componentName]="'I2C Controls'"
-      [columnsToFilter]="preInvoicingFilters"
-      [detailsColumnsToHide]="['']"
-      [submitKeysToMap]="[]"
-      [webexKeysToMap]="[]"
-    ></app-monitoring-dashboard>
-  </mat-tab>
-  <mat-tab label="Revenue Accounting">
-    <app-monitoring-dashboard
-      [apiUrl]="authService.getHostUrl()"
-      [urls]="revControlsUrls"
-      [keysToMap]="[
-        'PERIOD_NAME',
-        'APPLICATION_NAME',
-        'ORG_NAME',
-        'TRANSACTION_DATE',
-        'RULE_NAME'
-      ]"
-      [periodStatus]="periodStatus"
-      [componentName]="'Rev Controls'"
-      [columnsToFilter]="revControlsFilters"
-      [detailsColumnsToHide]="['']"
-      [submitKeysToMap]="[]"
-      [webexKeysToMap]="[]"
-    ></app-monitoring-dashboard>
-  </mat-tab>
-  <mat-tab label="Tax and Customs">
-    <app-monitoring-dashboard
-      [apiUrl]="authService.getHostUrl()"
-      [urls]="gtcControlsUrls"
-      [keysToMap]="['PROCESS_FLOW', 'BOOKING_ENTITY', 'TRANSACTION_DATE']"
-      [periodStatus]="periodStatus"
-      [componentName]="'Gtc Controls'"
-      [columnsToFilter]="GtcControlsFilters"
-      [detailsColumnsToHide]="['']"
-      [submitKeysToMap]="[]"
-      [webexKeysToMap]="[]"
-    ></app-monitoring-dashboard>
-  </mat-tab>
-  <mat-tab label="Deferrals" [disabled]="true"> </mat-tab>
-</mat-tab-group>
+<div class="dashboard-header">
+  <div class="header-main">
+    <div class="header-left">
+      <app-menu-mini
+        [items]="menuItems"
+        [activeIndex]="selectedTabIndex"
+        (selected)="onGridMenuItemClick($event.index)"
+      />
+      <h2>{{ tabLabels[selectedTabIndex] || "Operations Controls" }}</h2>
+    </div>
+
+    <div class="period-info">
+      <span><b>Period name:</b> {{ periodInfo().periodName }} &nbsp;</span>
+      <span class="divider"> | </span>
+      <span
+        >&nbsp;<b>Period end date:</b>
+        {{ periodInfo().periodEndDate }} &nbsp;</span
+      >
+      <span class="divider"> | </span>
+      <span
+        >&nbsp;<b>Last Updated:</b> {{ periodInfo().lastUpdated }} &nbsp;</span
+      >
+    </div>
+    @if (roles.includes("ADMIN")) {
+      <!-- <div class="global-search">
+        <div class="global-search-input-wrapper">
+          <input
+            type="text"
+            class="global-search-input"
+            #globalSearchInput
+            placeholder="Search.."
+          />
+        </div>
+        <span class="global-search-icon">🔍</span>
+      </div> -->
+    }
+  </div>
+</div>
+<hr />
+
+<div class="oc-content">
+  @switch (activeTabKey) {
+    @case ("i2c") {
+      <app-monitoring-dashboard
+        [urls]="preInvoicingUrls"
+        [keysToMap]="[
+          'PERIOD_NAME',
+          'APPLICATION_NAME',
+          'ORG_NAME',
+          'TRANSACTION_DATE',
+          'RULE_NAME',
+        ]"
+        [componentName]="'I2C Controls'"
+        [columnsToFilter]="preInvoicingFilters"
+        [detailsColumnsToHide]="['']"
+        [submitKeysToMap]="[]"
+        [webexKeysToMap]="[]"
+        [userContext]="userContextData"
+      ></app-monitoring-dashboard>
+    }
+    @case ("rev") {
+      <app-monitoring-dashboard
+        [urls]="revControlsUrls"
+        [keysToMap]="[
+          'PERIOD_NAME',
+          'APPLICATION_NAME',
+          'ORG_NAME',
+          'TRANSACTION_DATE',
+          'RULE_NAME',
+        ]"
+        [componentName]="'Rev Controls'"
+        [columnsToFilter]="revControlsFilters"
+        [detailsColumnsToHide]="['']"
+        [submitKeysToMap]="[]"
+        [webexKeysToMap]="[]"
+        [userContext]="userContextData"
+      ></app-monitoring-dashboard>
+    }
+    @case ("gtc") {
+      <app-monitoring-dashboard
+        [urls]="gtcControlsUrls"
+        [keysToMap]="['PROCESS_FLOW', 'BOOKING_ENTITY', 'TRANSACTION_DATE']"
+        [componentName]="'Gtc Controls'"
+        [columnsToFilter]="GtcControlsFilters"
+        [detailsColumnsToHide]="['']"
+        [submitKeysToMap]="[]"
+        [webexKeysToMap]="[]"
+        [userContext]="userContextData"
+      ></app-monitoring-dashboard>
+    }
+  }
+</div>

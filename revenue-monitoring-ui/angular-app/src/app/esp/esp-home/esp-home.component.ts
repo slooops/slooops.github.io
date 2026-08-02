@@ -1,0 +1,882 @@
+import { Component, HostBinding, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ApiHttpService } from 'src/app/providers/http.service';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { AuthenticationService } from 'src/app/providers/authentication.service';
+import { CommonModule } from '@angular/common';
+import { MetricTileComponent } from '../../components/metric-tile/metric-tile.component';
+import { CaseiqComponent } from './caseiq/caseiq.component';
+import {
+  CaseiqTeamComponent,
+  TeamConfig,
+} from './caseiq-team/caseiq-team.component';
+import { CaseiqSupervisorComponent } from './caseiq-supervisor/caseiq-supervisor.component';
+import { HomeDataService } from 'src/app/home/home-data.service';
+import { MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
+import { GlobalSearchDialogComponent } from '../global-search-dialog/global-search-dialog.component';
+import { DataService } from 'src/app/providers/data.service';
+import { ThemeService } from 'src/app/providers/theme.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+  MenuMiniComponent,
+  MenuMiniItem,
+} from '../../shared/menu-mini/menu-mini.component';
+import { provideIcons } from '@ng-icons/core';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+import { MatIconModule } from '@angular/material/icon';
+import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.component';
+
+interface MetricTile {
+  name: string;
+  percentage: number | string;
+}
+
+interface AccuracyData {
+  TEAM_NAME: string;
+  Quarter?: string;
+  CATEGORY: number;
+  CORE_ISSUE: number;
+  TOTAL_ACCURACY: number;
+  TOTAL_VALIDATED_CASES: number;
+  'Total Cases'?: number;
+  'Total Accuracy'?: number;
+  'Category Accuracy'?: number;
+  'Core Issue Accuracy'?: number;
+}
+
+interface CaseReopenMetric {
+  ID: number;
+  TEAM_NAME: string;
+  INCIDENT_NUMBER: string;
+  ORIGINAL_CASE_SUMMARY: string;
+  NEW_ASK_SUMMARY: string;
+  PREVIOUS_CATEGORY: string | null;
+  CURRENT_CATEGORY: string | null;
+  PREVIOUS_CORE_ISSUE: string | null;
+  CURRENT_CORE_ISSUE: string | null;
+  PREVIOUS_CONTEXT_EXTRACTED: string | null;
+  CURRENT_CONTEXT_EXTRACTED: string | null;
+  REOPEN_DECISION: string | null;
+  REOPEN_REJECT_REASON: string | null;
+  REOPEN_REJECT_TEAM: string | null;
+  REOPEN_REJECT_CATEGORY: string | null;
+  REOPEN_REJECT_CORE_ISSUE: string | null;
+  CREATED_AT: string;
+  UPDATED_AT: string;
+}
+
+@Component({
+  selector: 'app-esp-home',
+  templateUrl: './esp-home.component.html',
+  styleUrls: ['./esp-home.component.css'],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
+  ],
+  imports: [
+    CommonModule,
+    CaseiqComponent,
+    CaseiqSupervisorComponent,
+    CaseiqTeamComponent,
+    MatTooltipModule,
+    MatIconModule,
+    MenuMiniComponent,
+    LoadingSymbolComponent,
+  ],
+  standalone: true,
+})
+export class EspHomeComponent implements OnInit {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+
+  constructor(
+    private readonly http: ApiHttpService,
+    private readonly destroyManager: DestroyManager,
+    private authService: AuthenticationService,
+    private homeDataService: HomeDataService,
+    private dialog: MatDialog,
+    private dataService: DataService,
+    public themeService: ThemeService,
+    public router: Router,
+    private route: ActivatedRoute,
+  ) {}
+
+  activeTab: string = ''; // Will be set based on user roles
+  overallAccuracy: string = '';
+
+  // CaseIQ context switcher (1 = Operations, 2 = Executive, 3 = Executive redux)
+  caseiqView: 1 | 2 | 3 = 1;
+  readonly caseiqContexts: (1 | 2 | 3)[] = [1, 2, 3];
+
+  // Quarter filter properties
+  selectedQuarter: string = '';
+  showQuarterDropdown: boolean = false;
+
+  isLoadingQuarter: boolean = false;
+  loadingQuarterMessage: string = '';
+  periodInfo = signal<any>(null);
+
+  // Store raw API data to extract quarters per team
+  private accuracyData: AccuracyData[] = [];
+
+  // Team configurations for the unified CaseiqTeamComponent
+  teamConfigs: Record<string, TeamConfig> = {
+    Capital: {
+      displayName: 'Capital',
+      apiSuffix: 'capital',
+      teamFilterName: 'CAPITAL',
+      tableSource: 'cap',
+      exportFileName: 'Capital_Validation_Summary',
+    },
+    FPP: {
+      displayName: 'FPP',
+      apiSuffix: 'fpp',
+      teamFilterName: 'FPP',
+      tableSource: 'fpp',
+      exportFileName: 'FPP_Validation_Summary',
+    },
+    I2C: {
+      displayName: 'I2C',
+      apiSuffix: 'i2c',
+      teamFilterName: 'I2C',
+      tableSource: 'i2c',
+      exportFileName: 'I2C_Validation_Summary',
+    },
+    OM: {
+      displayName: 'OM',
+      apiSuffix: 'om',
+      teamFilterName: 'OM',
+      tableSource: 'om',
+      exportFileName: 'OM_Validation_Summary',
+    },
+    P2P: {
+      displayName: 'P2P',
+      apiSuffix: 'p2p',
+      teamFilterName: 'P2P',
+      tableSource: 'p2p',
+      exportFileName: 'P2P_Validation_Summary',
+    },
+    SM: {
+      displayName: 'SM',
+      apiSuffix: 'sm',
+      teamFilterName: 'SM',
+      tableSource: 'sm',
+      exportFileName: 'SM_Validation_Summary',
+    },
+    AIT: {
+      displayName: 'AIT',
+      apiSuffix: 'ait',
+      teamFilterName: 'AIT',
+      tableSource: 'ait',
+      exportFileName: 'AIT_Validation_Summary',
+    },
+  };
+
+  // All available quarters (master list)
+  private allQuarters: { label: string; value: string }[] = [];
+
+  /**
+   * Build the master quarter list from API data instead of hard-coding.
+   * Also ensures selectedQuarter always points to a valid value.
+   */
+  private buildAllQuartersFromData(data: AccuracyData[]): void {
+    const rawValues = (data || [])
+      .map((item) => item.Quarter?.trim())
+      .filter((q): q is string => !!q);
+
+    // Merge with existing quarters instead of overwriting
+    const existingValues = new Set(this.allQuarters.map((q) => q.value));
+    const newValues = Array.from(new Set(rawValues)).filter(
+      (q) => !existingValues.has(q),
+    );
+
+    newValues.forEach((value) =>
+      this.allQuarters.push({ value, label: this.formatQuarterLabel(value) }),
+    );
+
+    // Sort by fiscal year and quarter, newest first (e.g. Q4FY26 before Q1FY26)
+    this.allQuarters.sort((a, b) => {
+      const parse = (val: string) => {
+        const match = val.match(/Q(\d)FY(\d+)/i);
+        if (!match) {
+          return { q: 0, fy: 0 };
+        }
+        return { q: Number(match[1]), fy: Number(match[2]) };
+      };
+
+      const pa = parse(a.value);
+      const pb = parse(b.value);
+
+      if (pa.fy !== pb.fy) {
+        return pb.fy - pa.fy;
+      }
+      return pb.q - pa.q;
+    });
+
+    // Ensure selectedQuarter is valid; default to latest if not set or invalid
+    if (this.allQuarters.length) {
+      const exists = this.allQuarters.some(
+        (quarter) => quarter.value === this.selectedQuarter,
+      );
+      if (!exists) {
+        this.selectedQuarter = this.allQuarters[0].value;
+      }
+    }
+  }
+
+  /**
+   * Convert compact quarter codes like "Q1FY26" into display labels like "Q1 FY26".
+   */
+  private formatQuarterLabel(value: string): string {
+    return value.replace('FY', ' FY');
+  }
+
+  /**
+   * Merge quarters from componentLevelMetrics (FISCAL_QTR) into the master
+   * quarter list so the dropdown reflects data from both API sources.
+   */
+  private mergeQuartersFromMetrics(metrics: any[]): void {
+    if (!Array.isArray(metrics) || !metrics.length) {
+      return;
+    }
+
+    const existingValues = new Set(this.allQuarters.map((q) => q.value));
+    const newValues = metrics
+      .map((item) => item?.FISCAL_QTR?.trim())
+      .filter((q): q is string => !!q && !existingValues.has(q));
+
+    if (!newValues.length) {
+      return;
+    }
+
+    const uniqueNew = Array.from(new Set(newValues));
+    uniqueNew.forEach((value) =>
+      this.allQuarters.push({ value, label: this.formatQuarterLabel(value) }),
+    );
+
+    // Re-sort newest first
+    this.allQuarters.sort((a, b) => {
+      const parse = (val: string) => {
+        const match = val.match(/Q(\d)FY(\d+)/i);
+        return match
+          ? { q: Number(match[1]), fy: Number(match[2]) }
+          : { q: 0, fy: 0 };
+      };
+      const pa = parse(a.value);
+      const pb = parse(b.value);
+      return pa.fy !== pb.fy ? pb.fy - pa.fy : pb.q - pa.q;
+    });
+
+    // Default to latest if current selection is invalid
+    if (this.allQuarters.length) {
+      const exists = this.allQuarters.some(
+        (q) => q.value === this.selectedQuarter,
+      );
+      if (!exists) {
+        this.selectedQuarter = this.allQuarters[0].value;
+      }
+    }
+
+    // Refresh the visible dropdown list
+    this.updateQuartersForActiveTab();
+  }
+
+  // Dynamically filtered quarters based on active team
+  quarters: { label: string; value: string }[] = [];
+
+  // Base metric tiles structure - preserving all tile names
+  private readonly baseMetricTiles: MetricTile[] = [
+    { name: 'Finance IT', percentage: '-' },
+    { name: 'OM', percentage: '-' },
+    { name: 'SM', percentage: '-' },
+    { name: 'I2C', percentage: '-' },
+    { name: 'AIT', percentage: '-' },
+    { name: 'FPP', percentage: '-' },
+    { name: 'P2P', percentage: '-' },
+    { name: 'Capital', percentage: '-' },
+    { name: 'Orchestrator', percentage: '-' },
+  ];
+
+  // Public metricTiles that will be updated with API data
+  metricTiles: MetricTile[] = [...this.baseMetricTiles];
+  roles: string[] = [];
+  private userName: string = '';
+
+  // Columns to show in global search results dialog (common keys + TEAM_NAME)
+  private readonly globalSearchColumnsOrder: string[] = [
+    'TEAM_NAME',
+    'INCIDENT_NUMBER',
+    'IMPACTED_SERVICE_OFFERING',
+    'LLM_SUMMARY',
+    'CATEGORY_MATCH',
+    'CATEGORY',
+    'CATEGORY_ACTUAL',
+    'CORE_ISSUE_MATCH',
+    'CORE_ISSUE',
+    'CORE_ISSUE_ACTUAL',
+    'INCIDENT_STATE',
+    'COMMENTS',
+  ];
+
+  ngOnInit(): void {
+    this.roles = this.authService.getUserAccessRoles();
+    this.userName = this.authService.getUserName();
+
+    // On /case-iq route, force Finance IT tab by default
+    if (this.router.url.includes('/case-iq')) {
+      this.activeTab = 'Finance IT';
+    } else {
+      this.setDefaultActiveTab();
+    }
+
+    // Handle tab query param from side-nav
+    this.route.queryParams.subscribe((params) => {
+      const tabSlug = params['tab'];
+      if (tabSlug) {
+        const tabMap: Record<string, string> = {
+          'finance-it': 'Finance IT',
+          om: 'OM',
+          sm: 'SM',
+          i2c: 'I2C',
+          ait: 'AIT',
+          fpp: 'FPP',
+          p2p: 'P2P',
+          capital: 'Capital',
+          orchestrator: 'Orchestrator',
+        };
+        if (tabMap[tabSlug]) {
+          this.activeTab = tabMap[tabSlug];
+        }
+      }
+    });
+
+    this.updateTime();
+    this.getXxcaseiqValidatedCasesAccuracyV();
+    this.loadPeriodInfo();
+    this.loadCaseAnalyzerMetrics();
+    this.loadCaseReopenMetrics();
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+      this.showQuarterDropdown = false;
+    });
+  }
+
+  timeNow: string = '';
+
+  updateTime() {
+    const currentDate = new Date();
+    const pstDate = currentDate.toLocaleString('en-US', {
+      timeZone: 'America/Los_Angeles',
+    });
+    const timestamp = Date.parse(pstDate);
+    const currentPstDate = new Date(timestamp);
+
+    const currentHour = currentPstDate.getHours();
+
+    if (
+      currentHour === 0 ||
+      currentHour === 6 ||
+      currentHour === 12 ||
+      currentHour === 18
+    ) {
+      this.getXxcaseiqValidatedCasesAccuracyV();
+      this.loadPeriodInfo();
+      this.loadCaseAnalyzerMetrics();
+      this.loadCaseReopenMetrics();
+    }
+
+    if (currentHour >= 0 && currentHour < 6) {
+      this.timeNow = 'Today at 12 AM PST';
+    } else if (currentHour >= 6 && currentHour < 12) {
+      this.timeNow = 'Today at 6 AM PST';
+    } else if (currentHour >= 12 && currentHour < 18) {
+      this.timeNow = 'Today at 12 PM PST';
+    } else {
+      this.timeNow = 'Today at 6 PM PST';
+    }
+  }
+
+  componentLevelMetrics: any;
+
+  // Pre-computed metrics per component to avoid calling .filter() in templates
+  metricsPerComponent: Record<string, any[]> = {};
+  reopenMetricsPerComponent: Record<string, CaseReopenMetric[]> = {};
+
+  loadCaseAnalyzerMetrics(): void {
+    this.dataService.getCaseIqMetrics(this.destroyManager).subscribe({
+      next: (data) => {
+        this.componentLevelMetrics = data;
+        this.buildMetricsPerComponent();
+        this.mergeQuartersFromMetrics(data);
+      },
+      error: (error) => {
+        console.error('Error loading Case Analyzer metrics:', error);
+      },
+    });
+  }
+
+  caseReopenMetrics: CaseReopenMetric[] = [];
+  loadCaseReopenMetrics(): void {
+    this.http
+      .get('xxcaseiq-reopen-metrics', this.destroyManager)
+      .subscribe((data: any) => {
+        this.caseReopenMetrics = Array.isArray(data)
+          ? (data as CaseReopenMetric[])
+          : [];
+        this.buildReopenMetricsPerComponent();
+        console.log('Reopen metrics data:', this.caseReopenMetrics);
+      });
+  }
+
+  /**
+   * Pre-compute metrics grouped by TEAM_NAME so template bindings
+   * use a stable reference instead of calling .filter() every CD cycle.
+   */
+  private buildMetricsPerComponent(): void {
+    const map: Record<string, any[]> = {};
+    if (Array.isArray(this.componentLevelMetrics)) {
+      for (const item of this.componentLevelMetrics) {
+        if (item?.TEAM_NAME) {
+          const key = item.TEAM_NAME;
+          if (!map[key]) {
+            map[key] = [];
+          }
+          map[key].push(item);
+        }
+      }
+    }
+    this.metricsPerComponent = map;
+  }
+
+  private buildReopenMetricsPerComponent(): void {
+    const map: Record<string, CaseReopenMetric[]> = {};
+    if (Array.isArray(this.caseReopenMetrics)) {
+      for (const item of this.caseReopenMetrics) {
+        if (item?.TEAM_NAME) {
+          const key = item.TEAM_NAME;
+          if (!map[key]) {
+            map[key] = [];
+          }
+          map[key].push(item);
+        }
+      }
+    }
+    this.reopenMetricsPerComponent = map;
+    console.log(
+      'Reopen metrics per component:',
+      this.reopenMetricsPerComponent,
+    );
+  }
+
+  private loadPeriodInfo(): void {
+    this.homeDataService.getPeriodInfo(this.destroyManager).subscribe({
+      next: (periodData) => {
+        this.periodInfo.set(periodData);
+      },
+      error: (error) => {
+        console.error('Error loading period info:', error);
+        this.periodInfo.set({
+          periodName: '',
+          periodEndDate: '',
+          lastUpdated: new Date().toLocaleString(),
+        });
+      },
+    });
+  }
+
+  onGlobalSearchClick(rawTerm: string): void {
+    const normalized = (rawTerm || '')
+      .split(',')
+      .map((t) => t.trim())
+      .filter((t) => !!t)
+      .join(',');
+
+    if (!normalized) {
+      return;
+    }
+    this.globalSearch(normalized);
+  }
+
+  globalSearch(incidentNumber: string) {
+    const formData: FormData = new FormData();
+    formData.append('incidentNumber', incidentNumber);
+
+    this.http.post<any[]>('xxcaseiq-global-search', formData).subscribe(
+      (rows: any) => {
+        const resultRows: any[] = Array.isArray(rows) ? rows : [];
+        if (!resultRows.length) {
+          console.log('Global search returned no results');
+          return;
+        }
+
+        // Determine which of the desired columns actually exist in the data
+        const availableColumns = this.globalSearchColumnsOrder.filter((col) =>
+          resultRows.some(
+            (row) => row && Object.prototype.hasOwnProperty.call(row, col),
+          ),
+        );
+
+        if (!availableColumns.length) {
+          console.log('Global search results do not contain expected columns');
+          return;
+        }
+
+        // Build a filtered dataset that only contains the common keys + TEAM_NAME
+        const filteredRows = resultRows.map((row) => {
+          const filtered: any = {};
+          availableColumns.forEach((col) => {
+            filtered[col] = row[col];
+          });
+          return filtered;
+        });
+
+        const dataSource = new MatTableDataSource(filteredRows);
+
+        this.dialog.open(GlobalSearchDialogComponent, {
+          width: '90vw',
+          maxWidth: '1200px',
+          data: {
+            dataSource,
+            displayedColumns: availableColumns,
+          },
+        });
+      },
+      (err) => {
+        console.error('Global search error:', err);
+      },
+    );
+  }
+
+  /**
+   * Toggle quarter dropdown visibility
+   */
+  toggleQuarterDropdown(event: Event): void {
+    event.stopPropagation();
+    this.showQuarterDropdown = !this.showQuarterDropdown;
+  }
+
+  /**
+   * Select a quarter and close dropdown
+   */
+  selectQuarter(quarter: string): void {
+    // Get the label for display
+    const quarterLabel =
+      this.allQuarters.find((q) => q.value === quarter)?.label || quarter;
+
+    // Show loading overlay
+    this.isLoadingQuarter = true;
+    this.loadingQuarterMessage = `Loading data for ${this.activeTab}...`;
+
+    this.selectedQuarter = quarter;
+    this.showQuarterDropdown = false;
+
+    // Use setTimeout to allow UI to update with loading overlay
+    setTimeout(() => {
+      // Update metric tiles with quarter-filtered data
+      if (this.accuracyData.length > 0) {
+        const filteredData = this.accuracyData.filter(
+          (item) => item.Quarter === this.selectedQuarter,
+        );
+        this.updateMetricTiles(filteredData);
+      }
+
+      // Hide loading overlay after child components have updated (increased delay for chart rendering)
+      setTimeout(() => {
+        this.isLoadingQuarter = false;
+      }, 2000);
+    }, 0);
+  }
+
+  /**
+   * Handle quarter selection change
+   * Refreshes data based on selected quarter
+   */
+  onQuarterChange(): void {
+    // TODO: Add API call with quarter parameter when backend is ready
+    // this.getXxcaseiqValidatedCasesAccuracyV();
+  }
+
+  /**
+   * Sets the default active tab based on user roles
+   * If ESP_ADMIN, defaults to first team tile (AIT)
+   * Otherwise, sets to the first accessible team tile
+   */
+  private setDefaultActiveTab(): void {
+    // Find the first accessible tile (including Overall)
+    const accessibleTile = this.baseMetricTiles.find((tile) =>
+      this.isTileAccessible(tile.name),
+    );
+
+    if (accessibleTile) {
+      this.activeTab = accessibleTile.name;
+      // Update quarters for the default tab if data is already loaded
+      if (this.accuracyData.length > 0) {
+        this.updateQuartersForActiveTab();
+      }
+      // Log initial tab visit
+      this.logTabVisit(this.activeTab);
+    } else {
+      // If no accessible tiles, set to empty (will show default content)
+      this.activeTab = '';
+    }
+  }
+
+  getXxcaseiqValidatedCasesAccuracyV(): void {
+    this.http
+      .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
+      .subscribe((data: any) => {
+        if (Array.isArray(data)) {
+          // Store raw data for quarter filtering
+          this.accuracyData = data;
+
+          // Build dynamic quarter list and ensure selectedQuarter is valid
+          this.buildAllQuartersFromData(data);
+
+          // Filter by selected quarter
+          const filteredData = data.filter(
+            (item) => item.Quarter === this.selectedQuarter,
+          );
+
+          // this.updateMetricTiles(filteredData);
+          // Update quarters based on current active tab
+          this.updateQuartersForActiveTab();
+        }
+      });
+  }
+
+  /**
+   * Updates metric tiles with API data
+   * Matches TEAM_NAME to tile names and sets TOTAL_ACCURACY as percentage
+   */
+  private updateMetricTiles(apiData: AccuracyData[]): void {
+    // Reset to base tiles to ensure we start fresh
+    this.metricTiles = [...this.baseMetricTiles];
+
+    // Update tiles with API data
+    this.metricTiles = this.metricTiles.map((tile) => {
+      const matchingData = apiData.find(
+        (item) => item.TEAM_NAME.toUpperCase() === tile.name.toUpperCase(),
+      );
+
+      return {
+        ...tile,
+        percentage: matchingData
+          ? Math.round(matchingData['Total Accuracy'] * 100) / 100
+          : '-',
+      };
+    });
+
+    // Calculate overall accuracy after updating individual tiles
+    const validTiles = this.metricTiles.filter(
+      (tile) => tile.name !== 'Finance IT' && !isNaN(Number(tile.percentage)),
+    );
+
+    if (validTiles.length > 0) {
+      const overallAcc =
+        validTiles.reduce((sum, tile) => sum + Number(tile.percentage), 0) /
+        validTiles.length;
+
+      this.overallAccuracy = Math.round(overallAcc * 100) / 100 + '';
+
+      // Assign overall accuracy to the "Overall" tile
+      const overallTileIndex = this.metricTiles.findIndex(
+        (tile) => tile.name === 'Finance IT',
+      );
+      if (overallTileIndex !== -1) {
+        this.metricTiles[overallTileIndex].percentage =
+          Math.round(overallAcc * 100) / 100;
+      }
+    }
+  }
+
+  onTileClick(tileName: string): void {
+    // Check if user has permission to access this tile
+    if (!this.isTileAccessible(tileName)) {
+      return;
+    }
+
+    this.activeTab = tileName;
+    console.log(`Selected tile: ${tileName}`);
+
+    // Log tab visit for analytics
+    this.logTabVisit(tileName);
+
+    // Show loading overlay when switching tabs
+    const quarterLabel =
+      this.allQuarters.find((q) => q.value === this.selectedQuarter)?.label ||
+      this.selectedQuarter;
+    this.isLoadingQuarter = true;
+    this.loadingQuarterMessage = `Loading data for ${tileName}...`;
+
+    // Use setTimeout to allow UI to update
+    setTimeout(() => {
+      // Update quarters when tab changes
+      this.updateQuartersForActiveTab();
+
+      // Hide loading overlay after charts have rendered
+      setTimeout(() => {
+        this.isLoadingQuarter = false;
+      }, 1500);
+    }, 0);
+  }
+
+  isActive(tileName: string): boolean {
+    return this.activeTab === tileName;
+  }
+
+  get menuItems(): MenuMiniItem[] {
+    return this.metricTiles
+      .filter((t) => this.isTileAccessible(t.name))
+      .map((t) => ({ label: t.name, key: t.name }));
+  }
+
+  onGridMenuItemClick(tileName: string): void {
+    this.onTileClick(tileName);
+  }
+
+  roleDefinitions: string[] = [
+    'CASE_IQ_OM',
+    'CASE_IQ_SBP',
+    'CASE_IQ_I2C',
+    'CASE_IQ_AIT',
+    'CASE_IQ_FPP',
+    'CASE_IQ_P2P',
+    'CASE_IQ_CAPITAL',
+  ];
+
+  /**
+   * Determines if a tile is accessible based on user roles
+   * @param tileName - The name of the tile to check
+   * @returns true if the user has access to this tile
+   */
+  isTileAccessible(tileName: string): boolean {
+    if (tileName === 'Orchestrator') {
+      // return (
+      //   this.roles.find((role) => role.startsWith('CASE_IQ_')) !== undefined ||
+      //   this.roles.includes('ADMIN')
+      // );
+      return (
+        this.roles.includes('CASE_IQ_ORCHESTRATOR') ||
+        this.roles.includes('ADMIN')
+      );
+    }
+
+    // Overall tile is always accessible
+    if (tileName === 'Finance IT') {
+      if (
+        this.roles.includes('CASE_IQ_FINANCE_IT') ||
+        this.roles.includes('CASE_IQ_MANAGER') ||
+        this.roles.includes('ADMIN')
+      ) {
+        return true;
+      }
+      return false;
+    }
+
+    // ESP_ADMIN has access to all tiles
+    if (
+      this.roles.includes('CASE_IQ_MANAGER') ||
+      this.roles.includes('ADMIN')
+    ) {
+      return true;
+    }
+
+    // Special mapping: CASE_IQ_SBP role maps to SM tile
+    if (tileName.toUpperCase() === 'SM' && this.roles.includes('CASE_IQ_SBP')) {
+      return true;
+    }
+
+    // Check if user has specific team role
+    // Role names should match tile names (e.g., 'AIT', 'Capital', 'FPP', 'I2C', 'OM', 'P2P')
+    return this.roles.includes('CASE_IQ_' + tileName.toUpperCase());
+  }
+
+  /**
+   * Handle upload success event from child components
+   * Refreshes overall accuracy metrics when upload is completed
+   */
+  onUploadSuccess(): void {
+    console.log(
+      '🟢 ESP-HOME: Upload success received in esp-home, refreshing accuracy metrics',
+    );
+    this.getXxcaseiqValidatedCasesAccuracyV();
+  }
+
+  /**
+   * Updates the quarters dropdown based on all available data
+   * Shows all quarters that exist across ANY team (not team-specific)
+   */
+  private updateQuartersForActiveTab(): void {
+    if (
+      !this.accuracyData.length &&
+      !Array.isArray(this.componentLevelMetrics)
+    ) {
+      // If no data loaded yet, show all quarters
+      this.quarters = [...this.allQuarters];
+      return;
+    }
+
+    // Extract unique quarters from BOTH data sources
+    const availableQuarters = new Set<string>();
+
+    this.accuracyData.forEach((item) => {
+      const q = item.Quarter?.trim();
+      if (q) availableQuarters.add(q);
+    });
+
+    if (Array.isArray(this.componentLevelMetrics)) {
+      this.componentLevelMetrics.forEach((item: any) => {
+        const q = item?.FISCAL_QTR?.trim();
+        if (q) availableQuarters.add(q);
+      });
+    }
+
+    // Finance IT tab: only show quarters from accuracyData
+    // All other tabs: show all quarters from both sources
+    if (this.activeTab === 'Finance IT') {
+      const accuracyQuarters = new Set(
+        this.accuracyData.map((item) => item.Quarter?.trim()).filter(Boolean),
+      );
+      this.quarters = this.allQuarters.filter((q) =>
+        accuracyQuarters.has(q.value),
+      );
+    } else {
+      this.quarters = [...this.allQuarters];
+    }
+
+    // If no quarters found, show all quarters as fallback
+    if (this.quarters.length === 0) {
+      this.quarters = [...this.allQuarters];
+    }
+  }
+
+  /**
+   * Logs a tab visit for analytics.
+   * Creates a pseudo-route like "/case-iq/capital" to track tile usage.
+   */
+  private logTabVisit(tileName: string): void {
+    if (!tileName || !this.userName) {
+      return;
+    }
+
+    // Convert tile name to URL-friendly slug: "Capital" -> "capital"
+    const tileSlug = tileName.toLowerCase();
+    const pseudoRoute = `/case-iq/${tileSlug}`;
+
+    // Fire-and-forget POST request
+    this.http
+      .post('log-page-visit', {
+        userName: this.userName,
+        pageRoute: pseudoRoute,
+      })
+      .subscribe({
+        error: (err) =>
+          console.error('[ANALYTICS-ESP] Tab analytics log failed:', err),
+      });
+  }
+}

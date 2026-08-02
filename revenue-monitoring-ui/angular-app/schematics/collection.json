@@ -1,0 +1,10 @@
+{
+  "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "monitoring-dashboard": {
+      "description": "Generate a monitoring dashboard container component with marker comments for manual code integration",
+      "factory": "./monitoring-dashboard/index#default",
+      "schema": "./monitoring-dashboard/schema.json"
+    }
+  }
+}

@@ -431,6 +431,7 @@ public class QueryConfigs {
     public String getCreditCardDetails() {
         return this.creditCardDetails;
     }
+
     @Bean(name = "creditCardDetailsFiltered")
     public String getCreditCardDetailsFiltered() {
         return this.creditCardDetailsFiltered;
@@ -440,7 +441,6 @@ public class QueryConfigs {
     public String getCreditCardSummaryUpdate() {
         return this.creditCardSummaryUpdate;
     }
-
 
     @Bean(name = "printSummary")
     public String getPrintSummary() {
@@ -1012,8 +1012,10 @@ public class QueryConfigs {
         return this.sbpEspWeeklyComparisonSummary;
     }
 
-    @Bean( name = "tspAccountSummaryView" )
-    public String getTspAccountSummaryView() {return this.tspAccountSummaryView; }
+    @Bean(name = "tspAccountSummaryView")
+    public String getTspAccountSummaryView() {
+        return this.tspAccountSummaryView;
+    }
 
     @Bean(name = "tspAccountDetailView")
     public String getTspAccountDetailView() {
@@ -1192,6 +1194,254 @@ public class QueryConfigs {
         return this.o2cConnector;
     }
 
+    @Value(("${sbp.bill.schedule.header.q}"))
+    public String sbpBillScheduleHeader;
+
+    @Bean(name = "sbpBillScheduleHeader")
+    public String getSbpBillScheduleHeader() {
+        return this.sbpBillScheduleHeader;
+    }
+
+    @Value(("${sbp.bill.schedules.q}"))
+    public String sbpBillSchedules;
+
+    @Bean(name = "sbpBillSchedules")
+    public String getSbpBillSchedules() {
+        return this.sbpBillSchedules;
+    }
+
+    @Value(("${sbp.bill.schedule.lines.q}"))
+    public String sbpBillScheduleLines;
+
+    @Bean(name = "sbpBillScheduleLines")
+    public String getSbpBillScheduleLines() {
+        return this.sbpBillScheduleLines;
+    }
+
+    @Value(("${financial.summary.pkg.proc}"))
+    public String financialSummaryPgkProc;
+
+    @Bean(name = "financialSummaryPgkProc")
+    public String getFinancialSummaryPgkProc() {
+        return this.financialSummaryPgkProc;
+    }
+
+    @Value(("${tsv.pkg.proc}"))
+    public String tsvPkgProc;
+
+    @Bean(name = "tsvPkgProc")
+    public String getTsvPkgProc() {
+        return this.tsvPkgProc;
+    }
+
+    @Value(("${tsv.top.sku.view}"))
+    public String tsvTopSku;
+
+    @Bean(name = "tsvTopSku")
+    public String getTsvTopSku() {
+        return this.tsvTopSku;
+    }
+
+    @Value(("${tsv.sub.sku.view}"))
+    public String tsvSubSku;
+
+    @Bean(name = "tsvSubSku")
+    public String getTsvSubSku() {
+        return this.tsvSubSku;
+    }
+
+    @Value(("${tsv.accounts.view}"))
+    public String tsvAccounts;
+
+    @Bean(name = "tsvAccounts")
+    public String getTsvAccounts() {
+        return this.tsvAccounts;
+    }
+
+    @Value(("${financial.summary.view}"))
+    public String financialSummaryView;
+
+    @Bean(name = "financialSummaryView")
+    public String getFinancialSummaryView() {
+        return this.financialSummaryView;
+    }
+
+    @Value(("${o2c.order.bie.exception.v.q}"))
+    public String o2cOrderBieExceptionV;
+
+    @Bean(name = "o2cOrderBieExceptionV")
+    public String getO2cOrderBieExceptionV() {
+        return this.o2cOrderBieExceptionV;
+    }
+
+    @Value(("${o2c.order.ch.exception.v.q}"))
+    public String o2cOrderChExceptionV;
+
+    @Bean(name = "o2cOrderChExceptionV")
+    public String getO2cOrderChExceptionV() {
+        return this.o2cOrderChExceptionV;
+    }
+
+    @Value(("${o2c.order.pe.exception.v.q}"))
+    public String o2cOrderPeExceptionV;
+
+    @Bean(name = "o2cOrderPeExceptionV")
+    public String getO2cOrderPeExceptionV() {
+        return this.o2cOrderPeExceptionV;
+    }
+
+    @Value(("${o2c.order.ot.exception.v.q}"))
+    public String o2cOrderOtExceptionV;
+
+    @Bean(name = "o2cOrderOtExceptionV")
+    public String getO2cOrderOtExceptionV() {
+        return this.o2cOrderOtExceptionV;
+    }
+
+    @Value(("${o2c.order.bh.exception.v.q}"))
+    public String o2cOrderBhExceptionV;
+
+    @Bean(name = "o2cOrderBhExceptionV")
+    public String getO2cOrderBhExceptionV() {
+        return this.o2cOrderBhExceptionV;
+    }
+
+    @Value(("${o2c.order.ec.exception.v.q}"))
+    public String o2cOrderEcExceptionV;
+
+    @Bean(name = "o2cOrderEcExceptionV")
+    public String getO2cOrderEcExceptionV() {
+        return this.o2cOrderEcExceptionV;
+    }
+
+    @Value(("${o2c.order.sab.exception.v.q}"))
+    public String o2cOrderSabExceptionV;
+
+    @Bean(name = "o2cOrderSabExceptionV")
+    public String getO2cOrderSabExceptionV() {
+        return this.o2cOrderSabExceptionV;
+    }
+
+    @Value(("${o2c.order.subot.exception.v.q}"))
+    public String o2cOrderSubotExceptionV;
+
+    @Bean(name = "o2cOrderSubotExceptionV")
+    public String getO2cOrderSubotExceptionV() {
+        return this.o2cOrderSubotExceptionV;
+    }
+
+    @Value(("${o2c.order.preinv.exception.v.q}"))
+    public String o2cOrderPreinvExceptionV;
+
+    @Bean(name = "o2cOrderPreinvExceptionV")
+    public String getO2cOrderPreinvExceptionV() {
+        return this.o2cOrderPreinvExceptionV;
+    }
+
+    @Value(("${o2c.order.inv.exception.v.q}"))
+    public String o2cOrderInvExceptionV;
+
+    @Bean(name = "o2cOrderInvExceptionV")
+    public String getO2cOrderInvExceptionV() {
+        return this.o2cOrderInvExceptionV;
+    }
+
+    @Value(("${o2c.order.invpid.exception.v.q}"))
+    public String o2cOrderInvpidExceptionV;
+
+    @Bean(name = "o2cOrderInvpidExceptionV")
+    public String getO2cOrderInvpidExceptionV() {
+        return this.o2cOrderInvpidExceptionV;
+    }
+
+    @Value(("${o2c.order.invoth.exception.v.q}"))
+    public String o2cOrderInvothExceptionV;
+
+    @Bean(name = "o2cOrderInvothExceptionV")
+    public String getO2cOrderInvothExceptionV() {
+        return this.o2cOrderInvothExceptionV;
+    }
+
+    @Value(("${o2c.order.ca.exception.v.q}"))
+    public String o2cOrderCaExceptionV;
+
+    @Bean(name = "o2cOrderCaExceptionV")
+    public String getO2cOrderCaExceptionV() {
+        return this.o2cOrderCaExceptionV;
+    }
+
+    @Value(("${o2c.order.sla.exception.v.q}"))
+    public String o2cOrderSlaExceptionV;
+
+    @Bean(name = "o2cOrderSlaExceptionV")
+    public String getO2cOrderSlaExceptionV() {
+        return this.o2cOrderSlaExceptionV;
+    }
+
+    @Value(("${o2c.order.gl.exception.v.q}"))
+    public String o2cOrderGlExceptionV;
+
+    @Bean(name = "o2cOrderGlExceptionV")
+    public String getO2cOrderGlExceptionV() {
+        return this.o2cOrderGlExceptionV;
+    }
+
+    @Value(("${o2c.order.accot.exception.v.q}"))
+    public String o2cOrderAccotExceptionV;
+
+    @Bean(name = "o2cOrderAccotExceptionV")
+    public String getO2cOrderAccotExceptionV() {
+        return this.o2cOrderAccotExceptionV;
+    }
+
+    @Value(("${o2c.order.pastdue.exception.v.q}"))
+    public String o2cOrderPastdueExceptionV;
+
+    @Bean(name = "o2cOrderPastdueExceptionV")
+    public String getO2cOrderPastdueExceptionV() {
+        return this.o2cOrderPastdueExceptionV;
+    }
+
+    @Value(("${o2c.order.partialpay.exception.v.q}"))
+    public String o2cOrderPartialpayExceptionV;
+
+    @Bean(name = "o2cOrderPartialpayExceptionV")
+    public String getO2cOrderPartialpayExceptionV() {
+        return this.o2cOrderPartialpayExceptionV;
+    }
+
+    @Value(("${o2c.order.unidentified.exception.v.q}"))
+    public String o2cOrderUnidentifiedExceptionV;
+
+    @Bean(name = "o2cOrderUnidentifiedExceptionV")
+    public String getO2cOrderUnidentifiedExceptionV() {
+        return this.o2cOrderUnidentifiedExceptionV;
+    }
+
+    @Value(("${o2c.order.cashoth.exception.v.q}"))
+    public String o2cOrderCashothExceptionV;
+
+    @Bean(name = "o2cOrderCashothExceptionV")
+    public String getO2cOrderCashothExceptionV() {
+        return this.o2cOrderCashothExceptionV;
+    }
+
+    @Value(("${o2c.subscription.donut.totals.q}"))
+    public String o2cSubscriptionDonutTotals;
+
+    @Bean(name = "o2cSubscriptionDonutTotals")
+    public String getO2cSubscriptionDonutTotals() {
+        return this.o2cSubscriptionDonutTotals;
+    }
+
+    @Value(("${o2c.subscription.cards.q}"))
+    public String o2cSubscriptionCards;
+
+    @Bean(name = "o2cSubscriptionCards")
+    public String getO2cSubscriptionCards() {
+        return this.o2cSubscriptionCards;
+    }
+
     @Value(("${pcm.cash.application.summary.q}"))
     public String pcmApplicationSummary;
 
@@ -1240,11 +1490,19 @@ public class QueryConfigs {
     public String i2cControlsDetailsFiltered;
 
     @Bean(name = "i2cControlsSummary")
-    public String getI2cControlsSummary() { return this.i2cControlsSummary; }
+    public String getI2cControlsSummary() {
+        return this.i2cControlsSummary;
+    }
+
     @Bean(name = "i2cControlsDetails")
-    public String getI2cControlsDetails() { return this.i2cControlsDetails; }
+    public String getI2cControlsDetails() {
+        return this.i2cControlsDetails;
+    }
+
     @Bean(name = "i2cControlsDetailsFiltered")
-    public String getI2cControlsDetailsFiltered() { return this.i2cControlsDetailsFiltered; }
+    public String getI2cControlsDetailsFiltered() {
+        return this.i2cControlsDetailsFiltered;
+    }
 
     @Value(("${rev.controls.summary}"))
     public String revControlsSummary;
@@ -1255,27 +1513,601 @@ public class QueryConfigs {
     public String revControlsDetailsFiltered;
 
     @Bean(name = "revControlsSummary")
-    public String getRevControlsSummary() { return this.revControlsSummary; }
+    public String getRevControlsSummary() {
+        return this.revControlsSummary;
+    }
+
     @Bean(name = "revControlsDetails")
-    public String getRevControlsDetails() { return this.revControlsDetails; }
+    public String getRevControlsDetails() {
+        return this.revControlsDetails;
+    }
+
     @Bean(name = "revControlsDetailsFiltered")
-    public String getRevControlsDetailsFiltered() { return this.revControlsDetailsFiltered; }
+    public String getRevControlsDetailsFiltered() {
+        return this.revControlsDetailsFiltered;
+    }
 
     @Value(("${gtc.controls.summary}"))
     public String gtcControlsSummary;
 
     @Bean(name = "gtcControlsSummary")
-    public String getGtcControlsSummary() { return this.gtcControlsSummary; }
+    public String getGtcControlsSummary() {
+        return this.gtcControlsSummary;
+    }
 
     @Value(("${gtc.controls.details}"))
     public String gtcControlsDetails;
 
     @Bean(name = "gtcControlsDetails")
-    public String getGtcControlsDetails() { return this.gtcControlsDetails; }
+    public String getGtcControlsDetails() {
+        return this.gtcControlsDetails;
+    }
 
     @Value(("${gtc.controls.details.filtered}"))
     public String gtcControlsDetailsFiltered;
 
     @Bean(name = "gtcControlsDetailsFiltered")
-    public String getGtcControlsDetailsFiltered() { return this.gtcControlsDetailsFiltered; }
+    public String getGtcControlsDetailsFiltered() {
+        return this.gtcControlsDetailsFiltered;
+    }
+
+    @Value(("${vw.i2c.category.match.status.q}"))
+    public String vwI2cCategoryMatchStatus;
+
+    @Bean(name = "vwI2cCategoryMatchStatus")
+    public String getVwI2cCategoryMatchStatus() {
+        return this.vwI2cCategoryMatchStatus;
+    }
+
+    @Value(("${vw.i2c.core.issue.match.status.q}"))
+    public String vwI2cCoreIssueMatchStatus;
+
+    @Bean(name = "vwI2cCoreIssueMatchStatus")
+    public String getVwI2cCoreIssueMatchStatus() {
+        return this.vwI2cCoreIssueMatchStatus;
+    }
+
+    @Value(("${xxcaseiq.validated.cases.accuracy.v.q}"))
+    public String xxcaseiqValidatedCasesAccuracyV;
+
+    @Bean(name = "xxcaseiqValidatedCasesAccuracyV")
+    public String getXxcaseiqValidatedCasesAccuracyV() {
+        return this.xxcaseiqValidatedCasesAccuracyV;
+    }
+
+    @Value(("${vw.i2c.case.details.q}"))
+    public String vwI2cCaseDetails;
+
+    @Bean(name = "vwI2cCaseDetails")
+    public String getVwI2cCaseDetails() {
+        return this.vwI2cCaseDetails;
+    }
+
+    @Value(("${xxcaseiq.category.graph.v.ait.q}"))
+    public String xxcaseiqCategoryGraphVAit;
+
+    @Bean(name = "xxcaseiqCategoryGraphVAit")
+    public String getXxcaseiqCategoryGraphVAit() {
+        return this.xxcaseiqCategoryGraphVAit;
+    }
+
+    @Value(("${xxcaseiq.category.graph.v.capital.q}"))
+    public String xxcaseiqCategoryGraphVCapital;
+
+    @Bean(name = "xxcaseiqCategoryGraphVCapital")
+    public String getXxcaseiqCategoryGraphVCapital() {
+        return this.xxcaseiqCategoryGraphVCapital;
+    }
+
+    @Value(("${xxcaseiq.category.graph.v.fpp.q}"))
+    public String xxcaseiqCategoryGraphVFpp;
+
+    @Bean(name = "xxcaseiqCategoryGraphVFpp")
+    public String getXxcaseiqCategoryGraphVFpp() {
+        return this.xxcaseiqCategoryGraphVFpp;
+    }
+
+    @Value(("${xxcaseiq.category.graph.v.i2c.q}"))
+    public String xxcaseiqCategoryGraphVI2c;
+
+    @Bean(name = "xxcaseiqCategoryGraphVI2c")
+    public String getXxcaseiqCategoryGraphVI2c() {
+        return this.xxcaseiqCategoryGraphVI2c;
+    }
+
+    @Value(("${xxcaseiq.category.graph.v.om.q}"))
+    public String xxcaseiqCategoryGraphVOm;
+
+    @Bean(name = "xxcaseiqCategoryGraphVOm")
+    public String getXxcaseiqCategoryGraphVOm() {
+        return this.xxcaseiqCategoryGraphVOm;
+    }
+
+    @Value(("${xxcaseiq.category.graph.v.p2p.q}"))
+    public String xxcaseiqCategoryGraphVP2p;
+
+    @Bean(name = "xxcaseiqCategoryGraphVP2p")
+    public String getXxcaseiqCategoryGraphVP2p() {
+        return this.xxcaseiqCategoryGraphVP2p;
+    }
+
+    @Value(("${xxcaseiq.category.graph.v.sm.q}"))
+    public String xxcaseiqCategoryGraphVSm;
+
+    @Bean(name = "xxcaseiqCategoryGraphVSm")
+    public String getXxcaseiqCategoryGraphVSm() {
+        return this.xxcaseiqCategoryGraphVSm;
+    }
+
+    @Value(("${xxcaseiq.core.issue.graph.v.ait.q}"))
+    public String xxcaseiqCoreIssueGraphVAit;
+
+    @Bean(name = "xxcaseiqCoreIssueGraphVAit")
+    public String getXxcaseiqCoreIssueGraphVAit() {
+        return this.xxcaseiqCoreIssueGraphVAit;
+    }
+
+    @Value(("${xxcaseiq.core.issue.graph.v.capital.q}"))
+    public String xxcaseiqCoreIssueGraphVCapital;
+
+    @Bean(name = "xxcaseiqCoreIssueGraphVCapital")
+    public String getXxcaseiqCoreIssueGraphVCapital() {
+        return this.xxcaseiqCoreIssueGraphVCapital;
+    }
+
+    @Value(("${xxcaseiq.core.issue.graph.v.fpp.q}"))
+    public String xxcaseiqCoreIssueGraphVFpp;
+
+    @Bean(name = "xxcaseiqCoreIssueGraphVFpp")
+    public String getXxcaseiqCoreIssueGraphVFpp() {
+        return this.xxcaseiqCoreIssueGraphVFpp;
+    }
+
+    @Value(("${xxcaseiq.core.issue.graph.v.i2c.q}"))
+    public String xxcaseiqCoreIssueGraphVI2c;
+
+    @Bean(name = "xxcaseiqCoreIssueGraphVI2c")
+    public String getXxcaseiqCoreIssueGraphVI2c() {
+        return this.xxcaseiqCoreIssueGraphVI2c;
+    }
+
+    @Value(("${xxcaseiq.core.issue.graph.v.om.q}"))
+    public String xxcaseiqCoreIssueGraphVOm;
+
+    @Bean(name = "xxcaseiqCoreIssueGraphVOm")
+    public String getXxcaseiqCoreIssueGraphVOm() {
+        return this.xxcaseiqCoreIssueGraphVOm;
+    }
+
+    @Value(("${xxcaseiq.core.issue.graph.v.p2p.q}"))
+    public String xxcaseiqCoreIssueGraphVP2p;
+
+    @Bean(name = "xxcaseiqCoreIssueGraphVP2p")
+    public String getXxcaseiqCoreIssueGraphVP2p() {
+        return this.xxcaseiqCoreIssueGraphVP2p;
+    }
+
+    @Value(("${xxcaseiq.core.issue.graph.v.sm.q}"))
+    public String xxcaseiqCoreIssueGraphVSm;
+
+    @Bean(name = "xxcaseiqCoreIssueGraphVSm")
+    public String getXxcaseiqCoreIssueGraphVSm() {
+        return this.xxcaseiqCoreIssueGraphVSm;
+    }
+
+    @Value(("${xxcaseiq.i2c.case.details.v.q}"))
+    public String xxcaseiqI2cCaseDetailsV;
+
+    @Bean(name = "xxcaseiqI2cCaseDetailsV")
+    public String getXxcaseiqI2cCaseDetailsV() {
+        return this.xxcaseiqI2cCaseDetailsV;
+    }
+
+    @Value(("${xxcaseiq.ait.case.details.v.q}"))
+    public String xxcaseiqAitCaseDetailsV;
+
+    @Bean(name = "xxcaseiqAitCaseDetailsV")
+    public String getXxcaseiqAitCaseDetailsV() {
+        return this.xxcaseiqAitCaseDetailsV;
+    }
+
+    @Value(("${xxcaseiq.fpp.case.details.v.q}"))
+    public String xxcaseiqFppCaseDetailsV;
+
+    @Bean(name = "xxcaseiqFppCaseDetailsV")
+    public String getXxcaseiqFppCaseDetailsV() {
+        return this.xxcaseiqFppCaseDetailsV;
+    }
+
+    @Value(("${xxcaseiq.om.case.details.v.q}"))
+    public String xxcaseiqOmCaseDetailsV;
+
+    @Bean(name = "xxcaseiqOmCaseDetailsV")
+    public String getXxcaseiqOmCaseDetailsV() {
+        return this.xxcaseiqOmCaseDetailsV;
+    }
+
+    @Value(("${xxcaseiq.sm.case.details.v.q}"))
+    public String xxcaseiqSmCaseDetailsV;
+
+    @Bean(name = "xxcaseiqSmCaseDetailsV")
+    public String getXxcaseiqSmCaseDetailsV() {
+        return this.xxcaseiqSmCaseDetailsV;
+    }
+
+    @Value(("${xxcaseiq.p2p.case.details.v.q}"))
+    public String xxcaseiqP2pCaseDetailsV;
+
+    @Bean(name = "xxcaseiqP2pCaseDetailsV")
+    public String getXxcaseiqP2pCaseDetailsV() {
+        return this.xxcaseiqP2pCaseDetailsV;
+    }
+
+    @Value(("${xxcaseiq.capital.case.details.v.q}"))
+    public String xxcaseiqCapitalCaseDetailsV;
+
+    @Bean(name = "xxcaseiqCapitalCaseDetailsV")
+    public String getXxcaseiqCapitalCaseDetailsV() {
+        return this.xxcaseiqCapitalCaseDetailsV;
+    }
+
+    @Value(("${xxcaseiq.esp.case.analyzer.tbl.update}"))
+    public String xxcaseiqEspCaseAnalyzerTblUpdate;
+
+    @Bean(name = "xxcaseiqEspCaseAnalyzerTblUpdate")
+    public String getXxcaseiqEspCaseAnalyzerTblUpdate() {
+        return this.xxcaseiqEspCaseAnalyzerTblUpdate;
+    }
+
+    @Value(("${xxcaseiq.i2c.case.details.v.match.y.q}"))
+    public String xxcaseiqI2cCaseDetailsMatchY;
+
+    @Bean(name = "xxcaseiqI2cCaseDetailsMatchY")
+    public String getXxcaseiqI2cCaseDetailsMatchY() {
+        return this.xxcaseiqI2cCaseDetailsMatchY;
+    }
+
+    @Value(("${xxcaseiq.esp.case.reopened.metrics}"))
+    public String xxcaseiqEspCaseReopenedMetrics;
+
+    @Bean(name = "xxcaseiqEspCaseReopenedMetrics")
+    public String getXxcaseiqEspCaseReopenedMetrics() {
+        return this.xxcaseiqEspCaseReopenedMetrics;
+    }
+
+    @Value(("${xxcaseiq.esp.case.reopened.update}"))
+    public String xxcaseiqEspCaseReopenedUpdate;
+
+    @Bean(name = "xxcaseiqEspCaseReopenedUpdate")
+    public String getXxcaseiqEspCaseReopenedUpdate() {
+        return this.xxcaseiqEspCaseReopenedUpdate;
+    }
+
+    @Value(("${admin.table.q}"))
+    public String adminTable;
+
+    @Bean(name = "adminTable")
+    public String getAdminTable() {
+        return this.adminTable;
+    }
+
+    @Value(("${create.user.role.q}"))
+    public String createUserRole;
+
+    @Bean(name = "createUserRole")
+    public String getCreateUserRole() {
+        return this.createUserRole;
+    }
+
+    @Value(("${update.user.role.q}"))
+    public String updateUserRole;
+
+    @Bean(name = "updateUserRole")
+    public String getUpdateUserRole() {
+        return this.updateUserRole;
+    }
+
+    @Value(("${delete.user.role.q}"))
+    public String deleteUserRole;
+
+    @Bean(name = "deleteUserRole")
+    public String getDeleteUserRole() {
+        return this.deleteUserRole;
+    }
+
+    @Value(("${log.page.visit.q}"))
+    public String logPageVisit;
+
+    @Bean(name = "logPageVisit")
+    public String getLogPageVisit() {
+        return this.logPageVisit;
+    }
+
+    @Value(("${page.visit.analytics.q}"))
+    public String pageVisitAnalytics;
+
+    @Bean(name = "pageVisitAnalytics")
+    public String getPageVisitAnalytics() {
+        return this.pageVisitAnalytics;
+    }
+
+    @Value(("${page.visit.summary.q}"))
+    public String pageVisitSummary;
+
+    @Bean(name = "pageVisitSummary")
+    public String getPageVisitSummary() {
+        return this.pageVisitSummary;
+    }
+
+    @Value(("${landing.page.period.data}"))
+    public String landingPagePeriodData;
+
+    @Bean(name = "landingPagePeriodData")
+    public String getLandingPagePeriodData() {
+        return this.landingPagePeriodData;
+    }
+
+    @Value(("${landing.page.issues}"))
+    public String landingPageIssues;
+
+    @Bean(name = "landingPageIssues")
+    public String getLandingPageIssues() {
+        return this.landingPageIssues;
+    }
+
+    @Value(("${landing.page.high.priority.issue}"))
+    public String landingPageHighPriorityIssues;
+
+    @Bean(name = "landingPageHighPriorityIssues")
+    public String getLandingPageHighPriorityIssues() {
+        return this.landingPageHighPriorityIssues;
+    }
+
+    @Value(("${landing.page.issues.list}"))
+    public String landingPageIssuesList;
+
+    @Bean(name = "landingPageIssuesList")
+    public String getLandingPageIssuesList() {
+        return this.landingPageIssuesList;
+    }
+
+    @Value(("${landing.page.issues.distribution}"))
+    public String landingPageIssuesDistribution;
+
+    @Bean(name = "landingPageIssuesDistribution")
+    public String getLandingPageIssuesDistribution() {
+        return this.landingPageIssuesDistribution;
+    }
+
+    @Value(("${landing.page.transaction.failures}"))
+    public String landingPageTransactionFailures;
+
+    @Bean(name = "landingPageTransactionFailures")
+    public String getLandingPageTransactionFailures() {
+        return this.landingPageTransactionFailures;
+    }
+
+    @Value(("${landing.page.esp.cases}"))
+    public String landingPageEspCases;
+
+    @Bean(name = "landingPageEspCases")
+    public String getLandingPageEspCases() {
+        return this.landingPageEspCases;
+    }
+
+    @Value(("${xxcaseiq.eso.case.analyzer.global.search}"))
+    public String espCaseAnalyzerGlobalSearch;
+
+    @Bean(name = "espCaseAnalyzerGlobalSearch")
+    public String getEspCaseAnalyzerGlobalSearch() {
+        return this.espCaseAnalyzerGlobalSearch;
+    }
+
+    @Value(("${xxcaseiq.esp.case.analyzer.metrics}"))
+    public String espCaseAnalyzerMetrics;
+
+    @Bean(name = "espCaseAnalyzerMetrics")
+    public String getEspCaseAnalyzerMetrics() {
+        return this.espCaseAnalyzerMetrics;
+    }
+
+    @Value(("${dashboard.metrics.q}"))
+    public String dashboardMetrics;
+
+    @Bean(name = "dashboardMetrics")
+    public String getDashboardMetrics() {
+        return this.dashboardMetrics;
+    }
+
+    @Value(("${gl.interface.summary.q}"))
+    public String glInterfaceSummary;
+
+    @Bean(name = "glInterfaceSummary")
+    public String getGlInterfaceSummary() {
+        return this.glInterfaceSummary;
+    }
+
+    @Value(("${gl.interface.details.q}"))
+    public String glInterfaceDetails;
+
+    @Bean(name = "glInterfaceDetails")
+    public String getGlInterfaceDetails() {
+        return this.glInterfaceDetails;
+    }
+
+    @Value(("${gl.interface.details.filtered.q}"))
+    public String glInterfaceDetailsFiltered;
+
+    @Bean(name = "glInterfaceDetailsFiltered")
+    public String getGlInterfaceDetailsFiltered() {
+        return this.glInterfaceDetailsFiltered;
+    }
+
+    @Value(("${gl.interface.summary.update.q}"))
+    public String glInterfaceSummaryUpdate;
+
+    @Bean(name = "glInterfaceSummaryUpdate")
+    public String getGlInterfaceSummaryUpdate() {
+        return this.glInterfaceSummaryUpdate;
+    }
+
+    @Value(("${gl.fa.jobs.summary.q}"))
+    public String glFaJobsSummary;
+
+    @Bean(name = "glFaJobsSummary")
+    public String getGlFaJobsSummary() {
+        return this.glFaJobsSummary;
+    }
+
+    @Value(("${gl.fa.jobs.details.q}"))
+    public String glFaJobsDetails;
+
+    @Bean(name = "glFaJobsDetails")
+    public String getGlFaJobsDetails() {
+        return this.glFaJobsDetails;
+    }
+
+    @Value(("${gl.fa.jobs.details.filtered.q}"))
+    public String glFaJobsDetailsFiltered;
+
+    @Bean(name = "glFaJobsDetailsFiltered")
+    public String getGlFaJobsDetailsFiltered() {
+        return this.glFaJobsDetailsFiltered;
+    }
+
+    @Value(("${gl.fa.jobs.summary.update.q}"))
+    public String glFaJobsSummaryUpdate;
+
+    @Bean(name = "glFaJobsSummaryUpdate")
+    public String getGlFaJobsSummaryUpdate() {
+        return this.glFaJobsSummaryUpdate;
+    }
+
+    @Value(("${gl.unposted.summary.q}"))
+    public String glUnpostedSummary;
+
+    @Bean(name = "glUnpostedSummary")
+    public String getGlUnpostedSummary() {
+        return this.glUnpostedSummary;
+    }
+
+    @Value(("${gl.unposted.details.q}"))
+    public String glUnpostedDetails;
+
+    @Bean(name = "glUnpostedDetails")
+    public String getGlUnpostedDetails() {
+        return this.glUnpostedDetails;
+    }
+
+    @Value(("${gl.unposted.details.filtered.q}"))
+    public String glUnpostedDetailsFiltered;
+
+    @Bean(name = "glUnpostedDetailsFiltered")
+    public String getGlUnpostedDetailsFiltered() {
+        return this.glUnpostedDetailsFiltered;
+    }
+
+    @Value(("${gl.unposted.summary.update.q}"))
+    public String glUnpostedSummaryUpdate;
+
+    @Bean(name = "glUnpostedSummaryUpdate")
+    public String getGlUnpostedSummaryUpdate() {
+        return this.glUnpostedSummaryUpdate;
+    }
+
+    @Value(("${insert.assignment.users.q}"))
+    public String insertSummaryAssignmentUsers;
+
+    @Bean(name = "insertSummaryAssignmentUsers")
+    public String getInsertSummaryAssignmentUsers() {
+        return this.insertSummaryAssignmentUsers;
+    }
+
+    @Value(("${disable.assignment.users.q}"))
+    public String disableSummaryAssignmentUsers;
+
+    @Bean(name = "disableSummaryAssignmentUsers")
+    public String getDisableSummaryAssignmentUsers() {
+        return this.disableSummaryAssignmentUsers;
+    }
+
+    @Value(("${enable.assignment.users.q}"))
+    public String enableSummaryAssignmentUsers;
+
+    @Bean(name = "enableSummaryAssignmentUsers")
+    public String getEnableSummaryAssignmentUsers() {
+        return this.enableSummaryAssignmentUsers;
+    }
+
+    @Value(("${ctl.tower.roles}"))
+    public String ctlTwrRoles;
+
+    @Bean(name = "ctlTwrRoles")
+    public String getCtlTwrRoles() {
+        return this.ctlTwrRoles;
+    }
+
+    @Value(("${ctl.twr.user.access}"))
+    public String ctlTwrUserAccess;
+
+    @Bean(name = "ctlTwrUserAccess")
+    public String getCtlTwrUserAccess() {
+        return this.ctlTwrUserAccess;
+    }
+
+    @Value(("${ctl.twr.roles.insert}"))
+    public String ctlTwrRoleInsert;
+
+    @Bean(name = "ctlTwrRoleInsert")
+    public String getCtlTwrRoleInsert() {
+        return this.ctlTwrRoleInsert;
+    }
+
+    @Value(("${ctl.twr.roles.update}"))
+    public String ctlTwrRoleUpdate;
+
+    @Bean(name = "ctlTwrRoleUpdate")
+    public String getCtlTwrRoleUpdate() {
+        return this.ctlTwrRoleUpdate;
+    }
+
+    @Value(("${ctl.twr.roles.delete}"))
+    public String ctlTwrRoleDelete;
+
+    @Bean(name = "ctlTwrRoleDelete")
+    public String getCtlTwrRoleDelete() {
+        return this.ctlTwrRoleDelete;
+    }
+
+    @Value(("${ctl.twr.user.access.create.user.role}"))
+    public String ctlTwrUserAccessCreateUserRole;
+
+    @Bean(name = "ctlTwrUserAccessCreateUserRole")
+    public String getCtlTwrUserAccessCreateUserRole() {
+        return this.ctlTwrUserAccessCreateUserRole;
+    }
+
+    @Value(("${ctl.twr.user.access.update.user.role}"))
+    public String ctlTwrUserAccessUpdateUserRole;
+
+    @Bean(name = "ctlTwrUserAccessUpdateUserRole")
+    public String getCtlTwrUserAccessUpdateUserRole() {
+        return this.ctlTwrUserAccessUpdateUserRole;
+    }
+
+    @Value(("${ctl.twr.user.access.check.deleted.user}"))
+    public String ctlTwrUserAccessCheckDeletedUser;
+
+    @Bean(name = "ctlTwrUserAccessCheckDeletedUser")
+    public String getCtlTwrUserAccessCheckDeletedUser() {
+        return this.ctlTwrUserAccessCheckDeletedUser;
+    }
+
+    @Value(("${ctl.twr.user.access.by.user}"))
+    public String ctlTwrUserAccessByUser;
+
+    @Bean(name = "ctlTwrUserAccessByUser")
+    public String getCtlTwrUserAccessByUser() {
+        return this.ctlTwrUserAccessByUser;
+    }
 }

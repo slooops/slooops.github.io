@@ -1,0 +1,25 @@
+<button
+  [class]="buttonClasses"
+  [type]="type"
+  [disabled]="isDisabled || isLoading"
+  (click)="handleClick($event)"
+>
+  @if (iconName && iconPosition === 'left') {
+    <app-icon
+      [name]="iconName"
+      class="fit-btn__icon"
+    ></app-icon>
+  }
+  @if (label) {
+    <span>{{ label }}</span>
+  }
+  @if (iconName && iconPosition === 'right') {
+    <app-icon
+      [name]="iconName"
+      class="fit-btn__icon"
+    ></app-icon>
+  }
+  @if (isLoading) {
+    <span class="fit-btn__loading">Loading...</span>
+  }
+</button>

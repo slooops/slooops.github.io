@@ -1,36 +1,511 @@
-<mat-tab-group
-  [selectedIndex]="selectedIndex"
-  (selectedIndexChange)="onTabChange($event)"
->
-  <mat-tab *ngFor="let tab of filteredTabs; let i = index">
-    <ng-template mat-tab-label>
-      <span>{{ tab.label }}</span>
-      <i
-        class="fa fa-bars"
-        *ngIf="tab.label === 'Continuous Monitoring'"
-        style="margin-left: 8px; cursor: pointer"
-        (click)="toggleMenu()"
-      ></i>
-    </ng-template>
-    <ng-container [ngSwitch]="tab.component">
-      <ng-container *ngSwitchCase="'app-preclose'">
-        <app-preclose *ngIf="selectedIndex === i"></app-preclose>
-      </ng-container>
-      <ng-container *ngSwitchCase="'app-midclose'">
-        <app-midclose *ngIf="selectedIndex === i"></app-midclose>
-      </ng-container>
-    </ng-container>
-  </mat-tab>
-</mat-tab-group>
+<!-- Page Title Container -->
+<div class="pct-header">
+  <h2 class="pct-title">Period Close (Internal)</h2>
+  <div class="period-info" *ngIf="periodStatus as period">
+    <span><b>Period name:</b> {{ period.periodName }} &nbsp;</span>
+    <span class="divider"> | </span>
+    <span>&nbsp;<b>Period end date:</b> {{ period.periodEndDate }} &nbsp;</span>
+    <span class="divider">|</span>
+    <span><b>Last Updated:</b> {{ period.lastUpdated }}</span>
+  </div>
+</div>
 
-<div
-  style="display: flex; justify-content: center; align-items: center !important"
->
-  <ng-container *ngIf="!roles.length">
-    <tr>
-      <td colspan="100%" style="text-align: center">
-        <app-loading-symbol></app-loading-symbol>
-      </td>
-    </tr>
-  </ng-container>
+<!-- Entity View - Side by Side -->
+<div class="pct-row">
+  <!-- Preclose Entity Table -->
+  <div class="pct-col">
+    <app-atmf-card [container]="true">
+      <div class="pct-time-info">
+        <div>
+          <div>Expected Start: {{ preCloseStartTime }}</div>
+          <div>Expected End: {{ preCloseEndTime }}</div>
+        </div>
+        <div class="pct-time-info-right">
+          <div>Actual End: {{ preCloseActualEndTime }}</div>
+          <div>Estimated Completion: {{ pcloseEstimatedCompletionTime }}</div>
+        </div>
+      </div>
+
+      <div class="section-title entity-view">
+        Pre-Close Progress
+        <span class="pct-flex-1">
+          <div class="entity-legend">
+            <span class="legend-item">
+              <i class="icon-small completed-icon"></i>
+              <span>Completed</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small in-progress-icon"></i>
+              <span>In progress</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small delayed-icon"></i>
+              <span>Delayed</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small stopped-icon"></i>
+              <span>Stopped</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small yet-to-start-icon"></i>
+              <span>Yet to start</span>
+            </span>
+          </div>
+        </span>
+      </div>
+      <div class="periodclosetable">
+        <table class="table table-responsive equal-width table-striped">
+          <thead>
+            <tr>
+              @for (col of meStatusColumns; track col) {
+                <th>{{ col }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @if (pcloseMonthEndStatusTableData.length > 0) {
+              <tr>
+                @for (row of pcloseExecutionWindow; track $index) {
+                  <td class="table-timings">
+                    {{ row }}
+                  </td>
+                }
+              </tr>
+            }
+
+            @for (row of pcloseMonthEndStatusTableData; track row) {
+              <tr>
+                @for (category of templateObject.keys(row); track category) {
+                  <td>
+                    @if (row[category].toLowerCase() === "completed") {
+                      <i class="icon-small completed-icon"></i>
+                    }
+                    @if (row[category].toLowerCase() === "na") {
+                      <span>N/A</span>
+                    }
+                    @if (row[category].toLowerCase() === "in progress") {
+                      <i class="icon-small in-progress-icon"></i>
+                    }
+                    @if (row[category].toLowerCase() === "yet to start") {
+                      <i class="icon-small yet-to-start-icon"></i>
+                    }
+                    @if (row[category].toLowerCase() === "delayed") {
+                      <i
+                        matTooltip="Details included in period close communications."
+                        matTooltipPosition="right"
+                        class="icon-small delayed-icon"
+                      ></i>
+                    }
+                    @if (row[category].toLowerCase() === "stopped") {
+                      <i
+                        matTooltip="Details included in period close communications."
+                        matTooltipPosition="right"
+                        class="icon-small stopped-icon"
+                      ></i>
+                    }
+                    @if (
+                      [
+                        "completed",
+                        "na",
+                        "in progress",
+                        "yet to start",
+                        "delayed",
+                        "stopped",
+                      ].indexOf(row[category].toLowerCase()) === -1
+                    ) {
+                      <span>
+                        {{ row[category] }}
+                      </span>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+        @if (pcloseMonthEndStatusTableData.length == 0) {
+          <div class="centered">
+            <app-loading-symbol></app-loading-symbol>
+          </div>
+        }
+      </div>
+    </app-atmf-card>
+  </div>
+
+  <!-- Midclose Entity Table -->
+  <div class="pct-col">
+    <app-atmf-card [container]="true">
+      <div class="pct-time-info">
+        <div>
+          <div>Expected Start: {{ midCloseStartTime }}</div>
+          <div>Expected End: {{ midCloseEndTime }}</div>
+        </div>
+        <div class="pct-time-info-right">
+          <div>Actual End: {{ midCloseActualEndTime }}</div>
+          <div>Estimated Completion: {{ mcloseEstimatedCompletionTime }}</div>
+        </div>
+      </div>
+      <div class="section-title entity-view">
+        Mid-Close Progress
+        <span class="pct-flex-1">
+          <div class="entity-legend">
+            <span class="legend-item">
+              <i class="icon-small completed-icon"></i>
+              <span>Completed</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small in-progress-icon"></i>
+              <span>In progress</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small delayed-icon"></i>
+              <span>Delayed</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small stopped-icon"></i>
+              <span>Stopped</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small yet-to-start-icon"></i>
+              <span>Yet to start</span>
+            </span>
+          </div>
+        </span>
+      </div>
+      <div class="periodclosetable">
+        <table class="table table-responsive equal-width table-striped">
+          <thead>
+            <tr>
+              @for (col of meStatusColumns; track col) {
+                <th>{{ col }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @if (mcloseMonthEndStatusTableData.length > 0) {
+              <tr>
+                @for (row of mcloseExecutionWindow; track $index) {
+                  <td class="table-timings">
+                    {{ row }}
+                  </td>
+                }
+              </tr>
+            }
+
+            @for (row of mcloseMonthEndStatusTableData; track row) {
+              <tr>
+                @for (category of templateObject.keys(row); track category) {
+                  <td>
+                    @if (row[category].toLowerCase() === "completed") {
+                      <i class="icon-small completed-icon"></i>
+                    }
+                    @if (row[category].toLowerCase() === "na") {
+                      <span>N/A</span>
+                    }
+                    @if (row[category].toLowerCase() === "in progress") {
+                      <i class="icon-small in-progress-icon"></i>
+                    }
+                    @if (row[category].toLowerCase() === "yet to start") {
+                      <i class="icon-small yet-to-start-icon"></i>
+                    }
+                    @if (row[category].toLowerCase() === "delayed") {
+                      <i
+                        matTooltip="Details included in period close communications."
+                        matTooltipPosition="right"
+                        class="icon-small delayed-icon"
+                      ></i>
+                    }
+                    @if (row[category].toLowerCase() === "stopped") {
+                      <i
+                        matTooltip="Details included in period close communications."
+                        matTooltipPosition="right"
+                        class="icon-small stopped-icon"
+                      ></i>
+                    }
+                    @if (
+                      [
+                        "completed",
+                        "na",
+                        "in progress",
+                        "yet to start",
+                        "delayed",
+                        "stopped",
+                      ].indexOf(row[category].toLowerCase()) === -1
+                    ) {
+                      <span>
+                        {{ row[category] }}
+                      </span>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+        @if (mcloseMonthEndStatusTableData.length == 0) {
+          <div class="centered">
+            <app-loading-symbol></app-loading-symbol>
+          </div>
+        }
+      </div>
+    </app-atmf-card>
+  </div>
+</div>
+
+<!-- Interface Load Containers - Side by Side -->
+<div class="pct-row">
+  <div class="pct-col">
+    <app-atmf-card>
+      <p class="section-title">Preclose Interface Load</p>
+      <div class="pct-chart-row">
+        <div class="pct-chart-area">
+          <app-atmf-bar-line-chart
+            [chartData]="precloseChartData"
+            [title]="'Preclose Interface Load'"
+          >
+          </app-atmf-bar-line-chart>
+        </div>
+        <div class="pct-chart-side">
+          @if (precloseInterfaceLoadDatasource?.data?.length) {
+            <app-atmf-table
+              [dataSource]="precloseInterfaceLoadDatasource"
+              [displayedColumns]="pcloseInterfaceLoadColumns"
+            ></app-atmf-table>
+            <div class="chart-legend-wrapper">
+              <div class="chart-legend-container">
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-service"></div>
+                    <span>Service % Change</span>
+                  </div>
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-product"></div>
+                    <span>Product % Change</span>
+                  </div>
+                </div>
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-service"></div>
+                    <span>Service</span>
+                  </div>
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-product"></div>
+                    <span>Product</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </app-atmf-card>
+  </div>
+  <div class="pct-col">
+    <app-atmf-card>
+      <p class="section-title">Midclose Interface Load</p>
+      <div class="pct-chart-row">
+        <div class="pct-chart-area">
+          <app-atmf-bar-line-chart
+            [chartData]="midcloseChartData"
+            [title]="'Midclose Interface Load'"
+          >
+          </app-atmf-bar-line-chart>
+        </div>
+        <div class="pct-chart-side">
+          @if (midcloseInterfaceLoadDatasource?.data?.length) {
+            <app-atmf-table
+              [dataSource]="midcloseInterfaceLoadDatasource"
+              [displayedColumns]="mcloseInterfaceLoadColumns"
+            ></app-atmf-table>
+            <div class="chart-legend-wrapper">
+              <div class="chart-legend-container">
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-service"></div>
+                    <span>Service % Change</span>
+                  </div>
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-product"></div>
+                    <span>Product % Change</span>
+                  </div>
+                </div>
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-service"></div>
+                    <span>Service</span>
+                  </div>
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-product"></div>
+                    <span>Product</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+          @if (!midcloseInterfaceLoadDatasource?.data?.length) {
+            <div class="centered">
+              <app-loading-symbol></app-loading-symbol>
+            </div>
+          }
+        </div>
+      </div>
+    </app-atmf-card>
+  </div>
+</div>
+
+<!-- Invoices Generated & Cash Posted Charts - 4 across -->
+<div class="pct-row pct-row-4">
+  <div class="pct-col">
+    <app-atmf-card>
+      <p class="section-title">Preclose Invoices Generated</p>
+      @if (precloseInvChartLabels.length) {
+        <app-atmf-stacked-chart
+          [labels]="precloseInvChartLabels"
+          [datasets]="precloseInvChartDatasets"
+          [currencyFormat]="true"
+          [showY1Axis]="true"
+        ></app-atmf-stacked-chart>
+      } @else {
+        <div class="centered">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      }
+    </app-atmf-card>
+  </div>
+  <div class="pct-col">
+    <app-atmf-card>
+      <p class="section-title">Preclose Cash Posted</p>
+      @if (precloseCashChartLabels.length) {
+        <app-atmf-stacked-chart
+          [labels]="precloseCashChartLabels"
+          [datasets]="precloseCashChartDatasets"
+          [currencyFormat]="true"
+        ></app-atmf-stacked-chart>
+      } @else {
+        <div class="centered">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      }
+    </app-atmf-card>
+  </div>
+  <div class="pct-col">
+    <app-atmf-card>
+      <p class="section-title">Midclose Invoices Generated</p>
+      @if (midcloseInvChartLabels.length) {
+        <app-atmf-stacked-chart
+          [labels]="midcloseInvChartLabels"
+          [datasets]="midcloseInvChartDatasets"
+          [currencyFormat]="true"
+          [showY1Axis]="true"
+        ></app-atmf-stacked-chart>
+      } @else {
+        <div class="centered">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      }
+    </app-atmf-card>
+  </div>
+
+  <div class="pct-col">
+    <app-atmf-card>
+      <p class="section-title">Midclose Cash Posted</p>
+      @if (midcloseCashChartLabels.length) {
+        <app-atmf-stacked-chart
+          [labels]="midcloseCashChartLabels"
+          [datasets]="midcloseCashChartDatasets"
+          [currencyFormat]="true"
+        ></app-atmf-stacked-chart>
+      } @else {
+        <div class="centered">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      }
+    </app-atmf-card>
+  </div>
+</div>
+
+<!-- Invoices Generated & Cash Posted - Side by Side with Tabs -->
+<div class="pct-row">
+  <div class="pct-col">
+    <div class="pct-tabs">
+      <button
+        class="pct-tab"
+        [class.active]="precloseActiveTab === 'invoices'"
+        (click)="precloseActiveTab = 'invoices'"
+      >
+        Invoices Generated
+      </button>
+      <button
+        class="pct-tab"
+        [class.active]="precloseActiveTab === 'cash'"
+        (click)="precloseActiveTab = 'cash'"
+      >
+        Cash Posted
+      </button>
+    </div>
+    <div class="pct-tab-content">
+      @if (precloseActiveTab === "invoices") {
+        @if (precloseInvGenDatasource?.data?.length) {
+          <app-atmf-table
+            [dataSource]="precloseInvGenDatasource"
+            [displayedColumns]="pcloseInvGenTableColumns"
+          ></app-atmf-table>
+        }
+      }
+      @if (precloseActiveTab === "cash") {
+        @if (qeCashCollectedDatasource?.data?.length) {
+          <app-atmf-table
+            [dataSource]="qeCashCollectedDatasource"
+            [displayedColumns]="qeCashCollectedTableColumns"
+          ></app-atmf-table>
+        }
+      }
+    </div>
+  </div>
+  <div class="pct-col">
+    <div class="pct-tabs">
+      <button
+        class="pct-tab"
+        [class.active]="midcloseActiveTab === 'invoices'"
+        (click)="midcloseActiveTab = 'invoices'"
+      >
+        Invoices Generated
+      </button>
+      <button
+        class="pct-tab"
+        [class.active]="midcloseActiveTab === 'cash'"
+        (click)="midcloseActiveTab = 'cash'"
+      >
+        Cash Posted
+      </button>
+    </div>
+    <div class="pct-tab-content">
+      @if (midcloseActiveTab === "invoices") {
+        @if (midcloseInvGenDatasource?.data?.length) {
+          <app-atmf-table
+            [dataSource]="midcloseInvGenDatasource"
+            [displayedColumns]="mcloseInvGenTableColumns"
+          ></app-atmf-table>
+        }
+        @if (!midcloseInvGenDatasource?.data?.length) {
+          <div class="centered">
+            <app-loading-symbol></app-loading-symbol>
+          </div>
+        }
+      }
+      @if (midcloseActiveTab === "cash") {
+        @if (qeCashCollectedDatasource?.data?.length) {
+          <app-atmf-table
+            [dataSource]="qeCashCollectedDatasource"
+            [displayedColumns]="qeCashCollectedTableColumns"
+          ></app-atmf-table>
+        }
+        @if (!qeCashCollectedDatasource?.data?.length) {
+          <div class="centered">
+            <app-loading-symbol></app-loading-symbol>
+          </div>
+        }
+      }
+    </div>
+  </div>
 </div>

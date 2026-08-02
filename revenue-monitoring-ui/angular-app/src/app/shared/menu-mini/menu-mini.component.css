@@ -1,0 +1,98 @@
+:host {
+  display: inline-block;
+  --mm-icon-filter: none;
+  --mm-dropdown-bg: #fff;
+  --mm-dropdown-border: #e5e7eb;
+  --mm-dropdown-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --mm-item-hover: #f3f4f6;
+  --mm-item-active-bg: #eff6ff;
+  --mm-item-text: #374151;
+  --mm-item-active-text: #0070d2;
+}
+
+:host(.dark-theme),
+:host-context(.dark-theme) {
+  --mm-icon-filter: invert(1);
+  --mm-dropdown-bg: var(--fit-dark-surface, #111b25);
+  --mm-dropdown-border: var(--fit-dark-card-border, rgba(42, 63, 80, 0.6));
+  --mm-dropdown-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --mm-item-hover: var(--fit-dark-hover-bg, rgba(255, 255, 255, 0.06));
+  --mm-item-active-bg: rgba(0, 188, 235, 0.12);
+  --mm-item-text: var(--fit-dark-text, #e0e6ed);
+  --mm-item-active-text: #00bceb;
+}
+
+.mm-icon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  filter: var(--mm-icon-filter);
+}
+
+.mm-wrapper {
+  position: relative;
+}
+
+.mm-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  background: var(--mm-dropdown-bg);
+  border: 1px solid var(--mm-dropdown-border);
+  border-radius: 10px;
+  box-shadow: var(--mm-dropdown-shadow);
+  min-width: 220px;
+  z-index: 1000;
+  padding: 6px 0;
+  animation: mmFadeIn 0.15s ease;
+}
+
+@keyframes mmFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mm-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.mm-item:hover {
+  background: var(--mm-item-hover);
+}
+
+.mm-item.active {
+  background: var(--mm-item-active-bg);
+  border-left: 3px solid #00bceb;
+}
+
+.mm-item.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mm-item.disabled:hover {
+  background: transparent;
+}
+
+.mm-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mm-item-text);
+}
+
+.mm-item.active .mm-item-name {
+  color: var(--mm-item-active-text);
+  font-weight: 600;
+}

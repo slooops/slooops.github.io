@@ -1,0 +1,8 @@
+<span
+  class="chip"
+  [ngClass]="'chip--' + color"
+  [class.chip--clickable]="clickable"
+  (click)="onClick($event)"
+>
+  {{ label }}
+</span>

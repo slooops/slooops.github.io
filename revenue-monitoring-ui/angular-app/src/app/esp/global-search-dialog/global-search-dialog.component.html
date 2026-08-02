@@ -1,0 +1,19 @@
+<div class="global-search-dialog">
+  <div class="dialog-header">
+    <h2>Search Results</h2>
+    <button type="button" class="close-button" (click)="close()">✕</button>
+  </div>
+
+  <div class="dialog-body">
+    <app-caseiq-table
+      [dataSource]="dataSource"
+      [displayedColumns]="displayedColumns"
+      [exportFileName]="exportFileName"
+      [extraWideColumns]="extraWideColumns"
+      [enablePagination]="true"
+      [pageSize]="3"
+      [totalRecords]="dataSource?.data?.length || 0"
+      [source]="source"
+    ></app-caseiq-table>
+  </div>
+</div>

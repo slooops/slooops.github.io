@@ -1,0 +1,740 @@
+<!-- External filters container -->
+<div class="external-filters-container">
+  @if (getActiveFilter()) {
+    <app-table-filter
+      class="external-filter"
+      [style.left.px]="getActiveFilter().position.x"
+      [style.top.px]="getActiveFilter().position.y"
+      [columnLabel]="getActiveFilter().columnLabel"
+      [options]="getActiveFilter().options"
+      [isOpen]="true"
+      [currentValue]="
+        getCurrentFilterValue(
+          getActiveFilter().column,
+          getActiveFilter().dataSource
+        )
+      "
+      (optionSelected)="
+        handleFilter(
+          $event,
+          getActiveFilter().column,
+          getActiveFilter().data,
+          getActiveFilter().dataSource
+        )
+      "
+      (clickOutside)="closeAllFilters()"
+    ></app-table-filter>
+  }
+</div>
+
+<div class="o2c-360-container">
+  <app-o2c-sidebar-nav [navItems]="navTotals"></app-o2c-sidebar-nav>
+
+  <div class="o2c-column-container" [style.width]="invoiceContainerWidth">
+    <p class="result-header">
+      {{ navTotals[0].count }}
+      {{ navTotals[0].count === 1 ? "Order Result" : "Order Results" }}
+    </p>
+
+    <div class="o2c-card order-banner">
+      <div class="order-info">
+        <span class="status-dot"></span>
+        <span class="order-id"
+          ><strong>{{ orderId }}</strong> Order Summary</span
+        >
+        <button class="details-button" (click)="showDetailsModal = true">
+          Order Details
+        </button>
+
+        @if (hasExceptions() && showDetailsModal) {
+          <app-modal
+            [headerBgColor]="'#e6f4ea'"
+            [borderRadius]="'0px'"
+            (close)="showDetailsModal = false"
+          >
+            <div class="exception-box">
+              <div class="icon-container">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M13.0675 16.23C13.0551 16.5089 12.9381 16.7728 12.7398 16.9693C12.5415 17.1657 12.2765 17.2802 11.9975 17.29C11.857 17.2887 11.7181 17.2597 11.5888 17.2047C11.4595 17.1498 11.3423 17.0698 11.2439 16.9696C11.1454 16.8693 11.0677 16.7506 11.0152 16.6202C10.9626 16.4899 10.9362 16.3505 10.9375 16.21C10.94 15.9278 11.0519 15.6575 11.2496 15.4561C11.4473 15.2547 11.7154 15.1378 11.9975 15.13C12.1402 15.1313 12.2812 15.1609 12.4124 15.217C12.5436 15.2731 12.6624 15.3546 12.7619 15.4569C12.8614 15.5592 12.9396 15.6802 12.9921 15.8129C13.0445 15.9456 13.0702 16.0873 13.0675 16.23Z"
+                    fill="white"
+                  />
+                  <path
+                    d="M13.0553 8.86198C13.0766 8.53446 13.0978 8.21045 13.0978 7.88997C13.1155 7.70417 13.0808 7.51711 12.9978 7.34997C12.8948 7.12261 12.7188 6.93615 12.4978 6.82021C12.2768 6.70426 12.0234 6.66546 11.7778 6.70997C11.5306 6.78366 11.3141 6.93565 11.1608 7.14305C11.0075 7.35046 10.9257 7.60207 10.9278 7.85997L10.9878 8.92997C11.0169 9.49113 11.0494 10.0471 11.0818 10.6008C11.1274 11.3791 11.1727 12.1528 11.2078 12.93C11.2205 13.1413 11.3136 13.3398 11.4679 13.4848C11.6222 13.6298 11.826 13.7104 12.0378 13.71C12.2518 13.71 12.4574 13.6264 12.6106 13.4769C12.7639 13.3274 12.8526 13.124 12.8578 12.91V12.1C12.8751 11.8087 12.8997 11.5138 12.9243 11.2174C12.9708 10.659 13.0178 10.0952 13.0178 9.53997C13.0259 9.31232 13.0406 9.08633 13.0553 8.86198Z"
+                    fill="white"
+                  />
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M15.54 2.5H8.46C8.21 2.5 7.97 2.6 7.79 2.78L2.78 7.79C2.6 7.96 2.5 8.21 2.5 8.46V15.54C2.5 15.79 2.6 16.03 2.78 16.21L7.79 21.22C7.97 21.4 8.21 21.5 8.46 21.5H15.54C15.79 21.5 16.03 21.4 16.21 21.22L21.22 16.21C21.4 16.03 21.5 15.79 21.5 15.54V8.46C21.5 8.21 21.4 7.97 21.22 7.79L16.21 2.78C16.04 2.6 15.79 2.5 15.54 2.5ZM15.52 3.5L20.5 8.46L20.51 15.51L15.54 20.5L8.49 20.51L3.5 15.54L3.49 8.49L8.46 3.5H15.52Z"
+                    fill="white"
+                  />
+                </svg>
+              </div>
+              <div class="message-content">
+                <div class="exception-title">Exception Message</div>
+                <div class="exception-text">
+                  <span>{{ orderExceptionMessage }}</span>
+                  <span>{{ subscriptionExceptionMessage }}</span>
+                  <span>{{ invoiceExceptionMessage }}</span>
+                </div>
+              </div>
+              <div
+                class="close-icon-container"
+                (click)="showDetailsModal = false"
+              >
+                ✕
+              </div>
+            </div>
+          </app-modal>
+        }
+      </div>
+    </div>
+
+    <div class="o2c-card order-banner process-flow-banner">
+      <app-o2c-process-flow
+        (click)="showDetailsModal = true"
+        [circleStatus]="circleStatus"
+      ></app-o2c-process-flow>
+    </div>
+
+    <div class="summary-title">Order Summary</div>
+
+    <div class="order-table" style="overflow-x: scroll; margin: 0 -0.5vw">
+      @if (orderDataLoaded) {
+        @if (orderSummaryDataSource.data.length > 0) {
+          <table mat-table [dataSource]="orderSummaryDataSource">
+            @for (column of orderSummaryDisplayedColumns1; track column) {
+              <ng-container [matColumnDef]="column">
+                <th mat-header-cell *matHeaderCellDef>
+                  {{ formatColumnName(column) }}
+                </th>
+
+                <td mat-cell *matCellDef="let element">
+                  @switch (column) {
+                    @case ('STATUS') {
+                      <span
+                        [ngClass]="{
+                          'status-closed':
+                            element[column]?.toLowerCase() === 'closed'
+                        }"
+                      >
+                        {{ element[column] }}
+                      </span>
+                    }
+                    @default {
+                      {{
+                        column === "CREATION_DATE" ||
+                        column === "ORDER_BOOKED_DATE"
+                          ? (element[column] | date : "MM/dd/yyyy")
+                          : element[column]
+                      }}
+                    }
+                  }
+                </td>
+              </ng-container>
+            }
+
+            <tr
+              mat-header-row
+              *matHeaderRowDef="orderSummaryDisplayedColumns1"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: orderSummaryDisplayedColumns1"
+            ></tr>
+          </table>
+          <table
+            mat-table
+            [dataSource]="orderSummaryDataSource"
+            class="order-table"
+          >
+            @for (column of orderSummaryDisplayedColumns2; track column) {
+              <ng-container [matColumnDef]="column">
+                <th
+                  mat-header-cell
+                  *matHeaderCellDef
+                  [ngClass]="{
+                    'wide-column':
+                      column === 'BILL_TO_CUSTOMER' || column === 'END_CUSTOMER'
+                  }"
+                >
+                  {{ formatColumnName(column) }}
+                </th>
+
+                <td
+                  mat-cell
+                  *matCellDef="let element"
+                  [ngClass]="{
+                    'wide-column':
+                      column === 'BILL_TO_CUSTOMER' || column === 'END_CUSTOMER'
+                  }"
+                >
+                  {{ element[column] }}
+                </td>
+              </ng-container>
+            }
+
+            <tr
+              mat-header-row
+              *matHeaderRowDef="orderSummaryDisplayedColumns2"
+            ></tr>
+
+            <tr
+              mat-row
+              *matRowDef="let row; columns: orderSummaryDisplayedColumns2"
+            ></tr>
+          </table>
+        } @else {
+          <div class="no-data-container" style="margin: 0 0.5vw 5px 0.5vw">
+            <p>No data available for this order.</p>
+          </div>
+        }
+      } @else {
+        <div class="loading-container" style="border: none">
+          <app-loading-symbol></app-loading-symbol>
+          <br /><br /><br />
+        </div>
+      }
+    </div>
+
+    <div class="summary-title" style="margin-top: -16px">Financial Summary</div>
+
+    <div
+      class="order-table"
+      style="overflow-x: scroll; margin: 0 -0.5vw 1vh -0.5vw"
+    >
+      @if (financialDataLoaded) {
+        @if (!financialNoData) {
+          <table mat-table [dataSource]="financialSummaryDataSource">
+            @for (column of financialSummaryDisplayedColumns; track column) {
+              <ng-container [matColumnDef]="column">
+                <!-- Special handling for the actions column -->
+                <th mat-header-cell *matHeaderCellDef>
+                  <!-- Empty header for actions column -->
+                  @if (column !== 'actions') {
+                    <span>{{ formatColumnName(column) }}</span>
+                  }
+                </th>
+
+                <td mat-cell *matCellDef="let element">
+                  <!-- Use switch to handle different column types -->
+                  @switch (column) {
+                    @case ('CASH') {
+                      <button
+                        class="link-button"
+                        [disabled]="!allDataLoaded"
+                        [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
+                        (click)="allDataLoaded && viewAll('invoices')"
+                      >
+                        <span [ngClass]="{ 'loading-shimmer': !allDataLoaded }">
+                          {{ element[column] }}
+                        </span>
+                      </button>
+                    }
+                    @default {
+                      {{ element[column] }}
+                    }
+                  }
+                </td>
+              </ng-container>
+            }
+
+            <tr
+              mat-header-row
+              *matHeaderRowDef="financialSummaryDisplayedColumns"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: financialSummaryDisplayedColumns"
+            ></tr>
+          </table>
+        }
+      }
+    </div>
+
+    <div
+      class="o2c-card order-banner table-banner"
+      (click)="toggleAccordion('subscription')"
+    >
+      <div class="order-info accordion-header">
+        <i
+          [ngClass]="{
+            'plus-icon': !expanded.subscription,
+            'minus-icon': expanded.subscription
+          }"
+        ></i>
+        Subscription Summary -
+        {{
+          !subscriptionDataLoaded
+            ? "Loading..."
+            : limitedSubscriptionData.length > 0
+            ? subscriptionSummaryDataSource?.data?.length > 5
+              ? "5 / " + navTotals[1].count
+              : navTotals[1].count
+            : "No Data"
+        }}
+
+        @if (subscriptionSummaryDataSource?.data?.length > 5) {
+          <button
+            class="view-all-button"
+            [ngClass]="{
+              disabled: !allDataLoaded
+            }"
+            [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
+            (click)="allDataLoaded && viewAll('subscriptions')"
+          >
+            <span [ngClass]="{ 'loading-shimmer': !allDataLoaded }">
+              {{ allDataLoaded ? "View All" : "View All Loading..." }}
+            </span>
+          </button>
+        }
+      </div>
+    </div>
+    @if (expanded.subscription) {
+      <div class="accordion-content o2c-card">
+        <div class="invoice-summary-table">
+          @if (subscriptionDataLoaded) {
+            @if (limitedSubscriptionData.length > 0) {
+              <table mat-table [dataSource]="limitedSubscriptionData">
+                @for (column of subscriptionSummaryDisplayedColumns; track column) {
+                  <ng-container [matColumnDef]="column">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ formatColumnName(column) }}
+                    </th>
+
+                    <td mat-cell *matCellDef="let element">
+                      @switch (column) {
+                        @case ('SUBSCRIPTION_ID') {
+                          <button
+                            class="link-button"
+                            [disabled]="!allDataLoaded"
+                            [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
+                            (click)="
+                              allDataLoaded &&
+                                viewAll('subscriptions', element['SUBSCRIPTION_ID'])
+                            "
+                          >
+                            <span [ngClass]="{ 'loading-shimmer': !allDataLoaded }">
+                              {{ element[column] }}
+                            </span>
+                          </button>
+                        }
+                        @case ('BILLING_SCHEDULE') {
+                          <a
+                            style="text-decoration: none"
+                            (click)="navigateToBillingSchedule(element)"
+                          >
+                            {{ element[column] }}
+                          </a>
+                        }
+                        @case ('SUBSCRIPTION_STATUS') {
+                          <span
+                            [ngStyle]="{
+                              color:
+                                element[column]?.toLowerCase() === 'active'
+                                  ? '#078a00'
+                                  : element[column]?.toLowerCase() === 'inactive'
+                                  ? '#d57b00'
+                                  : ''
+                            }"
+                          >
+                            {{ element[column] }}
+                          </span>
+                        }
+                        @case ('INVOICE_STATUS') {
+                          <span class="exception-row">
+                            {{ element[column] }}
+                            @if (element['EXCEPTION_MESSAGE']) {
+                              <i
+                                class="warning-icon"
+                                title="Click to view exception details"
+                                (click)="showDetailsModal = true"
+                                >⚠️</i
+                              >
+                            }
+                          </span>
+                        }
+                        @default {
+                          {{
+                            column === "LAST_UPDATE_DATE" || column === "RUN_DATE"
+                              ? (element[column] | date : "MM/dd/yyyy")
+                              : element[column]
+                          }}
+                        }
+                      }
+                    </td>
+                  </ng-container>
+                }
+
+                <tr
+                  mat-header-row
+                  *matHeaderRowDef="subscriptionSummaryDisplayedColumns"
+                ></tr>
+                <tr
+                  mat-row
+                  *matRowDef="
+                    let row;
+                    columns: subscriptionSummaryDisplayedColumns
+                  "
+                ></tr>
+              </table>
+            } @else {
+              <div class="no-data-container">
+                <p>No subscription data available for this order.</p>
+              </div>
+            }
+          } @else {
+            <div class="loading-container">
+              <app-loading-symbol></app-loading-symbol>
+              <br /><br /><br />
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (filteredDataNotFound) {
+      <span class="update-status-modal">
+        <span class="update-status-content">
+          No data found for the selected filters.
+        </span>
+      </span>
+    }
+    <div
+      class="o2c-card order-banner table-banner"
+      (click)="toggleAccordion('invoice')"
+    >
+      <div class="order-info accordion-header">
+        <i
+          [ngClass]="{
+            'plus-icon': !expanded.invoice,
+            'minus-icon': expanded.invoice
+          }"
+        ></i>
+        Invoice Summary -
+        {{
+          !invoiceDataLoaded
+            ? "Loading..."
+            : limitedInvoiceData.length > 0
+            ? invoiceSummaryDataSource?.data?.length > 5
+              ? "5 / " + invoiceSummaryDataSource?.data?.length
+              : invoiceSummaryDataSource?.data?.length
+            : "No Data"
+        }}
+        @if (invoiceSummaryDataSource?.data?.length > 5) {
+          <button
+            class="view-all-button"
+            [ngClass]="{ disabled: !allDataLoaded }"
+            [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
+            (click)="allDataLoaded && viewAll('invoices')"
+          >
+            <span [ngClass]="{ 'loading-shimmer': !allDataLoaded }">
+              {{ allDataLoaded ? "View All" : "View All Loading..." }}
+            </span>
+          </button>
+        }
+      </div>
+    </div>
+    @if (expanded.invoice) {
+      <div class="accordion-content o2c-card">
+        <div class="invoice-summary-table">
+          @if (invoiceDataLoaded) {
+            @if (limitedInvoiceData.length > 0) {
+              <table mat-table [dataSource]="limitedInvoiceData">
+                @for (column of invoiceSummaryDisplayedColumns; track column) {
+                  <ng-container [matColumnDef]="column">
+                    <th mat-header-cell *matHeaderCellDef>
+                      <div class="header-with-filter">
+                        <span>{{ formatColumnName(column) }}</span>
+
+                        @if (
+                          column === 'AMOUNT_DUE_ORIGINAL' ||
+                          column === 'AMOUNT_DUE_REMAINING'
+                        ) {
+                          <button
+                            class="filter-trigger-btn"
+                            [class.active]="
+                              isFilterActive(column, 'invoiceSummaryDataSource')
+                            "
+                            (click)="
+                              showFilter(
+                                $event,
+                                column,
+                                'USD',
+                                amountOptions,
+                                originalInvoiceSummaryData,
+                                'invoiceSummaryDataSource'
+                              )
+                            "
+                          >
+                            <mat-icon>filter_list</mat-icon>
+                          </button>
+                        }
+                      </div>
+                    </th>
+
+                    <td mat-cell *matCellDef="let element">
+                      @switch (column) {
+                        @case ('TRANSACTION_NUMBER') {
+                          <button
+                            class="link-button"
+                            [disabled]="!allDataLoaded"
+                            [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
+                            (click)="
+                              viewAll('invoices', element['TRANSACTION_NUMBER'])
+                            "
+                          >
+                            <span [ngClass]="{ 'loading-shimmer': !allDataLoaded }">
+                              {{ element[column] }}
+                            </span>
+                          </button>
+                        }
+                        @case (column === 'AMOUNT_DUE_ORIGINAL' ||
+                        column === 'AMOUNT_DUE_REMAINING'
+                          ? column
+                          : '') {
+                          {{ element[column] | currency : "USD" : "" }}
+                        }
+                        @case ('OTHER_DETAILS') {
+                          <div class="exception-row">
+                            <button
+                              class="link-button"
+                              [disabled]="!invoiceDataLoaded"
+                              [style.cursor]="
+                                invoiceDataLoaded ? 'pointer' : 'wait'
+                              "
+                              (click)="
+                                openInvoiceModal(element['TRANSACTION_NUMBER'])
+                              "
+                            >
+                              <span
+                                [ngClass]="{ 'loading-shimmer': !allDataLoaded }"
+                              >
+                                {{ element[column] }}
+                              </span>
+                            </button>
+
+                            @if (element['EXCEPTION_MESSAGE']) {
+                              <i
+                                class="warning-icon"
+                                title="Click to view exception details"
+                                (click)="
+                                  showDetailsModal = true; $event.stopPropagation()
+                                "
+                                >⚠️</i
+                              >
+                            }
+                          </div>
+                        }
+                        @default {
+                          {{
+                            column === "TRANSACTION_DATE" || column === "DUE_DATE"
+                              ? (element[column] | date : "MM/dd/yyyy")
+                              : element[column]
+                          }}
+                        }
+                      }
+                    </td>
+                  </ng-container>
+                }
+
+                <tr
+                  mat-header-row
+                  *matHeaderRowDef="invoiceSummaryDisplayedColumns"
+                ></tr>
+                <tr
+                  mat-row
+                  *matRowDef="let row; columns: invoiceSummaryDisplayedColumns"
+                ></tr>
+              </table>
+            } @else {
+              <div class="no-data-container">
+                <p>No invoice data available for this order.</p>
+              </div>
+            }
+          } @else {
+            <div class="loading-container">
+              <app-loading-symbol></app-loading-symbol>
+              <br /><br /><br />
+            </div>
+          }
+        </div>
+      </div>
+    }
+    <br /><br />
+  </div>
+</div>
+
+@if (showInvoiceModal) {
+  <app-modal
+    [headerBgColor]="'#def7ff'"
+    [borderRadius]="'0px'"
+    [title]="
+      'Transaction Number  &nbsp; -  &nbsp; ' +
+      selectedTransactionNumber +
+      '  &nbsp;&nbsp; | &nbsp;&nbsp; Web Order ID  &nbsp; -  &nbsp; ' +
+      orderId
+    "
+    (close)="showInvoiceModal = false"
+  >
+    @if (invoiceSummaryModalDataSource.data.length > 0) {
+      <!-- PRINT STATUS TABLE -->
+      <div class="invoice-summary-table">
+        <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px">
+          Print Status
+        </div>
+
+        <table
+          mat-table
+          style="width: 100%"
+          [dataSource]="invoiceSummaryModalDataSource"
+        >
+          @for (column of displayedColumnsInvoicePrintStatus; track column) {
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef>
+                {{ formatColumnName(column) }}
+              </th>
+              <td mat-cell *matCellDef="let element">
+                @if (column === 'PRINT_DATE') {
+                  {{ element[column] | date : "MM/dd/yyyy" }}
+                } @else {
+                  {{ element[column] }}
+                }
+              </td>
+            </ng-container>
+          }
+
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumnsInvoicePrintStatus"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumnsInvoicePrintStatus"
+          ></tr>
+        </table>
+      </div>
+
+      <!-- E-INVOICE STATUS TABLE -->
+      <div class="invoice-summary-table" style="margin-top: 18px">
+        <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px">
+          E-Invoice Status & Collector Info
+        </div>
+        <table
+          mat-table
+          style="width: 100%"
+          [dataSource]="invoiceSummaryModalDataSource"
+        >
+          @for (column of displayedColumnsInvoiceStatus; track column) {
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef>
+                {{ formatColumnName(column) }}
+              </th>
+              <td mat-cell *matCellDef="let element">
+                @if (column === 'IRN_UUID_DATE') {
+                  {{ element[column] | date : "MM/dd/yyyy" }}
+                } @else {
+                  {{ element[column] }}
+                }
+              </td>
+            </ng-container>
+          }
+
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumnsInvoiceStatus"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumnsInvoiceStatus"
+          ></tr>
+        </table>
+      </div>
+
+      <!-- CASH APPLICATION TABLE -->
+      <div class="invoice-summary-table" style="margin-top: 18px">
+        <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px">
+          Cash Application
+        </div>
+        <table
+          mat-table
+          style="width: 100%"
+          [dataSource]="invoiceSummaryModalDataSource"
+        >
+          @for (column of displayedColumnsInvoiceCash; track column) {
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef>
+                {{ formatColumnName(column) }}
+              </th>
+              <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
+            </ng-container>
+          }
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsInvoiceCash"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumnsInvoiceCash"
+          ></tr>
+        </table>
+      </div>
+    } @else {
+      <div class="no-data-container">
+        <p>No data available for this invoice.</p>
+      </div>
+    }
+  </app-modal>
+}
+
+@if (showWelcomeOverlay) {
+  <div
+    class="o2c-welcome-overlay"
+    (click)="dismissOverlay()"
+  >
+    <div class="welcome-card" (click)="$event.stopPropagation()">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="55"
+        height="70"
+        viewBox="0 0 55 70"
+        fill="none"
+        style="align-self: anchor-center"
+      >
+        <path
+          d="M28.0793 51.0607C31.8482 51.0607 34.6914 48.3308 34.6914 44.7458C34.6914 41.8843 33.6004 40.0424 31.2862 39.1215C29.3356 38.3321 26.823 38.2992 24.5748 38.2992H23.9467C22.2275 38.2992 20.9382 36.9507 20.9382 35.1418C20.9382 33.4972 22.2937 32.1487 23.9467 32.1487H31.5837C32.7409 32.1487 33.2698 31.3265 33.2698 30.5042C33.2698 29.6819 32.7409 28.8268 31.5837 28.8268H27.8479V26.0311C27.8479 24.8799 26.9552 24.3208 26.1618 24.3208C25.3683 24.3208 24.5087 24.8799 24.5087 26.0311V28.8268H24.2442C20.4423 28.8268 17.599 31.5567 17.599 35.1418C17.599 38.7268 20.4423 41.6212 23.9467 41.6212H25.1369C27.0544 41.5225 29.4678 41.4567 30.7242 42.6408C31.2531 43.1341 31.5176 43.8577 31.5176 44.7458C31.5176 46.3574 30.096 47.7388 28.4099 47.7388H20.5745C19.4504 47.7388 18.9545 48.5611 18.9545 49.3833C18.9545 50.2056 19.4504 51.0607 20.5745 51.0607H24.5087V54.0538C24.5087 55.1391 25.3352 55.6325 26.1618 55.6325C26.9883 55.6325 27.8479 55.1391 27.8479 54.0538V51.0607H28.0793Z"
+          fill="#5D656C"
+        />
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M53.8373 22.3411C53.8373 21.941 53.6725 21.5743 53.4088 21.2742L34.8507 2.46685C34.7189 2.30012 34.587 2.20008 34.3892 2.13339H34.3563C34.1585 2.03335 33.9607 2 33.7629 2H4.22815C2.51408 2.03335 1.12964 3.4339 1.12964 5.16791V64.7913C1.12964 66.5253 2.51408 67.9258 4.22815 67.9258H50.7718C52.4859 67.9258 53.8703 66.5253 53.8703 64.7913L53.8703 22.4078C53.8703 22.3936 53.8703 22.3855 53.8677 22.3782C53.8643 22.3684 53.8562 22.3602 53.8373 22.3411ZM35.3122 7.40212L48.827 21.0741H38.4107C36.6966 21.0741 35.3122 19.6736 35.3122 17.9396V7.40212ZM50.7718 64.7913H4.22815V5.16791H32.2137V17.9396C32.2137 21.4076 34.9826 24.2087 38.4107 24.2087H50.7718V64.7913Z"
+          fill="#5D656C"
+        />
+        <path
+          d="M53.8373 22.3411C53.8373 21.941 53.6725 21.5743 53.4088 21.2742L34.8507 2.46685C34.7189 2.30012 34.587 2.20008 34.3892 2.13339H34.3563C34.1585 2.03335 33.9607 2 33.7629 2H4.22815C2.51408 2.03335 1.12964 3.4339 1.12964 5.16791V64.7913C1.12964 66.5253 2.51408 67.9258 4.22815 67.9258H50.7718C52.4859 67.9258 53.8703 66.5253 53.8703 64.7913L53.8703 22.4078C53.8703 22.3936 53.8703 22.3855 53.8677 22.3782C53.8643 22.3684 53.8562 22.3602 53.8373 22.3411ZM53.8373 22.3411C53.8461 22.3677 53.8525 22.392 53.8572 22.4158M48.827 21.0741L35.3122 7.40212V17.9396C35.3122 19.6736 36.6966 21.0741 38.4107 21.0741H48.827ZM4.22815 64.7913H50.7718V24.2087H38.4107C34.9826 24.2087 32.2137 21.4076 32.2137 17.9396V5.16791H4.22815V64.7913ZM34.6914 44.7458C34.6914 48.3308 31.8482 51.0607 28.0793 51.0607H27.8479V54.0538C27.8479 55.1391 26.9883 55.6325 26.1618 55.6325C25.3352 55.6325 24.5087 55.1391 24.5087 54.0538V51.0607H20.5745C19.4504 51.0607 18.9545 50.2056 18.9545 49.3833C18.9545 48.5611 19.4504 47.7388 20.5745 47.7388H28.4099C30.096 47.7388 31.5176 46.3574 31.5176 44.7458C31.5176 43.8577 31.2531 43.1341 30.7242 42.6408C29.4678 41.4567 27.0544 41.5225 25.1369 41.6212H23.9467C20.4423 41.6212 17.599 38.7268 17.599 35.1418C17.599 31.5567 20.4423 28.8268 24.2442 28.8268H24.5087V26.0311C24.5087 24.8799 25.3683 24.3208 26.1618 24.3208C26.9552 24.3208 27.8479 24.8799 27.8479 26.0311V28.8268H31.5837C32.7409 28.8268 33.2698 29.6819 33.2698 30.5042C33.2698 31.3265 32.7409 32.1487 31.5837 32.1487H23.9467C22.2937 32.1487 20.9382 33.4972 20.9382 35.1418C20.9382 36.9507 22.2275 38.2992 23.9467 38.2992H24.5748C26.823 38.2992 29.3356 38.3321 31.2862 39.1215C33.6004 40.0424 34.6914 41.8843 34.6914 44.7458Z"
+          stroke="#5D656C"
+          stroke-width="2.26031"
+        />
+      </svg>
+      <h4>Welcome to the O2C 360 Search Engine</h4>
+
+      <app-o2c-search class="welcome-card-searchbox"></app-o2c-search>
+
+      <p>
+        You can search directly here below, or anytime later using the
+        <strong>search bar in the top right</strong>. Search by
+        <em>Order Number</em>, <em>Subscription Number</em>, or
+        <em>Invoice Number</em>. Just type and press <strong>Enter</strong>!
+      </p>
+
+      <!-- Optional: You can re-enable this dismiss button if needed -->
+      <!-- <button class="dismiss-button" (click)="dismissOverlay()">Got it!</button> -->
+    </div>
+  </div>
+}

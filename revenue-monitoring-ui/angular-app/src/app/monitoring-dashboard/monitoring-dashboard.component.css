@@ -1,77 +1,148 @@
 :host {
-  display: block;
-  background: white;
+  /* ── Scoped design tokens (light) ── */
+  --md-bg: #ffffff;
+  --md-surface: #ffffff;
+  --md-card-bg: #ffffff;
+  --md-card-border: var(--fit-color-border, #e1e4e8);
+  --md-text: #1b1c1d;
+  --md-muted: #555;
+  --md-card-shadow: none;
+  --md-card-radius: 12px;
 
-  min-height: 100vh; /* Ensure it covers the entire height of the viewport */
-  padding: 1.2rem; /* Add padding to keep spacing from the edges */
+  display: contents;
   font-family: "Inter", sans-serif;
 }
 
-.mat-header-row {
-  background-color: #ffffff !important;
-  border-bottom: 2px solid #373c42 !important; /* Add a bar below the header row */
+/* ══════════════════════════════════════════════════════════
+   Layout
+   ══════════════════════════════════════════════════════════ */
+
+.md-section {
+  padding: 0 1rem;
 }
 
-.mat-header-cell {
-  color: rgb(46, 46, 46) !important;
-  text-align: center !important;
+/* Checkbox — same as admin */
+.fit-bulk-checkbox {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: var(--fit-color-primary);
+}
+
+/* ══════════════════════════════════════════════════════════
+   Table container — matches admin's bordered table
+   ══════════════════════════════════════════════════════════ */
+
+.md-table-container {
+  border: 1px solid var(--fit-color-border);
+  border-radius: var(--fit-radius-lg);
+  overflow: hidden;
+}
+
+/* White background styling for filled form fields */
+:host ::ng-deep .mat-mdc-form-field .mdc-text-field--filled {
+  background-color: #ffffff !important;
+}
+
+:host
+  ::ng-deep
+  .mat-mdc-form-field
+  .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: #ffffff !important;
+}
+
+:host ::ng-deep .mat-mdc-form-field .mdc-text-field--filled::before {
+  border-bottom-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+:host ::ng-deep .mat-mdc-form-field .mat-mdc-select .mat-mdc-select-trigger {
+  background-color: transparent;
+}
+
+/* Placeholder styling */
+:host ::ng-deep .mat-mdc-form-field input::placeholder {
+  font-size: 0.6875rem !important;
+  opacity: 0.7;
+}
+
+:host ::ng-deep .mat-mdc-form-field input:focus::placeholder {
+  opacity: 0.5;
+}
+
+.mat-mdc-header-row {
+  background: var(--fit-color-bg-subtle) !important;
+  border-bottom: 1px solid var(--fit-color-border) !important;
+}
+
+.mat-mdc-header-cell {
+  color: var(--fit-color-text-muted) !important;
+  text-align: left !important;
   border-bottom: 0px !important;
-  font-size: 12px !important;
-  padding: 1vh !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: capitalize;
+  letter-spacing: 0.03em;
+  padding: 0.75rem 0.75rem !important;
 }
 
-.mat-row:nth-child(odd) {
-  background-color: #f2f2f2 !important;
+.mat-mdc-row {
+  background: var(--md-surface) !important;
+  border-bottom: 1px solid var(--fit-color-border) !important;
+  transition: background var(--fit-transition-fast);
 }
 
-.mat-row:nth-child(even) {
-  background-color: #ffffff !important;
+.mat-mdc-row:last-child {
+  border-bottom: 0px !important;
 }
 
-.mat-cell {
-  text-align: center !important;
-  font-size: 11px !important;
-  font-weight: 500 !important;
-  padding: 0.4vh !important;
+.mat-mdc-row:hover {
+  background: var(--fit-color-bg-subtle) !important;
+}
+
+.mat-mdc-cell {
+  text-align: left !important;
+  font-size: 0.75rem !important;
+  font-weight: 400 !important;
+  color: var(--md-text) !important;
+  padding: 0.5rem 0.75rem !important;
   border: 0px !important;
-  text-wrap: nowrap;
+  white-space: nowrap;
 }
 
-tr.mat-row {
-  height: 30px;
+tr.mat-mdc-row {
+  height: 44px !important;
   border-bottom: 0px;
 }
 
 td {
-  font-size: 11px;
+  font-size: 0.8rem;
 }
 
 th {
-  text-align: center !important;
+  text-align: left !important;
   border-bottom: 0px !important;
-  font-size: 12px;
-  padding: 0.5vh !important ;
+  font-size: 0.75rem;
+  padding: 0.75rem !important;
 }
 
 td {
-  text-align: center !important;
-  font-size: 11px;
-  padding: 0.4vh !important ;
+  text-align: left !important;
+  font-size: 0.8rem;
+  padding: 0.625rem 0.75rem !important;
   border: 0px !important;
 }
 
-tr.mat-header-row {
-  height: 28px;
+tr.mat-mdc-header-row {
+  height: 40px;
 }
 
 ::ng-deep .mat-sort-header-container {
   display: flex;
   align-items: center;
-  justify-content: center !important;
 }
 
 ::ng-deep .mat-sort-header-arrow {
-  color: #ffffff; /* Change to your desired color */
+  color: var(--md-muted);
 }
 
 .loading-container {
@@ -83,6 +154,16 @@ tr.mat-header-row {
   min-height: 14vw;
   width: 100%;
   height: 100%;
+}
+
+.no-data-image {
+  width: 120px;
+  height: auto;
+}
+
+:host-context(.dark-theme) .no-data-image {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9);
+  opacity: 0.7;
 }
 
 .no-wrap {
@@ -107,9 +188,9 @@ tr.mat-header-row {
 }
 
 .page-title {
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: 600;
-  color: #373c42;
+  color: var(--md-text);
   margin: 0px;
 }
 
@@ -138,24 +219,25 @@ tr.mat-header-row {
   align-items: stretch;
 }
 
-.card,
-.container {
+.card {
   position: relative;
   display: block;
   padding: 16px;
   background-color: #fff;
-  border: 2px solid #e1e4e8;
-  border-radius: 8px;
+  border: 1px solid var(--fit-color-border);
+  border-radius: var(--fit-radius-lg);
   transition: all linear 0.5s;
   width: 100%;
 }
 
 .container {
-  padding: 8px 0 12px 0;
-  margin-bottom: 16px;
-  border: 0px;
-  border-radius: 12px;
-  box-shadow: 0 3px 8px #00000014;
+  padding: 0;
+  margin-bottom: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
 }
 
 .flowchart-container {
@@ -185,16 +267,16 @@ tr.mat-header-row {
 }
 
 .card-title {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
-  color: #373c42;
+  color: var(--md-text);
   margin: 0px;
 }
 
 .card-subtitle {
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 400;
-  color: #596069;
+  color: var(--md-muted);
   margin: 0px;
 }
 
@@ -224,13 +306,8 @@ tr.mat-header-row {
   align-items: center;
   width: 100%;
   padding: 0 10px 0 12px;
-  min-height: 80px;
+  min-height: 50px;
 }
-
-/* .section-title {
-  color: #373c42;
-  margin: 0px;
-} */
 
 .left-section {
   display: flex;
@@ -242,31 +319,30 @@ tr.mat-header-row {
 
 .section-title {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: var(--fit-font-size-lg);
+  font-weight: var(--fit-font-weight-semibold);
+  color: var(--md-text);
   flex-shrink: 0;
 }
 
 .process-flow-left {
-  margin-top: -10px;
-  width: auto; /* Let it size naturally based on content */
-  max-width: none; /* Remove max-width constraint */
-  flex: 0 0 auto; /* Don't grow, just take the space needed */
+  width: auto;
+  max-width: none;
+  flex: 0 0 auto;
 }
 
 .details-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 1rem;
+  flex: 1;
 }
 
 .form-container {
   display: flex;
-  justify-content: flex-start; /* Align form fields to the left */
-  align-items: center; /* Align form fields vertically */
-  flex-wrap: wrap; /* Allow wrapping if needed */
-  margin-left: 0; /* No left margin */
-  gap: 12px; /* Space between form fields */
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   padding: 0 0 0 12px;
 }
 
@@ -278,7 +354,34 @@ tr.mat-header-row {
 
 .filter-item {
   display: flex;
-  gap: 10px; /* Space between form items */
+  gap: 10px;
+  height: 30px;
+}
+
+.form-container .mat-small {
+  font-size: var(--fit-font-size-sm);
+  color: var(--md-muted);
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--md-card-border);
+  border-radius: var(--fit-radius-sm);
+  cursor: pointer;
+  transition:
+    color var(--fit-transition-fast),
+    border-color var(--fit-transition-fast);
+}
+
+.form-container .mat-small:hover {
+  color: var(--md-text);
+  border-color: var(--md-text);
+}
+
+.md-filter-field {
+  font-size: var(--fit-font-size-sm) !important;
+  margin-top: 1px !important;
+}
+
+.md-search-icon {
+  color: var(--md-muted);
 }
 
 /* .action-buttons {
@@ -290,7 +393,7 @@ tr.mat-header-row {
 .action-buttons {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 20px;
   flex: 0 0 auto;
 }
 .assign-buttons {
@@ -301,13 +404,9 @@ tr.mat-header-row {
 }
 
 .rol-error-summary-container {
-  overflow-x: auto; /* Ensure the table scrolls horizontally if too wide */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  height: fit-content;
-  padding-top: 0px;
-  margin-top: -6px;
+  overflow-x: auto;
+  display: block;
+  padding: 0;
 }
 
 .callout-box {
@@ -396,13 +495,15 @@ tr.mat-header-row {
   font-family: "Inter", sans-serif !important;
   padding: 5px 10px;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 0.75rem;
   line-height: 20px;
   cursor: pointer;
   border-radius: 6px;
   color: #fff !important;
   border: none;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .comments-cell {
@@ -428,7 +529,7 @@ tr.mat-header-row {
 }
 
 .circle-number {
-  font-size: 10px;
+  font-size: 0.625rem;
   font-weight: bold;
   color: white;
   line-height: 1;
@@ -445,14 +546,238 @@ tr.mat-header-row {
   content: "↓";
 }
 
-.mat-column-APPLICATION_NAME {
+.mat-mdc-column-APPLICATION_NAME {
   text-wrap: nowrap;
 }
 
-.mat-column-ORG_NAME {
+.mat-mdc-column-ORG_NAME {
   text-wrap: nowrap;
 }
 
-.mat-column-PROCESS_FLOW {
+.mat-mdc-column-PROCESS_FLOW {
   text-wrap: nowrap;
+}
+
+::ng-deep .mat-mdc-option {
+  &.mat-mdc-option-active,
+  &.mdc-list-item--selected,
+  &:focus {
+    background-color: transparent !important;
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+  }
+
+  &.mat-mdc-option-active:hover {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+  }
+}
+
+/* ── Paginator ── */
+:host ::ng-deep .mat-mdc-paginator {
+  background: transparent !important;
+  font-size: var(--fit-font-size-sm);
+  color: var(--md-muted);
+  border-top: 1px solid var(--fit-color-border);
+}
+
+:host ::ng-deep .mat-mdc-paginator .mat-mdc-paginator-range-label {
+  color: var(--md-muted);
+}
+
+.md-link {
+  color: var(--fit-color-primary, #0070d2);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.md-link:hover {
+  text-decoration: underline;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Dark mode (activated via ancestor wrapper .dark-theme)
+   ══════════════════════════════════════════════════════════ */
+
+:host-context(.dark-theme) {
+  --md-bg: var(--fit-dark-bg, #0f1923);
+  --md-surface: var(--fit-dark-surface, #1a2733);
+  --md-card-bg: var(--fit-dark-surface, #1a2733);
+  --md-card-border: var(--fit-dark-border, #2a3f50);
+  --md-text: var(--fit-dark-text, #e0e6ed);
+  --md-muted: var(--fit-dark-muted, #8899a6);
+
+  /* Material MDC table design tokens — must be redefined for dark
+     because the cell background reads from --mat-table-background-color */
+  --mat-table-background-color: var(--fit-dark-surface, #1a2733);
+  --mat-table-row-item-container-color: var(--fit-dark-surface, #1a2733);
+  --mat-table-header-container-color: var(--fit-dark-surface, #111b25);
+  --mat-table-footer-container-color: var(--fit-dark-surface, #1a2733);
+  --mat-table-row-item-outline-color: var(--fit-dark-border, #2a3f50);
+}
+
+:host-context(.dark-theme) .md-table-container {
+  border-color: var(--md-card-border);
+  background: var(--md-surface);
+}
+
+/* Material table — need to paint both <tr> and <td>/<th> because MDC
+   applies background to the cells, not the row. */
+:host-context(.dark-theme) .mat-mdc-table,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-table {
+  background: var(--md-surface) !important;
+}
+:host-context(.dark-theme) .mat-mdc-header-row,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-header-row {
+  background: var(--fit-dark-surface, #111b25) !important;
+  border-bottom-color: var(--md-card-border) !important;
+}
+:host-context(.dark-theme) .mat-mdc-header-cell,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-header-cell {
+  background: var(--fit-dark-surface, #111b25) !important;
+  color: var(--md-muted) !important;
+  border-bottom-color: var(--md-card-border) !important;
+}
+:host-context(.dark-theme) .mat-mdc-row,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-row {
+  background: var(--md-surface) !important;
+  border-bottom-color: var(--md-card-border) !important;
+}
+:host-context(.dark-theme) .mat-mdc-cell,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-cell {
+  background: var(--md-surface) !important;
+  color: var(--md-text) !important;
+  border-bottom-color: var(--md-card-border) !important;
+}
+/* Hover — paint cells too, otherwise Material's default white shows through */
+:host-context(.dark-theme) .mat-mdc-row:hover,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-row:hover {
+  background: #233544 !important;
+}
+:host-context(.dark-theme) .mat-mdc-row:hover .mat-mdc-cell,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-row:hover .mat-mdc-cell {
+  background: #233544 !important;
+}
+
+/* Material form fields (filled) */
+:host-context(.dark-theme)
+  ::ng-deep
+  .mat-mdc-form-field
+  .mdc-text-field--filled,
+:host-context(.dark-theme)
+  ::ng-deep
+  .mat-mdc-form-field
+  .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: var(--fit-dark-surface, #1a2733) !important;
+}
+:host-context(.dark-theme)
+  ::ng-deep
+  .mat-mdc-form-field
+  .mdc-text-field--filled::before {
+  border-bottom-color: rgba(255, 255, 255, 0.18) !important;
+}
+:host-context(.dark-theme) ::ng-deep .mat-mdc-form-field input,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-form-field textarea {
+  color: var(--fit-dark-text, #e0e6ed) !important;
+  caret-color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) ::ng-deep .mat-mdc-form-field input::placeholder,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-form-field textarea::placeholder {
+  color: var(--fit-dark-muted, #8899a6) !important;
+}
+:host-context(.dark-theme) ::ng-deep .mat-mdc-select-value,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-select-arrow,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-form-field-label,
+:host-context(.dark-theme) ::ng-deep .mdc-floating-label {
+  color: var(--fit-dark-muted, #8899a6) !important;
+}
+:host-context(.dark-theme)
+  ::ng-deep
+  .mat-mdc-form-field
+  .mat-mdc-form-field-icon-suffix {
+  color: var(--fit-dark-muted, #8899a6) !important;
+}
+
+/* Paginator */
+:host-context(.dark-theme) ::ng-deep .mat-mdc-paginator {
+  background: transparent !important;
+  color: var(--fit-dark-muted, #8899a6) !important;
+  border-top-color: var(--md-card-border) !important;
+}
+:host-context(.dark-theme)
+  ::ng-deep
+  .mat-mdc-paginator
+  .mat-mdc-paginator-range-label,
+:host-context(.dark-theme)
+  ::ng-deep
+  .mat-mdc-paginator
+  .mat-mdc-paginator-page-size-label,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-icon-button {
+  color: var(--fit-dark-muted, #8899a6) !important;
+}
+
+/* Sort header arrow */
+:host-context(.dark-theme) ::ng-deep .mat-sort-header-arrow {
+  color: var(--fit-dark-muted, #8899a6);
+}
+
+/* Mat options panel (dropdown) — rendered in overlay, scope by ancestor */
+:host-context(.dark-theme) ::ng-deep .mat-mdc-option:hover,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-option.mat-mdc-option-active {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Card / callout / modal */
+:host-context(.dark-theme) .card {
+  background-color: var(--md-surface) !important;
+  border-color: var(--md-card-border) !important;
+  color: var(--md-text);
+}
+:host-context(.dark-theme) .card:hover {
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+}
+:host-context(.dark-theme) .card-placeholder {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+:host-context(.dark-theme) .callout-box {
+  background-color: var(--md-surface);
+  color: var(--md-text);
+}
+:host-context(.dark-theme) .box-header {
+  color: var(--md-muted);
+}
+:host-context(.dark-theme) .box-body {
+  color: var(--md-text);
+}
+
+:host-context(.dark-theme) .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.65);
+}
+:host-context(.dark-theme) .modal-content {
+  background-color: var(--md-surface);
+  color: var(--md-text);
+  border: 1px solid var(--md-card-border);
+}
+
+:host-context(.dark-theme) .page-title,
+:host-context(.dark-theme) .card-title,
+:host-context(.dark-theme) .section-title {
+  color: var(--md-text);
+}
+:host-context(.dark-theme) .card-subtitle {
+  color: var(--md-muted);
+}
+
+/* Form/filter controls */
+:host-context(.dark-theme) .form-container .mat-small {
+  color: var(--md-muted);
+  border-color: var(--md-card-border);
+}
+:host-context(.dark-theme) .form-container .mat-small:hover {
+  color: var(--md-text);
+  border-color: var(--md-text);
+}
+:host-context(.dark-theme) .md-search-icon {
+  color: var(--md-muted);
 }

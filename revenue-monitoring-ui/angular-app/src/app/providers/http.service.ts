@@ -1,18 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { AppConfigService } from './app-config.service';
-import { Subject, takeUntil } from 'rxjs';
+import { takeUntil } from 'rxjs';
 import { DestroyManager } from './destroy-manager.service';
 import { AuthenticationService } from './authentication.service';
 
 @Injectable({ providedIn: 'root' })
 export class ApiHttpService {
-  hostUrl: string = this.authService.getHostUrl();
+  hostUrl!: string;
 
   constructor(
     private http: HttpClient,
     private authService: AuthenticationService
-  ) {}
+  ) {
+    this.hostUrl = this.authService.getHostUrl();
+  }
 
   public getHostUrl(): string {
     return this.hostUrl;
@@ -24,8 +25,8 @@ export class ApiHttpService {
       .pipe(takeUntil(destroyManager.destroyObservable));
   }
 
-  public post(url: string, data: any, options?: any) {
-    return this.http.post(this.hostUrl + url, data, options);
+  public post<T>(url: string, data: any, options?: any) {
+    return this.http.post<T>(this.hostUrl + url, data, options);
   }
 
   public put(

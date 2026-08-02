@@ -5,9 +5,9 @@ import java.util.List;
 public class UserRoleInfo {
     private String username;
     private String userEmail;
-    private List<String> userRoles;
+    private List<RoleEntry> userRoles;
 
-    public UserRoleInfo(String username, String userEmail, List<String> userRoles) {
+    public UserRoleInfo(String username, String userEmail, List<RoleEntry> userRoles) {
         this.username = username;
         this.userEmail = userEmail;
         this.userRoles = userRoles;
@@ -21,7 +21,7 @@ public class UserRoleInfo {
         return userEmail;
     }
 
-    public List<String> getUserRoles() {
+    public List<RoleEntry> getUserRoles() {
         return userRoles;
     }
 }

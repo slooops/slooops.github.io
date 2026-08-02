@@ -1,62 +1,41 @@
-<div
-  style="
-    margin: -24px -24px 0 -24px; /* Removes default padding around the mat dialog */
-    background-color: #08ace4;
-    padding: 10px;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  "
->
-  <!-- Title on the left -->
-  <h5 style="margin: 0; font-weight: 450">Columns Filter</h5>
-  <!-- Close button on the right -->
-  <a style="text-decoration: none; cursor: pointer" (click)="closeDialog()">
-    <i class="fa fa-close" style="font-size: 16px; color: white"></i>
-  </a>
+<div class="cs-header">
+  <h5 class="cs-title">Displayed Columns</h5>
+  <button type="button" class="cs-icon-btn" (click)="closeDialog()">
+    <i class="fa fa-close" aria-hidden="true"></i>
+  </button>
 </div>
-<br />
-<mat-dialog-content style="padding: 0">
-  <div>
-    <div
-      style="
-        padding-left: 10px;
-        padding-bottom: 5px;
-        font-weight: bold;
-        font-size: small;
-        border-bottom: 2px solid #373c42 !important;
-        background-color: white;
-        position: sticky;
-        top: 0;
-        z-index: 1;
-      "
-    >
-      Displayed Columns
+
+<mat-dialog-content class="cs-content">
+  <div class="cs-table-container">
+    <div class="cs-table-scroll">
+      <table class="cs-table">
+        <thead>
+          <tr>
+            <th>Column Name</th>
+            <th class="cs-th-check">Visible</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (col of displayedColumns; track col.name) {
+            <tr (click)="toggleColumn(col)" class="cs-row">
+              <td>{{ col.displayName }}</td>
+              <td class="cs-td-check">
+                <input
+                  type="checkbox"
+                  class="fit-bulk-checkbox"
+                  [checked]="isSelected(col)"
+                  (click)="$event.stopPropagation()"
+                  (change)="toggleColumn(col)"
+                />
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
-    <mat-selection-list #column (selectionChange)="logSelectedColumns($event)">
-      <mat-list-option
-        *ngFor="let column of displayedColumns"
-        [value]="column"
-        [selected]="
-          selectedColumns.length > 0
-            ? selectedColumns.includes(column.name)
-            : column.selected
-        "
-        style="font-weight: 500; font-size: small"
-        >{{ column.displayName }}</mat-list-option
-      >
-    </mat-selection-list>
   </div>
-  <mat-divider></mat-divider>
-  <br />
-  <div style="text-align: center !important">
-    <button
-      mat-raised-button
-      style="background-color: gray; color: white"
-      (click)="save()"
-    >
-      Save
-    </button>
+
+  <div class="cs-footer">
+    <button type="button" class="cs-save-btn" (click)="save()">Save</button>
   </div>
 </mat-dialog-content>

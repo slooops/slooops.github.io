@@ -1,0 +1,262 @@
+/* ── Light mode (default) ── */
+:host {
+  --inv-bg: #ffffff;
+  --inv-surface: #ffffff;
+  --inv-text: #1b1c1d;
+  --inv-muted: #555;
+  --inv-border: #e1e4e8;
+  --inv-hover-bg: rgba(0, 112, 210, 0.04);
+  --inv-header-h2: #000000;
+  --inv-search-bg: #ffffff;
+  --inv-search-border: #d0d0d0;
+  --inv-search-icon: #888;
+  --inv-pill-color: #555;
+  --inv-pill-hover-bg: #f3f8ff;
+  --inv-pill-hover-border: #d0e3f7;
+  --inv-pill-active-bg: #eff8ff;
+  --inv-pill-active-border: #00bceb;
+  --inv-pill-active-color: #00bceb;
+  display: block;
+}
+
+/* ── Dark mode ── */
+:host(.dark-theme) {
+  --inv-bg: var(--fit-dark-bg, #0f1923);
+  --inv-surface: var(--fit-dark-surface, #111b25);
+  --inv-text: var(--fit-dark-text, #e0e6ed);
+  --inv-muted: var(--fit-dark-muted, #8899a6);
+  --inv-border: var(--fit-dark-border, #2a3f50);
+  --inv-hover-bg: var(--fit-dark-hover-bg, rgba(255, 255, 255, 0.06));
+  --inv-header-h2: var(--fit-dark-text, #e0e6ed);
+  --inv-search-bg: var(--fit-dark-surface, #111b25);
+  --inv-search-border: var(--fit-dark-border, #2a3f50);
+  --inv-search-icon: var(--fit-dark-muted, #8899a6);
+  --inv-pill-color: var(--fit-dark-muted, #8899a6);
+  --inv-pill-hover-bg: rgba(0, 188, 235, 0.08);
+  --inv-pill-hover-border: rgba(0, 188, 235, 0.4);
+  --inv-pill-active-bg: rgba(0, 188, 235, 0.12);
+  --inv-pill-active-border: #00bceb;
+  --inv-pill-active-color: #00bceb;
+  background: var(--inv-bg);
+  color: var(--inv-text);
+}
+
+/* Header & search styling aligned with Order Management / Operations Controls */
+
+.dashboard-header {
+  margin-bottom: 0;
+  text-align: left;
+  padding: 0 2rem;
+}
+
+.header-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 10px 0;
+}
+
+.header-main h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--inv-header-h2);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.period-info {
+  font-size: 13px;
+  margin-right: auto;
+}
+
+.global-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--inv-search-bg);
+  border: 1px solid var(--inv-search-border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  margin-left: auto;
+}
+
+.global-search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 4px;
+}
+
+.global-search-icon {
+  font-size: 12px;
+  color: var(--inv-search-icon);
+  cursor: pointer;
+}
+
+.global-search-input {
+  border: none;
+  outline: none;
+  font-size: 12px;
+  min-width: 200px;
+  background: transparent;
+  color: var(--inv-text);
+}
+
+.global-search-input::placeholder {
+  color: var(--inv-muted);
+}
+
+hr {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--inv-border);
+  background: transparent;
+  color: var(--inv-border);
+  height: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-right: auto;
+}
+
+.inv-content {
+  margin-top: 5px;
+}
+
+/* Pill-shaped sub-tabs for Post-Invoicing */
+
+.pill-tabs {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1rem 5px 1rem;
+  width: 100%;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  gap: 0.3rem;
+}
+
+.pill-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.pill-tab {
+  padding: 6px 70px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--inv-pill-color);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.pill-tab:hover {
+  background: var(--inv-pill-hover-bg);
+  border-color: var(--inv-pill-hover-border);
+}
+
+.pill-tab.active {
+  background: var(--inv-pill-active-bg);
+  border-color: var(--inv-pill-active-border);
+  color: var(--inv-pill-active-color);
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 1200px) {
+  .period-info {
+    font-size: 11px;
+  }
+
+  .global-search-input {
+    min-width: 150px;
+    font-size: 11px;
+  }
+
+  .global-search {
+    padding: 3px 8px;
+  }
+
+  .global-search-icon {
+    font-size: 11px;
+  }
+
+  .pill-tab {
+    padding: 6px 40px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .period-info {
+    font-size: 10px;
+  }
+
+  .period-info .divider {
+    display: none;
+  }
+
+  .period-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .global-search-input {
+    min-width: 110px;
+    font-size: 10px;
+  }
+
+  .global-search {
+    padding: 2px 6px;
+  }
+
+  .global-search-icon {
+    font-size: 10px;
+  }
+
+  .header-main h2 {
+    font-size: 0.95rem;
+  }
+
+  .pill-tab {
+    padding: 5px 25px;
+    font-size: 12px;
+  }
+}
+
+.ask-ivan-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--landing-space-xs);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #0070d2;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: var(--landing-space-xs) var(--landing-space-sm);
+  border-radius: var(--landing-card-radius);
+  transition: background var(--fit-transition-fast, 150ms);
+}
+
+.ask-ivan-btn:hover {
+  background: var(--fit-color-primary-soft, #e6f0fa);
+}
+
+.ask-ivan-icon {
+  font-size: 1.25rem;
+}
+
+.ask-ivan-label {
+  letter-spacing: 0.5px;
+}

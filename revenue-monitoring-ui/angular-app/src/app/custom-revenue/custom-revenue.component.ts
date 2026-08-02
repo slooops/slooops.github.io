@@ -1,28 +1,98 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostBinding, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { DataService } from '../providers/data.service';
+import { ThemeService } from '../providers/theme.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
+import { ApiHttpService } from '../providers/http.service';
 import { Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
+import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
+import {
+  MenuMiniComponent,
+  MenuMiniItem,
+} from '../shared/menu-mini/menu-mini.component';
+import { provideIcons } from '@ng-icons/core';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+export interface UserContext {
+  username: string;
+  userId: string;
+  roles: string[];
+  apiUrl: string;
+  assignmentUsersFilterKey: string;
+}
 
 @Component({
   selector: 'app-custom-revenue',
   templateUrl: './custom-revenue.component.html',
   styleUrl: './custom-revenue.component.css',
-  providers: [DestroyManager],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
+  ],
+  imports: [
+    CommonModule,
+    MonitoringDashboardComponent,
+    LoadingSymbolComponent,
+    MenuMiniComponent,
+  ],
+  standalone: true,
 })
 export class CustomRevenueComponent implements OnInit {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+
   roles: string[] = [];
+  userContextData: UserContext;
+  private userName: string = '';
+
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
     protected authService: AuthenticationService,
-    private menuService: MenuService
-  ) {}
+    private menuService: MenuService,
+    private http: ApiHttpService,
+    private route: ActivatedRoute,
+    public themeService: ThemeService,
+  ) {
+    // Initialize roles and user context in constructor so they're available before template renders
+    this.roles = this.authService.getUserAccessRoles();
+    this.userContextData = {
+      username: this.authService.getUserName(),
+      userId: this.authService.getUserID(),
+      roles: this.roles,
+      apiUrl: this.authService.getHostUrl(),
+      assignmentUsersFilterKey: 'I2C',
+    };
+  }
   ngOnInit(): void {
+    this.userName = this.authService.getUserName();
     this.getErrorSummaryPeriodStatus();
-    this.roles = this.authService.getRoles();
     this.getDefaultTabIndex();
+
+    // Handle tab query param from side-nav
+    this.route.queryParams.subscribe((params) => {
+      const tabSlug = params['tab'];
+      if (tabSlug) {
+        const idx = this.filteredTabs.findIndex(
+          (t) => t.label.toLowerCase().replace(/\s+/g, '-') === tabSlug,
+        );
+        if (idx >= 0) {
+          this.selectedIndex = idx;
+          this.onTabChange(idx);
+        }
+      }
+    });
+
+    // Log initial tab visit
+    if (this.filteredTabs.length > 0) {
+      this.logTabVisit(this.filteredTabs[0]?.label);
+    }
   }
 
   fieldConfig = [
@@ -246,7 +316,7 @@ export class CustomRevenueComponent implements OnInit {
         (word) =>
           acronyms.includes(word.toUpperCase())
             ? word.toUpperCase() // Keep the word in uppercase if it's in skippedWords
-            : word.charAt(0).toUpperCase() + word.slice(1) // Capitalize the first letter otherwise
+            : word.charAt(0).toUpperCase() + word.slice(1), // Capitalize the first letter otherwise
       )
       .join(' '); // Join words back with spaces
   }
@@ -297,11 +367,14 @@ export class CustomRevenueComponent implements OnInit {
   };
 
   getErrorSummaryPeriodStatus() {
-    this.dataService
-      .getMonitoringPeriodStatus(this.destroyManager)
-      .subscribe((data: any) => {
-        this.periodStatus = data;
-      });
+    this.dataService.periodStatus$.subscribe((data: any) => {
+      if (data) {
+        this.periodStatus = {
+          ...data,
+          lastUpdated: new Date().toLocaleString(),
+        };
+      }
+    });
   }
 
   visibleTabs: {
@@ -313,23 +386,63 @@ export class CustomRevenueComponent implements OnInit {
     {
       label: 'Standard Revenue',
       component: 'app-standard-revenue',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: [
+        'ADMIN',
+        'MONITORING_I2C',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
     },
     {
       label: 'Revenue Orchestration Layer',
       component: 'app-rol',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: [
+        'ADMIN',
+        'MONITORING_I2C',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
     },
     {
       label: 'Accruals',
       component: 'app-accruals',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: [
+        'ADMIN',
+        'MONITORING_I2C',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
     },
 
     {
       label: 'Meraki',
       component: 'app-meraki',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: [
+        'ADMIN',
+        'MONITORING_I2C',
+        'MONITORING_REVENUE_ACCOUNTING',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_AR',
+        'MONITORING_GL_AR_ADMIN',
+        'MONITORING_AIT',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+      ],
       disabled: true,
     },
     {
@@ -344,7 +457,7 @@ export class CustomRevenueComponent implements OnInit {
 
   getDefaultTabIndex() {
     this.filteredTabs = this.visibleTabs.filter((tab) =>
-      tab.role.some((role) => this.roles.includes(role))
+      tab.role.some((role) => this.roles.includes(role)),
     );
 
     if (this.filteredTabs.length <= 1) {
@@ -352,10 +465,49 @@ export class CustomRevenueComponent implements OnInit {
     }
   }
 
+  get menuItems(): MenuMiniItem[] {
+    return this.filteredTabs.map((t) => ({
+      label: t.label,
+      disabled: t.disabled,
+    }));
+  }
+
+  onGridMenuItemClick(index: number): void {
+    this.onTabChange(index);
+  }
+
   onTabChange(index: number) {
     this.selectedIndex = index;
-    const newHeader = `Continuous Monitoring > ${this.filteredTabs[index]?.label}`;
+    const newHeader = `Continuous Monitoring > Revenue Accounting > ${this.filteredTabs[index]?.label}`;
     console.log('🔹 Tab changed, updating header:', newHeader);
     this.menuService.updateHeader(newHeader);
+    // Update last updated timestamp on tab switch
+    if (this.periodStatus) {
+      this.periodStatus = {
+        ...this.periodStatus,
+        lastUpdated: new Date().toLocaleString(),
+      };
+    }
+    // Log tab visit for analytics
+    this.logTabVisit(this.filteredTabs[index]?.label);
+  }
+
+  /**
+   * Logs a tab visit for analytics.
+   * Creates a pseudo-route like "/revenue-accounting/standard-revenue"
+   */
+  private logTabVisit(tabLabel: string): void {
+    if (!tabLabel || !this.userName) return;
+    const tabSlug = tabLabel.toLowerCase().replace(/\s+/g, '-');
+    const pseudoRoute = `/revenue-accounting/${tabSlug}`;
+    this.http
+      .post('log-page-visit', {
+        userName: this.userName,
+        pageRoute: pseudoRoute,
+      })
+      .subscribe({
+        next: () => {},
+        error: (err) => console.debug('Tab analytics log failed:', err),
+      });
   }
 }

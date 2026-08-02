@@ -1,0 +1,221 @@
+<div class="ciq-modal-backdrop" (click)="close.emit()">
+  <div
+    class="ciq-modal"
+    role="dialog"
+    aria-modal="true"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div class="ciq-modal__header">
+      @if (type === "CATEGORY") {
+        <div class="ciq-modal__title">
+          {{ title }} Category Details — Accuracy {{ categoryAccuracy }}% —
+          Total {{ categoryTotal }}
+        </div>
+      }
+      @if (type === "CORE_ISSUE") {
+        <div class="ciq-modal__title">
+          {{ title }} Core Issue Details — Accuracy {{ coreIssueAccuracy }}% —
+          Total {{ coreIssueTotal }}
+        </div>
+      }
+      <div class="ciq-modal__actions">
+        @if (type === "CATEGORY") {
+          <div class="ciq-filter-wrapper">
+            <button
+              class="ciq-filter-toggle"
+              (click)="
+                showCategoryFilters = !showCategoryFilters;
+                showCoreIssueFilters = false
+              "
+              type="button"
+              title="Category Chart Filters"
+              aria-label="Category Chart Filters"
+            >
+              <ng-icon name="phosphorFunnelSimpleBold" size="16" />
+            </button>
+            @if (showCategoryFilters) {
+              <div class="ciq-filter-panel">
+                <div class="ciq-multi-select-wrapper">
+                  <button
+                    class="ciq-multi-select-trigger"
+                    (click)="showCategorySelect = !showCategorySelect"
+                    type="button"
+                  >
+                    Filter
+                    <span class="ciq-chevron" [class.open]="showCategorySelect"
+                      >▾</span
+                    >
+                  </button>
+                  @if (showCategorySelect) {
+                    <div
+                      class="ciq-multi-select-dropdown"
+                      (click)="$event.stopPropagation()"
+                    >
+                      <div class="ciq-multi-select-options">
+                        @for (label of categoryLabels; track label) {
+                          <div
+                            class="ciq-multi-option"
+                            [class.selected]="selectedCategoryLabels.has(label)"
+                            (click)="toggleCategoryLabel(label)"
+                          >
+                            <input
+                              type="checkbox"
+                              [checked]="selectedCategoryLabels.has(label)"
+                            />
+                            <span>{{ label }}</span>
+                          </div>
+                        }
+                      </div>
+                      <div class="ciq-multi-select-actions">
+                        <button
+                          type="button"
+                          class="ciq-clear-btn"
+                          (click)="clearCategorySelection($event)"
+                          [disabled]="selectedCategoryLabels.size === 0"
+                        >
+                          Clear
+                        </button>
+                        <button
+                          type="button"
+                          class="ciq-close-btn"
+                          (click)="showCategorySelect = false"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+                @if (selectedCategoryLabels.size === 0) {
+                  <div class="ciq-filter-hint">Showing all categories.</div>
+                }
+                @if (selectedCategoryLabels.size > 0) {
+                  <div class="ciq-filter-hint">
+                    Showing {{ selectedCategoryLabels.size }} selected
+                    category(ies).
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+        @if (type === "CORE_ISSUE") {
+          <div class="ciq-filter-wrapper">
+            <button
+              class="ciq-filter-toggle"
+              (click)="
+                showCoreIssueFilters = !showCoreIssueFilters;
+                showCategoryFilters = false
+              "
+              type="button"
+              title="Core Issue Chart Filters"
+              aria-label="Core Issue Chart Filters"
+            >
+              <ng-icon name="phosphorFunnelSimpleBold" size="16" />
+            </button>
+            @if (showCoreIssueFilters) {
+              <div class="ciq-filter-panel">
+                <div class="ciq-multi-select-wrapper">
+                  <button
+                    class="ciq-multi-select-trigger"
+                    (click)="showCoreIssueSelect = !showCoreIssueSelect"
+                    type="button"
+                  >
+                    Filter
+                    <span class="ciq-chevron" [class.open]="showCoreIssueSelect"
+                      >▾</span
+                    >
+                  </button>
+                  @if (showCoreIssueSelect) {
+                    <div
+                      class="ciq-multi-select-dropdown"
+                      (click)="$event.stopPropagation()"
+                    >
+                      <div class="ciq-multi-select-options">
+                        @for (label of coreIssueLabels; track label) {
+                          <div
+                            class="ciq-multi-option"
+                            [class.selected]="
+                              selectedCoreIssueLabels.has(label)
+                            "
+                            (click)="toggleCoreIssueLabel(label)"
+                          >
+                            <input
+                              type="checkbox"
+                              [checked]="selectedCoreIssueLabels.has(label)"
+                            />
+                            <span>{{ label }}</span>
+                          </div>
+                        }
+                      </div>
+                      <div class="ciq-multi-select-actions">
+                        <button
+                          type="button"
+                          class="ciq-clear-btn"
+                          (click)="clearCoreIssueSelection($event)"
+                          [disabled]="selectedCoreIssueLabels.size === 0"
+                        >
+                          Clear
+                        </button>
+                        <button
+                          type="button"
+                          class="ciq-close-btn"
+                          (click)="showCoreIssueSelect = false"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+                @if (selectedCoreIssueLabels.size === 0) {
+                  <div class="ciq-filter-hint">Showing all core issues.</div>
+                }
+                @if (selectedCoreIssueLabels.size > 0) {
+                  <div class="ciq-filter-hint">
+                    Showing {{ selectedCoreIssueLabels.size }} selected core
+                    issue(s).
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+        <button
+          class="ciq-modal__close"
+          (click)="close.emit()"
+          aria-label="Close"
+        >
+          <ng-icon name="phosphorXBold" size="16" />
+        </button>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="ciq-modal__body">
+      @if (type === "CATEGORY") {
+        <div class="ciq-chart-frame">
+          <app-bar-chart
+            [data]="filteredCategoryData"
+            [stacked]="true"
+            [isLoading]="false"
+            [chartHeight]="510"
+            [canvasId]="canvasPrefix + 'CategoryChart'"
+          ></app-bar-chart>
+        </div>
+      }
+      @if (type === "CORE_ISSUE") {
+        <div class="ciq-chart-frame">
+          <app-bar-chart
+            [data]="filteredCoreIssueData"
+            [stacked]="true"
+            [isLoading]="false"
+            [chartHeight]="510"
+            [canvasId]="canvasPrefix + 'CoreIssueChart'"
+          ></app-bar-chart>
+        </div>
+      }
+    </div>
+  </div>
+</div>

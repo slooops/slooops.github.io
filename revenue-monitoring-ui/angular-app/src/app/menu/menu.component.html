@@ -1,27 +1,154 @@
-<!-- <mat-menu>
-  <ng-container" *ngIf="showMenu *ngFor="let item of menuItems">
-    {{ item }}
-    <ng-container>
-      <button
-        mat-menu-item
-        [routerLink]="item.route"
-        (click)="selectMenu(item.route)"
-        [class.active]="activeRoute === item.route"
-      >
-        {{ item.label }}
-      </button>
-    </ng-container>
-  </ng-container>
-</mat-menu> -->
+<div class="ms-wrapper">
+  <!-- Level 1: Sidebar rail (always collapsed) -->
+  <div class="ms-rail collapsed">
+    <nav class="ms-nav">
+      @for (item of navItems; track item.label) {
+        @if (isVisible(item)) {
+          <button
+            class="ms-nav-item"
+            [class.active]="isRouteActive(item.route) || isParentActive(item)"
+            [class.browsing]="
+              activeDrawer === item.label && !isParentActive(item)
+            "
+            [class.has-children]="!!item.children?.length"
+            (click)="toggleDrawer(item)"
+          >
+            <ng-icon [name]="item.icon" size="26" class="ms-nav-icon" />
+            <span class="ms-nav-label-collapsed">
+              {{ item.label }}
+              @if (item.children?.length) {
+                <ng-icon
+                  name="phosphorCaretRightBold"
+                  size="10"
+                  class="ms-children-indicator"
+                  [class.open]="activeDrawer === item.label"
+                />
+              }
+            </span>
+          </button>
+        }
+      }
+    </nav>
 
-<div class="tab-container">
-  <!-- Burger Menu Icon (Above Tabs) -->
-  <mat-icon class="menu-icon" (click)="toggleMenu()">menu</mat-icon>
+    <!-- Footer placeholders -->
+    <div class="ms-footer-items">
+      <div class="ms-nav-item ms-disabled">
+        <ng-icon name="phosphorRocketBold" size="26" class="ms-nav-icon" />
+        <span class="ms-nav-label-collapsed">Coming Soon</span>
+      </div>
+      <div class="ms-nav-item ms-disabled">
+        <ng-icon
+          name="phosphorMegaphoneSimpleBold"
+          size="26"
+          class="ms-nav-icon"
+        />
+        <span class="ms-nav-label-collapsed">Latest Updates</span>
+      </div>
+    </div>
+  </div>
 
-  <!-- Tab Group -->
-  <mat-tab-group class="custom-tab-group">
-    <mat-tab label="Tab 1"> Content 1 </mat-tab>
-    <mat-tab label="Tab 2"> Content 2 </mat-tab>
-    <mat-tab label="Tab 3"> Content 3 </mat-tab>
-  </mat-tab-group>
+  <!-- Level 2: Drawer -->
+  <div class="ms-drawer" [class.open]="activeDrawer !== null">
+    @for (item of navItems; track item.label) {
+      @if (item.children?.length && activeDrawer === item.label) {
+        <div class="ms-drawer-content">
+          <div class="ms-drawer-header">
+            <span class="ms-drawer-title">{{ item.label }}</span>
+            <button
+              class="ms-drawer-close"
+              (click)="activeDrawer = null; activeFlyout = null"
+            >
+              <ng-icon name="phosphorXBold" size="16" />
+            </button>
+          </div>
+          <nav class="ms-drawer-nav">
+            @for (child of getVisibleChildren(item); track child.label) {
+              <button
+                class="ms-drawer-item"
+                [class.active]="isChildActive(child)"
+                [class.has-children]="child.children?.length"
+                (click)="navigateTo(child)"
+              >
+                <ng-icon
+                  [name]="child.icon"
+                  size="22"
+                  class="ms-drawer-item-icon"
+                />
+                <span class="ms-drawer-item-label">{{ child.label }}</span>
+                @if (child.children?.length) {
+                  <ng-icon
+                    name="phosphorCaretRightBold"
+                    size="12"
+                    class="ms-flyout-caret"
+                    [class.open]="activeFlyout === child.label"
+                  />
+                }
+              </button>
+            }
+          </nav>
+          @if (
+            item.label === "Continuous Monitoring" && canViewOnboardingFooter()
+          ) {
+            <div class="ms-drawer-footer">
+              <button
+                class="ms-drawer-item ms-drawer-footer-item"
+                [class.active]="isRouteActive('/onboard-exception-monitoring')"
+                (click)="
+                  navigateEvent.emit({
+                    route: '/onboard-exception-monitoring',
+                  });
+                  activeDrawer = null;
+                  activeFlyout = null
+                "
+              >
+                <ng-icon
+                  name="phosphorPlusCircleBold"
+                  size="22"
+                  class="ms-drawer-item-icon"
+                />
+                <span class="ms-drawer-item-label">Onboard your Component</span>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Level 3: Sub-drawer -->
+  <div
+    class="ms-subdrawer"
+    [class.open]="activeFlyout !== null && activeDrawer !== null"
+  >
+    @for (item of navItems; track item.label) {
+      @if (item.children?.length && activeDrawer === item.label) {
+        @for (child of getVisibleChildren(item); track child.label) {
+          @if (child.children?.length && activeFlyout === child.label) {
+            <div class="ms-drawer-content">
+              <div class="ms-drawer-header">
+                <span class="ms-drawer-title">{{ child.label }}</span>
+                <button class="ms-drawer-close" (click)="activeFlyout = null">
+                  <ng-icon name="phosphorXBold" size="16" />
+                </button>
+              </div>
+              <nav class="ms-drawer-nav">
+                @for (subItem of child.children; track subItem.label) {
+                  @if (!subItem.disabled && isVisible(subItem)) {
+                    <button
+                      class="ms-drawer-item"
+                      (click)="navigateFromFlyout(subItem)"
+                    >
+                      <span class="ms-drawer-item-label">{{
+                        subItem.label
+                      }}</span>
+                    </button>
+                  }
+                }
+              </nav>
+            </div>
+          }
+        }
+      }
+    }
+  </div>
 </div>

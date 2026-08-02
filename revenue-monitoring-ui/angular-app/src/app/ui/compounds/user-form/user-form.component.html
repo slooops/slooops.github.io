@@ -1,0 +1,73 @@
+<form class="fit-user-form" (submit)="onSubmit($event)">
+  <div class="fit-stack-md">
+    <div class="fit-user-form__field">
+      <label class="fit-user-form__label">{{ roleFieldLabel }}</label>
+      @if (useRoleDropdown) {
+        <app-multi-select-dropdown
+          [options]="roleOptions"
+          [selected]="formData.roles"
+          placeholder="Select roles"
+          (selectionChange)="onMultiRoleChange($event)"
+        >
+        </app-multi-select-dropdown>
+      } @else {
+        <app-text-input
+          [value]="formData.roles[0] || ''"
+          placeholder="Enter role name"
+          type="text"
+          (valueChange)="onRoleChange($event)"
+        >
+        </app-text-input>
+      }
+    </div>
+
+    <div class="fit-user-form__field">
+      <label class="fit-user-form__label">Username *</label>
+      <app-text-input
+        [value]="formData.userName"
+        placeholder="Enter username (e.g. jdoe)"
+        type="text"
+        [isDisabled]="isEdit"
+        (valueChange)="onUserNameChange($event)"
+      >
+      </app-text-input>
+    </div>
+
+    <div class="fit-user-form__field">
+      <label class="fit-user-form__label">Email *</label>
+      <app-text-input
+        [value]="formData.email"
+        placeholder="Enter email address"
+        type="email"
+        (valueChange)="onEmailChange($event)"
+      >
+      </app-text-input>
+    </div>
+
+    <div class="fit-user-form__footer">
+      <div class="fit-user-form__toggle">
+        <app-toggle-switch
+          [checked]="formData.enabled"
+          label="Enabled"
+          (checkedChange)="onEnabledChange($event)"
+        >
+        </app-toggle-switch>
+      </div>
+      <div class="fit-user-form__actions">
+        <app-button
+          label="Cancel"
+          variant="secondary"
+          type="button"
+          (clicked)="onCancel()"
+        >
+        </app-button>
+        <app-button
+          [label]="isEdit ? 'Save Changes' : 'Create'"
+          variant="primary"
+          type="submit"
+        >
+        </app-button>
+      </div>
+    </div>
+  </div>
+</form>

@@ -1,36 +1,65 @@
-<mat-tab-group
-  [selectedIndex]="selectedIndex"
-  (selectedIndexChange)="onTabChange($event)"
->
-  <mat-tab
-    *ngFor="let tab of filteredTabs; let i = index"
-    [label]="tab.label"
-    [disabled]="tab.disabled"
-  >
-    <ng-container [ngSwitch]="tab.component">
-      <ng-container *ngSwitchCase="'app-standard-revenue'">
+<div class="dashboard-header">
+  <div class="header-main">
+    <div class="header-left">
+      <app-menu-mini
+        [items]="menuItems"
+        [activeIndex]="selectedIndex"
+        (selected)="onGridMenuItemClick($event.index)"
+      />
+      <h2>{{ filteredTabs[selectedIndex]?.label || "Revenue Accounting" }}</h2>
+    </div>
+
+    <div class="period-info" *ngIf="periodStatus as period">
+      <span><b>Period name:</b> {{ period.periodName }} &nbsp;</span>
+      <span class="divider"> | </span>
+      <span
+        >&nbsp;<b>Period end date:</b> {{ period.periodEndDate }} &nbsp;</span
+      >
+      <span class="divider"> | </span>
+      <span>&nbsp;<b>Last Updated:</b> {{ period.lastUpdated }} &nbsp;</span>
+    </div>
+    @if (roles.includes("ADMIN")) {
+      <!-- <div class="global-search">
+        <div class="global-search-input-wrapper">
+          <input
+            type="text"
+            class="global-search-input"
+            #globalSearchInput
+            placeholder="Search.."
+          />
+        </div>
+        <span class="global-search-icon">🔍</span>
+      </div> -->
+    }
+  </div>
+</div>
+
+<hr />
+
+<div class="cr-content">
+  @if (filteredTabs.length > 0) {
+    @switch (filteredTabs[selectedIndex]?.component) {
+      @case ("app-standard-revenue") {
         <app-monitoring-dashboard
-          [apiUrl]="authService.getHostUrl()"
           [urls]="standardRevenueUrl"
           [keysToMap]="[
             'PERIOD_NAME',
             'ORG_NAME',
             'APPLICATION_NAME',
             'PROCESS_FLOW',
-            'TRANSACTION_DATE'
+            'TRANSACTION_DATE',
           ]"
-          [periodStatus]="periodStatus"
           [componentName]="'Standard Revenue'"
           [columnsToFilter]="standardRevenueFilters"
           [detailsColumnsToHide]="['TRANSACTION_DATE']"
           [assignmentDialogFieldConfig]="fieldConfig"
-          [assignmentUsersFilter]="'I2C'"
+          [userContext]="userContextData"
           [submitKeysToMap]="[
             'PERIOD_NAME',
             'APPLICATION_NAME',
             'PROCESS_FLOW',
             'ORG_NAME',
-            'TRANSACTION_DATE'
+            'TRANSACTION_DATE',
           ]"
           [webexKeysToMap]="[
             'PERIOD_NAME',
@@ -38,29 +67,26 @@
             'PROCESS_FLOW',
             'ORG_NAME',
             'TRANSACTION_DATE',
-            'AMOUNT'
+            'AMOUNT',
           ]"
-          *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
-      </ng-container>
-      <ng-container *ngSwitchCase="'app-rol'">
+      }
+      @case ("app-rol") {
         <app-monitoring-dashboard
-          [apiUrl]="authService.getHostUrl()"
           [urls]="rolUrls"
           [keysToMap]="rolAndAccrualsKeysToMap"
-          [periodStatus]="periodStatus"
           [componentName]="'ROL'"
           [columnsToFilter]="rolFilters"
           [summaryColumnsToHide]="['SEQUENCE_NUM']"
           [detailsColumnsToHide]="['SEQUENCE_NUM']"
           [assignmentDialogFieldConfig]="fieldConfig"
-          [assignmentUsersFilter]="'I2C'"
+          [userContext]="userContextData"
           [submitKeysToMap]="[
             'PERIOD_NAME',
             'APPLICATION_NAME',
             'PROCESS_FLOW',
             'ORG_NAME',
-            'TRANSACTION_DATE'
+            'TRANSACTION_DATE',
           ]"
           [webexKeysToMap]="[
             'PERIOD_NAME',
@@ -68,23 +94,20 @@
             'PROCESS_FLOW',
             'ORG_NAME',
             'TRANSACTION_DATE',
-            'AMOUNT'
+            'AMOUNT',
           ]"
-          *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
-      </ng-container>
-      <ng-container *ngSwitchCase="'app-accruals'">
+      }
+      @case ("app-accruals") {
         <app-monitoring-dashboard
-          [apiUrl]="authService.getHostUrl()"
           [urls]="accrualsUrls"
           [keysToMap]="rolAndAccrualsKeysToMap"
-          [periodStatus]="periodStatus"
           [componentName]="'Accruals'"
           [columnsToFilter]="accrualsFilters"
           [summaryColumnsToHide]="['SEQUENCE_NUM']"
           [detailsColumnsToHide]="['TRANSACTION_DATE']"
           [assignmentDialogFieldConfig]="fieldConfig"
-          [assignmentUsersFilter]="'I2C'"
+          [userContext]="userContextData"
           [submitKeysToMap]="['SEQUENCE_NUM']"
           [webexKeysToMap]="[
             'PERIOD_NAME',
@@ -92,23 +115,20 @@
             'PROCESS_FLOW',
             'ORG_NAME',
             'TRANSACTION_DATE',
-            'AMOUNT'
+            'AMOUNT',
           ]"
-          *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
-      </ng-container>
-      <ng-container *ngSwitchCase="'app-accounts'">
+      }
+      @case ("app-accounts") {
         <app-monitoring-dashboard
-          [apiUrl]="authService.getHostUrl()"
           [urls]="accountsUrls"
           [keysToMap]="['SEQUENCE_NUMBER']"
-          [periodStatus]="periodStatus"
           [componentName]="'Accounts'"
           [columnsToFilter]="accountsFilters"
           [summaryColumnsToHide]="['SEQUENCE_NUMBER']"
           [detailsColumnsToHide]="['TRANSACTION_DATE']"
           [assignmentDialogFieldConfig]="fieldConfig"
-          [assignmentUsersFilter]="'I2C'"
+          [userContext]="userContextData"
           [submitKeysToMap]="['SEQUENCE_NUMBER']"
           [webexKeysToMap]="[
             'PERIOD_NAME',
@@ -116,23 +136,22 @@
             'PROCESS_FLOW',
             'ORG_NAME',
             'TRANSACTION_DATE',
-            'AMOUNT'
+            'AMOUNT',
           ]"
-          *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
-      </ng-container>
-    </ng-container>
-  </mat-tab>
-</mat-tab-group>
+      }
+    }
+  }
+</div>
 
 <div
   style="display: flex; justify-content: center; align-items: center !important"
 >
-  <ng-container *ngIf="!roles.length">
+  @if (!roles.length) {
     <tr>
       <td colspan="100%" style="text-align: center">
         <app-loading-symbol></app-loading-symbol>
       </td>
     </tr>
-  </ng-container>
+  }
 </div>

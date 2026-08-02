@@ -1,290 +1,399 @@
 :host {
-  background: linear-gradient(
-    to right,
-    white 0%,
-    #f7f7f7 3.5%,
-    #f7f7f7 50%,
-    #f7f7f7 97.5%,
-    white 100%
-  );
-
+  display: block;
+  background: white;
+  padding: 0 1rem;
   font-family: "Inter", sans-serif;
+  box-sizing: border-box;
+  width: 100%;
+  /* NOTE: do not set overflow-x/overflow-y here. Setting overflow-x: hidden
+     forces overflow-y to compute to `auto`, which turns :host into a clipping
+     scroll container and cuts off the filter dropdown at the bottom. */
 }
 
+/* ═══ Container ═══ */
+.ol-container {
+  padding: 0;
+}
+
+/* Ensure the filter bar (and its dropdown panels) render above the table
+   below it, but stay below app-level chrome (nav / side menu). A low z-index
+   is enough since the table container sits at z-index: 0. */
+app-filter-button-bar {
+  position: relative;
+  z-index: 2;
+}
+
+.ol-clear-selection {
+  font-size: 0.75rem;
+  color: dodgerblue;
+  cursor: pointer;
+  padding-left: 1rem;
+}
+
+.ol-clear-selection:hover {
+  text-decoration: underline;
+}
+
+/* ═══ Table ═══ */
+.ol-table-container {
+  position: relative;
+  z-index: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.table-container {
+  overflow-x: auto;
+  width: 100%;
+  overflow-y: visible;
+}
+
+.ol-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ol-header-row {
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+  height: 40px;
+}
+
+.ol-header-cell {
+  color: #64748b;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.75rem 0.5rem;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.ol-row {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.ol-row:hover {
+  background-color: #f8fafc;
+}
+
+.ol-cell {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 400;
+  padding: 0.625rem 0.5rem;
+  color: #1b1c1d;
+  vertical-align: top;
+  word-break: normal;
+}
+
+/* Step headers */
+.ol-step-header {
+  color: black !important;
+  font-weight: 700 !important;
+}
+
+/* ═══ Sortable headers ═══ */
+.ol-header-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ol-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.ol-sort-arrows {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 0.55;
+  font-size: 0.7rem;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+/* Reveal arrows on header hover, or keep visible when actively sorted */
+.ol-sortable:hover .ol-sort-arrows,
+.ol-sort-arrows--active {
+  opacity: 1;
+}
+
+.ol-sort-up,
+.ol-sort-down {
+  color: #cbd5e1;
+  transition: color 150ms ease;
+}
+
+.ol-sort-arrow--on {
+  color: #0070d2;
+}
+
+/* Native checkbox */
+.fit-bulk-checkbox {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: #0070d2;
+}
+
+/* Highlight completed */
+.highlight {
+  color: #1c8c4c !important;
+}
+
+/* ═══ Inline date trigger ═══ */
+.ol-date-field {
+  position: relative;
+  display: inline-block;
+}
+
+.ol-date-input {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ol-date-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px dashed #d0d7de;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: #1b1c1d;
+  background: #fafbfc;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+  white-space: nowrap;
+}
+
+.ol-date-trigger:hover {
+  border-color: #0070d2;
+  background: #f0f7ff;
+}
+
+.ol-date-value {
+  color: inherit;
+}
+
+.ol-date-trigger .ol-date-value:only-child,
+.ol-date-trigger:has(.ol-date-value:empty) .ol-date-value {
+  color: #8899a6;
+}
+
+.ol-date-icon {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* ═══ CLO Updates cell ═══ */
+.clo-cell {
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.clo-read {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.clo-text {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+  white-space: normal;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.clo-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  background: #fafbfc;
+  color: #64748b;
+  font-size: 0.6875rem;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.clo-edit-btn:hover {
+  border-color: #0070d2;
+  color: #0070d2;
+}
+
+.clo-write {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.clo-textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  font-size: 0.75rem;
+  font-family: inherit;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  resize: vertical;
+  outline: none;
+}
+
+.clo-textarea:focus {
+  border-color: #0070d2;
+}
+
+.clo-actions {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.clo-btn {
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  font-family: inherit;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.clo-btn--save {
+  background: #1c8c4c;
+  color: #fff;
+}
+
+.clo-btn--save:hover {
+  background: #167a40;
+}
+
+.clo-btn--cancel {
+  background: #fff;
+  color: #64748b;
+  border-color: #d0d7de;
+}
+
+.clo-btn--cancel:hover {
+  color: #e53935;
+  border-color: #e53935;
+}
+
+/* Empty state */
+.ol-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 2rem;
+}
+
+.ol-no-data-image {
+  width: 120px;
+  height: auto;
+}
+
+.ol-empty-text {
+  font-weight: 600;
+  color: gray;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+
+/* Loading */
 .loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 28vw;
-  min-height: 14vw;
-  width: 100%;
-  height: 100%;
+  min-height: 200px;
 }
 
-.mat-header-row {
-  background-color: #ffffff !important;
-  border-bottom: 2px solid #373c42 !important; /* Add a bar below the header row */
+/* ═══ Column widths ═══ */
+.ol-col-CLO_COMMENTS,
+.ol-col-COMMENTS {
+  min-width: 250px;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
-.header-container {
-  display: flex;
-  justify-content: space-between; /* Space between title/form on left and action buttons on right */
-  align-items: center; /* Vertically align items in the center */
-  width: 100%;
-  // padding: 0 10px 0 12px;
+.ol-col-ACCOUNT {
+  white-space: normal;
+  min-width: 90px;
 }
 
-.action-buttons {
-  display: flex;
-  justify-content: flex-end; /* Align action buttons to the right */
-  gap: 10px; /* Optional space between action buttons */
+/* ═══ Datepicker overrides ═══ */
+
+:host ::ng-deep .mat-mdc-form-field {
+  .mdc-text-field--filled {
+    background-color: #ffffff !important;
+
+    &:not(.mdc-text-field--disabled) {
+      background-color: #ffffff !important;
+    }
+  }
+
+  .mat-mdc-form-field-subscript-wrapper {
+    height: 0px !important;
+  }
 }
 
-.section-title {
-  color: #373c42;
-  margin: 0px;
-  font-size: smaller;
+::ng-deep .mat-datepicker-content {
+  background-color: #f8f8f8 !important;
 }
 
-.container {
-  padding: 0px 0 0px 0;
-  margin-bottom: 0px !important;
-  border: 0px;
-  border-radius: 12px;
-  box-shadow: 0 3px 8px #00000014;
+/* ═══ Misc ═══ */
+
+:host label,
+.mat-mdc-form-field label,
+mat-label {
+  margin-bottom: 0 !important;
+  line-height: 1.8 !important;
 }
 
-.mat-header-cell {
-  font-size: 10.5px;
-  color: rgb(46, 46, 46) !important;
-  white-space: normal !important;
-  font-weight: 500;
-  text-align: center !important;
+:host ::ng-deep label {
+  margin-bottom: 0 !important;
 }
 
-.mat-cell {
-  font-size: 10.5px;
-  text-align: center !important;
-  font-weight: 500;
+:host ::ng-deep .mat-mdc-form-field {
+  input::placeholder {
+    font-size: 0.6875rem !important;
+    opacity: 0.7;
+  }
+
+  input:focus::placeholder {
+    opacity: 0.5;
+  }
 }
 
-th.mat-header-cell {
-  padding-bottom: unset !important;
-  padding-top: unset !important;
-  padding-left: 10px !important;
-}
-
-td {
-  padding-left: 8px !important;
-}
-
-.highlight {
-  color: green !important; /* green */
-}
-
-.mat-column-COMMENTS {
-  white-space: nowrap !important;
-  text-align: left !important;
-}
-
-.mat-column-CLO_COMMENTS {
-  text-align: left !important;
-  white-space: normal !important;
-  min-width: 300px !important;
-  padding: 0 0 0 0 !important;
-  padding-left: 5px !important;
-}
-
-.mat-column-ACCOUNT {
-  white-space: normal !important;
-  max-width: 70px !important;
-  min-width: 70px !important;
-}
-
-.mat-column-PROGRAM_NAME {
-  max-width: 69px !important;
-  min-width: 65px !important;
-}
-
-.mat-column-DEAL_ID {
-  max-width: 65px !important;
-  min-width: 65px !important;
-}
-
-.mat-column-DEAL_UPLOAD_DATE {
-  max-width: 67px !important;
-  min-width: 65px !important;
-}
-
-.mat-column-SALES_ORDER {
-  max-width: 92px !important;
-  min-width: 70px !important;
-}
-
-.mat-column-ORDER_VALUE {
-  max-width: 59px !important;
-  min-width: 57px !important;
-}
-
-.mat-column-TOTAL_LINE_COUNT {
-  max-width: 59px !important;
-  min-width: 57px !important;
-}
-
-.mat-column-ORDER_STATUS {
-  white-space: normal !important;
-  max-width: 73px !important;
-  min-width: 60px !important;
-}
-
-.mat-column-CONTRACT_NUMBER {
-  white-space: normal !important;
-  max-width: 78px !important;
-  min-width: 78px !important;
-}
-
-.mat-column-LINES_ON_HOLD {
-  max-width: 50px !important;
-  min-width: 50px !important;
-}
-
-.mat-column-FLEXIBLE_INVOICE_ELIGIBLE {
-  max-width: 65px !important;
-  min-width: 60px !important;
-}
-
-.mat-column-INVOICING_STATUS {
-  white-space: normal !important;
-  max-width: 80px !important;
-  min-width: 80px !important;
-}
-
-.mat-column-INVOICE_LINES {
-  max-width: 60px !important;
-  min-width: 60px !important;
-}
-
-.mat-column-INVOICE_DATE {
-  max-width: 66px !important;
-  min-width: 60px !important;
-}
-
-.mat-column-INVOICE_AMOUNT {
-  max-width: 70px !important;
-  min-width: 70px !important;
-}
-
-.mat-column-REV_ACCR_STATUS {
-  white-space: normal !important;
-  max-width: 80px !important;
-  min-width: 78px !important;
-}
-
-.mat-column-GL_POSTING_STATUS {
-  white-space: normal !important;
-  max-width: 85px !important;
-  min-width: 85px !important;
-}
-
-.mat-column-ACCRUALS_EXECUTION_TIME {
-  max-width: 75px !important;
-  min-width: 70px !important;
-}
-
-.mat-column-FUTURE_INVOICE_RELEASE_DATE {
-  max-width: 65px !important;
-  min-width: 65px !important;
-}
-
-.mat-column-TERM_IN_YEARS {
-  max-width: 70px !important;
-  min-width: 65px !important;
-}
-
-.mat-column-BOOK_DATE {
-  max-width: 67px !important;
-  min-width: 65px !important;
-}
-
-.progPanel {
-  min-width: calc(100% + 30px) !important;
-}
-
-.hoverIcon {
-  cursor: pointer;
-}
-
-.mat-column-INVOICE_ELIGIBLE_DATE .mat-form-field {
-  width: 80px !important;
-}
-
-.mat-column-INVOICE_ELIGIBLE_DATE .calendarInput {
-  font-size: 12px !important;
-}
-
-.mat-column-INVOICE_ELIGIBLE_DATE {
-  white-space: normal !important;
-  padding: 0px !important;
-  max-width: 80px !important;
-  min-width: 75px !important;
-}
-
-.cui input {
-  font-size: 12px !important;
-}
-
-.table > tbody > tr > td {
-  padding-bottom: 0 !important;
-  padding-top: 0 !important;
-}
-
-.highlight-link {
-  padding: 5px;
-}
-
-.highlight-link:hover {
-  background-color: rgb(
-    240,
-    238,
-    238
-  ) !important; /* Change this to your desired highlight color */
-}
-
-.custom-menu {
-  min-width: 180px; /* Set a minimum width if desired */
-  width: auto;
-  max-width: 100%; /* Allow the menu to grow up to the screen width */
-}
-
-.viewHighlight {
-  padding: 12px;
-  font-weight: 600;
-}
-
-.viewHighlight:hover {
-  background-color: rgb(240, 238, 238) !important;
-  cursor: pointer;
-}
-
-input[type="text"] {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #000000;
+::ng-deep .mat-mdc-form-field-infix {
   width: 100px !important;
-  font-size: 12px !important;
-}
-
-.test {
-  position: relative;
-}
-
-.test .fa.fa-pencil-square-o {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
-.mat-table {
-  border-spacing: 0px; /* Adjust the border-spacing as needed */
 }

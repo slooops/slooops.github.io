@@ -1,0 +1,119 @@
+<div class="dashboard-header">
+  <div class="header-main">
+    <div class="header-left">
+      <app-menu-mini
+        [items]="menuItems"
+        [activeIndex]="selectedIndex"
+        (selected)="onGridMenuItemClick($event.index)"
+      />
+      <h2>{{ filteredTabs[selectedIndex]?.label || "General Ledger" }}</h2>
+    </div>
+
+    <div class="period-info" *ngIf="periodStatus as period">
+      <span><b>Period name:</b> {{ period.periodName }} &nbsp;</span>
+      <span class="divider"> | </span>
+      <span
+        >&nbsp;<b>Period end date:</b> {{ period.periodEndDate }} &nbsp;</span
+      >
+      <span class="divider"> | </span>
+      <span>&nbsp;<b>Last Updated:</b> {{ period.lastUpdated }} &nbsp;</span>
+    </div>
+
+    @if (roles.includes("ADMIN")) {
+      <!-- <div class="global-search">
+        <div class="global-search-input-wrapper">
+          <input
+            type="text"
+            class="global-search-input"
+            #globalSearchInput
+            placeholder="Search.."
+          />
+        </div>
+        <span class="global-search-icon">🔍</span>
+      </div> -->
+    }
+  </div>
+</div>
+
+<hr />
+
+@if (
+  roles.includes("ADMIN") ||
+  roles.includes("MONITORING_AIT") ||
+  roles.includes("MONITORING_AIT_ADMIN")
+) {
+  <div class="gl-content">
+    @if (filteredTabs.length > 0) {
+      @switch (filteredTabs[selectedIndex]?.component) {
+        @case ("app-general-ledger") {
+          <div class="pill-tabs">
+            @for (pill of glSubTabs; track pill; let j = $index) {
+              <button
+                class="pill-tab"
+                [class.active]="glSubIndex === j"
+                (click)="glSubIndex = j"
+              >
+                {{ pill }}
+              </button>
+            }
+          </div>
+          <hr />
+          @switch (glSubIndex) {
+            @case (0) {
+              <app-monitoring-dashboard
+                [urls]="aitUrls"
+                [keysToMap]="aitKeysToMap"
+                [componentName]="'Interface'"
+                [columnsToFilter]="aitFilters"
+                [assignmentDialogFieldConfig]="fieldConfig"
+                [userContext]="userContextData"
+                [submitKeysToMap]="[
+                  'PERIOD_NAME',
+                  'USER_JE_SOURCE_NAME',
+                  'LEDGER_NAME',
+                  'REFERENCE4',
+                  'BATCH_NAME',
+                ]"
+                [webexKeysToMap]="['']"
+              ></app-monitoring-dashboard>
+            }
+            @case (1) {
+              <app-monitoring-dashboard
+                [urls]="glFaJobsUrls"
+                [keysToMap]="glFaKeysToMap"
+                [componentName]="'FA Jobs'"
+                [columnsToFilter]="glFaFilters"
+                [assignmentDialogFieldConfig]="glFafieldConfig"
+                [userContext]="userContextData"
+                [submitKeysToMap]="[
+                  'JOB_DATE',
+                  'MODULE',
+                  'CTM_FOLDER',
+                  'CTM_STATUS',
+                ]"
+                [webexKeysToMap]="['']"
+              ></app-monitoring-dashboard>
+            }
+            @case (2) {
+              <app-monitoring-dashboard
+                [urls]="glUnpostedUrls"
+                [keysToMap]="glUnpostedKeysToMap"
+                [componentName]="'Unposted'"
+                [columnsToFilter]="glUnpostedFilters"
+                [assignmentDialogFieldConfig]="glUnpostedFieldConfig"
+                [userContext]="userContextData"
+                [submitKeysToMap]="[
+                  'PERIOD_NAME',
+                  'USER_JE_SOURCE_NAME',
+                  'LEDGER_NAME',
+                  'BATCH_NAME',
+                ]"
+                [webexKeysToMap]="['']"
+              ></app-monitoring-dashboard>
+            }
+          }
+        }
+      }
+    }
+  </div>
+}

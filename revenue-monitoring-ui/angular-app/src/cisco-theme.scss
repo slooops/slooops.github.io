@@ -1,0 +1,139 @@
+// Custom Cisco Blue Theme for Angular Material 18
+@use "@angular/material" as mat;
+
+@include mat.elevation-classes();
+@include mat.app-background();
+
+// Define the palettes for the theme using Material 3 colors
+$cisco-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: (
+      plain-family: "Inter",
+      brand-family: "Inter",
+      bold-weight: 700,
+      medium-weight: 600,
+      regular-weight: 500,
+    ),
+    density: (
+      scale: -4,
+      // Maximum density for more compact components (was -2)
+    ),
+  )
+);
+
+// Apply the theme to all Angular Material components
+html {
+  @include mat.all-component-themes($cisco-theme);
+  @include mat.typography-hierarchy($cisco-theme);
+}
+
+// Override specific colors to match Cisco branding
+html {
+  // Primary colors
+  --mat-sys-primary: #00bceb;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: #e3f2fd;
+  --mat-sys-on-primary-container: #373c42;
+
+  // Surface colors
+  --mat-sys-surface: #ffffff;
+  --mat-sys-on-surface: #373c42;
+  --mat-sys-surface-variant: #f7f7f7;
+  --mat-sys-background: #ffffff;
+  --mat-sys-on-background: #373c42;
+
+  // Outline colors
+  --mat-sys-outline: #e1e4e8;
+  --mat-sys-outline-variant: #c6c7ca;
+
+  // Typography size overrides for more compact text
+  --mat-sys-label-large-size: 12px; // Form fields, buttons, menus (was 14px)
+  --mat-sys-label-large-line-height: 20px;
+  --mat-sys-label-medium-size: 11px; // Secondary labels (was 12px)
+  --mat-sys-label-medium-line-height: 16px;
+  --mat-sys-body-large-size: 12px; // Body text (was 16px)
+  --mat-sys-body-large-line-height: 20px;
+  --mat-sys-body-medium-size: 11px; // Secondary body text (was 14px)
+  --mat-sys-body-medium-line-height: 18px;
+
+  // Component-specific height/padding overrides
+  --mat-form-field-container-height: 40px; // Form field height (was 56px)
+  --mat-select-trigger-height: 40px;
+  --mat-menu-item-label-text-size: 12px;
+  --mat-option-label-text-size: 12px;
+}
+
+// Force white background everywhere
+body,
+html,
+.mat-app-background,
+.mat-drawer-container {
+  background-color: #ffffff !important;
+}
+
+// Override all Material component background colors to white/transparent
+html {
+  // Paginator
+  --mat-paginator-container-background-color: #ffffff;
+
+  // Table
+  --mat-table-background-color: #ffffff;
+  --mat-table-row-item-container-background-color: #ffffff;
+
+  // Card
+  --mat-card-container-color: #ffffff;
+
+  // Toolbar
+  --mat-toolbar-container-background-color: #ffffff;
+
+  // Sidenav
+  --mat-sidenav-container-background-color: #ffffff;
+  --mat-sidenav-content-background-color: #ffffff;
+
+  // Dialog
+  --mat-dialog-container-background-color: #ffffff;
+
+  // Bottom sheet
+  --mat-bottom-sheet-container-background-color: #ffffff;
+
+  // Menu
+  --mat-menu-container-color: #ffffff;
+
+  // Select
+  --mat-select-panel-background-color: #ffffff;
+
+  // Autocomplete
+  --mat-autocomplete-background-color: #ffffff;
+
+  // Tooltip
+  --mat-tooltip-container-color: rgba(97, 97, 97, 0.9);
+
+  // Snackbar
+  --mat-snack-bar-button-color: #ffffff;
+
+  // Expansion panel
+  --mat-expansion-container-background-color: #ffffff;
+
+  // Stepper
+  --mat-stepper-container-color: #ffffff;
+
+  // Tabs
+  --mat-tab-header-background-color: #ffffff;
+
+  // Form field
+  --mat-form-field-container-background-color: transparent;
+
+  // Chips
+  --mat-chip-elevated-container-color: #ffffff;
+
+  // List
+  --mat-list-active-indicator-color: transparent;
+
+  // Grid list
+  --mat-grid-list-tile-background-color: #ffffff;
+}

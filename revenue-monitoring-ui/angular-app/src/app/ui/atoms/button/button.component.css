@@ -1,0 +1,25 @@
+@import "src/assets/ui.css";
+
+/* Additional button-specific styles if needed */
+.fit-btn__loading {
+  margin-left: var(--fit-space-xs);
+}
+
+/* Dark mode — match on any ancestor with .dark-theme */
+:host-context(.dark-theme) .fit-btn--secondary {
+  background-color: var(--fit-dark-surface);
+  border-color: var(--fit-dark-border);
+  color: var(--fit-dark-text);
+}
+
+:host-context(.dark-theme) .fit-btn--secondary:hover {
+  background-color: var(--fit-dark-hover-bg);
+}
+
+:host-context(.dark-theme) .fit-btn--ghost {
+  color: var(--fit-dark-text);
+}
+
+:host-context(.dark-theme) .fit-btn--ghost:hover {
+  background-color: var(--fit-dark-hover-bg);
+}

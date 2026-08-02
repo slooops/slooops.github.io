@@ -1,0 +1,96 @@
+:host {
+  --chip-hover-bg: rgba(0, 188, 235, 0.1);
+  --chip-hover-color: #00bceb;
+  --chip-hover-border: #00bceb;
+  display: inline-block;
+}
+
+:host(.dark-theme) {
+  --chip-hover-bg: rgba(0, 188, 235, 0.15);
+}
+
+.chip {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-radius: 999px;
+  text-transform: uppercase;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+.chip--clickable {
+  cursor: pointer;
+}
+
+.chip--clickable:hover {
+  background: var(--chip-hover-bg);
+  border-color: var(--chip-hover-border);
+  color: var(--chip-hover-color);
+}
+
+/* ── Light variants ────────────────────────────────────── */
+.chip--neutral {
+  background: rgba(107, 114, 128, 0.1);
+  color: #6b7280;
+  border: 1px solid rgba(107, 114, 128, 0.06);
+}
+
+.chip--green {
+  background: rgba(22, 163, 74, 0.1);
+  color: #16a34a;
+  border: 1px solid rgba(22, 163, 74, 0.2);
+}
+
+.chip--grey {
+  background: rgba(75, 85, 99, 0.15);
+  color: #4b5563;
+  border: 1px solid rgba(75, 85, 99, 1);
+}
+
+.chip--amber {
+  background: rgba(217, 119, 6, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+.chip--orange {
+  background: rgba(234, 88, 12, 0.1);
+  color: #ea580c;
+  border: 1px solid rgba(234, 88, 12, 0.2);
+}
+
+/* ── Dark variants ─────────────────────────────────────── */
+:host(.dark-theme) .chip--neutral {
+  background: rgba(156, 163, 175, 0.12);
+  color: #9ca3af;
+  border-color: rgba(156, 163, 175, 0.25);
+}
+
+:host(.dark-theme) .chip--green {
+  background: rgba(34, 197, 94, 0.12);
+  color: #4ade80;
+  border-color: rgba(34, 197, 94, 0.25);
+}
+
+:host(.dark-theme) .chip--grey {
+  background: rgba(156, 163, 175, 0.2);
+  color: #d1d5db;
+  border-color: rgba(156, 163, 175, 0.35);
+}
+
+:host(.dark-theme) .chip--amber {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.25);
+}
+
+:host(.dark-theme) .chip--orange {
+  background: rgba(249, 115, 22, 0.12);
+  color: #fdba74;
+  border-color: rgba(249, 115, 22, 0.25);
+}

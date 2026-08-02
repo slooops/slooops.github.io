@@ -1,199 +1,231 @@
-<div
-  style="
-    margin: -24px -24px 0 -24px; /* Removes default padding */
-    background-color: #08ace4;
-    padding: 10px;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  "
->
-  <!-- Title on the left -->
-  <h5 style="margin: 0; font-weight: 450">CLO Upload</h5>
+<div class="iu-dialog">
+  <!-- Header -->
+  <div class="iu-header">
+    <h3 class="iu-header__title">CLO Upload</h3>
+    <button class="iu-header__close" (click)="closeDialog('closed')">
+      <ng-icon name="phosphorXBold" size="18" />
+    </button>
+  </div>
 
-  <!-- Icons on the right (Download and Close) -->
-  <a style="text-decoration: none; cursor: pointer">
-    <i
-      class="fa fa-close"
-      style="font-size: 16px; color: white"
-      (click)="closeDialog('closed')"
-    ></i>
-  </a>
-</div>
-
-<div>
   <mat-tab-group>
-    <mat-tab label="File Upload" style="text-align: center">
-      <br />
-      <div class="download-container">
+    <!-- File Upload Tab -->
+    <mat-tab label="File Upload">
+      <div class="iu-body">
         <a
+          class="iu-template-link"
           (click)="
             export('CLO Upload Sample Template', 'clo_upload_sample_template')
           "
         >
-          <i class="svg-icon download-icon" aria-hidden="true"></i>
-          <span>&nbsp;Download Sample Template</span>
+          <ng-icon name="phosphorArrowLineDownBold" size="18" />
+          Download Sample Template
         </a>
-      </div>
-      <br />
-      <div
-        class="file-drop-zone"
-        (drop)="onDrop($event)"
-        (dragover)="onDragOver($event)"
-        cdkDropList
-      >
-        <i style="color: gray" class="fa fa-2x fa-cloud-upload"></i>
-        <p>Drag and drop your file here</p>
-        <p>or</p>
-        <button mat-raised-button (click)="fileInput.click()">
-          Select File
-        </button>
-        <input
-          [multiple]="false"
-          style="display: none"
-          (change)="onFileSelected($event)"
-          #fileInput
-          type="file"
-          accept=".csv"
-        />
-        <br />
-        <br />
-        <span *ngIf="selectedFile">
-          <i class="fa fa-close" style="color: gray" (click)="removeFile()"></i>
-          File selected:
-          <a
-            ><b style="font-weight: 500">{{ selectedFile.name }}</b></a
-          >
-          &nbsp;<i class="fa fa-check-circle" style="color: #32a50f"></i>
-        </span>
 
-        <mat-error style="text-align: center" *ngIf="validationError"
-          ><i class="fa fa-times-circle" style="color: #ff052b">
-            {{ validationError }}</i
-          ></mat-error
+        <div
+          class="iu-dropzone"
+          (drop)="onDrop($event)"
+          (dragover)="onDragOver($event)"
+          (click)="fileInput.click()"
         >
-      </div>
-      <br />
-      <div style="text-align: center" *ngIf="fileSelected">
-        <button
-          class="btn btn-primary"
-          mat-stroked-button
-          (click)="uploadCLODataFile(dialogTemplate)"
-          style="color: white"
-        >
-          Upload
-        </button>
+          <div class="iu-dropzone__icon">
+            <ng-icon name="phosphorArrowLineUpBold" size="36" />
+          </div>
+          <p class="iu-dropzone__text">Drag and drop your file here</p>
+          <p class="iu-dropzone__or">or</p>
+          <button
+            type="button"
+            class="iu-dropzone__btn"
+            (click)="$event.stopPropagation(); fileInput.click()"
+          >
+            Select File
+          </button>
+          <input
+            [multiple]="false"
+            style="display: none"
+            (change)="onFileSelected($event)"
+            #fileInput
+            type="file"
+            accept=".csv"
+          />
+        </div>
+
+        @if (selectedFile) {
+          <div class="iu-file-info">
+            <ng-icon
+              name="phosphorFileBold"
+              size="20"
+              class="iu-file-info__icon"
+            />
+            <span class="iu-file-info__name">{{ selectedFile.name }}</span>
+            <ng-icon
+              name="phosphorCheckCircleBold"
+              size="18"
+              class="iu-file-info__check"
+            />
+            <button
+              type="button"
+              class="iu-file-info__remove"
+              (click)="removeFile()"
+            >
+              <ng-icon name="phosphorTrashBold" size="16" />
+            </button>
+          </div>
+        }
+
+        @if (validationError) {
+          <div class="iu-error">
+            <ng-icon
+              name="phosphorWarningCircleBold"
+              size="16"
+              class="iu-error__icon"
+            />
+            <span>{{ validationError }}</span>
+          </div>
+        }
+
+        @if (fileSelected) {
+          <button
+            type="button"
+            class="iu-upload-btn"
+            (click)="uploadCLODataFile(dialogTemplate)"
+          >
+            <ng-icon name="phosphorArrowLineUpBold" size="18" />
+            Upload
+          </button>
+        }
       </div>
     </mat-tab>
+
+    <!-- Enter CLO Updates Tab -->
     <mat-tab label="Enter CLO Updates">
-      <br />
-      <form [formGroup]="updateForm">
-        <mat-form-field appearance="standard">
-          <mat-label>Program Name</mat-label>
-          <input
-            matInput
-            formControlName="programName"
-            placeholder="Enter Program Name"
-            name="programName"
-            required
-          />
-        </mat-form-field>
+      <div class="iu-form">
+        <form [formGroup]="updateForm">
+          <div class="iu-field-row">
+            <label class="iu-field-label">Program Name</label>
+            <div class="iu-field-input">
+              <input
+                class="iu-input"
+                formControlName="programName"
+                placeholder="Enter Program Name"
+                required
+              />
+            </div>
+          </div>
 
-        <mat-form-field appearance="standard">
-          <mat-label>Account</mat-label>
-          <input
-            matInput
-            formControlName="account"
-            placeholder="Enter Account"
-            name="account"
-            required
-          />
-        </mat-form-field>
+          <div class="iu-field-row">
+            <label class="iu-field-label">Account</label>
+            <div class="iu-field-input">
+              <input
+                class="iu-input"
+                formControlName="account"
+                placeholder="Enter Account"
+                required
+              />
+            </div>
+          </div>
 
-        <mat-form-field appearance="standard">
-          <mat-label>Deal Id</mat-label>
-          <input
-            matInput
-            formControlName="dealIds"
-            placeholder="Enter Deal Ids"
-            name="dealIds"
-            required
-          />
-        </mat-form-field>
-        <mat-form-field appearance="standard">
-          <mat-label>Order/ Subscription number</mat-label>
-          <input
-            matInput
-            formControlName="orderNum"
-            placeholder="Enter Order Number"
-            name="orderNum"
-          />
-        </mat-form-field>
-        <mat-form-field floatLabel="never">
-          <input
-            matInput
-            formControlName="invoiceDate"
-            [matDatepicker]="picker"
-            placeholder="Invoice Eligible Date"
-            [min]="currentDate"
-            [readonly]="true"
-            class="calendarInput"
-          />
-          <mat-datepicker-toggle
-            matSuffix
-            [for]="picker"
-          ></mat-datepicker-toggle>
-          <mat-datepicker #picker> </mat-datepicker>
-        </mat-form-field>
-        <mat-form-field appearance="standard">
-          <mat-label>CLO Updates</mat-label>
-          <input
-            matInput
-            formControlName="cloComments"
-            placeholder="Enter Clo Updates"
-            name="cloComments"
-          />
-        </mat-form-field>
-      </form>
-      <br />
-      <div style="text-align: center">
-        <button
-          mat-stroked-button
-          class="btn btn-primary"
-          type="submit"
-          (click)="submitCLOData(dialogTemplate)"
-          style="background-color: gray; color: white"
-        >
-          Upload
-        </button>
+          <div class="iu-field-row">
+            <label class="iu-field-label">Deal IDs</label>
+            <div class="iu-field-input">
+              <input
+                class="iu-input"
+                formControlName="dealIds"
+                placeholder="Enter Deal IDs"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="iu-field-row">
+            <label class="iu-field-label">Order Number</label>
+            <div class="iu-field-input">
+              <input
+                class="iu-input"
+                formControlName="orderNum"
+                placeholder="Enter Order Number"
+              />
+            </div>
+          </div>
+
+          <div class="iu-field-row">
+            <label class="iu-field-label">Invoice Eligible Date</label>
+            <div class="iu-field-input iu-field-input--date">
+              <input
+                class="iu-input"
+                formControlName="invoiceDate"
+                [matDatepicker]="picker"
+                placeholder="Select Date"
+                [min]="currentDate"
+                [readonly]="true"
+              />
+              <mat-datepicker-toggle
+                class="iu-date-toggle"
+                [for]="picker"
+              ></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </div>
+          </div>
+
+          <div class="iu-field-row">
+            <label class="iu-field-label">CLO Updates</label>
+            <div class="iu-field-input">
+              <input
+                class="iu-input"
+                formControlName="cloComments"
+                placeholder="Enter CLO Updates"
+              />
+            </div>
+          </div>
+        </form>
+
+        @if (validForm) {
+          <div class="iu-error">
+            <ng-icon
+              name="phosphorWarningCircleBold"
+              size="16"
+              class="iu-error__icon"
+            />
+            <span>Form cannot have empty values</span>
+          </div>
+        }
+
+        <div class="iu-form-footer">
+          <button
+            type="button"
+            class="fit-btn fit-btn--secondary"
+            (click)="closeDialog('closed')"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="fit-btn fit-btn--primary"
+            (click)="submitCLOData(dialogTemplate)"
+          >
+            Save
+          </button>
+        </div>
       </div>
     </mat-tab>
   </mat-tab-group>
-  <br />
 </div>
 
-<div style="display: flex; justify-content: space-between; align-items: end">
-  <ng-template #dialogTemplate>
+<ng-template #dialogTemplate>
+  <div class="iu-result">
+    <p
+      class="iu-result__msg"
+      [class.iu-result__msg--success]="uploadText.includes('successful')"
+      [class.iu-result__msg--error]="uploadText.includes('failed')"
+    >
+      @if (uploadText.includes("failed")) {
+        <ng-icon name="phosphorWarningCircleBold" size="20" />
+      }
+      @if (uploadText.includes("successful")) {
+        <ng-icon name="phosphorCheckCircleBold" size="20" />
+      }
+      {{ uploadText }}
+    </p>
     <br />
-    <h6>
-      <span *ngIf="uploadText === 'CLO Data upload failed!'"
-        ><i class="fa fa-times-circle fa-lg" style="color: #ff052b"></i
-      ></span>
-      <span *ngIf="uploadText === 'CLO Data upload successful!'"
-        ><i class="fa fa-check-circle fa-lg" style="color: #32a50f"></i
-      ></span>
-      <b style="font-weight: 500">&nbsp;{{ uploadText }}</b>
-    </h6>
-    <br />
-    <div style="text-align: center">
-      <button
-        class="btn btn-primary"
-        mat-stroked-button
-        (click)="closeOkDialog()"
-      >
-        Ok
-      </button>
-    </div>
-  </ng-template>
-</div>
+    <button class="iu-result__ok" (click)="closeOkDialog()">Ok</button>
+  </div>
+</ng-template>

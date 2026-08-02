@@ -1,0 +1,88 @@
+.adm-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  margin-top: -10px;
+}
+
+.adm-tab {
+  background: none;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #888;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.adm-tab:hover {
+  color: #333;
+}
+
+.adm-tab.active {
+  color: #00bceb;
+  border-bottom-color: #00bceb;
+}
+
+.adm-overall {
+  margin-left: auto;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #00bceb;
+  padding-right: 0.5rem;
+}
+
+.adm-chart-container {
+  width: 720px;
+  height: 480px;
+  padding: 1rem;
+  position: relative;
+}
+
+.adm-chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.adm-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.adm-empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #888;
+  font-size: 0.8rem;
+}
+
+/* ── Dark mode ── */
+:host-context(.dark-theme) .adm-tabs {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+:host-context(.dark-theme) .adm-tab {
+  color: #8899a6;
+}
+
+:host-context(.dark-theme) .adm-tab:hover {
+  color: #e0e6ed;
+}
+
+:host-context(.dark-theme) .adm-tab.active {
+  color: #00bceb;
+}
+
+:host-context(.dark-theme) .adm-empty {
+  color: #8899a6;
+}

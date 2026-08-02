@@ -1,0 +1,16 @@
+<div style="margin-top: 10px"></div>
+@if (!selectedIncident) {
+  <app-caseiq-incidents
+    (sharedStateOpen)="onSharedStateOpen($event)"
+    [caseReopenMetrics]="caseReopenMetrics"
+    [selectedQuarter]="selectedQuarter"
+  ></app-caseiq-incidents>
+}
+
+<app-caseiq-incident-detail
+  [incident]="selectedIncident"
+  [incidentDetailData]="selectedIncidentDetailData"
+  backLabel="Back to Orchestrator"
+  (back)="onBackFromDetail()"
+  [style.display]="selectedIncident ? 'block' : 'none'"
+></app-caseiq-incident-detail>

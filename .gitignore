@@ -39,9 +39,33 @@ testem.log
 .dockerignore
 .version
 
+# Environment files (secrets)
+.env
+*.env
+
+# MCP Python server (local Copilot tooling)
+python-server/
+
 # System files
 .DS_Store
 Thumbs.db
 
 revenue-monitoring-ui/package-lock.json
 revenue-monitoring-ui/src/assets/config/config.json
+
+# Cypress
+revenue-monitoring-ui/angular-app/cypress/screenshots/
+revenue-monitoring-ui/angular-app/cypress/videos/
+revenue-monitoring-ui/angular-app/cypress-warnings.log
+revenue-monitoring-ui/angular-app/agents.md
+PUT_ENDPOINT_FIX.md
+POST_REQUEST_FLOW.md
+TESTING_GUIDE.md
+.vscode/settings.json
+.codesight/default.json
+env.local
+README-LOCAL.md
+.claude/launch.json
+scripts/local-dev.patch
+scripts/run-server.py
+scripts/__pycache__/run-server.cpython-314.pyc

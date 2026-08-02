@@ -1,122 +1,374 @@
-<div class="page-title">Period Close Tracking</div>
-<div class="card-container">
-  <div class="card-column">
-    <div class="column-title">Pre-Close</div>
-    <div class="column-content">6/6 Steps</div>
+<!-- @if (!homeLoading()) { -->
+<div class="dashboard-container">
+  <!-- Welcome Message Row -->
+
+  <!-- Title Bar Row -->
+  <div class="title-row">
+    <div class="title-left">
+      <div class="quarter-filter">
+        <label>Quarter:</label>
+        <div class="qtr-dropdown" (click)="$event.stopPropagation()">
+          <button
+            type="button"
+            class="qtr-trigger"
+            (click)="toggleQuarterDropdown($event)"
+          >
+            <span class="qtr-trigger-label">{{ selectedQuarterLabel }}</span>
+            <svg
+              class="qtr-chevron"
+              [class.open]="showQuarterDropdown()"
+              width="12"
+              height="12"
+              viewBox="0 0 256 256"
+              fill="currentColor"
+            >
+              <path
+                d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"
+              />
+            </svg>
+          </button>
+
+          @if (showQuarterDropdown()) {
+            <div class="qtr-menu">
+              @for (q of availableQuarters(); track q.value) {
+                <button
+                  type="button"
+                  class="qtr-option"
+                  [class.selected]="q.value === selectedQuarter()"
+                  (click)="selectQuarter(q.value)"
+                >
+                  {{ q.label }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    @if (periodInfo()) {
+      <div class="period-info">
+        <span><b>Period name:</b> {{ periodInfo().periodName }}</span>
+        <span class="divider">|</span>
+        <span><b>Period end date:</b> {{ periodInfo().periodEndDate }}</span>
+        <span class="divider">|</span>
+        <span><b>Last Updated:</b> {{ periodInfo().lastUpdated }}</span>
+      </div>
+    }
+    <div class="title-right"></div>
   </div>
-  <div class="card-column">
-    <div class="column-title">Mid Close</div>
-    <div class="column-content">6/6 Steps</div>
+  <!-- KPI Metrics Bars (40% / 60%) -->
+  <div class="kpi-bars">
+    <div class="kpi-bar kpi-bar-primary">
+      <div class="kpi-item first">
+        <div class="kpi-value high">
+          {{ highPriorityKpis()?.highPriorityIssues ?? "-" }}
+        </div>
+        <div class="kpi-label">
+          High Priority Issues
+
+          <span
+            matTooltip="Transaction Exceptions > $1M."
+            matTooltipPosition="right"
+            class="kpi-info-icon"
+          >
+            <mat-icon>info_outline</mat-icon>
+          </span>
+        </div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">
+          {{ highPriorityKpis()?.inProgress ?? "-" }}
+        </div>
+        <div class="kpi-label">In Progress</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">
+          {{ highPriorityKpis()?.totalAging ?? "-" }}
+        </div>
+        <div class="kpi-label">Total Aging</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">
+          {{ highPriorityKpis()?.lessThan48Hours ?? "-" }}
+        </div>
+        <div class="kpi-label">&lt;48 Hours</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">
+          {{ highPriorityKpis()?.moreThan48Hours ?? "-" }}
+        </div>
+        <div class="kpi-label">&gt;48 Hours</div>
+      </div>
+    </div>
+    <div class="kpi-bar kpi-bar-secondary">
+      <div class="kpi-item">
+        <div class="kpi-value">{{ issueKpis()?.total ?? "-" }}</div>
+        <div class="kpi-label">Total</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">{{ issueKpis()?.resolved ?? "-" }}</div>
+        <div class="kpi-label">Resolved</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">
+          {{ issueKpis()?.inProgress ?? "-" }}
+        </div>
+        <div class="kpi-label">In Progress</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">{{ issueKpis()?.assigned ?? "-" }}</div>
+        <div class="kpi-label">Assigned</div>
+      </div>
+      <div class="kpi-item last">
+        <div class="kpi-value">
+          {{ issueKpis()?.unassigned ?? "-" }}
+        </div>
+        <div class="kpi-label">Unassigned</div>
+      </div>
+    </div>
   </div>
-  <div class="card-column">
-    <div class="column-title">WD-0 Dash</div>
-    <div class="column-content">All entities in progress</div>
+  <!-- Charts Row -->
+  <div class="charts-row">
+    <!-- Transaction Failures Chart -->
+    <div class="chart-wrapper">
+      <h3 class="chart-title">Transaction Failures</h3>
+      <div class="chart-content">
+        @if (transactionFailuresLoading()) {
+          <app-loading-symbol-small></app-loading-symbol-small>
+        } @else {
+          <div
+            echarts
+            [options]="transactionFailuresChartOptions"
+            style="height: 100%; width: 100%"
+          ></div>
+        }
+      </div>
+    </div>
+    <!-- ESP Cases Chart -->
+    <div class="chart-wrapper">
+      <h3 class="chart-title">ESP Cases</h3>
+      <div class="chart-content">
+        @if (espCasesLoading()) {
+          <app-loading-symbol-small></app-loading-symbol-small>
+        } @else {
+          <div
+            echarts
+            [options]="espCasesChartOptions"
+            style="height: 100%; width: 100%"
+          ></div>
+        }
+      </div>
+    </div>
+    <!-- Issue Distribution Donut -->
+    <div class="chart-wrapper doughnut-wrapper">
+      <h3 class="chart-title">Issue Distribution by Assignee</h3>
+      <div class="doughnut-container">
+        @if (issueDistributionLoading()) {
+          <app-loading-symbol-small></app-loading-symbol-small>
+        } @else {
+          <div class="hm-donut">
+            <svg class="hm-donut-svg" viewBox="0 0 36 36">
+              <defs>
+                <linearGradient
+                  id="hmDonutGrad0"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop
+                    offset="0%"
+                    [attr.stop-color]="donutSlices()[0]?.color || '#6ebe4a'"
+                  />
+                  <stop
+                    offset="100%"
+                    [attr.stop-color]="donutSlices()[0]?.colorEnd || '#a8ec85'"
+                  />
+                </linearGradient>
+                <linearGradient
+                  id="hmDonutGrad1"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop
+                    offset="0%"
+                    [attr.stop-color]="donutSlices()[1]?.color || '#00bceb'"
+                  />
+                  <stop
+                    offset="100%"
+                    [attr.stop-color]="donutSlices()[1]?.colorEnd || '#33d4f5'"
+                  />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="18"
+                cy="18"
+                r="16"
+                fill="transparent"
+                class="hm-donut-ring-bg"
+                stroke-width="3.5"
+              />
+              @for (slice of donutSlices(); let i = $index; track slice.label) {
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="16"
+                  fill="transparent"
+                  [attr.stroke]="'url(#hmDonutGrad' + i + ')'"
+                  [attr.stroke-dasharray]="slice.dasharray"
+                  [attr.stroke-dashoffset]="slice.dashoffset"
+                  stroke-width="3.5"
+                  stroke-linecap="round"
+                  class="hm-donut-ring"
+                />
+              }
+            </svg>
+            <div class="hm-donut-center">
+              <span class="hm-donut-total">{{ donutTotal() }}</span>
+              <span class="hm-donut-label">Total Issues</span>
+            </div>
+          </div>
+        }
+      </div>
+      @if (!issueDistributionLoading()) {
+        <div class="doughnut-legend">
+          @for (legend of issueDistributionLegends(); track legend) {
+            <div class="pie-legend-item">
+              <span class="pie-color" [style.background]="legend.color"></span>
+              <span>{{ legend.label }} - {{ legend.value }}%</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
   </div>
-  <div class="card-column">
-    <div class="column-title">Mid Close Volumes</div>
-    <div class="column-content">Status Nominal</div>
-  </div>
-  <div class="card-column">
-    <div class="column-title">Large Deal</div>
-    <div class="column-content">Deal Totals: $123,456,789.99</div>
+  <!-- Issues List Table -->
+  <div class="issues-table-section">
+    <div class="table-header-row">
+      <h3 class="table-title">High Priority Issues List</h3>
+      <div class="table-toolbar">
+        <app-filter-button-bar
+          [filters]="filterConfigs"
+          [filterValues]="filterValues"
+          [actions]="actionButtons"
+          [totalCount]="dataSource?.data?.length || 0"
+          [filteredCount]="resultCount()"
+          [showFilterToggle]="!!dataSource?.data?.length"
+          countLabel="results"
+          (filterChange)="onFilterChange($event)"
+          (filterClear)="onFilterClear()"
+          (actionClick)="onActionButtonClick($event)"
+        ></app-filter-button-bar>
+      </div>
+    </div>
+
+    <!-- Mat Table -->
+    @if (dataSource?.data?.length) {
+      <div class="table-container" style="overflow-y: hidden !important">
+        <table
+          mat-table
+          [dataSource]="paginatedDataSource"
+          class="table-responsive"
+        >
+          <!-- Selection column -->
+          <!-- <ng-container matColumnDef="select">
+                <th mat-header-cell *matHeaderCellDef class="checkbox-col"></th>
+                <td mat-cell *matCellDef="let element" class="checkbox-col">
+                  <mat-checkbox></mat-checkbox>
+                </td>
+              </ng-container> -->
+
+          @for (column of displayedColumns; track column) {
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
+                {{ replaceUnderscore(column) }}
+              </th>
+              <td mat-cell *matCellDef="let element">
+                @if (column === displayedColumns[0]) {
+                  <!-- First column (ID) with warning icon if needed -->
+                  <div class="id-cell">
+                    @if (
+                      element.hasWarning ||
+                      element.WARNING ||
+                      element.HAS_WARNING
+                    ) {
+                      <mat-icon class="warning-icon">warning</mat-icon>
+                    }
+                    <span class="id-link">{{ element[column] }}</span>
+                  </div>
+                } @else if (
+                  column.includes("ASSIGNED") || column.includes("ASSIGN")
+                ) {
+                  <!-- Assigned To column with icons -->
+                  @if (element[column] === "AI Agent") {
+                    <div class="assigned-cell">
+                      <mat-icon class="robot-icon">smart_toy</mat-icon>
+                      <span>AI Agent</span>
+                    </div>
+                  } @else if (
+                    !element[column] ||
+                    element[column] === "Unassigned" ||
+                    element[column] === ""
+                  ) {
+                    <a class="assign-link">Assign to</a>
+                  } @else {
+                    {{ element[column] }}
+                  }
+                } @else if (column.includes("SOURCE")) {
+                  <span style="white-space: nowrap">
+                    {{ element[column] }}</span
+                  >
+                } @else if (column.includes("DESCRIPTION")) {
+                  <span class="issue-description-cell">
+                    {{ element[column] }}</span
+                  >
+                } @else if (column.includes("BILL_TOTAL")) {
+                  <span style="white-space: nowrap">
+                    {{
+                      element[column] | currency: "USD" : "symbol" : "1.2-2"
+                    }}</span
+                  >
+                } @else {
+                  {{ element[column] }}
+                }
+              </td>
+            </ng-container>
+          }
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsWithSelect"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumnsWithSelect"
+          ></tr>
+        </table>
+      </div>
+    }
+    @if (!dataSource?.data?.length) {
+      <div class="loading-container">
+        <app-loading-symbol></app-loading-symbol>
+        <div class="circle-subcaption"></div>
+        <br /><br /><br />
+      </div>
+    }
+
+    @if (resultCount() > 0) {
+      <app-pagination
+        [pageIndex]="currentPage"
+        [pageSize]="pageSize"
+        [totalItems]="resultCount()"
+        [pageSizeOptions]="[10, 25, 50]"
+        (pageChange)="onPageChange($event)"
+      ></app-pagination>
+    }
   </div>
 </div>
+<!-- } -->
 
-<hr />
-
-<div class="page-title">Invoice to Cash</div>
-<div class="card-container">
-  <div class="card-column">
-    <div class="column-title">Pre-Invoicing</div>
-    <div class="column-content">10 Errors</div>
-
-    <div class="escalation-row">
-      <div class="column-content escalation-item">
-        <i class="svg-icon escalation-one-icon"></i>
-      </div>
-      <div class="column-content">4 Level 1 Escalation</div>
-    </div>
+<!-- Loading Spinner -->
+<!-- @if (homeLoading()) {
+  <div class="loading-screen">
+    <mat-spinner></mat-spinner>
+    <p>Loading dashboard...</p>
   </div>
-  <div class="card-column">
-    <div class="column-title">Invoicing</div>
-    <div class="column-content">11 Errors</div>
-  </div>
-  <div class="card-column">
-    <div class="column-title">E-Invoicing</div>
-    <div class="column-content">10 Errors</div>
-
-    <div class="escalation-row">
-      <div class="column-content escalation-item">
-        <i class="svg-icon escalation-one-icon"></i>
-      </div>
-      <div class="column-content">2 Level 1 Escalation</div>
-    </div>
-    <div class="escalation-row">
-      <div class="column-content escalation-item">
-        <i class="svg-icon escalation-two-icon"></i>
-      </div>
-      <div class="column-content">4 Level 2 Escalation</div>
-    </div>
-  </div>
-  <div class="card-column">
-    <div class="column-title">CMS</div>
-    <div class="column-content">8 Unprocessed File Streams</div>
-  </div>
-  <div class="card-column">
-    <div class="column-title">Fusion</div>
-    <div class="column-content">Coming Soon</div>
-  </div>
-</div>
-
-<hr />
-
-<div class="page-title">Revenue Accounting</div>
-<div class="card-container">
-  <div class="card-column">
-    <div class="column-title">Standard Revenue</div>
-    <div class="column-content">1 Error</div>
-
-    <div class="escalation-row">
-      <div class="column-content escalation-item">
-        <i class="svg-icon escalation-one-icon"></i>
-      </div>
-      <div class="column-content">1 Level 1 Escalation</div>
-    </div>
-  </div>
-  <div class="card-column">
-    <div class="column-title">Accruals</div>
-    <div class="column-content">3 Errors</div>
-
-    <div class="escalation-row">
-      <div class="column-content escalation-item">
-        <i class="svg-icon escalation-one-icon"></i>
-      </div>
-      <div class="column-content">1 Level 1 Escalation</div>
-    </div>
-  </div>
-  <div class="card-column">
-    <div class="column-title">Meraki</div>
-    <div class="column-content">Coming Soon</div>
-  </div>
-  <div class="card-column">
-    <div class="column-title">Business Controls</div>
-    <div class="column-content">Coming Soon</div>
-  </div>
-</div>
-
-<hr />
-
-<div class="page-title">GL Posting</div>
-<div class="card-container">
-  <div class="card-column">
-    <div class="column-title">GL-Posting</div>
-    <div class="column-content">11 Errors</div>
-
-    <div class="escalation-row">
-      <div class="column-content escalation-item">
-        <i class="svg-icon escalation-two-icon"></i>
-      </div>
-      <div class="column-content">11 Level 2 Escalations</div>
-    </div>
-  </div>
-</div>
+} -->

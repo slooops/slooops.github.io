@@ -1,31 +1,53 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  phosphorArrowLineDownBold,
+  phosphorCloudArrowUpBold,
+  phosphorXBold,
+  phosphorFileBold,
+  phosphorCheckCircleBold,
+  phosphorTrashBold,
+} from '@ng-icons/phosphor-icons/bold';
 
 @Component({
   selector: 'app-issue-upload',
   templateUrl: './issue-upload.component.html',
   styleUrl: './issue-upload.component.css',
+  imports: [CommonModule, MatButtonModule, NgIcon],
+  providers: [
+    provideIcons({
+      phosphorArrowLineDownBold,
+      phosphorCloudArrowUpBold,
+      phosphorXBold,
+      phosphorFileBold,
+      phosphorCheckCircleBold,
+      phosphorTrashBold,
+    }),
+  ],
+  standalone: true,
 })
 export class IssueUploadComponent {
   updateForm: FormGroup;
   username: any;
 
+  @Output() closed = new EventEmitter<string | null>();
+
   constructor(
     public http: ApiHttpService,
-    public dialog: MatDialog,
-    private dialogRef: MatDialogRef<IssueUploadComponent>,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
   ) {}
 
   ngOnInit(): void {
     this.username = this.authService.getUserName();
   }
 
-  closeDialog(result) {
-    this.dialogRef.close();
+  closeDialog(result: string | null = null) {
+    this.closed.emit(result);
   }
 
   selectedFile: File | null = null;
@@ -67,13 +89,13 @@ export class IssueUploadComponent {
           (error) => {
             console.error('Error uploading file:', error);
             this.closeDialog('error');
-          }
+          },
         );
     }
   }
 
   closeOkDialog(): void {
-    this.dialog.closeAll();
+    this.closed.emit(null);
   }
 
   removeFile() {

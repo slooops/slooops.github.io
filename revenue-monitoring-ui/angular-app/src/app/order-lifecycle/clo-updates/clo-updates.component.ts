@@ -5,13 +5,49 @@ import { DataService } from 'src/app/providers/data.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ExportToExcelService } from 'src/app/providers/export-to-excel.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
-import * as XLSX from 'xlsx';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  phosphorArrowLineDownBold,
+  phosphorArrowLineUpBold,
+  phosphorXBold,
+  phosphorFileBold,
+  phosphorCheckCircleBold,
+  phosphorTrashBold,
+  phosphorWarningCircleBold,
+} from '@ng-icons/phosphor-icons/bold';
 
 @Component({
   selector: 'app-clo-updates',
   templateUrl: './clo-updates.component.html',
   styleUrls: ['./clo-updates.component.css'],
-  providers: [DestroyManager],
+  providers: [
+    DestroyManager,
+    provideNativeDateAdapter(),
+    provideIcons({
+      phosphorArrowLineDownBold,
+      phosphorArrowLineUpBold,
+      phosphorXBold,
+      phosphorFileBold,
+      phosphorCheckCircleBold,
+      phosphorTrashBold,
+      phosphorWarningCircleBold,
+    }),
+  ],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatTabsModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    NgIcon,
+  ],
+  standalone: true,
 })
 export class CloUpdatesComponent implements OnInit {
   updateForm: FormGroup;
@@ -26,7 +62,7 @@ export class CloUpdatesComponent implements OnInit {
     public dialog: MatDialog,
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    private exportToExcelService: ExportToExcelService
+    private exportToExcelService: ExportToExcelService,
   ) {}
 
   ngOnInit(): void {
@@ -84,7 +120,7 @@ export class CloUpdatesComponent implements OnInit {
     this.exportToExcelService.exportTableToExcel(
       this.cloSampleDownloadData,
       sheetName,
-      filename
+      filename,
     );
   }
 
@@ -110,7 +146,7 @@ export class CloUpdatesComponent implements OnInit {
             this.uploadText = 'CLO Data upload failed!';
             this.closeDialog('error');
             this.dialog.open(dialogTemplate);
-          }
+          },
         );
     }
   }
@@ -143,7 +179,7 @@ export class CloUpdatesComponent implements OnInit {
             this.uploadText = 'CLO Data upload failed!';
             this.closeDialog('error');
             this.dialog.open(dialogTemplate);
-          }
+          },
         );
     } else {
       this.validForm = true;

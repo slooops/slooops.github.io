@@ -1,60 +1,59 @@
-.mat-header-row {
-  background-color: #ffffff !important;
-  border-bottom: 2px solid #373c42 !important; /* Add a bar below the header row */
+/* ── Table scroll wrapper ── */
+.tbl-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+
+  /* max-height: 480px; */
 }
 
-.mat-header-cell {
-  color: rgb(46, 46, 46) !important;
-  text-align: center !important;
-  border-bottom: 0px !important;
-  font-size: 12px !important;
-  padding: 1vh !important;
+/* ── Plain table – CaseIQ style ── */
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
 }
 
-/* Styling for table rows */
-.mat-row:nth-child(odd) {
-  background-color: #f2f2f2 !important;
+.tbl th {
+  text-align: left;
+  padding: 10px 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: linear-gradient(
+    to bottom,
+    #ffffff 0%,
+    #ffffff 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  color: #1b1c1d;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  white-space: nowrap;
 }
 
-.mat-row:nth-child(even) {
-  background-color: #ffffff !important;
+.tbl td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #e1e4e8;
+  font-size: 0.7rem;
 }
 
-.mat-cell {
-  text-align: center !important;
-  font-size: 11px !important;
-  font-weight: 500 !important;
-  padding: 0.4vh !important;
-  border: 0px !important;
+.tbl tr:last-child td {
+  border-bottom: none;
 }
 
-tr.mat-row {
-  height: 30px;
-  border-bottom: 0px;
+.tbl tr:hover td {
+  background: rgba(0, 112, 210, 0.04);
 }
 
-td {
-  font-size: 11px;
+.tbl .extra-wide-column {
+  min-width: 25rem;
 }
 
-th {
-  text-align: center !important;
-  border-bottom: 0px !important;
-  font-size: 12px;
-  padding: 0.5vh !important ;
-}
-
-td {
-  text-align: center !important;
-  font-size: 11px;
-  padding: 0.4vh !important ;
-  border: 0px !important;
-}
-
-tr.mat-header-row {
-  height: 28px;
-}
-
+/* ── Loading ── */
 .loading-container {
   display: flex;
   align-items: center;
@@ -65,23 +64,76 @@ tr.mat-header-row {
   height: 100%;
 }
 
-.dash-link {
-  color: #303030 !important;
-  margin: -3px 10px 0 0;
-}
-
-table.mat-table .mat-header-cell.wide-column,
-table.mat-table .mat-cell.wide-column {
-  /* min-width: 18rem; */
-}
-table.mat-table .mat-header-cell.wide-column,
-table.mat-table .mat-cell.extra-wide-column {
-  min-width: 25rem;
-}
-
+/* ── Header bar ── */
 .table-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: -32px;
+}
+
+.section-title {
+  margin: 0;
+}
+
+.table-links {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dash-link {
+  color: #303030;
+  margin: -3px 10px 0 0;
+  text-decoration: none;
+  font-size: 0.75rem;
+}
+
+.dash-link:hover {
+  color: #0070d2;
+}
+
+.download-icon {
+  cursor: pointer;
+  color: #333;
+  transition: color 150ms ease;
+  margin-bottom: 2px;
+}
+
+.download-icon:hover {
+  color: #0070d2;
+}
+
+/* ── Dark mode ── */
+:host(.dark-theme) .tbl th {
+  background: rgba(28, 44, 58, 0.85);
+  color: #e0e6ed;
+}
+
+:host(.dark-theme) .tbl td {
+  border-bottom-color: #2a3f50;
+  color: #e0e6ed;
+}
+
+:host(.dark-theme) .tbl tr:hover td {
+  background: rgba(0, 188, 235, 0.06);
+}
+
+:host(.dark-theme) .section-title {
+  color: #e0e6ed;
+}
+
+:host(.dark-theme) .dash-link {
+  color: #8899a6;
+}
+
+:host(.dark-theme) .dash-link:hover {
+  color: #00bceb;
+}
+
+:host(.dark-theme) .download-icon {
+  color: #8899a6;
+}
+
+:host(.dark-theme) .download-icon:hover {
+  color: #00bceb;
 }

@@ -14,13 +14,16 @@ public class CorsConfig {
     @Value("${cors.url}")
     public String corsUrl;
 
+    @Value("${agent.api.url}")
+    public String agentApiUrl;
+
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOrigins(corsUrl)
+                        .allowedOrigins(corsUrl, agentApiUrl)
                         .allowedMethods("GET", "OPTIONS", "POST", "PUT", "DELETE")
                         .allowedHeaders("*");
             }

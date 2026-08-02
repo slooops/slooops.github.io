@@ -1,0 +1,74 @@
+<div class="fit-multiselect">
+  @if (label) {
+    <span class="fit-multiselect__label">{{ label }}</span>
+  }
+  <div class="fit-multiselect__control" (click)="toggleDropdown()">
+    <span
+      class="fit-multiselect__display"
+      [class.fit-multiselect__display--placeholder]="selected.length === 0"
+    >
+      {{ displayText }}
+    </span>
+    <span
+      class="fit-multiselect__chevron"
+      [class.fit-multiselect__chevron--open]="isOpen"
+      >▾</span
+    >
+  </div>
+
+  @if (isOpen) {
+    <div class="fit-multiselect__dropdown">
+      @if (showSearch) {
+        <div class="fit-multiselect__search-wrap">
+          <input
+            class="fit-multiselect__search"
+            type="text"
+            placeholder="Search..."
+            [value]="searchTerm"
+            (input)="onSearchInput($event)"
+            (click)="$event.stopPropagation()"
+          />
+        </div>
+      }
+
+      @if (!singleSelect && selected.length > 0) {
+        <button
+          class="fit-multiselect__clear"
+          (click)="clearAll(); $event.stopPropagation()"
+        >
+          Clear all
+        </button>
+      }
+
+      <ul class="fit-multiselect__list">
+        @for (option of filteredOptions; track option.value) {
+          <li
+            class="fit-multiselect__item"
+            [class.fit-multiselect__item--selected]="isSelected(option.value)"
+            [class.fit-multiselect__item--single]="singleSelect"
+            (click)="toggleOption(option.value); $event.stopPropagation()"
+          >
+            @if (singleSelect) {
+              <span class="fit-multiselect__radio">
+                @if (isSelected(option.value)) {
+                  <span class="fit-multiselect__radio-dot"></span>
+                }
+              </span>
+            } @else {
+              <span class="fit-multiselect__checkbox">
+                @if (isSelected(option.value)) {
+                  <span class="fit-multiselect__check">✓</span>
+                }
+              </span>
+            }
+            <span class="fit-multiselect__item-label">{{ option.label }}</span>
+          </li>
+        }
+
+        @if (filteredOptions.length === 0) {
+          <li class="fit-multiselect__no-results">No matches</li>
+        }
+      </ul>
+    </div>
+  }
+</div>

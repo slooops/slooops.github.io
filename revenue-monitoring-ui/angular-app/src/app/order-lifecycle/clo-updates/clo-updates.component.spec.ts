@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialogRef } from '@angular/material/dialog';
 
 import { CloUpdatesComponent } from './clo-updates.component';
 
@@ -8,9 +9,14 @@ describe('CloUpdatesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CloUpdatesComponent ]
-    })
-    .compileComponents();
+      imports: [CloUpdatesComponent],
+      providers: [
+        {
+          provide: MatDialogRef,
+          useValue: { close: jasmine.createSpy('close') },
+        },
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CloUpdatesComponent);
     component = fixture.componentInstance;

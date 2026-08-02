@@ -1,19 +1,22 @@
-FROM openjdk:11
+FROM eclipse-temurin:25-jre
 
-ENV APP_HOME /server
+# Application directory
+ENV APP_HOME=/server \
+	HOME=/tmp
+WORKDIR $APP_HOME
 
-USER root
+# Prepare runtime directories for non-root / arbitrary UID environments
+RUN mkdir -p "$APP_HOME" /tmp \
+	&& chgrp -R 0 "$APP_HOME" /tmp \
+	&& chmod -R g=u "$APP_HOME" /tmp
+
+# Copy pre-built jar produced by CI (ensure 'mvn package' ran before docker build)
+COPY --chown=1001:0 target/revenue-monitoring-server.jar app.jar
+
 EXPOSE 8080
 
-RUN mkdir $APP_HOME
-RUN adduser --system --group rev
+# TEMPORARY: run as root to unblock Jenkins/runtime permission issues
+USER root
 
-COPY package/repo $APP_HOME
-
-RUN chown -R rev:rev $APP_HOME
-RUN chmod -R 777 $APP_HOME
-
-WORKDIR $APP_HOME
-ENTRYPOINT [ "java" , "-jar" , "revenue-monitoring-server.jar", "&" ]
-
-
+# Run the Spring Boot jar in foreground (no trailing ampersand)
+ENTRYPOINT ["java","-jar","app.jar"]

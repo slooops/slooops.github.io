@@ -27,4 +27,9 @@ public class WebexMessageController {
     public void sendMessageGl(@RequestBody Map<String, String> updateData) {
         service.sendWebexMessageGlPosting(updateData);
     }
+
+    @PostMapping("/send-message-wips")
+    public void sendMessageWIPS(@RequestBody Map<String, String> updateData) {
+        service.sendWebexMessageWIPSNprd(updateData);
+    }
 }

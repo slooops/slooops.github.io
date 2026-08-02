@@ -1,16 +1,14 @@
 import {
-  ChangeDetectorRef,
   Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
+  computed,
+  effect,
+  input,
+  signal,
   ViewChild,
 } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { SelectionModel } from '@angular/cdk/collections';
-import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Observable, takeUntil } from 'rxjs';
 import { FormGroup } from '@angular/forms';
 import { ExportService } from './providers/export.service';
@@ -19,140 +17,236 @@ import { MonitoringDataService } from './providers/data.service';
 import { UtilsService } from './providers/utils.service';
 import { BaseComponent } from './shared/base.component';
 import { HttpService } from './providers/http.service';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatButtonModule } from '@angular/material/button';
+import { UserAssignmentComponent } from './user-assignment/user-assignment.component';
+import { LoadingSymbolComponent } from './shared/loading-symbol/loading-symbol.component';
+import {
+  MonitoringPaginationComponent,
+  MonitoringPageChangeEvent,
+} from './monitoring-pagination/monitoring-pagination.component';
+import { MonitoringFilterBarComponent } from './monitoring-filter-bar/monitoring-filter-bar.component';
+import { ExceptionDetailsComponent } from '../self-healing/exception-details/exception-details.component';
+
+export interface UserContext {
+  username: string;
+  userId: string;
+  roles: string[];
+  apiUrl: string;
+  assignmentUsersFilterKey: string;
+}
 
 @Component({
   selector: 'app-monitoring-dashboard',
   templateUrl: './monitoring-dashboard.component.html',
   styleUrl: './monitoring-dashboard.component.css',
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    UserAssignmentComponent,
+    LoadingSymbolComponent,
+    MonitoringPaginationComponent,
+    MonitoringFilterBarComponent,
+    ExceptionDetailsComponent,
+  ],
+  standalone: true,
 })
-export class MonitoringDashboardComponent<T>
-  extends BaseComponent
-  implements OnInit, OnChanges
-{
+export class MonitoringDashboardComponent<T> extends BaseComponent {
   @ViewChild('detailsPaginator') detailsPaginator: MatPaginator;
   @ViewChild('summaryPaginator') summaryPaginator: MatPaginator;
-  @Input() urls: { [key: string]: string };
-  @Input() keysToMap: string[];
-  @Input() periodStatus: any;
-  @Input() componentName: string;
-  @Input() columnsToFilter: {
-    formControlName: string;
-    columnName: string;
-    type: string;
-    subAppMapping: boolean;
-  }[];
-  @Input() summaryColumnsToHide: string[] = [];
-  @Input() detailsColumnsToHide: string[] = [];
-  @Input() assignmentDialogFieldConfig: any[] = [];
-  @Input() submitKeysToMap: string[] = [];
-  @Input() webexKeysToMap: string[] = [];
-  @Input() assignmentUsersFilter: string = '';
-  @Input() apiUrl: string;
 
-  periodName: string = '';
-  periodEnd: string = '';
+  selectedTransactionId: string | null = null;
+
+  openExceptionDetails(transactionId: string): void {
+    this.selectedTransactionId = transactionId;
+  }
+
+  closeExceptionDetails(): void {
+    this.selectedTransactionId = null;
+  }
+
+  urls = input.required<{ [key: string]: string }>();
+  keysToMap = input.required<string[]>();
+  componentName = input.required<string>();
+  columnsToFilter = input.required<
+    {
+      formControlName: string;
+      columnName: string;
+      type: string;
+      subAppMapping: boolean;
+    }[]
+  >();
+  summaryColumnsToHide = input<string[]>([]);
+  detailsColumnsToHide = input<string[]>([]);
+  assignmentDialogFieldConfig = input<any[]>([]);
+  submitKeysToMap = input<string[]>([]);
+  webexKeysToMap = input<string[]>([]);
+  userContext = input.required<UserContext>();
+
+  periodName = signal<string>('');
+  periodEnd = signal<string>('');
   totalImpactData$: Observable<any>;
-  updateUrl: string;
-  webexUrl: string;
+  updateUrl = signal<string>('');
+  webexUrl = signal<string>('');
   searchForm: FormGroup = new FormGroup({});
   textFilters: any[] = [];
   selectFilters: any[] = [];
   isSubAppMapping: boolean = false;
+  isModalOpen = signal<boolean>(false);
 
   constructor(
-    private cdr: ChangeDetectorRef,
     private exportService: ExportService,
     private dataFormattingService: DataFormattingService,
     private monitoringDataService: MonitoringDataService,
     private utilService: UtilsService,
-    private httpService: HttpService
+    private httpService: HttpService,
   ) {
     super();
-  }
-  ngOnInit(): void {
-    if (this.apiUrl) {
-      this.httpService.setHostUrl(this.apiUrl);
-    }
-    this.getErrorSummary();
-    this.getErrorDetails();
-    this.updateUrl = this.urls['summaryUpdateUrl'];
-    this.webexUrl = this.urls['webexMessageUrl'];
-    this.initializeForm();
-    this.getProcessFlowTotals();
-  }
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['apiUrl'] && changes['apiUrl'].currentValue) {
-      this.httpService.setHostUrl(changes['apiUrl'].currentValue);
-    }
-    if (this.periodStatus) {
-      this.periodName = this.periodStatus[0].PERIOD_NAME;
-      this.periodEnd = this.dataFormattingService.dateTransform(
-        this.periodStatus[0].END_DATE
-      );
-    }
 
-    if (changes['columnsToFilter'] && this.columnsToFilter) {
-      this.initializeForm();
-    }
+    // Effect to handle userContext changes and set API URL
+    effect(() => {
+      const userContext = this.userContext();
+      if (userContext?.apiUrl) {
+        this.httpService.setHostUrl(userContext.apiUrl);
+      } else {
+        console.warn(
+          'MonitoringDashboard - userContext or apiUrl not available',
+        );
+      }
+    });
+
+    // Effect to handle urls changes and initialize data fetching
+    effect(() => {
+      const urls = this.urls();
+      this.updateUrl.set(urls['summaryUpdateUrl']);
+      this.webexUrl.set(urls['webexMessageUrl']);
+
+      // Fetch data when URLs are available
+      this.getPeriodStatus();
+      this.getErrorSummary();
+      this.getErrorDetails();
+      this.getProcessFlowTotals();
+      this.getSummaryAssignableUsers();
+    });
+
+    // Effect to handle columnsToFilter changes (replaces ngOnChanges)
+    effect(() => {
+      const columnsToFilter = this.columnsToFilter();
+      if (columnsToFilter) {
+        this.initializeForm();
+      }
+    });
   }
 
-  summaryLoadTime: string;
-  summaryData: any[];
-  summaryDatasource: any;
-  summaryColumns: string[] = [];
-  summaryDisplayedColumns: string[] = [];
-  totalSummaryRecords: number = 0;
-  summaryLoading: boolean = false;
-  originalData: any[] = [];
-  originalDetailsData: any[] = [];
-  originalFilteredData: any[] = [];
-  getErrorSummary() {
-    this.summaryLoading = true;
-    this.summaryLoadTime = `Last Updated: ...`;
+  getPeriodStatus() {
     this.monitoringDataService
-      .getSummary(this.urls['summaryUrl'])
+      .getMonitoringPeriodStatus()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: any) => {
-          this.summaryData = this.dataFormattingService.formatData(data);
-          if (this.summaryData.length > 0) {
-            this.summaryColumns = Object.keys(this.summaryData[0]);
+          if (data && data.length > 0) {
+            this.periodName.set(data[0].PERIOD_NAME);
+            this.periodEnd.set(
+              this.dataFormattingService.dateTransform(data[0].END_DATE),
+            );
           }
-          this.summaryColumns = this.summaryColumns.filter(
-            (data) => !this.summaryColumnsToHide.includes(data)
-          );
-          this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
-          this.originalData = this.summaryData;
-          this.summaryDatasource = new MatTableDataSource<T>(this.summaryData);
-          if (this.summaryPaginator) {
-            if (this.summaryDatasource.paginator !== this.summaryPaginator) {
-              this.summaryDatasource.paginator = this.summaryPaginator;
-            }
-            this.totalSummaryRecords = this.summaryData.length;
-          }
-          this.summaryLoadTime = `Last Updated: ${new Date().toLocaleString()}`;
         },
         error: (err) => {
-          console.error('Error fetching data', err);
-          this.summaryLoading = false;
-        },
-        complete: () => {
-          this.summaryLoading = false;
+          console.error('Error fetching period status', err);
         },
       });
   }
 
-  processFlowTotals: any[] = [];
+  getSummaryAssignableUsers() {
+    return this.monitoringDataService.getAssignableUsers();
+  }
+
+  summaryLoadTime = signal<string>('');
+  summaryData = signal<any[]>([]);
+  summaryDatasource: any;
+  summaryColumns: string[] = [];
+  summaryDisplayedColumns: string[] = [];
+  totalSummaryRecords: number = 0;
+  summaryLoading = signal<boolean>(false);
+  originalData = signal<any[]>([]);
+  originalDetailsData = signal<any[]>([]);
+  originalFilteredData = signal<any[]>([]);
+
+  // Computed signals for derived data
+  hasSelectedRows = computed(() => this.selectedRows().length > 0);
+  hasSingleSelectedRow = computed(() => this.selectedRows().length === 1);
+  canAssignUser = computed(() => this.selectedRows().length === 1);
+  canResetSelection = computed(() => this.selectedRows().length > 0);
+  hasSummaryData = computed(() => this.summaryData().length > 0);
+  hasErrorDetails = computed(() => this.errorDetails().length > 0);
+  hasErrorDetailsFiltered = computed(
+    () => this.errorDetailsFiltered().length > 0,
+  );
+
+  getErrorSummary() {
+    this.summaryLoading.set(true);
+    this.summaryLoadTime.set(`Last Updated: ...`);
+    this.monitoringDataService
+      .getSummary(this.urls()['summaryUrl'])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: any) => {
+          const formattedData = this.dataFormattingService.formatData(data);
+          this.summaryData.set(formattedData);
+          if (this.summaryData().length > 0) {
+            this.summaryColumns = Object.keys(this.summaryData()[0]);
+          }
+          this.summaryColumns = this.summaryColumns.filter(
+            (data) => !this.summaryColumnsToHide().includes(data),
+          );
+          this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
+          this.originalData.set(this.summaryData());
+          this.summaryDatasource = new MatTableDataSource<T>(
+            this.summaryData(),
+          );
+          if (this.summaryPaginator) {
+            if (this.summaryDatasource.paginator !== this.summaryPaginator) {
+              this.summaryDatasource.paginator = this.summaryPaginator;
+            }
+            this.totalSummaryRecords = this.summaryData().length;
+          }
+          this.summaryLoadTime.set(
+            `Last Updated: ${new Date().toLocaleString()}`,
+          );
+        },
+        error: (err) => {
+          console.error('Error fetching data', err);
+          this.summaryLoading.set(false);
+        },
+        complete: () => {
+          this.summaryLoading.set(false);
+        },
+      });
+  }
+
+  processFlowTotals = signal<any[]>([]);
   getProcessFlowTotals() {
-    const params = { compName: this.componentName };
+    const params = { compName: this.componentName() };
     this.httpService
       .get('process-flow-total', { params: params })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: any) => {
-          console.log('Process flow totals:', data);
-          this.processFlowTotals = data;
-          this.cdr.detectChanges();
+          this.processFlowTotals.set(data);
         },
         error: (err) => {
           console.error('Error fetching process flow totals', err);
@@ -166,22 +260,22 @@ export class MonitoringDashboardComponent<T>
     this.sortDirection = this.dataFormattingService.getNextSortDirection(
       this.sortColumn,
       column,
-      this.sortDirection
+      this.sortDirection,
     );
     this.sortColumn = column;
 
     let dataArr, originalArr, dataSetter;
     if (sortOn === 'summary') {
       dataArr = this.summaryDatasource.data;
-      originalArr = this.originalData;
+      originalArr = this.originalData();
       dataSetter = (d: any[]) => (this.summaryDatasource.data = d);
     } else if (sortOn === 'filteredDetails') {
       dataArr = this.filtereddataSource.data;
-      originalArr = this.originalFilteredData;
+      originalArr = this.originalFilteredData();
       dataSetter = (d: any[]) => (this.filtereddataSource.data = d);
     } else {
       dataArr = this.dataSource.data;
-      originalArr = this.originalDetailsData;
+      originalArr = this.originalDetailsData();
       dataSetter = (d: any[]) => (this.dataSource.data = d);
     }
 
@@ -189,7 +283,11 @@ export class MonitoringDashboardComponent<T>
       dataSetter([...originalArr]);
     } else {
       dataSetter(
-        this.dataFormattingService.sortData(dataArr, column, this.sortDirection)
+        this.dataFormattingService.sortData(
+          dataArr,
+          column,
+          this.sortDirection,
+        ),
       );
     }
   }
@@ -202,53 +300,41 @@ export class MonitoringDashboardComponent<T>
     return this.sortColumn === column && this.sortDirection !== '';
   }
 
-  isEscalated(element: any): boolean {
-    const aging = element.AGING.split(' ')[0];
-    return Number(aging) > 6;
-  }
-
-  escalationLevel: any = 0;
-  getCircleNumber(element: any): any {
-    const aging = Number(element.AGING.split(' ')[0]);
-    if (aging >= 7 && aging <= 11) {
-      this.escalationLevel = 1;
-    } else if (aging > 11) {
-      this.escalationLevel = 2;
-    }
-    return this.escalationLevel;
-  }
-
   selection = new SelectionModel<any>(true, []);
-  selectedSummaryData: any[] = [];
-  isModalOpen: boolean = false;
-  selectedRows: any[] = [];
-  onRowSelectionChange(event: MatCheckboxChange, row: any) {
+  selectedSummaryData = signal<any[]>([]);
+  selectedRows = signal<any[]>([]);
+  onRowSelectionChange(event: any, row: any) {
     this.selection.toggle(row);
 
-    if (event.checked) {
-      this.selectedRows.push(row);
+    if (event.checked ?? event?.target?.checked) {
+      this.selectedRows.update((rows) => [...rows, row]);
     } else {
-      this.selectedRows = this.selectedRows.filter(
-        (selectedRow) => selectedRow !== row
+      this.selectedRows.update((rows) =>
+        rows.filter((selectedRow) => selectedRow !== row),
       );
     }
 
-    if (this.selectedRows.length > 0) {
-      this.getErrorDetailsFiltered(this.selectedRows);
+    if (this.hasSelectedRows()) {
+      this.getErrorDetailsFiltered(this.selectedRows());
     } else {
-      this.isFiltered = false;
-      this.dataSource = new MatTableDataSource<T>(this.errorDetails);
+      this.isFiltered.set(false);
+      this.dataSource = new MatTableDataSource<T>(this.errorDetails());
       this.dataSource.paginator = this.detailsPaginator;
       this.filtereddataSource = null;
-      this.detailsPaginator.length = this.totalRecords;
+      // Safety check: Only set paginator length if paginator is available
+      if (this.detailsPaginator) {
+        this.detailsPaginator.length = this.totalRecords;
+      }
       this.filterData();
-      this.cdr.detectChanges();
     }
   }
 
   viewDetails() {
-    this.selectedSummaryData = this.selection.selected;
-    if (!this.selectedSummaryData || this.selectedSummaryData.length === 0) {
+    this.selectedSummaryData.set(this.selection.selected);
+    if (
+      !this.selectedSummaryData() ||
+      this.selectedSummaryData().length === 0
+    ) {
       console.error('No data selected.');
       return;
     }
@@ -256,20 +342,25 @@ export class MonitoringDashboardComponent<T>
   }
 
   openRowModal(): void {
-    if (!this.selectedSummaryData || this.selectedSummaryData.length === 0) {
-      console.error('No selectedSummaryData found:', this.selectedSummaryData);
+    if (
+      !this.selectedSummaryData() ||
+      this.selectedSummaryData().length === 0
+    ) {
+      console.error(
+        'No selectedSummaryData found:',
+        this.selectedSummaryData(),
+      );
       return;
     }
 
-    this.isModalOpen = true;
+    this.isModalOpen.set(true);
   }
 
   closeAssignModal(event: any): void {
-    this.isModalOpen = false;
+    this.isModalOpen.set(false);
     if (event === 'successful') {
       this.resetSelection();
       this.summaryDatasource = null;
-      this.cdr.detectChanges();
       setTimeout(() => {
         this.getErrorSummary();
       }, 0);
@@ -278,89 +369,124 @@ export class MonitoringDashboardComponent<T>
 
   resetSelection() {
     this.selection.clear();
-    this.selectedRows = [];
-    this.isFiltered = false;
+    this.selectedRows.set([]);
+    this.isFiltered.set(false);
     this.filtereddataSource = null;
     this.filterData();
-    this.cdr.detectChanges();
   }
 
   dataSource: any;
-  errorDetails: any[];
-  errorDetailsFiltered: any[];
-  isFiltered: boolean = false;
+  errorDetails = signal<any[]>([]);
+  errorDetailsFiltered = signal<any[]>([]);
+  isFiltered = signal<boolean>(false);
   filtereddataSource: any;
   totalRecords: number = 0;
-  isLoading: boolean = false;
+  isLoading = signal<boolean>(false);
   totalRecordsFiltered: number = 0;
   detailsDisplayedColumns: string[] = [];
+
+  // Custom pagination state
+  detailsPageIndex = 0;
+  detailsPageSize = 20;
+  summaryPageIndex = 0;
+  summaryPageSize = 10;
+
+  onDetailsPageChange(event: MonitoringPageChangeEvent): void {
+    this.detailsPageIndex = event.pageIndex;
+    this.detailsPageSize = event.pageSize;
+    if (this.detailsPaginator) {
+      this.detailsPaginator.pageIndex = event.pageIndex;
+      this.detailsPaginator.pageSize = event.pageSize;
+      this.detailsPaginator.page.emit({
+        pageIndex: event.pageIndex,
+        pageSize: event.pageSize,
+        length: this.detailsPaginator.length,
+      });
+    }
+  }
+
+  onSummaryPageChange(event: MonitoringPageChangeEvent): void {
+    this.summaryPageIndex = event.pageIndex;
+    this.summaryPageSize = event.pageSize;
+    if (this.summaryPaginator) {
+      this.summaryPaginator.pageIndex = event.pageIndex;
+      this.summaryPaginator.pageSize = event.pageSize;
+      this.summaryPaginator.page.emit({
+        pageIndex: event.pageIndex,
+        pageSize: event.pageSize,
+        length: this.summaryPaginator.length,
+      });
+    }
+  }
   getErrorDetails() {
-    this.isLoading = true;
-    this.isFiltered = false;
+    this.isLoading.set(true);
+    this.isFiltered.set(false);
     this.monitoringDataService
-      .getDetails(this.urls['detailsUrl'])
+      .getDetails(this.urls()['detailsUrl'])
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: any) => {
-          this.errorDetails = data;
-          this.errorDetails = this.dataFormattingService.formatData(
-            this.errorDetails
-          );
-          if (this.errorDetails.length > 0) {
-            this.detailsDisplayedColumns = Object.keys(this.errorDetails[0]);
+          let details = data;
+          details = this.dataFormattingService.formatData(details);
+          if (details.length > 0) {
+            this.detailsDisplayedColumns = Object.keys(details[0]);
           }
           this.detailsDisplayedColumns = this.detailsDisplayedColumns.filter(
-            (data) => !this.detailsColumnsToHide.includes(data)
+            (data) => !this.detailsColumnsToHide().includes(data),
           );
-          this.errorDetails.forEach((row) => {
+          details.forEach((row) => {
             this.detailsDisplayedColumns.forEach((column) => {
               if (row[column] === '-') {
                 row[column] = '--';
               }
             });
           });
-          this.originalDetailsData = this.errorDetails;
-          this.dataSource = new MatTableDataSource<T>(this.errorDetails);
+          this.errorDetails.set(details);
+          this.originalDetailsData.set(this.errorDetails());
+          this.dataSource = new MatTableDataSource<T>(this.errorDetails());
           if (this.detailsPaginator) {
             if (this.dataSource.paginator !== this.detailsPaginator) {
               this.dataSource.paginator = this.detailsPaginator;
             }
-            this.totalRecords = this.errorDetails.length;
+            this.totalRecords = this.errorDetails().length;
           }
           this.filterData();
           this.dataSource.filterPredicate = this.filterPredicate;
         },
         error: (err) => {
           console.error('Error fetching data', err);
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
         complete: () => {
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
       });
   }
 
   getErrorDetailsFiltered(data: any) {
-    this.isLoading = true;
-    this.isFiltered = true;
+    this.isLoading.set(true);
+    this.isFiltered.set(true);
     this.monitoringDataService
-      .getFilteredDetails(this.urls['filteredDetailsUrl'], data, this.keysToMap)
+      .getFilteredDetails(
+        this.urls()['filteredDetailsUrl'],
+        data,
+        this.keysToMap(),
+      )
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: any) => {
-          this.errorDetailsFiltered = data.errorDetailsFiltered;
-          this.errorDetailsFiltered = this.dataFormattingService.formatData(
-            this.errorDetailsFiltered
-          );
-          this.originalFilteredData = this.errorDetailsFiltered;
+          let filteredDetails = data.errorDetailsFiltered;
+          filteredDetails =
+            this.dataFormattingService.formatData(filteredDetails);
+          this.errorDetailsFiltered.set(filteredDetails);
+          this.originalFilteredData.set(this.errorDetailsFiltered());
           this.filtereddataSource = new MatTableDataSource<T>(
-            this.errorDetailsFiltered
+            this.errorDetailsFiltered(),
           );
           if (this.detailsPaginator) {
             this.filtereddataSource.paginator = this.detailsPaginator;
             setTimeout(() => {
-              this.detailsPaginator.length = this.errorDetailsFiltered.length;
-              this.cdr.detectChanges();
+              this.detailsPaginator.length = this.errorDetailsFiltered().length;
             });
             this.filterData();
             this.filtereddataSource.filterPredicate = this.filterPredicate;
@@ -368,10 +494,10 @@ export class MonitoringDashboardComponent<T>
         },
         error: (err) => {
           console.error('Error fetching filtered data', err);
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
         complete: () => {
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
       });
   }
@@ -382,15 +508,15 @@ export class MonitoringDashboardComponent<T>
     this.filterOptions = this.utilService.filterDataForSelectFilters(
       this.filterOptions,
       this.selectFilters,
-      this.errorDetails,
-      this.isFiltered,
-      this.errorDetailsFiltered
+      this.errorDetails(),
+      this.isFiltered(),
+      this.errorDetailsFiltered(),
     );
   }
 
   private initializeForm() {
     const { form, textFilters, selectFilters } =
-      this.utilService.initializeForm(this.columnsToFilter, this.searchForm);
+      this.utilService.initializeForm(this.columnsToFilter(), this.searchForm);
     this.searchForm = form;
     this.textFilters = textFilters;
     this.selectFilters = selectFilters;
@@ -406,8 +532,19 @@ export class MonitoringDashboardComponent<T>
       this.selectFilters,
       this.searchForm,
       this.dataSource,
-      this.filtereddataSource
+      this.filtereddataSource,
     );
+    // Update paginator length to reflect filtered rows
+    if (this.detailsPaginator) {
+      const activeSource = this.isFiltered()
+        ? this.filtereddataSource
+        : this.dataSource;
+      if (activeSource) {
+        this.detailsPaginator.length =
+          activeSource.filteredData?.length ?? activeSource.data?.length ?? 0;
+        this.detailsPaginator.firstPage();
+      }
+    }
   }
 
   filterPredicate = (data: any, filter: string): boolean => {
@@ -415,12 +552,12 @@ export class MonitoringDashboardComponent<T>
       data,
       filter,
       this.selectFilters,
-      this.textFilters
+      this.textFilters,
     );
   };
 
   clearFilters() {
-    if (this.isFiltered) {
+    if (this.isFiltered()) {
       this.filtereddataSource.filter = '';
     } else {
       this.dataSource.filter = '';
@@ -435,23 +572,26 @@ export class MonitoringDashboardComponent<T>
   exportSummary(data: any[], sheetName: string, filename: string) {
     this.exportService.exportTableToExcel(data, sheetName, filename);
   }
+
   exportDetails() {
-    if (this.isFiltered) {
+    if (this.isFiltered()) {
       this.exportService.exportTableToExcel(
-        this.errorDetailsFiltered,
+        this.errorDetailsFiltered(),
         this.exportService.generateSheetName(
-          this.componentName + ' Error Details Filtered'
+          this.componentName() + ' Error Details Filtered',
         ),
-        this.componentName + '_Error_Details_Filtered'
+        this.componentName() + '_Error_Details_Filtered',
+      );
+    } else if (this.errorDetails().length) {
+      this.exportService.exportTableToExcel(
+        this.errorDetails(),
+        this.exportService.generateSheetName(
+          this.componentName() + ' Error Details',
+        ),
+        this.componentName() + '_Error_Details',
       );
     } else {
-      this.exportService.exportTableToExcel(
-        this.errorDetails,
-        this.exportService.generateSheetName(
-          this.componentName + ' Error Details'
-        ),
-        this.componentName + '_Error_Details'
-      );
+      console.warn('No data available to export');
     }
   }
 }

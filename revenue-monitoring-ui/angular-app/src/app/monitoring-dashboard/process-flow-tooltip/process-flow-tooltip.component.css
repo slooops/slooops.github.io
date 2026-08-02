@@ -1,70 +1,94 @@
-.flowchart-container {
+:host {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  height: 65px;
-  background: #ffffff;
-  padding-bottom: 10px;
-  overflow: visible;
-  margin: 0 auto;
-  width: fit-content;
 }
 
-.slider-bar {
-  margin-top: 35px; /* Increased from 30px to align with circle center */
-  position: absolute;
-  width: fit-content;
-  height: 3px;
-  background: #00000043;
-  border-radius: 5px;
+.flow-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+/* Individual chip */
+.flow-chip {
+  display: inline-flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #d0d7de;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  white-space: nowrap;
+  cursor: default;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
   z-index: 1;
-  display: flex;
-  flex-direction: row;
 }
 
-.circle-wrapper-loop {
+.flow-chip:hover {
+  border-color: #0070d2;
+  box-shadow: 0 1px 4px rgba(0, 112, 210, 0.12);
+}
+
+.flow-chip__name {
+  font-size: 0.675rem;
+  font-weight: 400;
+  color: #333;
+}
+
+.flow-chip__divider {
+  width: 1px;
+  height: 14px;
+  background: #e0e0e0;
+  margin: 0 0.4rem;
+}
+
+.flow-chip__amount {
+  font-size: 0.675rem;
+  font-weight: 600;
+  color: #1b1c1d;
+}
+
+/* Connector between chips */
+.flow-connector {
+  display: inline-flex;
   align-items: center;
-  text-align: center;
-  position: relative;
-  width: 140px;
-  top: -21px; /* Adjusted for proper alignment */
+  gap: 0;
 }
 
-.circle-caption-loop {
-  font-size: 11px;
-  color: #000;
-  text-align: center;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  padding: 0 5px;
-  margin: 0 0 4px 0; /* Added bottom margin for spacing */
-  line-height: 1.1; /* Slightly increased for readability */
-}
-
-.circle-loop {
-  width: 12px;
-  height: 12px;
+.flow-connector__dot {
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background: #69717b;
-  position: relative;
-  margin: 2px 0;
-  left: 67px;
-  z-index: 3;
+  background: #9ca3af;
 }
 
-.circle-subcaption {
-  font-size: 10px;
-  color: #000;
-  font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 0 5px;
-  margin: 4px 0 0 0; /* Added top margin for spacing */
-  line-height: 1.1; /* Slightly increased for readability */
+.flow-connector__line {
+  width: 12px;
+  height: 1.5px;
+  background: #9ca3af;
 }
 
-.mat-typography p {
-  margin: 0 !important;
-  line-height: 1.1 !important;
+/* ── Dark mode (inherits from wrapper) ── */
+:host-context(.dark-theme) .flow-chip {
+  background: var(--fit-dark-surface, #1a2733);
+  border-color: var(--fit-dark-border, #2a3f50);
+}
+:host-context(.dark-theme) .flow-chip:hover {
+  border-color: #00bceb;
+  box-shadow: 0 1px 4px rgba(0, 188, 235, 0.18);
+}
+:host-context(.dark-theme) .flow-chip__name {
+  color: var(--fit-dark-muted, #8899a6);
+}
+:host-context(.dark-theme) .flow-chip__divider {
+  background: var(--fit-dark-border, #2a3f50);
+}
+:host-context(.dark-theme) .flow-chip__amount {
+  color: var(--fit-dark-text, #e0e6ed);
+}
+:host-context(.dark-theme) .flow-connector__dot,
+:host-context(.dark-theme) .flow-connector__line {
+  background: var(--fit-dark-muted, #8899a6);
 }

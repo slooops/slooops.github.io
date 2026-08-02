@@ -1,0 +1,38 @@
+<div class="fit-pagination">
+  <div class="fit-pagination__info">
+    <span class="fit-pagination__text">
+      {{ startItem }} - {{ endItem }} of {{ totalItems }}
+    </span>
+  </div>
+
+  <div class="fit-pagination__controls">
+    @if (showPageSizeSelector) {
+      <app-select-dropdown
+        [options]="pageSizeSelectOptions"
+        [value]="pageSize.toString()"
+        (valueChange)="onPageSizeSelectChange($event)"
+      >
+      </app-select-dropdown>
+    }
+
+    <app-button
+      label="Previous"
+      variant="secondary"
+      [isDisabled]="!hasPrevious"
+      (clicked)="onPrevious()"
+    >
+    </app-button>
+
+    <span class="fit-pagination__page-indicator">
+      Page {{ pageIndex + 1 }} of {{ totalPages }}
+    </span>
+
+    <app-button
+      label="Next"
+      variant="secondary"
+      [isDisabled]="!hasNext"
+      (clicked)="onNext()"
+    >
+    </app-button>
+  </div>
+</div>

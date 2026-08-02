@@ -2,29 +2,39 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
+    "rootDir": ".",
+    "paths": {
+      "src/*": ["./src/*"]
+    },
     "forceConsistentCasingInFileNames": true,
     "strict": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
     "declaration": false,
-    "downlevelIteration": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
-    "target": "es2017",
+    "target": "ES2022",
     "module": "es2020",
-    "allowSyntheticDefaultImports": true,
-    "lib": ["es2020", "dom"]
+    "types": []
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
-  }
+  },
+  "exclude": [
+    "cypress",
+    "cypress.config.ts",
+    "cypress.config.js",
+    "**/*.stories.ts",
+    "storybook-static"
+  ]
 }

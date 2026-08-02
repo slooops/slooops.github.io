@@ -1,0 +1,225 @@
+<!-- ── Full-Page Role View ── -->
+<div class="rv">
+  <!-- Toolbar -->
+  <div class="rv__toolbar">
+    <button class="rv__back-btn" (click)="onBack()" title="Back to Admin">
+      <ng-icon name="phosphorArrowLeftBold" size="18"></ng-icon>
+    </button>
+    <h2 class="rv__title">Update Roles</h2>
+
+    <div class="rv__toolbar-right">
+      <input
+        class="rv__search"
+        type="text"
+        placeholder="Search roles..."
+        [(ngModel)]="searchQuery"
+        (input)="onSearchChange()"
+      />
+      <span class="rv__count">
+        {{ filteredRoles.length }} of {{ roles.length }}
+      </span>
+      <button
+        class="fit-btn fit-btn--primary rv__add-btn"
+        (click)="openAddDialog()"
+      >
+        + Add Role
+      </button>
+    </div>
+  </div>
+
+  <!-- Roles Table — slim 5-column default view -->
+  <div class="rv__table-container">
+    <table class="rv__table">
+      <thead>
+        <tr>
+          <th class="rv__th">Dashboard</th>
+          <th class="rv__th">Description</th>
+          <th class="rv__th">Last Updated</th>
+          <th class="rv__th rv__th--status">Status</th>
+          <th class="rv__th rv__th--actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (role of paginatedRoles; track role.ROLE_VALUE; let i = $index) {
+          <tr class="rv__row">
+            <td class="rv__td rv__td--role">{{ role.DASHBOARD_NAME }}</td>
+            <td class="rv__td rv__td--desc">{{ role.DESCRIPTION }}</td>
+            <td class="rv__td rv__td--date">
+              {{ role.LAST_UPDATED_DATE | date: "MMM dd, yyyy" }}
+            </td>
+            <td class="rv__td rv__td--status">
+              <app-toggle-switch
+                [checked]="role.ENABLED_FLAG === 'Y'"
+                (checkedChange)="onToggle(role, $event)"
+              ></app-toggle-switch>
+            </td>
+            <td class="rv__td rv__td--actions">
+              <button
+                class="rv__edit-btn"
+                (click)="openEditDialog(role)"
+                title="Edit {{ role.DASHBOARD_NAME }}"
+              >
+                <ng-icon name="phosphorPencilSimpleBold" size="14"></ng-icon>
+              </button>
+              <button
+                class="rv__delete-btn"
+                (click)="onDeleteRole(role)"
+                title="Delete {{ role.DASHBOARD_NAME }}"
+              >
+                <ng-icon name="phosphorTrashBold" size="14"></ng-icon>
+              </button>
+            </td>
+          </tr>
+        }
+        @if (!filteredRoles.length) {
+          <tr>
+            <td class="rv__td rv__empty" colspan="5">No roles found.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="rv__pagination-wrap">
+    @if (filteredRoles.length > 0) {
+      <app-pagination
+        [pageIndex]="currentPage"
+        [pageSize]="pageSize"
+        [totalItems]="filteredRoles.length"
+        [pageSizeOptions]="[10, 25, 50]"
+        (pageChange)="onPageChange($event)"
+      ></app-pagination>
+    }
+  </div>
+</div>
+
+<!-- ── Edit / Add Role Dialog (small modal overlay) ── -->
+@if (showEditDialog) {
+  <div class="rd__backdrop" (click)="onEditDialogBackdropClick($event)">
+    <div class="rd" (click)="$event.stopPropagation()">
+      <div class="rd__header">
+        <h3 class="rd__title">
+          {{ editDialogMode === "add" ? "Add Role" : "Edit Role" }}
+        </h3>
+        <button class="rd__close" (click)="closeEditDialog()" title="Close">
+          ✕
+        </button>
+      </div>
+
+      <div class="rd__body">
+        <div class="rd__form-grid">
+          <!-- Role Name -->
+          <div class="rd__field">
+            <label class="rd__label">Role Name</label>
+            <input
+              type="text"
+              class="rd__input"
+              [class.rd__input--error]="formValidation.ROLE_NAME"
+              placeholder="e.g. WIPS_ADMIN"
+              [(ngModel)]="formData.ROLE_NAME"
+            />
+            @if (formValidation.ROLE_NAME) {
+              <span class="rd__error">{{ formValidation.ROLE_NAME }}</span>
+            }
+          </div>
+
+          <!-- Role Value -->
+          <div class="rd__field">
+            <label class="rd__label">Role Value</label>
+            <input
+              type="text"
+              class="rd__input"
+              [class.rd__input--error]="formValidation.ROLE_VALUE"
+              placeholder="e.g. WIPS"
+              [(ngModel)]="formData.ROLE_VALUE"
+            />
+            @if (formValidation.ROLE_VALUE) {
+              <span class="rd__error">{{ formValidation.ROLE_VALUE }}</span>
+            }
+          </div>
+
+          <!-- Dashboard -->
+          <div class="rd__field">
+            <label class="rd__label">Dashboard</label>
+            <input
+              type="text"
+              class="rd__input"
+              [class.rd__input--error]="formValidation.DASHBOARD_NAME"
+              placeholder="e.g. WIPS Dashboard"
+              [(ngModel)]="formData.DASHBOARD_NAME"
+            />
+            @if (formValidation.DASHBOARD_NAME) {
+              <span class="rd__error">{{ formValidation.DASHBOARD_NAME }}</span>
+            }
+          </div>
+
+          <!-- Description -->
+          <div class="rd__field rd__field--full">
+            <label class="rd__label">Description</label>
+            <input
+              type="text"
+              class="rd__input"
+              [class.rd__input--error]="formValidation.DESCRIPTION"
+              placeholder="Describe this role..."
+              [(ngModel)]="formData.DESCRIPTION"
+            />
+            @if (formValidation.DESCRIPTION) {
+              <span class="rd__error">{{ formValidation.DESCRIPTION }}</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="rd__footer">
+        <button class="rd__btn rd__btn--cancel" (click)="closeEditDialog()">
+          Cancel
+        </button>
+        <button
+          class="rd__btn rd__btn--save"
+          (click)="onSaveForm()"
+          [disabled]="formSaving"
+        >
+          {{ formSaving ? "Saving..." : "Save" }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── Delete Confirmation Dialog ── -->
+@if (showDeleteDialog && deletingRole) {
+  <div class="dd__backdrop" (click)="cancelDelete()">
+    <div class="dd" (click)="$event.stopPropagation()">
+      <div class="dd__header">
+        <ng-icon name="phosphorTrashBold" size="20"></ng-icon>
+        <h3 class="dd__title">Delete Role</h3>
+      </div>
+      <div class="dd__body">
+        <p class="dd__message">
+          Are you sure you want to delete the role for
+          <strong>{{ deletingRole.DASHBOARD_NAME }}</strong> dashboard?
+        </p>
+        <p class="dd__sub">
+          This action will soft-delete the role. It can be re-enabled later.
+        </p>
+      </div>
+      <div class="dd__footer">
+        <button
+          class="rd__btn rd__btn--cancel"
+          (click)="cancelDelete()"
+          [disabled]="deleteLoading"
+        >
+          Cancel
+        </button>
+        <button
+          class="rd__btn dd__btn--delete"
+          (click)="confirmDelete()"
+          [disabled]="deleteLoading"
+        >
+          {{ deleteLoading ? "Deleting..." : "Delete" }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

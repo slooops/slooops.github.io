@@ -1,8 +1,14 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { ApiHttpService } from './http.service';
-import { catchError, shareReplay, takeUntil, tap } from 'rxjs/operators';
+import { catchError, map, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { DestroyManager } from './destroy-manager.service';
+
+export interface PeriodStatus {
+  periodName: string;
+  periodEndDate: string;
+  lastUpdated: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +22,9 @@ export class DataService implements OnDestroy {
   username: any;
   assignmentUsers: any;
   header: string = '';
+
+  private periodStatusSubject = new BehaviorSubject<PeriodStatus | null>(null);
+  periodStatus$ = this.periodStatusSubject.asObservable();
 
   constructor(private http: ApiHttpService) {}
 
@@ -37,7 +46,7 @@ export class DataService implements OnDestroy {
 
   private fetchWithCache(
     url: string,
-    destroyManager: DestroyManager
+    destroyManager: DestroyManager,
   ): Observable<any> {
     const currentTime = Date.now();
     const cachedData = this.cacheStore.get(url);
@@ -56,13 +65,34 @@ export class DataService implements OnDestroy {
         console.error(`Error fetching data from ${url}:`, error);
         return of(null);
       }),
-      takeUntil(this.destroy$)
+      takeUntil(this.destroy$),
     );
     return data$;
   }
 
   getMonitoringPeriodStatus(destroyManager: DestroyManager): Observable<any> {
-    return this.fetchWithCache('monitoring-period-status', destroyManager);
+    return this.fetchWithCache('monitoring-period-status', destroyManager).pipe(
+      map((response: any) => {
+        // Backend returns array, take first element
+        const data =
+          Array.isArray(response) && response.length > 0
+            ? response[0]
+            : response;
+
+        return {
+          periodName: data?.periodName || data?.PERIOD_NAME || '',
+          periodEndDate: data?.periodEndDate || data?.END_DATE || '',
+          lastUpdated: new Date().toLocaleString(),
+        };
+      }),
+    );
+  }
+
+  /** Fetch period status and update the shared BehaviorSubject */
+  loadPeriodStatus(destroyManager: DestroyManager): void {
+    this.getMonitoringPeriodStatus(destroyManager).subscribe((data) => {
+      this.periodStatusSubject.next(data);
+    });
   }
 
   getI2CSummary(destroyManager: DestroyManager): Observable<any> {
@@ -75,6 +105,10 @@ export class DataService implements OnDestroy {
 
   getExceptionAssignmentUsers(destroyManager: DestroyManager): Observable<any> {
     return this.fetchWithCache('summary-assignment-users', destroyManager);
+  }
+
+  getCaseIqMetrics(destroyManager: DestroyManager): Observable<any> {
+    return this.fetchWithCache('xxcaseiq-metrics', destroyManager);
   }
 
   getUserRoles() {
@@ -109,10 +143,9 @@ export class DataService implements OnDestroy {
     if (!this.assignmentUsers || !componentName) {
       return this.assignmentUsers;
     }
-    console.log('Component Name:', componentName);
     return this.assignmentUsers.filter(
       (user: any) =>
-        user.FILTER_KEY === null || user.FILTER_KEY === componentName
+        user.FILTER_KEY === null || user.FILTER_KEY === componentName,
     );
   }
 
@@ -120,7 +153,7 @@ export class DataService implements OnDestroy {
     if (!this.tabData.has(tabName)) {
       this.tabData.set(
         tabName,
-        new BehaviorSubject<{ [key: string]: string }>({})
+        new BehaviorSubject<{ [key: string]: string }>({}),
       );
     }
   }

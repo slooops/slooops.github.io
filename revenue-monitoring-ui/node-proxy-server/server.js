@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const { createProxyMiddleware } = require("http-proxy-middleware");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -8,15 +9,76 @@ const authClientSecret =
   process.env.AUTH_CLIENT_SECRET ||
   "SeCUzxUXA-rgxBw8wWBkL8bOlViFg_0l-EdUkRoZgQwWmO-XkG-SVw_LNNVYBcj2";
 const authUrl = process.env.AUTH_URL || "http://localhost:8080/api/";
+const o2cRedirectTarget =
+  process.env.O2C_REDIRECT_TARGET || "http://localhost:3500";
+const CONTROL_TOWER_SUPPORT_AGENT_API_URL =
+  process.env.CONTROL_TOWER_SUPPORT_AGENT_API_URL || "http://localhost:8000";
+const environment = process.env.ENVIRONMENT || "local";
 
 app.use(express.json());
+app.set("trust proxy", true);
+
+function extractClientIp(req) {
+  const xForwardedFor = req.headers["x-forwarded-for"];
+  if (typeof xForwardedFor === "string" && xForwardedFor.trim()) {
+    return xForwardedFor.split(",")[0].trim();
+  }
+
+  if (Array.isArray(xForwardedFor) && xForwardedFor.length > 0) {
+    return String(xForwardedFor[0]).split(",")[0].trim();
+  }
+
+  const forwarded = req.headers.forwarded;
+  if (typeof forwarded === "string" && forwarded.includes("for=")) {
+    const match = forwarded.match(/for="?\[?([^;\],"]+)/i);
+    if (match && match[1]) return match[1].trim();
+  }
+
+  return req.ip || req.socket?.remoteAddress || null;
+}
 
 app.use((req, res, next) => {
   req.authenticatedUserName = req.headers["auth_user"];
   req.authenticatedUserFirstName = req.headers["givenname"];
 
-  // req.authenticatedUserName = "tprasad";
-  // req.authenticatedUserFirstName = "Siva";
+  const clientIp = extractClientIp(req);
+
+  const importantHeaders = {
+    host: req.headers.host || null,
+    clientIp,
+    xForwardedFor: req.headers["x-forwarded-for"] || null,
+    forwarded: req.headers.forwarded || null,
+    origin: req.headers.origin || null,
+    referer: req.headers.referer || null,
+    userAgent: req.headers["user-agent"] || null,
+    secFetchSite: req.headers["sec-fetch-site"] || null,
+    secFetchMode: req.headers["sec-fetch-mode"] || null,
+    secFetchDest: req.headers["sec-fetch-dest"] || null,
+    contentType: req.headers["content-type"] || null,
+    contentLength: req.headers["content-length"] || null,
+  };
+
+  const pathOnly = req.path || req.originalUrl?.split("?")[0] || "";
+  const isClientLogRequest = pathOnly === "/client-log";
+  const isStaticAssetRequest =
+    req.method === "GET" &&
+    !pathOnly.startsWith("/api") &&
+    !pathOnly.startsWith("/client-log") &&
+    pathOnly !== "/user/name";
+
+  if (!isStaticAssetRequest && !isClientLogRequest) {
+    console.log(
+      JSON.stringify({
+        type: "edge-request",
+        timestamp: new Date().toISOString(),
+        authenticatedUserName: req.authenticatedUserName || null,
+        method: req.method,
+        path: pathOnly,
+        ...importantHeaders,
+      }),
+    );
+  }
+
   next();
 });
 
@@ -27,13 +89,193 @@ app.get("/user/name", (req, res) => {
     auth_client_id: authClientId,
     auth_client_secret: authClientSecret,
     auth_url: authUrl,
+    control_tower_support_agent_api_url: CONTROL_TOWER_SUPPORT_AGENT_API_URL,
+    enable_mock_auth: environment !== "production" ? true : false,
   });
 });
 
-app.use(express.static(path.join(__dirname, "../ui/dist")));
+app.post("/client-log", (req, res) => {
+  const body = req.body || {};
+  const clientIp = extractClientIp(req);
+
+  const securityLog = {
+    type: body.type || "client-http-log",
+    requestId: body.requestId || null,
+    sessionId: body.sessionId || null,
+    timestamp: body.timestamp || new Date().toISOString(),
+    authenticatedUserName: req.authenticatedUserName || null,
+    method: body.method || null,
+    urlPath: body.urlPath || null,
+    status: body.status ?? null,
+    durationMs: body.durationMs ?? null,
+    errorMessage: body.errorMessage || null,
+    host: body.host || req.headers.host || null,
+    clientIp,
+    xForwardedFor: req.headers["x-forwarded-for"] || null,
+    forwarded: req.headers.forwarded || null,
+    origin: body.origin || req.headers.origin || null,
+    referer: body.referrer || req.headers.referer || null,
+    secFetchSite: body.secFetchSite || req.headers["sec-fetch-site"] || null,
+    secFetchMode: body.secFetchMode || req.headers["sec-fetch-mode"] || null,
+    secFetchDest: body.secFetchDest || req.headers["sec-fetch-dest"] || null,
+    contentType: body.contentType || req.headers["content-type"] || null,
+    contentLength: body.contentLength ?? req.headers["content-length"] ?? null,
+    userAgent: body.userAgent || req.headers["user-agent"] || null,
+  };
+
+  console.log(JSON.stringify(securityLog));
+  res.sendStatus(204);
+});
+
+// Serve Storybook at /storybook/ path (no auth required)
+app.use(
+  "/storybook",
+  express.static(path.join(__dirname, "../ui/storybook-static")),
+);
+app.get("/storybook/*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../ui/storybook-static", "index.html"));
+});
+
+// Prevent Angular fallback from hijacking /o2c traffic which is served by the React app.
+// In production, OpenShift Routes handle this. Locally, proxy to the React dev server.
+if (o2cRedirectTarget) {
+  app.use(
+    "/o2c",
+    createProxyMiddleware({
+      target: o2cRedirectTarget,
+      changeOrigin: true,
+    }),
+  );
+} else {
+  app.use((req, res, next) => {
+    if (req.path === "/o2c" || req.path.startsWith("/o2c/")) {
+      return res.status(404).send("/o2c is served by the O2C UI deployment");
+    }
+    next();
+  });
+}
+
+// Proxy for CaseIQ Supervisor Agent API (avoids CORS)
+const CASEIQ_SUPERVISOR_API_URL =
+  process.env.CASEIQ_SUPERVISOR_API_URL ||
+  "https://caseiq-supervisor-agent-stage.cloudapps.cisco.com";
+const CASEIQ_SUPERVISOR_API_KEY =
+  process.env.CASEIQ_SUPERVISOR_API_KEY ||
+  "X0dWEsVGsPGDFqHhuncUjFhb95PX9TkP_bwf1cKhg4Q";
+
+app.use(
+  "/api/caseiq-supervisor",
+  createProxyMiddleware({
+    target: CASEIQ_SUPERVISOR_API_URL,
+    changeOrigin: true,
+    pathRewrite: (path) => {
+      const strippedPath = path.replace(/^\/api\/caseiq-supervisor/, "");
+
+      // Backward compatibility for legacy callers:
+      // /api/caseiq-supervisor/metrics/* -> /api/v2/metrics/*
+      if (strippedPath.startsWith("/metrics/")) {
+        return `/api/v2${strippedPath}`;
+      }
+
+      // Explicit API v1 passthrough
+      // /api/caseiq-supervisor/api/v1/incidents/{incidentId}?ssid=...
+      //   -> /api/v1/incidents/{incidentId}?ssid=...
+      if (strippedPath.startsWith("/api/v1/")) {
+        return strippedPath;
+      }
+
+      // Explicit API v2 passthrough
+      // /api/caseiq-supervisor/api/v2/metrics/summary
+      //   -> /api/v2/metrics/summary
+      if (strippedPath.startsWith("/api/v2/")) {
+        return strippedPath;
+      }
+
+      // Default: pass through as-is (no prefix added)
+      return strippedPath;
+    },
+    onProxyReq: (proxyReq) => {
+      proxyReq.setHeader(
+        "Authorization",
+        `Bearer ${CASEIQ_SUPERVISOR_API_KEY}`,
+      );
+    },
+  }),
+);
+
+// Proxy for Control-M (i2c-control-m) FastAPI backend (avoids CORS)
+//   Browser calls:  /api/control-m/summary?application=FIN_I2C
+//   Backend sees:   /api/ctm/summary?application=FIN_I2C
+const CONTROL_M_API_URL =
+  process.env.CONTROL_M_API_URL || "https://i2c-control-m-dev.cisco.com";
+
+app.use(
+  "/api/control-m",
+  createProxyMiddleware({
+    target: CONTROL_M_API_URL,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/control-m": "/api/ctm",
+    },
+    // Log every proxied request/response so upstream failures surface in the
+    // pod logs instead of showing up as a cryptic "Http failure during
+    // parsing" in the browser. Cheap and structured for splunk/loki.
+    onProxyReq: (proxyReq, req) => {
+      console.log(
+        JSON.stringify({
+          type: "ctm-proxy-req",
+          timestamp: new Date().toISOString(),
+          method: req.method,
+          incomingPath: req.originalUrl,
+          upstreamPath: proxyReq.path,
+          upstreamHost: proxyReq.getHeader("host"),
+        }),
+      );
+    },
+    onProxyRes: (proxyRes, req) => {
+      // Only log non-success responses to keep chatty poll traffic quiet.
+      if (proxyRes.statusCode >= 400) {
+        console.log(
+          JSON.stringify({
+            type: "ctm-proxy-res",
+            timestamp: new Date().toISOString(),
+            method: req.method,
+            path: req.originalUrl,
+            status: proxyRes.statusCode,
+            contentType: proxyRes.headers["content-type"] || null,
+          }),
+        );
+      }
+    },
+    // If the upstream is unreachable (DNS failure, connection refused,
+    // egress blocked) the default behavior is to emit an HTML 500 that the
+    // Angular client cannot parse. Convert those transport errors into a
+    // structured JSON 502 so the UI can surface a real error message.
+    onError: (err, req, res) => {
+      console.error(
+        JSON.stringify({
+          type: "ctm-proxy-error",
+          timestamp: new Date().toISOString(),
+          method: req.method,
+          path: req.originalUrl,
+          message: err.message,
+          code: err.code || null,
+        }),
+      );
+      if (res.headersSent) return;
+      res.status(502).json({
+        error: "control-m upstream failed",
+        detail: err.message,
+        code: err.code || null,
+      });
+    },
+  }),
+);
+
+app.use(express.static(path.join(__dirname, "../ui/dist/browser")));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../ui/dist", "index.html"));
+  res.sendFile(path.join(__dirname, "../ui/dist/browser", "index.html"));
 });
 
 app.listen(port, () => {

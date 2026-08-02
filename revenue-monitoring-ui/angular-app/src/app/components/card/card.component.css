@@ -1,0 +1,40 @@
+.card,
+.container {
+  margin: 1rem;
+  position: relative;
+  display: block;
+  padding: 1.6rem;
+  background-color: #fff;
+  border: none;
+  border-radius: var(--fit-card-radius, 1rem);
+  box-shadow: var(--fit-card-shadow, 0 4px 20px rgba(0, 0, 0, 0.06));
+  transition: all linear 0.5s;
+  width: auto;
+}
+
+.container {
+  border: 0px;
+  border-radius: var(--fit-card-radius, 1rem);
+  box-shadow: var(--fit-card-shadow, 0 4px 20px rgba(0, 0, 0, 0.06));
+}
+
+.cui .container {
+  max-width: none !important;
+}
+
+.card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Dark mode ── */
+:host(.dark-theme) .card,
+:host(.dark-theme) .container {
+  background-color: rgba(28, 44, 58, 0.85);
+  border: 1px solid rgba(42, 63, 80, 0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  color: #e0e6ed;
+}
+
+:host(.dark-theme) .card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}

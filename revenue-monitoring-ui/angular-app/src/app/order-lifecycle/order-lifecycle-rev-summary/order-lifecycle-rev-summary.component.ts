@@ -3,20 +3,34 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ExportToExcelService } from 'src/app/providers/export-to-excel.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
-import * as XLSX from 'xlsx';
+import { CommonModule } from '@angular/common';
+import { MatDialogModule } from '@angular/material/dialog';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
+import { PaginationComponent } from '../../ui/atoms/pagination/pagination.component';
+import { PageChangeEvent } from '../../ui/types/common.types';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorArrowLineDownBold } from '@ng-icons/phosphor-icons/bold';
 
 @Component({
   selector: 'app-order-lifecycle-rev-summary',
   templateUrl: './order-lifecycle-rev-summary.component.html',
   styleUrls: ['./order-lifecycle-rev-summary.component.scss'],
-  providers: [DestroyManager],
+  providers: [DestroyManager, provideIcons({ phosphorArrowLineDownBold })],
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    LoadingSymbolComponent,
+    PaginationComponent,
+    NgIcon,
+  ],
+  standalone: true,
 })
 export class OrderLifecycleRevSummaryComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<OrderLifecycleRevSummaryComponent>,
     http: ApiHttpService,
     private destroyManager: DestroyManager,
-    private exportToExcelService: ExportToExcelService
+    private exportToExcelService: ExportToExcelService,
   ) {
     this.http = http;
   }
@@ -42,7 +56,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
   pivotData(originalData) {
     for (const item of originalData) {
       let account = this.groupedData.find(
-        (group) => group.account === item.ACCOUNT
+        (group) => group.account === item.ACCOUNT,
       );
 
       if (!account) {
@@ -158,7 +172,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
     this.totalPages = Math.ceil(this.groupedData.length / this.pageSize);
     this.pages = Array.from(
       { length: this.totalPages },
-      (_, index) => index + 1
+      (_, index) => index + 1,
     );
   }
 
@@ -168,7 +182,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
       const startIndex = (page - 1) * this.pageSize;
       this.paginatedData = this.groupedData.slice(
         startIndex,
-        startIndex + this.pageSize
+        startIndex + this.pageSize,
       );
     }
   }
@@ -181,11 +195,17 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
     this.setPage(this.currentPage + 1);
   }
 
+  onPageChange(event: PageChangeEvent): void {
+    this.pageSize = event.pageSize;
+    this.calculateTotalPages();
+    this.setPage(event.pageIndex + 1);
+  }
+
   sortingColumn: string = '';
 
   sortEnable(column: string) {
     const selectedColumn = this.displayedColumns.find(
-      (col) => col.name === column
+      (col) => col.name === column,
     );
 
     if (selectedColumn) {
@@ -198,8 +218,8 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
         selectedColumn.sortingOrder === ''
           ? 'asc'
           : selectedColumn.sortingOrder === 'asc'
-          ? 'desc'
-          : '';
+            ? 'desc'
+            : '';
     }
 
     if (column === 'ACCOUNT/ DEAL IDs') {
@@ -230,14 +250,14 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
         return sortingOrder === 'asc'
           ? valueA.localeCompare(valueB)
           : sortingOrder === 'desc'
-          ? valueB.localeCompare(valueA)
-          : valueA.localeCompare(valueB);
+            ? valueB.localeCompare(valueA)
+            : valueA.localeCompare(valueB);
       } else {
         return sortingOrder === 'asc'
           ? valueA - valueB
           : sortingOrder === 'desc'
-          ? valueB - valueA
-          : valueA - valueB;
+            ? valueB - valueA
+            : valueA - valueB;
       }
     });
   }
@@ -248,7 +268,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
 
   isAccountCompleted(account): boolean {
     this.accountCompleted = account.deals.every((deal) =>
-      this.isDealCompleted(deal)
+      this.isDealCompleted(deal),
     );
     return this.accountCompleted;
   }

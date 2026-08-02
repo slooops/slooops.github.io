@@ -1,0 +1,140 @@
+:host {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.bar-chart-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.bar-chart-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  background-color: #ffffff;
+}
+
+.bar-chart-container ::ng-deep svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.bar-chart-container ::ng-deep .bar {
+  transition: opacity 0.2s ease;
+}
+
+.bar-chart-container ::ng-deep .bar:hover {
+  opacity: 0.8;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-label {
+  color: #333;
+  font-weight: 500;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+}
+
+.loading-spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-overlay p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.no-data-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #666;
+  font-size: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+/* ── Dark mode ───────────────────────────────────────────── */
+:host(.dark-theme) .bar-chart-container {
+  background-color: transparent;
+}
+
+:host(.dark-theme) .legend-label {
+  color: #e0e6ed;
+}
+
+:host(.dark-theme) .loading-overlay {
+  background-color: rgba(15, 25, 35, 0.9);
+}
+
+:host(.dark-theme) .loading-overlay p {
+  color: #8899a6;
+}
+
+:host(.dark-theme) .loading-spinner {
+  border-color: #2a3f50;
+  border-top-color: #00bceb;
+}
+
+:host(.dark-theme) .no-data-message {
+  color: #8899a6;
+  border-color: #2a3f50;
+  background-color: rgba(28, 44, 58, 0.5);
+}

@@ -1,0 +1,252 @@
+<div class="esp-dashboard">
+  <!-- Loading Overlay -->
+  @if (isLoadingQuarter) {
+    <!-- @if (true) { -->
+    <div class="loading-overlay">
+      <div class="loading-cloud" aria-hidden="true">
+        <span class="loading-cloud__layer loading-cloud__layer--soft"></span>
+        <span class="loading-cloud__layer loading-cloud__layer--mid"></span>
+        <span class="loading-cloud__layer loading-cloud__layer--core"></span>
+      </div>
+      <div class="loading-content">
+        <app-loading-symbol animationStyle="origins"></app-loading-symbol>
+        <p class="loading-message">{{ loadingQuarterMessage }}</p>
+      </div>
+    </div>
+  }
+
+  <div class="dashboard-header">
+    <div class="header-main">
+      <div class="header-left">
+        @if (!router.url.includes("/caseiq")) {
+          <app-menu-mini
+            [items]="menuItems"
+            [activeKey]="activeTab"
+            [darkMode]="themeService.isDarkMode"
+            (selected)="onGridMenuItemClick($event.item.key!)"
+          />
+        }
+        <h2 style="white-space: nowrap">{{ activeTab }}</h2>
+
+        <div class="quarter-filter">
+          <label>Quarter:</label>
+          <div class="qtr-dropdown" (click)="$event.stopPropagation()">
+            <button
+              type="button"
+              class="qtr-trigger"
+              (click)="toggleQuarterDropdown($event)"
+            >
+              <span class="qtr-trigger-label">{{ selectedQuarter }}</span>
+              <svg
+                class="qtr-chevron"
+                [class.open]="showQuarterDropdown"
+                width="12"
+                height="12"
+                viewBox="0 0 256 256"
+                fill="currentColor"
+              >
+                <path
+                  d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"
+                />
+              </svg>
+            </button>
+
+            @if (showQuarterDropdown) {
+              <div class="qtr-menu">
+                @for (quarter of quarters; track quarter.value) {
+                  <button
+                    type="button"
+                    class="qtr-option"
+                    [class.selected]="quarter.value === selectedQuarter"
+                    (click)="selectQuarter(quarter.value)"
+                  >
+                    {{ quarter.label }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (activeTab === "Finance IT" && roles.includes("ADMIN")) {
+          <div class="ciq-view-toggle">
+            @for (ctx of caseiqContexts; track ctx) {
+              <button
+                type="button"
+                class="ciq-ctx-btn"
+                [class.ciq-ctx-btn--active]="caseiqView === ctx"
+                (click)="caseiqView = ctx"
+              >
+                {{ ctx }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+      <div class="period-info">
+        <span
+          ><b>Period name:</b> {{ periodInfo()?.periodName || "" }} &nbsp;</span
+        >
+        <span class="divider"> | </span>
+        <span
+          >&nbsp;<b>Period end date:</b>
+          {{ periodInfo()?.periodEndDate || "" }} &nbsp;</span
+        >
+        <span class="divider"> | </span>
+        <span>&nbsp;<b>Last Updated:</b> {{ timeNow || "" }} &nbsp;</span>
+        <span
+          matTooltip="Data refreshed at 12 AM, 6 AM, 12 PM and 6 PM PST everyday."
+          matTooltipPosition="right"
+          style="
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            padding: 4px;
+            vertical-align: middle;
+          "
+        >
+          <mat-icon
+            style="
+              color: gray;
+              font-size: 15px;
+              width: 15px;
+              height: 15px;
+              line-height: 15px;
+              overflow: visible;
+            "
+          >
+            info_outline
+          </mat-icon>
+        </span>
+      </div>
+      <div class="header-center">
+        <!-- @if (activeTab !== "Finance IT" && roles.includes("ADMIN")) {
+          <div class="global-search">
+            <div class="global-search-input-wrapper">
+              <input
+                type="text"
+                class="global-search-input"
+                #globalSearchInput
+                placeholder="Search by Incident Number(s), comma separated"
+                (keyup.enter)="onGlobalSearchClick(globalSearchInput.value)"
+              />
+            </div>
+            <span
+              class="global-search-icon"
+              (click)="onGlobalSearchClick(globalSearchInput.value)"
+              >🔍</span
+            >
+          </div>
+        } -->
+      </div>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- Content area that displays based on active tile -->
+  @switch (activeTab) {
+    @case ("Finance IT") {
+      <div class="tile-content">
+        <app-caseiq
+          [selectedQuarter]="selectedQuarter"
+          [caseIqMetrics]="componentLevelMetrics"
+          [caseiqView]="caseiqView"
+          (teamNavigate)="onTileClick($event)"
+        ></app-caseiq>
+      </div>
+    }
+    @case ("Capital") {
+      <div class="tile-content">
+        <app-caseiq-team
+          [teamConfig]="teamConfigs['Capital']"
+          [selectedQuarter]="selectedQuarter"
+          (uploadSuccess)="onUploadSuccess()"
+          [caseIqMetrics]="metricsPerComponent['CAPITAL']"
+          [caseReopenMetrics]="reopenMetricsPerComponent['CAPITAL']"
+        ></app-caseiq-team>
+      </div>
+    }
+    @case ("FPP") {
+      <div class="tile-content">
+        <app-caseiq-team
+          [teamConfig]="teamConfigs['FPP']"
+          [selectedQuarter]="selectedQuarter"
+          (uploadSuccess)="onUploadSuccess()"
+          [caseIqMetrics]="metricsPerComponent['FPP']"
+          [caseReopenMetrics]="reopenMetricsPerComponent['FPP']"
+        ></app-caseiq-team>
+      </div>
+    }
+    @case ("I2C") {
+      <div class="tile-content">
+        <app-caseiq-team
+          [teamConfig]="teamConfigs['I2C']"
+          [selectedQuarter]="selectedQuarter"
+          (uploadSuccess)="onUploadSuccess()"
+          [caseIqMetrics]="metricsPerComponent['I2C']"
+          [caseReopenMetrics]="reopenMetricsPerComponent['I2C']"
+        ></app-caseiq-team>
+      </div>
+    }
+    @case ("OM") {
+      <div class="tile-content">
+        <app-caseiq-team
+          [teamConfig]="teamConfigs['OM']"
+          [selectedQuarter]="selectedQuarter"
+          (uploadSuccess)="onUploadSuccess()"
+          [caseIqMetrics]="metricsPerComponent['OM']"
+          [caseReopenMetrics]="reopenMetricsPerComponent['OM']"
+        ></app-caseiq-team>
+      </div>
+    }
+    @case ("P2P") {
+      <div class="tile-content">
+        <app-caseiq-team
+          [teamConfig]="teamConfigs['P2P']"
+          [selectedQuarter]="selectedQuarter"
+          (uploadSuccess)="onUploadSuccess()"
+          [caseIqMetrics]="metricsPerComponent['P2P']"
+          [caseReopenMetrics]="reopenMetricsPerComponent['P2P']"
+        ></app-caseiq-team>
+      </div>
+    }
+    @case ("SM") {
+      <div class="tile-content">
+        <app-caseiq-team
+          [teamConfig]="teamConfigs['SM']"
+          [selectedQuarter]="selectedQuarter"
+          (uploadSuccess)="onUploadSuccess()"
+          [caseIqMetrics]="metricsPerComponent['SM']"
+          [caseReopenMetrics]="reopenMetricsPerComponent['SM']"
+        ></app-caseiq-team>
+      </div>
+    }
+    @case ("AIT") {
+      <div class="tile-content">
+        <app-caseiq-team
+          [teamConfig]="teamConfigs['AIT']"
+          [selectedQuarter]="selectedQuarter"
+          (uploadSuccess)="onUploadSuccess()"
+          [caseIqMetrics]="metricsPerComponent['AIT']"
+          [caseReopenMetrics]="reopenMetricsPerComponent['AIT']"
+        ></app-caseiq-team>
+      </div>
+    }
+    @case ("Orchestrator") {
+      <div class="tile-content">
+        <app-caseiq-supervisor
+          [caseReopenMetrics]="caseReopenMetrics"
+          [selectedQuarter]="selectedQuarter"
+        ></app-caseiq-supervisor>
+      </div>
+    }
+    <!-- Default case when no tile is selected -->
+    @default {
+      <div class="tile-content default-content">
+        <h3>Not Authorized</h3>
+        <p>Please request for access.</p>
+      </div>
+    }
+  }
+</div>

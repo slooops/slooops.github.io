@@ -1,0 +1,590 @@
+<div class="ciq-dashboard">
+  <!-- ── Header ── -->
+  <div class="ciq-header">
+    <h1 class="ciq-title"><span class="ciq-accent">CaseIQ</span> Monitoring</h1>
+    @if (periodStatus) {
+      <div class="ciq-period-info">
+        <span><b>Period name:</b> {{ periodStatus.periodName }}</span>
+        <span class="ciq-period-divider">|</span>
+        <span><b>Period end date:</b> {{ periodStatus.periodEndDate }}</span>
+      </div>
+    }
+    <div class="ciq-header-controls">
+      <select
+        [(ngModel)]="fiscQtr"
+        (ngModelChange)="onQuarterChange()"
+        class="ciq-select"
+      >
+        <option value="">Select Quarter</option>
+        @for (q of fiscQtrOptions; track q) {
+          @if (q) {
+            <option [value]="q">{{ q }}</option>
+          }
+        }
+      </select>
+      <select
+        [(ngModel)]="lookbackHours"
+        (ngModelChange)="onLookbackChange()"
+        class="ciq-select"
+      >
+        @for (opt of lookbackOptions; track opt.value) {
+          <option [ngValue]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+      <button class="ciq-btn ciq-btn-icon" (click)="refreshAll()">
+        <ng-icon name="phosphorArrowClockwiseBold" size="14" />
+      </button>
+
+      <span class="ciq-auto-refresh">Auto: 5m</span>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="ciq-loading">
+      <div class="ciq-spinner"></div>
+      <span>Loading dashboard data…</span>
+    </div>
+  }
+
+  @if (!loading) {
+    <!-- ── Row 1: KPI Cards (1x8 grid — all widths) ── -->
+    <div class="ciq-grid ciq-grid-kpi">
+      <div class="ciq-kpi-grid">
+        <div class="ciq-kpi ciq-kpi-red">
+          <div class="ciq-kpi-content">
+            <div class="ciq-kpi-label">Issues</div>
+            <div class="ciq-kpi-value">{{ kpiIssues }}</div>
+          </div>
+        </div>
+        <!-- <div class="ciq-kpi ciq-kpi-green">
+          <div class="ciq-kpi-label">Success Rate</div>
+          <div class="ciq-kpi-value">{{ kpiSuccessRate }}</div>
+        </div> -->
+        <div class="ciq-kpi ciq-kpi-blue">
+          <div class="ciq-kpi-content">
+            <div class="ciq-kpi-label">Agents</div>
+            <div class="ciq-kpi-value">{{ kpiAgents }}</div>
+          </div>
+        </div>
+
+        <div class="ciq-kpi ciq-kpi-cyan">
+          <div class="ciq-kpi-content">
+            <div class="ciq-kpi-label">Tokens</div>
+            <div class="ciq-kpi-value">{{ kpiTokens }}</div>
+          </div>
+        </div>
+
+        <div class="ciq-kpi">
+          <div class="ciq-kpi-content">
+            <div class="ciq-kpi-label">Avg. Processing Time (Min)</div>
+            <div class="ciq-kpi-value">{{ kpiAvgTime }}</div>
+          </div>
+        </div>
+        <div
+          class="ciq-kpi ciq-kpi--collapsible"
+          [class.ciq-kpi--hidden]="!!fiscQtr"
+        >
+          <div class="ciq-kpi-content">
+            <div class="ciq-kpi-label">Last Run (min)</div>
+            <div class="ciq-kpi-value">{{ kpiStaleness }}</div>
+          </div>
+        </div>
+
+        <div class="ciq-kpi ciq-kpi--health">
+          <div class="ciq-kpi-ring-col">
+            <app-health-ring
+              [totalIncidents]="healthTotalIncidents"
+              [successPct]="healthSuccessPct"
+              [errorPct]="healthErrorPct"
+              [successCount]="healthSuccessCount"
+              [errorCount]="healthErrorCount"
+              [showMeta]="false"
+            />
+          </div>
+          <div class="ciq-kpi-content">
+            <div class="ciq-kpi-label">System Health</div>
+            <div class="ciq-kpi-health-stats">
+              <span class="ciq-kpi-health-success"
+                >{{ healthSuccessCount | number }} ({{ healthSuccessPct }}%)
+                Success</span
+              >
+              <span class="ciq-kpi-health-error"
+                >{{ healthErrorCount | number }} ({{ healthErrorPct }}%)
+                Errors</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="ciq-kpi">
+          <div class="ciq-kpi-label">Ghost Success</div>
+          <div class="ciq-kpi-value">{{ kpiGhost }}</div>
+        </div> -->
+      <!-- <div class="ciq-kpi">
+          <div class="ciq-kpi-label">Not Supported</div>
+          <div class="ciq-kpi-value">{{ kpiNotSupported }}</div>
+        </div> -->
+    </div>
+
+    <!-- ── Row 2: Anomaly + Top Errors + Health (2fr 2fr 1fr) ── -->
+    <div class="ciq-grid ciq-grid-2-2-1">
+      <ng-container [ngTemplateOutlet]="anomalyBreakdownCard"></ng-container>
+
+      <ng-container [ngTemplateOutlet]="volumeByTeamCard"></ng-container>
+
+      <ng-container [ngTemplateOutlet]="throughputCard"></ng-container>
+    </div>
+
+    <!-- ── Row 2: Resolution Status + Team Success ── -->
+    <!-- <div class="ciq-grid ciq-grid-mid">
+      <div class="ciq-card">
+        <div class="ciq-card-header">
+          <div class="ciq-card-icon ciq-card-icon--purple">
+            <ng-icon name="phosphorChartBarHorizontalDuotone" size="20" />
+          </div>
+          <span>Resolution Status Distribution</span>
+        </div>
+        <div class="ciq-bar-chart">
+          @for (bar of statusBars; track bar.label) {
+            <div class="ciq-bar-row">
+              <span class="ciq-bar-label">{{ bar.label }}</span>
+              <div class="ciq-bar-track">
+                <div
+                  class="ciq-bar-fill"
+                  [style.width.%]="bar.pct"
+                  [style.--bar-color]="bar.color"
+                ></div>
+              </div>
+              <span class="ciq-bar-value">{{ bar.displayText }}</span>
+            </div>
+          }
+          @if (statusBars.length === 0) {
+            <div class="ciq-no-data">No data</div>
+          }
+        </div>
+      </div>
+
+      <div class="ciq-card">
+        <div class="ciq-card-header">
+          <div class="ciq-card-icon ciq-card-icon--green">
+            <ng-icon name="phosphorUsersFourDuotone" size="20" />
+          </div>
+          <span>Team-wise Success Metric</span>
+        </div>
+        <div class="ciq-bar-chart">
+          @for (bar of teamBars; track bar.label) {
+            <div class="ciq-bar-row">
+              <span class="ciq-bar-label">{{ bar.label }}</span>
+              <div class="ciq-bar-track">
+                <div
+                  class="ciq-bar-fill"
+                  [style.width.%]="bar.pct"
+                  [style.--bar-color]="bar.color"
+                ></div>
+              </div>
+              <span class="ciq-bar-value">{{ bar.displayText }}</span>
+            </div>
+          }
+          @if (teamBars.length === 0) {
+            <div class="ciq-no-data">No data</div>
+          }
+        </div>
+        <div class="ciq-chart-footnote">
+          Success = SUCCESS + PARTIAL SUCCESS + NOT_SUPPORTED
+        </div>
+      </div>
+    </div> -->
+
+    <!-- ── Row 3: Error Incidents (full width) ── -->
+    <div class="ciq-grid ciq-grid-full">
+      <ng-container [ngTemplateOutlet]="topErrorsCard"></ng-container>
+    </div>
+
+    <ng-template #throughputCard>
+      <div class="ciq-card ciq-card--chart">
+        <div class="ciq-card-header">
+          <span>{{ throughputIsWeekly ? "Weekly" : "Hourly" }} Throughput</span>
+        </div>
+        <div class="ciq-throughput-chart-wrapper">
+          @if (throughputPoints.length >= 2) {
+            <div
+              echarts
+              [options]="throughputChartOptions"
+              style="height: 100%; width: 100%"
+            ></div>
+          } @else {
+            <div class="ciq-no-data">
+              <span class="ciq-no-data-icon"
+                ><ng-icon name="phosphorEmptyDuotone" size="24"
+              /></span>
+              @if (fiscQtr && throughputPoints.length === 0) {
+                No data or not enough available in this period
+              } @else {
+                No data in the selected period
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template #anomalyBreakdownCard>
+      <div class="ciq-card ciq-swap-card">
+        <div class="ciq-card-header">
+          <span>Issues Breakdown</span>
+        </div>
+        <div class="ciq-anomaly-list">
+          @if (loading) {
+            <div class="ciq-table-loading"><app-loading-symbol /></div>
+          }
+          @for (a of anomalyBreakdown; track a.name) {
+            <div class="ciq-anomaly-item">
+              <span class="ciq-badge" [ngClass]="severityClass(a.severity)">{{
+                a.severity | uppercase
+              }}</span>
+              <span class="ciq-anomaly-name">{{ a.name }}</span>
+              <span class="ciq-team-chips">
+                @for (chip of getTeamChips(a.issueKey || ""); track chip.team) {
+                  <button
+                    class="ciq-team-chip"
+                    [ngClass]="'ciq-team-chip--' + a.severity"
+                    (click)="
+                      openDrilldown(
+                        chip.team,
+                        a.issueKey || '',
+                        a.name,
+                        chip.rawTeam
+                      )
+                    "
+                  >
+                    {{ chip.team }} <strong>{{ chip.count }}</strong>
+                  </button>
+                }
+              </span>
+              <span
+                class="ciq-anomaly-count"
+                [style.color]="countColor(a.severity)"
+                >{{ a.count }}</span
+              >
+            </div>
+          }
+          @if (anomalyBreakdown.length === 0) {
+            <div class="ciq-no-data">
+              <span class="ciq-no-data-icon"
+                ><ng-icon name="phosphorEmptyDuotone" size="24"
+              /></span>
+              No issues in selected period
+            </div>
+          }
+        </div>
+        <p class="ciq-anomaly-disclaimer">
+          * Click any team chip to view quarterly occurrence trend
+        </p>
+      </div>
+    </ng-template>
+
+    <ng-template #volumeByTeamCard>
+      <div class="ciq-card ciq-swap-card">
+        <div class="ciq-card-header">
+          <span>Volume by Team</span>
+        </div>
+        <div class="ciq-table-scroll">
+          @if (loading) {
+            <div class="ciq-table-loading"><app-loading-symbol /></div>
+          }
+          <table class="ciq-table">
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>Total</th>
+                <th>Errors</th>
+                <th>Warnings</th>
+                <th>Success Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of teamTableData; track row.TEAM_NAME) {
+                <tr>
+                  <td>
+                    <strong>{{ row.TEAM_NAME || "N/A" }}</strong>
+                  </td>
+                  <td>
+                    {{ (row.UNIQUE_INCIDENTS || 0).toLocaleString() }}
+                  </td>
+                  <td class="ciq-text-red">
+                    {{ (row.ERRORS || 0).toLocaleString() }}
+                  </td>
+                  <td class="ciq-text-warning">
+                    {{ (row.WARNINGS || 0).toLocaleString() }}
+                  </td>
+                  <td>
+                    <strong>{{ row.SUCCESS_RATE_PCT || 0 }}%</strong>
+                  </td>
+                </tr>
+              }
+              @if (teamTableData.length === 0) {
+                <tr>
+                  <td colspan="5" class="ciq-no-data">
+                    <span class="ciq-no-data-icon"
+                      ><ng-icon name="phosphorEmptyDuotone" size="24"
+                    /></span>
+                    No data in the selected period
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template #topErrorsCard>
+      <div class="ciq-card ciq-swap-card">
+        <div class="ciq-card-header">
+          <span>Error Incidents</span>
+          <div class="ciq-header-filters">
+            <select
+              [(ngModel)]="errorFilterTeam"
+              (ngModelChange)="applyErrorFilters()"
+              class="ciq-filter-select"
+            >
+              <option value="">All Teams</option>
+              @for (t of errorTeamOptions; track t) {
+                <option [value]="t">{{ t }}</option>
+              }
+            </select>
+            <select
+              [(ngModel)]="errorFilterIssue"
+              (ngModelChange)="applyErrorFilters()"
+              class="ciq-filter-select"
+            >
+              <option value="">All Issues</option>
+              @for (i of errorIssueOptions; track i) {
+                <option [value]="i">{{ i }}</option>
+              }
+            </select>
+            <button
+              class="ciq-download-btn"
+              [class.ciq-download-btn--downloading]="csvDownloading"
+              [class.ciq-download-btn--done]="csvDownloadDone"
+              (click)="downloadErrorCsv()"
+              title="Download CSV"
+            >
+              <span
+                class="ciq-download-btn__fill"
+                [style.width.%]="csvDownloadProgress"
+              ></span>
+              <span class="ciq-download-btn__content">
+                @if (csvDownloading) {
+                  {{ csvDownloadProgress }}%
+                } @else {
+                  <ng-icon name="phosphorArrowLineDownBold" size="13" />
+                  CSV
+                }
+              </span>
+            </button>
+          </div>
+        </div>
+        <div class="ciq-table-scroll ciq-table-scroll--no-max">
+          <table class="ciq-table">
+            <thead>
+              <tr>
+                <th>Incident</th>
+                <th>Team</th>
+                <th>Category</th>
+                <th>Core Issue</th>
+                <th>LLM Summary</th>
+                <th>Issue Description</th>
+                <th>Detail</th>
+                <th>Resolution</th>
+                <th>Run Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (errorLoading) {
+                <tr>
+                  <td colspan="9">
+                    <div class="ciq-table-loading">
+                      <app-loading-symbol />
+                    </div>
+                  </td>
+                </tr>
+              }
+              @for (row of anomalyTableData; track $index) {
+                <tr>
+                  <td class="ciq-mono">{{ row.INCIDENT_NUMBER || "N/A" }}</td>
+                  <td>{{ row.TEAM_NAME || "N/A" }}</td>
+                  <td>{{ row.CATEGORY || "—" }}</td>
+                  <td class="ciq-text-sm">{{ row.CORE_ISSUE || "—" }}</td>
+                  <td class="ciq-text-sm">{{ row.LLM_SUMMARY || "—" }}</td>
+                  <td>
+                    <span class="ciq-badge badge-critical">{{
+                      (row.anomalyLabel || row.ANOMALY_TYPE || "") ===
+                      "Not Defined"
+                        ? 'LLM Summary is "Not Defined"'
+                        : row.anomalyLabel || row.ANOMALY_TYPE || ""
+                    }}</span>
+                  </td>
+                  <td>
+                    @if (row.INCIDENT_DESCRIPTION) {
+                      <button
+                        class="ciq-detail-badge ciq-detail-badge--desc"
+                        (click)="openErrorDetailModal(row, 'description')"
+                      >
+                        View
+                      </button>
+                    } @else {
+                      <span class="ciq-muted-text">—</span>
+                    }
+                  </td>
+                  <td>
+                    @if (row.RESOLUTION_API_SUMMARY) {
+                      <button
+                        class="ciq-detail-badge ciq-detail-badge--res"
+                        (click)="openErrorDetailModal(row, 'resolution')"
+                      >
+                        View
+                      </button>
+                    } @else {
+                      <span class="ciq-muted-text">—</span>
+                    }
+                  </td>
+                  <td class="ciq-text-sm">
+                    {{ formatDate(row.CASEIQ_RUN_DATE) }}
+                  </td>
+                </tr>
+              }
+              @if (anomalyTableData.length === 0 && !errorLoading) {
+                <tr>
+                  <td colspan="9">
+                    <div class="ciq-no-data">
+                      <span class="ciq-no-data-icon"
+                        ><ng-icon name="phosphorEmptyDuotone" size="24"
+                      /></span>
+                      No errors detected in this period
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <!-- Pagination -->
+        <div class="ciq-pagination">
+          <span
+            >{{ errorPageStart }}–{{ errorPageEnd }} of
+            {{ errorTotalCount }} incidents</span
+          >
+          <div class="ciq-pagination-controls">
+            <select
+              [ngModel]="errorPageSize"
+              (ngModelChange)="errorChangePageSize($event)"
+              class="ciq-filter-select"
+            >
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+              <option [ngValue]="100">100</option>
+            </select>
+            <button
+              class="ciq-pg-btn"
+              (click)="errorChangePage(-1)"
+              [disabled]="errorCurrentPage <= 1"
+            >
+              Previous
+            </button>
+            <span>Page {{ errorCurrentPage }} of {{ errorTotalPages }}</span>
+            <button
+              class="ciq-pg-btn"
+              (click)="errorChangePage(1)"
+              [disabled]="errorCurrentPage >= errorTotalPages"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="ciq-last-updated">Last updated: {{ lastUpdated }}</div>
+  }
+
+  <!-- Drilldown Modal -->
+  @if (drilldownOpen) {
+    <div class="ciq-modal-backdrop" (click)="closeDrilldown()">
+      <div
+        class="ciq-modal"
+        role="dialog"
+        aria-modal="true"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="ciq-modal__header">
+          <h3 class="ciq-modal__title">{{ drilldownTitle }}</h3>
+          <button
+            class="ciq-modal__close"
+            (click)="closeDrilldown()"
+            aria-label="Close modal"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="ciq-modal__body">
+          @if (drilldownSubtitle) {
+            <p class="ciq-modal__subtitle">{{ drilldownSubtitle }}</p>
+          }
+          @if (drilldownPoints.length >= 2) {
+            <app-line-chart
+              [points]="drilldownPoints"
+              lineColor="#00bceb"
+              fillColor="#00bceb"
+              [showDataLabels]="true"
+              [labelInterval]="1"
+            />
+          } @else if (drilldownInsufficient) {
+            <div class="ciq-no-data">
+              <span class="ciq-no-data-icon"
+                ><ng-icon name="phosphorEmptyDuotone" size="24"
+              /></span>
+              Data could not be used to render a chart. This may be due to
+              insufficient occurrences, lack of variance, or malformed data.
+            </div>
+          } @else {
+            <div class="ciq-no-data">Loading trend data…</div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+  <br /><br /><br />
+
+  <!-- Error Detail Modal -->
+  @if (errorModalOpen) {
+    <div class="ciq-modal-backdrop" (click)="closeErrorModal()">
+      <div
+        class="ciq-modal ciq-modal--detail"
+        role="dialog"
+        aria-modal="true"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="ciq-modal__header">
+          <div>
+            <h3 class="ciq-modal__title">{{ errorModalTitle }}</h3>
+            <div class="ciq-modal__subtitle">
+              {{ errorModalTab === "description" ? "" : "" }}
+            </div>
+          </div>
+          <button
+            class="ciq-modal__close"
+            (click)="closeErrorModal()"
+            aria-label="Close modal"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="ciq-modal__body ciq-modal__body--text">
+          <pre class="ciq-modal__pre">{{ errorModalContent }}</pre>
+        </div>
+      </div>
+    </div>
+  }
+</div>

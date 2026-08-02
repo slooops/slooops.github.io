@@ -40,7 +40,7 @@ public class InvoiceToCashMonitoringService{
     @Autowired
     private CacheCommon cacheCommon;
 
-    private Boolean useRedisInv = true;
+    private Boolean useRedisInv = false;
 
 
     @Autowired
@@ -394,28 +394,31 @@ public class InvoiceToCashMonitoringService{
     }
 
     public void refreshInvoiceToCashMonitoringCache() {
-        Map<String, String> preInvoiceErrorSummaryViewMap   = Map.of("PreInvoiceErrorSummaryView", preInvoiceErrorSummaryView);
-        Map<String, String> preInvoiceErrorDetailsViewMap   = Map.of("PreInvoiceErrorDetails", preInvoiceErrorDetails);
-        Map<String, String> autoInvoiceErrorSummaryViewMap  = Map.of("AutoInvoiceErrorSummaryView", autoInvoiceErrorSummaryView);
-        Map<String, String> autoInvoiceErrorDetailsMap      = Map.of("AutoInvoiceErrorDetails", autoInvoiceErrorDetails);
-        Map<String, String> einvoicingSummaryMap            = Map.of("EinvoicingSummary", einvoicingSummary);
-        Map<String, String> einvoicingDetailsMap            = Map.of("EinvoicingDetails", einvoicingDetails);
-        Map<String, String> fusionErrorSummaryMap           = Map.of("FusionErrorSummary", fusionErrorSummary);
-        Map<String, String> fusionErrorDetailsMap           = Map.of("FusionErrorDetails", fusionErrorDetails);
-        Map<String, String> creditCardCheckSummaryViewMap   = Map.of("CreditCardCheckSummaryView", creditCardCheckSummaryView);
-        Map<String, String> creditCardCheckDetailViewMap    = Map.of("CreditCardCheckDetailView", creditCardCheckDetailView);
-        System.out.println("refresh from invoice to cash service");
+        Map<String, String> preInvoiceErrorSummaryViewMap = Map.of("PreInvoiceErrorSummaryView", preInvoiceErrorSummaryView);
+        Map<String, String> preInvoiceErrorDetailsViewMap = Map.of("PreInvoiceErrorDetails", preInvoiceErrorDetails);
+        Map<String, String> autoInvoiceErrorSummaryViewMap = Map.of("AutoInvoiceErrorSummaryView", autoInvoiceErrorSummaryView);
+        Map<String, String> autoInvoiceErrorDetailsMap = Map.of("AutoInvoiceErrorDetails", autoInvoiceErrorDetails);
+        Map<String, String> einvoicingSummaryMap = Map.of("EinvoicingSummary", einvoicingSummary);
+        Map<String, String> einvoicingDetailsMap = Map.of("EinvoicingDetails", einvoicingDetails);
+        Map<String, String> fusionErrorSummaryMap = Map.of("FusionErrorSummary", fusionErrorSummary);
+        Map<String, String> fusionErrorDetailsMap = Map.of("FusionErrorDetails", fusionErrorDetails);
+        Map<String, String> creditCardCheckSummaryViewMap = Map.of("CreditCardCheckSummaryView", creditCardCheckSummaryView);
+        Map<String, String> creditCardCheckDetailViewMap = Map.of("CreditCardCheckDetailView", creditCardCheckDetailView);
+        if (useRedisInv) {
 
-        cacheCommon.refreshExceptionMonitoringCache(preInvoiceErrorSummaryViewMap);
-        cacheCommon.refreshExceptionMonitoringCache(preInvoiceErrorDetailsViewMap);
-        cacheCommon.refreshExceptionMonitoringCache(autoInvoiceErrorSummaryViewMap);
-        cacheCommon.refreshExceptionMonitoringCache(autoInvoiceErrorDetailsMap);
-        cacheCommon.refreshExceptionMonitoringCache(einvoicingSummaryMap);
-        cacheCommon.refreshExceptionMonitoringCache(einvoicingDetailsMap);
-        cacheCommon.refreshExceptionMonitoringCache(fusionErrorSummaryMap);
-        cacheCommon.refreshExceptionMonitoringCache(fusionErrorDetailsMap);
-        cacheCommon.refreshExceptionMonitoringCache(creditCardCheckSummaryViewMap);
-        cacheCommon.refreshExceptionMonitoringCache(creditCardCheckDetailViewMap);
+            System.out.println("refresh from invoice to cash service");
+
+            cacheCommon.refreshExceptionMonitoringCache(preInvoiceErrorSummaryViewMap);
+            cacheCommon.refreshExceptionMonitoringCache(preInvoiceErrorDetailsViewMap);
+            cacheCommon.refreshExceptionMonitoringCache(autoInvoiceErrorSummaryViewMap);
+            cacheCommon.refreshExceptionMonitoringCache(autoInvoiceErrorDetailsMap);
+            cacheCommon.refreshExceptionMonitoringCache(einvoicingSummaryMap);
+            cacheCommon.refreshExceptionMonitoringCache(einvoicingDetailsMap);
+            cacheCommon.refreshExceptionMonitoringCache(fusionErrorSummaryMap);
+            cacheCommon.refreshExceptionMonitoringCache(fusionErrorDetailsMap);
+            cacheCommon.refreshExceptionMonitoringCache(creditCardCheckSummaryViewMap);
+            cacheCommon.refreshExceptionMonitoringCache(creditCardCheckDetailViewMap);
+        }
     }
 
 }

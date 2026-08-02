@@ -20,13 +20,13 @@ export class MenuService {
   constructor(private authService: AuthenticationService) {}
 
   updateMenuItems(menuData: MenuCategory[]) {
-    const userRoles = this.authService.getRoles();
+    const userRoles = this.authService.getUserAccessRoles();
 
     const filteredMenu = menuData
       .map((menu) => {
         if (menu.category && menu.items) {
           const filteredItems = menu.items.filter((item) =>
-            item.role.some((role) => userRoles.includes(role))
+            item.role.some((role) => userRoles.includes(role)),
           );
           return filteredItems.length > 0
             ? { ...menu, items: filteredItems }
@@ -46,6 +46,13 @@ export class MenuService {
   header$ = this.headerSubject.asObservable();
 
   updateHeader(newHeader: string) {
-    this.headerSubject.next(newHeader);
+    // this.headerSubject.next(newHeader);
+  }
+
+  private subHeaderSubject = new BehaviorSubject<string>('');
+  subHeader$ = this.subHeaderSubject.asObservable();
+
+  updateSubHeader(newSubHeader: string) {
+    this.subHeaderSubject.next(newSubHeader);
   }
 }

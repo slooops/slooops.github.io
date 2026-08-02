@@ -1,0 +1,16 @@
+<div class="kpi-tile">
+  <span class="kpi-tile__title">{{ title }}</span>
+  <div class="kpi-tile__body">
+    @if (mode === "plain") {
+      <span class="kpi-tile__value-plain">{{ plainValue }}</span>
+    } @else {
+      <app-progress-pill
+        [percentage]="percentage"
+        [color]="color"
+        [label]="pillText"
+        size="sm"
+      ></app-progress-pill>
+      <span class="kpi-tile__pct">{{ pctText }}</span>
+    }
+  </div>
+</div>

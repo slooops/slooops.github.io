@@ -1,0 +1,245 @@
+<div class="analyzer-dashboard">
+  <div class="dashboard-header">
+    <div class="header-main">
+      <div class="header-left">
+        <app-menu-mini
+          [items]="menuItems"
+          [activeIndex]="selectedTabIndex"
+          [darkMode]="themeService.isDarkMode"
+          (selected)="selectTab($event.index)"
+        />
+        <h2>{{ quarterPairs[selectedTabIndex]?.key }}</h2>
+      </div>
+      <div class="period-info">
+        <span
+          ><b>Period name:</b> {{ periodInfo()?.periodName || "" }} &nbsp;</span
+        >
+        <span class="divider"> | </span>
+        <span
+          >&nbsp;<b>Period end date:</b>
+          {{ periodInfo()?.periodEndDate || "" }} &nbsp;</span
+        >
+        <span class="divider"> | </span>
+        <span>&nbsp;<b>Last Updated:</b> {{ timeNow || "" }} </span>
+      </div>
+      <div class="header-right"></div>
+    </div>
+  </div>
+
+  <!-- Q1 - Q2 -->
+  @if (quarterPairs[0] && selectedTabIndex === 0) {
+    <div class="tab-content">
+      <p class="card-subtitle">
+        Data for {{ quarterPairs[0]?.left }} and {{ quarterPairs[0]?.right }}
+      </p>
+      <div class="grid-2" style="margin: 0 1.2rem">
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ1Q2Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <div echarts [options]="chartOptionsMap['birChartQ1Q2']" style="height: 100%; width: 100%;"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ1Q2Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <div echarts [options]="chartOptionsMap['prmcChartQ1Q2']" style="height: 100%; width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
+        <app-table
+          [darkMode]="themeService.isDarkMode"
+          title="Case Summary for {{ quarterPairs[0]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[0]?.right]"
+          [displayedColumns]="
+            displayedColumnsForCaseSummaryQuarter[quarterPairs[0]?.right]
+          "
+          exportFileName="Previous_Quarter_Case_Summary"
+          reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c"
+          serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
+        <app-table
+          [darkMode]="themeService.isDarkMode"
+          title="Aging Backlog for {{ quarterPairs[0]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceAgingBacklog[quarterPairs[0]?.right]"
+          [displayedColumns]="
+            displayedColumnsForAgingBacklog[quarterPairs[0]?.right]
+          "
+          exportFileName="Previous_Quarter_Aging_Backlog"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+    </div>
+  }
+
+  <!-- Q2 - Q3 -->
+  @if (quarterPairs[1] && selectedTabIndex === 1) {
+    <div class="tab-content">
+      <p class="card-subtitle">
+        Data for {{ quarterPairs[1]?.left }} and {{ quarterPairs[1]?.right }}
+      </p>
+      <div class="grid-2" style="margin: 0 1.2rem">
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ2Q3Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <div echarts [options]="chartOptionsMap['birChartQ2Q3']" style="height: 100%; width: 100%;"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ2Q3Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <div echarts [options]="chartOptionsMap['prmcChartQ2Q3']" style="height: 100%; width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
+        <app-table
+          [darkMode]="themeService.isDarkMode"
+          title="Case Summary for {{ quarterPairs[1]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[1]?.right]"
+          [displayedColumns]="
+            displayedColumnsForCaseSummaryQuarter[quarterPairs[1]?.right]
+          "
+          exportFileName="Current_Quarter_Case_Summary"
+          reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c"
+          serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
+        <app-table
+          [darkMode]="themeService.isDarkMode"
+          title="Aging Backlog for {{ quarterPairs[1]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceAgingBacklog[quarterPairs[1]?.right]"
+          [displayedColumns]="
+            displayedColumnsForAgingBacklog[quarterPairs[1]?.right]
+          "
+          exportFileName="Previous_Quarter_Aging_Backlog"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+    </div>
+  }
+
+  <!-- Q3 - Q4 -->
+  @if (quarterPairs[2] && selectedTabIndex === 2) {
+    <div class="tab-content">
+      <p class="card-subtitle">
+        Data for {{ quarterPairs[2]?.left }} and {{ quarterPairs[2]?.right }}
+      </p>
+      <div class="grid-2" style="margin: 0 1.2rem">
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ3Q4Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <div echarts [options]="chartOptionsMap['birChartQ3Q4']" style="height: 100%; width: 100%;"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ3Q4Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <div echarts [options]="chartOptionsMap['prmcChartQ3Q4']" style="height: 100%; width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
+        <app-table
+          [darkMode]="themeService.isDarkMode"
+          title="Case Summary for {{ quarterPairs[2]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[2]?.right]"
+          [displayedColumns]="
+            displayedColumnsForCaseSummaryQuarter[quarterPairs[2]?.right]
+          "
+          exportFileName="Next_Quarter_Case_Summary"
+          reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c"
+          serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
+        <app-table
+          [darkMode]="themeService.isDarkMode"
+          title="Aging Backlog for {{ quarterPairs[2]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceAgingBacklog[quarterPairs[2]?.right]"
+          [displayedColumns]="
+            displayedColumnsForAgingBacklog[quarterPairs[2]?.right]
+          "
+          exportFileName="Next_Quarter_Aging_Backlog"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+    </div>
+  }
+
+  <!-- Q4 - Q1 -->
+  @if (quarterPairs[3] && selectedTabIndex === 3) {
+    <div class="tab-content">
+      <p class="card-subtitle">
+        Data for {{ quarterPairs[3]?.left }} and {{ quarterPairs[3]?.right }}
+      </p>
+      <div class="grid-2" style="margin: 0 1.2rem">
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ4Q1Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <div echarts [options]="chartOptionsMap['birChartQ4Q1']" style="height: 100%; width: 100%;"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ4Q1Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <div echarts [options]="chartOptionsMap['prmcChartQ4Q1']" style="height: 100%; width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
+        <app-table
+          [darkMode]="themeService.isDarkMode"
+          title="Case Summary for {{ quarterPairs[3]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[3]?.right]"
+          [displayedColumns]="
+            displayedColumnsForCaseSummaryQuarter[quarterPairs[3]?.right]
+          "
+          exportFileName="Next_Quarter_Case_Summary"
+          reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c"
+          serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+      <app-card [container]="true" [darkMode]="themeService.isDarkMode">
+        <app-table
+          [darkMode]="themeService.isDarkMode"
+          title="Aging Backlog for {{ quarterPairs[3]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceAgingBacklog[quarterPairs[3]?.right]"
+          [displayedColumns]="
+            displayedColumnsForAgingBacklog[quarterPairs[3]?.right]
+          "
+          exportFileName="Next_Quarter_Aging_Backlog"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+    </div>
+  }
+  <br /><br /><br />
+</div>
+
+<!-- @if (!showGridMenu) {
+  <app-loading-symbol></app-loading-symbol>
+} -->

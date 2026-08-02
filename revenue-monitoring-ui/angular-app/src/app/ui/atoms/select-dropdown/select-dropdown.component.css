@@ -1,0 +1,31 @@
+@import "src/assets/ui.css";
+
+.fit-select__label {
+  display: block;
+  font-size: var(--fit-font-size-sm);
+  font-weight: var(--fit-font-weight-medium);
+  color: var(--fit-color-text);
+  margin-bottom: -2px;
+  line-height: var(--fit-control-height);
+}
+
+/* Dark mode — matches whenever an ancestor (body, host wrapper, etc.) has .dark-theme. */
+:host-context(.dark-theme) .fit-select,
+:host-context(.dark-theme) .fit-input {
+  background: var(--fit-dark-surface);
+  color: var(--fit-dark-text);
+  border-color: var(--fit-dark-border);
+}
+
+:host-context(.dark-theme) .fit-select option {
+  background: var(--fit-dark-surface);
+  color: var(--fit-dark-text);
+}
+
+:host-context(.dark-theme) .fit-select__chevron {
+  color: var(--fit-dark-muted);
+}
+
+:host-context(.dark-theme) .fit-select__label {
+  color: var(--fit-dark-text);
+}

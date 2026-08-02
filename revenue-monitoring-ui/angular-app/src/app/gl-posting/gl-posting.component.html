@@ -1,30 +1,48 @@
-<mat-tab-group>
-  <mat-tab label="General Ledger" *ngIf="roles.includes('ADMIN')">
+<div class="dashboard-header">
+  <div class="header-main">
+    <div class="header-left">
+      <app-menu-mini [items]="menuItems" [activeIndex]="0" />
+      <h2>General Ledger</h2>
+    </div>
+
+    <div class="period-info" *ngIf="periodStatus as period">
+      <span><b>Period name:</b> {{ period.periodName }} &nbsp;</span>
+      <span class="divider"> | </span>
+      <span
+        >&nbsp;<b>Period end date:</b> {{ period.periodEndDate }} &nbsp;</span
+      >
+      <span class="divider"> | </span>
+      <span>&nbsp;<b>Last Updated:</b> {{ period.lastUpdated }} &nbsp;</span>
+    </div>
+    @if (roles.includes("ADMIN")) {
+      <!-- <div class="global-search">
+        <div class="global-search-input-wrapper">
+          <input
+            type="text"
+            class="global-search-input"
+            #globalSearchInput
+            placeholder="Search.."
+          />
+        </div>
+        <span class="global-search-icon">🔍</span>
+      </div> -->
+    }
+  </div>
+</div>
+
+<hr />
+
+@if (roles.includes("ADMIN") || roles.includes("MONITORING_GL")) {
+  <div class="gl-content">
     <app-monitoring-dashboard
-      [apiUrl]="authService.getHostUrl()"
       [urls]="glUrls"
       [keysToMap]="glKeysToMap"
-      [periodStatus]="periodStatus"
       [componentName]="'General Ledger'"
       [columnsToFilter]="glFilters"
       [assignmentDialogFieldConfig]="fieldConfig"
-      [assignmentUsersFilter]="'I2C'"
-      [submitKeysToMap]="[
-        'LEDGER_NAME',
-        'JOURNAL_SOURCE',
-        'ACCOUNT_SEG',
-        'APPLICATION_NAME',
-        'TRANSACTION_DATE',
-        'PROCESS_FLOW'
-      ]"
-      [webexKeysToMap]="[
-        'LEDGER_NAME',
-        'JOURNAL_SOURCE',
-        'ACCOUNT_SEG',
-        'APPLICATION_NAME',
-        'TRANSACTION_DATE',
-        'PROCESS_FLOW'
-      ]"
+      [userContext]="userContextData"
+      [submitKeysToMap]="['GL_BATCH_NAME']"
+      [webexKeysToMap]="['GL_BATCH_NAME']"
     ></app-monitoring-dashboard>
-  </mat-tab>
-</mat-tab-group>
+  </div>
+}

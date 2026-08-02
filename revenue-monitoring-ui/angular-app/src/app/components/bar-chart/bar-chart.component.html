@@ -1,0 +1,29 @@
+<div class="bar-chart-wrapper">
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <p>Loading chart...</p>
+    </div>
+  }
+
+  <div
+    #barChartContainer
+    [id]="canvasId"
+    class="bar-chart-container"
+    [style.display]="isLoading ? 'none' : 'block'"
+  ></div>
+
+  <!-- Legend -->
+  @if (showLegend && legendItems.length > 0 && stacked) {
+    <div
+      class="chart-legend"
+      >
+      @for (item of legendItems; track item.name) {
+        <div class="legend-item">
+          <span class="legend-color" [style.background-color]="item.color"></span>
+          <span class="legend-label">{{ item.total }} {{ item.name }}</span>
+        </div>
+      }
+    </div>
+  }
+</div>

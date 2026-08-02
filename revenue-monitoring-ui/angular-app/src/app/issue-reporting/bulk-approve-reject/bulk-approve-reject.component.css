@@ -1,3 +1,21 @@
+.bulk-title {
+  margin: 0;
+  padding: 14px 20px 4px;
+  font-size: 0.95rem;
+  color: #1b1c1d;
+}
+
+.bulk-content {
+  padding: 8px 20px;
+}
+
+.bulk-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px 16px;
+}
+
 .incident-table {
   width: 100%;
   border-collapse: collapse;
@@ -12,4 +30,17 @@
 .incident-table th {
   background-color: #f5f5f5;
   font-weight: bold;
+}
+
+:host-context(body.dark-theme) .bulk-title {
+  color: #e0e6ed;
+}
+
+:host-context(body.dark-theme) .incident-table th {
+  background-color: #1e2d3a;
+  color: #e0e6ed;
+}
+
+:host-context(body.dark-theme) .incident-table td {
+  color: #e0e6ed;
 }

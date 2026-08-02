@@ -1,40 +1,110 @@
-import { Component } from '@angular/core';
+import { Component, HostBinding } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import {
+  MenuMiniComponent,
+  MenuMiniItem,
+} from '../shared/menu-mini/menu-mini.component';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
 import { DataService } from '../providers/data.service';
+import { ThemeService } from '../providers/theme.service';
 import { DatePipe } from '@angular/common';
 import { SelectionModel } from '@angular/cdk/collections';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
 import { Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
+import { provideIcons } from '@ng-icons/core';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+import { WipsComponent } from '../wips/wips.component';
+
+export interface UserContext {
+  username: string;
+  userId: string;
+  roles: string[];
+  apiUrl: string;
+  assignmentUsersFilterKey: string;
+}
 
 @Component({
   selector: 'app-order-management',
   templateUrl: './order-management.component.html',
   styleUrl: './order-management.component.css',
-  providers: [DestroyManager],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
+  ],
+  imports: [
+    CommonModule,
+    MatTabsModule,
+    MonitoringDashboardComponent,
+    WipsComponent,
+    MenuMiniComponent,
+  ],
+  standalone: true,
 })
 export class OrderManagementComponent {
+  @HostBinding('class.dark-theme') get darkThemeClass() {
+    return this.themeService.isDarkMode;
+  }
+
+  private userName: string = '';
+
   constructor(
     http: ApiHttpService,
     private destroyManager: DestroyManager,
     private dataService: DataService,
     private datePipe: DatePipe,
     protected authService: AuthenticationService,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private route: ActivatedRoute,
+    public themeService: ThemeService,
   ) {
     this.http = http;
+    // Initialize roles and user context in constructor so they're available before template renders
+    this.roles = this.authService.getUserAccessRoles();
+    this.userName = this.authService.getUserName();
+    this.userContextData = {
+      username: this.authService.getUserName(),
+      userId: this.authService.getUserID(),
+      roles: this.roles,
+      apiUrl: this.authService.getHostUrl(),
+      assignmentUsersFilterKey: 'ORDER_MANAGEMENT',
+    };
   }
   protected http: ApiHttpService;
   summaryDataSource: any;
   detailsDataSource: any;
   selection = new SelectionModel<any>(true, []);
   roles: string[] = [];
+  userContextData: UserContext;
 
   ngOnInit(): void {
-    this.roles = this.authService.getRoles();
     this.getErrorSummaryPeriodStatus();
     this.getDefaultTabIndex();
+
+    // Handle tab query param from side-nav
+    this.route.queryParams.subscribe((params) => {
+      const tabSlug = params['tab'];
+      if (tabSlug) {
+        const idx = this.filteredTabs.findIndex(
+          (t) => t.label.toLowerCase().replace(/\s+/g, '-') === tabSlug,
+        );
+        if (idx >= 0) {
+          this.selectedIndex = idx;
+          this.onTabChange(idx);
+        }
+      }
+    });
+
+    // Log initial tab visit
+    if (this.filteredTabs.length > 0) {
+      this.logTabVisit(this.filteredTabs[0]?.label);
+    }
   }
 
   specialWords: string[] = [
@@ -322,11 +392,14 @@ export class OrderManagementComponent {
   periodStatus: any;
 
   getErrorSummaryPeriodStatus() {
-    this.dataService
-      .getMonitoringPeriodStatus(this.destroyManager)
-      .subscribe((data: any) => {
-        this.periodStatus = data;
-      });
+    this.dataService.periodStatus$.subscribe((data: any) => {
+      if (data) {
+        this.periodStatus = {
+          ...data,
+          lastUpdated: new Date().toLocaleString(),
+        };
+      }
+    });
   }
 
   dateTransform(dateString: string): string {
@@ -342,42 +415,101 @@ export class OrderManagementComponent {
     {
       label: 'Imports',
       component: 'app-imports',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: [
+        'ADMIN',
+        'MONITORING_OM',
+        'MONITORING_OM_ADMIN',
+        'MONITORING_WIPS',
+        'MONITORING_WIPS_ADMIN',
+      ],
     },
     {
       label: 'Holds',
       component: 'app-holds',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: [
+        'ADMIN',
+        'MONITORING_OM',
+        'MONITORING_OM_ADMIN',
+        'MONITORING_WIPS',
+        'MONITORING_WIPS_ADMIN',
+      ],
     },
     {
       label: 'Bookings',
       component: 'app-bookings',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: [
+        'ADMIN',
+        'MONITORING_OM',
+        'MONITORING_OM_ADMIN',
+        'MONITORING_WIPS',
+        'MONITORING_WIPS_ADMIN',
+      ],
     },
     {
       label: 'Workflow',
       component: 'app-workflow',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: [
+        'ADMIN',
+        'MONITORING_OM',
+        'MONITORING_OM_ADMIN',
+        'MONITORING_WIPS',
+        'MONITORING_WIPS_ADMIN',
+      ],
     },
     {
       label: 'Processing',
       component: 'app-processing',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: [
+        'ADMIN',
+        'MONITORING_OM',
+        'MONITORING_OM_ADMIN',
+        'MONITORING_WIPS',
+        'MONITORING_WIPS_ADMIN',
+      ],
     },
     {
       label: 'Distribution',
       component: 'app-distribution',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: [
+        'ADMIN',
+        'MONITORING_OM',
+        'MONITORING_OM_ADMIN',
+        'MONITORING_WIPS',
+        'MONITORING_WIPS_ADMIN',
+      ],
     },
     {
       label: 'Attribution',
       component: 'app-attribution',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: [
+        'ADMIN',
+        'MONITORING_OM',
+        'MONITORING_OM_ADMIN',
+        'MONITORING_WIPS',
+        'MONITORING_WIPS_ADMIN',
+      ],
     },
     {
       label: 'Jobs',
       component: 'app-jobs',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: [
+        'ADMIN',
+        'MONITORING_OM',
+        'MONITORING_OM_ADMIN',
+        'MONITORING_WIPS',
+        'MONITORING_WIPS_ADMIN',
+      ],
+    },
+    {
+      label: 'DFM',
+      component: 'app-wips',
+      role: [
+        'ADMIN',
+        'MONITORING_OM',
+        'MONITORING_OM_ADMIN',
+        'MONITORING_WIPS',
+        'MONITORING_WIPS_ADMIN',
+      ],
     },
   ];
 
@@ -386,13 +518,52 @@ export class OrderManagementComponent {
 
   getDefaultTabIndex() {
     this.filteredTabs = this.visibleTabs.filter((tab) =>
-      tab.role.some((role) => this.roles.includes(role))
+      tab.role.some((role) => this.roles.includes(role)),
     );
+  }
+
+  get menuItems(): MenuMiniItem[] {
+    return this.filteredTabs.map((t) => ({
+      label: t.label,
+      disabled: t.disabled,
+    }));
+  }
+
+  onGridMenuItemClick(index: number): void {
+    this.onTabChange(index);
   }
 
   onTabChange(index: number) {
     this.selectedIndex = index;
-    const newHeader = `Order Management > ${this.filteredTabs[index]?.label}`;
+    const newHeader = `Continuous Monitoring > Order Management > ${this.filteredTabs[index]?.label}`;
     this.menuService.updateHeader(newHeader);
+    // Update last updated timestamp on tab switch
+    if (this.periodStatus) {
+      this.periodStatus = {
+        ...this.periodStatus,
+        lastUpdated: new Date().toLocaleString(),
+      };
+    }
+    // Log tab visit for analytics
+    this.logTabVisit(this.filteredTabs[index]?.label);
+  }
+
+  /**
+   * Logs a tab visit for analytics.
+   * Creates a pseudo-route like "/order-management/imports"
+   */
+  private logTabVisit(tabLabel: string): void {
+    if (!tabLabel || !this.userName) return;
+    const tabSlug = tabLabel.toLowerCase().replace(/\s+/g, '-');
+    const pseudoRoute = `/order-management/${tabSlug}`;
+    this.http
+      .post('log-page-visit', {
+        userName: this.userName,
+        pageRoute: pseudoRoute,
+      })
+      .subscribe({
+        next: () => {},
+        error: (err) => console.debug('Tab analytics log failed:', err),
+      });
   }
 }

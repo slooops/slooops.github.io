@@ -1,0 +1,455 @@
+/* ==========================================================================
+   Landing Page — Context 2: CaseIQ Centric
+   ========================================================================== */
+
+/* ── KPI Strip (8 columns) ─────────────────────────────────── */
+.ctx2-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 1rem;
+  padding: 0 var(--landing-space-lg);
+}
+
+@media (max-width: 1400px) {
+  .ctx2-kpi-strip {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .ctx2-kpi-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Individual KPI Card ───────────────────────────────────── */
+.ctx2-kpi {
+  background: var(--landing-card-bg, rgba(255, 255, 255, 0.72));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  /* border: 1px solid var(--landing-card-border, rgba(255, 255, 255, 0.6)); */
+  border-radius: 1rem;
+  box-shadow: var(--landing-card-shadow, 0 4px 20px rgba(0, 0, 0, 0.06));
+  padding: 0.625rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+.ctx2-kpi:hover {
+  box-shadow:
+    0 6px 24px rgba(0, 112, 210, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  transform: translateY(-1px);
+}
+
+/* ── KPI Title ─────────────────────────────────────────────── */
+.ctx2-kpi-title {
+  color: var(--landing-muted, #555);
+  font-size: 0.625rem;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+/* ── KPI Body (pill + pct) ─────────────────────────────────── */
+.ctx2-kpi-body {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Pill progress bar ─────────────────────────────────────── */
+.ctx2-pill {
+  position: relative;
+  flex: 1;
+  height: 1.375rem;
+  background: var(--landing-kpi-bg, rgba(0, 0, 0, 0.04));
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.ctx2-pill-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.ctx2-pill-text {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--landing-text, #1b1c1d);
+  white-space: nowrap;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+  line-height: normal;
+}
+
+/* ── Percentage badge ──────────────────────────────────────── */
+.ctx2-kpi-pct {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--landing-text, #1b1c1d);
+  white-space: nowrap;
+  min-width: 2.5rem;
+  text-align: right;
+}
+
+/* ── Plain value KPI (no pill) ─────────────────────────────── */
+.ctx2-kpi-value-plain {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--landing-text, #1b1c1d);
+}
+
+/* ── Pill fill gradient colors ─────────────────────────────── */
+.ctx2-pill-fill.accent {
+  background: linear-gradient(135deg, #0070d2, #00bceb);
+}
+
+.ctx2-pill-fill.cyan {
+  background: linear-gradient(135deg, #00a3d9, #00d4ff);
+}
+
+.ctx2-pill-fill.purple {
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+}
+
+.ctx2-pill-fill.amber {
+  background: linear-gradient(135deg, #d97706, #fbbf24);
+}
+
+.ctx2-pill-fill.green {
+  background: linear-gradient(135deg, #16a34a, #4ade80);
+}
+
+.ctx2-pill-fill.red {
+  background: linear-gradient(135deg, #dc2626, #f87171);
+}
+
+/* ── Color accent on KPI title ─────────────────────────────── */
+.ctx2-kpi.accent .ctx2-kpi-title {
+  color: #0070d2;
+}
+
+.ctx2-kpi.cyan .ctx2-kpi-title {
+  color: #00bceb;
+}
+
+.ctx2-kpi.purple .ctx2-kpi-title {
+  color: #7c3aed;
+}
+
+.ctx2-kpi.amber .ctx2-kpi-title {
+  color: #d97706;
+}
+
+.ctx2-kpi.green .ctx2-kpi-title {
+  color: #16a34a;
+}
+
+.ctx2-kpi.red .ctx2-kpi-title {
+  color: #e53935;
+}
+
+/* ── Charts Row ────────────────────────────────────────────── */
+.ctx2-charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: var(--landing-space-md) var(--landing-space-lg);
+}
+
+.ctx2-charts-row--quad {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1400px) {
+  .ctx2-charts-row--quad {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1100px) {
+  .ctx2-charts-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ctx2-chart-card {
+  /* background: var(--landing-card-bg, rgba(255, 255, 255, 0.72)); */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  /* border: 1px solid var(--landing-card-border, rgba(255, 255, 255, 0.6)); */
+  border-radius: 1rem;
+  box-shadow: var(--landing-card-shadow, 0 4px 20px rgba(0, 0, 0, 0.06));
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  height: 280px;
+}
+
+.ctx2-chart-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--landing-text, #1b1c1d);
+  margin-bottom: 0.75rem;
+}
+
+.ctx2-chart-subtitle {
+  font-size: 0.65rem;
+  color: var(--landing-muted, #555);
+  margin-left: 0.5rem;
+  font-weight: 500;
+}
+
+.ctx2-chart-wrapper {
+  flex: 1;
+  min-height: 200px;
+  position: relative;
+}
+
+.ctx2-chart-wrapper .ctx2-echart {
+  width: 100%;
+  height: 100%;
+}
+
+.ctx2-chart-wrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ── Home Charts (right side) ──────────────────────────────── */
+.ctx2-home-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 1400px) {
+  .ctx2-home-charts {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .ctx2-home-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Donut chart ───────────────────────────────────────────── */
+.ctx2-donut {
+  position: relative;
+  width: 100%;
+  max-width: 180px;
+  margin: 0 auto;
+}
+
+.ctx2-donut-svg {
+  width: 100%;
+  height: auto;
+  transform: rotate(-90deg);
+}
+
+.ctx2-donut-ring-bg {
+  stroke: var(--landing-kpi-bg, rgba(0, 0, 0, 0.06));
+}
+
+.ctx2-donut-ring {
+  transition: stroke-dasharray 0.8s ease;
+}
+
+.ctx2-donut-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ctx2-donut-total {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--landing-text, #1b1c1d);
+}
+
+.ctx2-donut-label {
+  font-size: 0.6rem;
+  color: var(--landing-muted, #555);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ctx2-donut-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  justify-content: center;
+}
+
+.ctx2-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  color: var(--landing-muted, #555);
+}
+
+.ctx2-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── No Data State ─────────────────────────────────────────── */
+.ctx2-no-data {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 150px;
+  color: var(--landing-muted, #888);
+  font-size: 0.75rem;
+}
+
+/* ==========================================================================
+   Dark Mode
+   ========================================================================== */
+:host(.dark-theme) .ctx2-kpi {
+  background: rgba(28, 44, 58, 0.85);
+  border-color: rgba(42, 63, 80, 0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+:host(.dark-theme) .ctx2-kpi:hover {
+  box-shadow:
+    0 6px 24px rgba(0, 188, 235, 0.12),
+    inset 0 0 0 1px rgba(42, 63, 80, 0.8);
+}
+
+:host(.dark-theme) .ctx2-kpi-title {
+  color: #8899a6;
+}
+
+:host(.dark-theme) .ctx2-pill {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+:host(.dark-theme) .ctx2-pill-text {
+  color: #fff;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+:host(.dark-theme) .ctx2-kpi-pct {
+  color: #e0e6ed;
+}
+
+:host(.dark-theme) .ctx2-kpi-value-plain {
+  color: #e0e6ed;
+}
+
+:host(.dark-theme) .ctx2-chart-card {
+  background: rgba(28, 44, 58, 0.85);
+  border-color: rgba(42, 63, 80, 0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+:host(.dark-theme) .ctx2-chart-title {
+  color: #e0e6ed;
+}
+
+:host(.dark-theme) .ctx2-chart-subtitle {
+  color: #8899a6;
+}
+
+:host(.dark-theme) .ctx2-donut-ring-bg {
+  stroke: rgba(255, 255, 255, 0.08);
+}
+
+:host(.dark-theme) .ctx2-donut-total {
+  color: #e0e6ed;
+}
+
+:host(.dark-theme) .ctx2-donut-label {
+  color: #8899a6;
+}
+
+:host(.dark-theme) .ctx2-legend-item {
+  color: #8899a6;
+}
+
+:host(.dark-theme) .ctx2-no-data {
+  color: #8899a6;
+}
+
+/* Dark mode pill fill gradients */
+:host(.dark-theme) .ctx2-pill-fill.accent {
+  background: linear-gradient(135deg, #0080e6, #00d4ff);
+}
+
+:host(.dark-theme) .ctx2-pill-fill.cyan {
+  background: linear-gradient(135deg, #00bcd4, #00e5ff);
+}
+
+:host(.dark-theme) .ctx2-pill-fill.purple {
+  background: linear-gradient(135deg, #8b5cf6, #c4b5fd);
+}
+
+:host(.dark-theme) .ctx2-pill-fill.amber {
+  background: linear-gradient(135deg, #f59e0b, #fcd34d);
+}
+
+:host(.dark-theme) .ctx2-pill-fill.green {
+  background: linear-gradient(135deg, #22c55e, #86efac);
+}
+
+:host(.dark-theme) .ctx2-pill-fill.red {
+  background: linear-gradient(135deg, #ef4444, #fca5a5);
+}
+
+/* Dark mode accent titles */
+:host(.dark-theme) .ctx2-kpi.accent .ctx2-kpi-title {
+  color: #2979ff;
+}
+
+:host(.dark-theme) .ctx2-kpi.cyan .ctx2-kpi-title {
+  color: #00e5ff;
+}
+
+:host(.dark-theme) .ctx2-kpi.purple .ctx2-kpi-title {
+  color: #a78bfa;
+}
+
+:host(.dark-theme) .ctx2-kpi.amber .ctx2-kpi-title {
+  color: #fbbf24;
+}
+
+:host(.dark-theme) .ctx2-kpi.green .ctx2-kpi-title {
+  color: #4ade80;
+}
+
+:host(.dark-theme) .ctx2-kpi.red .ctx2-kpi-title {
+  color: #ff1744;
+}

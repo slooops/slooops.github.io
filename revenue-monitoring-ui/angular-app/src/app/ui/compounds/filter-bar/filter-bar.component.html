@@ -1,0 +1,76 @@
+<div class="fit-filter-bar">
+  <div class="fit-filter-bar__search">
+    <app-text-input
+      [value]="searchValue"
+      placeholder="Search users..."
+      type="search"
+      iconName="search"
+      iconPosition="left"
+      [debounceMs]="300"
+      (valueChange)="onSearchChange($event)"
+    >
+    </app-text-input>
+  </div>
+
+  <div class="fit-filter-bar__filters">
+    <app-multi-select-dropdown
+      [options]="roleOptions"
+      [selected]="selectedRoles"
+      placeholder="All Roles"
+      label="Role"
+      (selectionChange)="onRoleChange($event)"
+    ></app-multi-select-dropdown>
+
+    <app-multi-select-dropdown
+      [options]="statusOptions"
+      [selected]="selectedStatuses"
+      placeholder="All Status"
+      label="Status"
+      [showSearch]="false"
+      (selectionChange)="onStatusChange($event)"
+    ></app-multi-select-dropdown>
+  </div>
+
+  <span class="fit-filter-bar__count">{{ totalCount }} users</span>
+
+  <div class="fit-filter-bar__actions">
+    @if (selectedCount > 1) {
+      <app-button
+        label="Bulk Update Roles ({{ selectedCount }})"
+        variant="secondary"
+        (clicked)="onBulkUpdate()"
+      >
+      </app-button>
+    }
+    @if (canCreateSubAdmin) {
+      <app-button
+        label="Create Sub-Admin"
+        variant="secondary"
+        (clicked)="onCreateSubAdmin()"
+      >
+      </app-button>
+    }
+    @if (isFullAdmin) {
+      <app-button
+        label="Update Roles"
+        variant="secondary"
+        (clicked)="onAddUser()"
+      >
+      </app-button>
+    }
+
+    <app-button
+      label="Bulk Add Users"
+      variant="secondary"
+      (clicked)="onBulkAddUsers()"
+    >
+    </app-button>
+
+    <app-button
+      label="Add User"
+      variant="secondary"
+      (clicked)="onAddLineItem()"
+    >
+    </app-button>
+  </div>
+</div>

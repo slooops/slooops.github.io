@@ -1,0 +1,54 @@
+<div class="table-header">
+  <p class="section-title">{{ title }}</p>
+  @if (exportFileName) {
+    <div class="table-links">
+      <i (click)="exportTableToExcel()" class="svg-icon download-icon"></i>
+    </div>
+  }
+</div>
+
+<div style="margin-top: 1vh">
+  @if (dataSource?.data?.length > 0) {
+    <div style="overflow-x: auto">
+      <table class="atmf-table">
+        <thead>
+          <tr>
+            @for (column of displayedColumns; track column) {
+              <th>{{ column | titleCaseWithExceptions }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of dataSource.data; track $index) {
+            <tr>
+              @for (column of displayedColumns; track column) {
+                <td>
+                  @if (isDateColumn(column)) {
+                    {{ row[column] | date: "MM/dd/yy" }}
+                  } @else if (isPercentColumn(column)) {
+                    @if (row[column] === null || row[column] === undefined) {
+                      <span class="pct-muted">—</span>
+                    } @else if (row[column] < 0) {
+                      <span class="pct-down">▼ {{ row[column] }}%</span>
+                    } @else {
+                      <span class="pct-up">▲ {{ row[column] }}%</span>
+                    }
+                  } @else if (isNumericValue(row[column])) {
+                    {{ row[column] | number }}
+                  } @else {
+                    {{ row[column] }}
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  @if (!dataSource?.data?.length) {
+    <div class="loading-container">
+      <app-loading-symbol></app-loading-symbol>
+    </div>
+  }
+</div>

@@ -15,20 +15,23 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist",
+            "outputPath": {
+              "base": "dist"
+            },
             "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
+            "polyfills": ["src/polyfills.ts", "@angular/localize/init"],
             "tsConfig": "tsconfig.app.json",
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": [
-              "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
-              "src/styles.scss"
+              "src/cisco-theme.scss",
+              "src/styles.scss",
+              "src/assets/ui.css"
             ],
             "scripts": [],
-            "allowedCommonJsDependencies": ["chart.js"]
+            "allowedCommonJsDependencies": ["chart.js"],
+            "browser": "src/main.ts"
           },
           "configurations": {
             "prod": {
@@ -53,9 +56,7 @@
               "outputHashing": "all"
             },
             "stg": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true,
@@ -67,9 +68,7 @@
               ]
             },
             "dev": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true,
@@ -81,9 +80,7 @@
               ]
             },
             "local": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true,
@@ -101,21 +98,21 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "accruals-monitoring-ui:build:prod"
+              "buildTarget": "accruals-monitoring-ui:build:prod"
             },
             "development": {
-              "browserTarget": "accruals-monitoring-ui:build:local"
+              "buildTarget": "accruals-monitoring-ui:build:local"
             }
           },
           "defaultConfiguration": "development",
           "options": {
-            "disableHostCheck": true
+            "proxyConfig": "proxy.conf.json"
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "accruals-monitoring-ui:build"
+            "buildTarget": "accruals-monitoring-ui:build"
           }
         },
         "test": {
@@ -127,17 +124,73 @@
             "karmaConfig": "karma.conf.js",
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": [
-              "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
-              "src/styles.scss"
+              "src/cisco-theme.scss",
+              "src/styles.scss",
+              "src/assets/ui.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "codeCoverage": true,
+            "codeCoverageExclude": ["**/node_modules/**", "**/coverage/**"]
+          }
+        },
+        "storybook": {
+          "builder": "@storybook/angular:start-storybook",
+          "options": {
+            "configDir": ".storybook",
+            "browserTarget": "accruals-monitoring-ui:build",
+            "compodoc": false,
+            "port": 6006,
+            "styles": [
+              "src/cisco-theme.scss",
+              "src/styles.scss",
+              "src/assets/ui.css"
+            ]
+          }
+        },
+        "build-storybook": {
+          "builder": "@storybook/angular:build-storybook",
+          "options": {
+            "configDir": ".storybook",
+            "browserTarget": "accruals-monitoring-ui:build",
+            "compodoc": false,
+            "outputDir": "storybook-static",
+            "styles": [
+              "src/cisco-theme.scss",
+              "src/styles.scss",
+              "src/assets/ui.css"
+            ]
           }
         }
       }
     }
   },
-  "defaultProject": "accruals-monitoring-ui",
   "cli": {
     "analytics": false
+  },
+  "schematics": {
+    "@schematics/angular:component": {
+      "type": "component"
+    },
+    "@schematics/angular:directive": {
+      "type": "directive"
+    },
+    "@schematics/angular:service": {
+      "type": "service"
+    },
+    "@schematics/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:module": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:resolver": {
+      "typeSeparator": "."
+    }
   }
 }

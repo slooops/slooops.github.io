@@ -11,10 +11,10 @@ export class AuthenticationService {
   async getValidToken() {
     const date = new Date();
     const timestampCurr = Math.floor(
-      date.getTime() / 1000
+      date.getTime() / 1000,
     ); /* current time seconds */
     const accessTokenExpire = parseInt(
-      sessionStorage.getItem('accessTokenExpireTime') || '0'
+      sessionStorage.getItem('accessTokenExpireTime') || '0',
     );
     const accessTokenExpireMax =
       accessTokenExpire + 3 * 60 * 60; /* 3 hours between cals -> logout */
@@ -81,8 +81,9 @@ export class AuthenticationService {
     }
 
     await this.getUserRoles(this.userId);
+    await this.getUserRolesSync(this.userId);
     if (
-      this.userRoles.length === 0 &&
+      this.getUserAccessRoles().length === 0 &&
       !this.bypassRoutes.includes(this.router.url)
     ) {
       this.router.navigate(['/error']);
@@ -115,7 +116,7 @@ export class AuthenticationService {
         const expires_in = info.expires_in;
         const dateCurr = new Date();
         const timeStampCurr = Math.floor(
-          dateCurr.getTime() / 1000
+          dateCurr.getTime() / 1000,
         ); /* current time seconds */
         const expireTime =
           timeStampCurr + expires_in - 300; /* time 5 min before token expire */
@@ -128,16 +129,9 @@ export class AuthenticationService {
   authClientId: string;
   authClientSecret: string;
   authUrl: string;
-  bypassRoutes = [
-    '/o2c-demo',
-    '/o2c-details',
-    '/o2c-order',
-    '/o2c-sub',
-    '/o2c-accrual',
-    '/o2c-invoicing',
-    '/o2c-landing',
-    '/o2c-overview',
-  ];
+  controlTowerSupportAgentApiUrl: string;
+  bypassRoutes = ['/caseiq'];
+  enableMockAuth: boolean = false;
   async getUserId() {
     return fetch('/user/name')
       .then((response) => response.json())
@@ -147,6 +141,9 @@ export class AuthenticationService {
         this.authClientId = info['auth_client_id'];
         this.authClientSecret = info['auth_client_secret'];
         this.authUrl = info['auth_url'];
+        this.controlTowerSupportAgentApiUrl =
+          info['control_tower_support_agent_api_url'];
+        this.enableMockAuth = info['environment'];
       })
       .catch((error) => {
         console.error('Error fetching user info:', error);
@@ -170,13 +167,37 @@ export class AuthenticationService {
     return this.authUrl;
   }
 
+  getControlTowerSupportAgentApiUrl() {
+    return this.controlTowerSupportAgentApiUrl;
+  }
+
   userRoles: string[] = [];
+  userAccessRoles: string[] = [];
   getUserRoles(username: string) {
-    let rolesUrl = this.authUrl + `user-role?username=${username}`;
+    // let rolesUrl = this.authUrl + `user-role?username=${username}`;
+    // return fetch(rolesUrl)
+    //   .then((response) => response.json())
+    //   .then((info) => {
+    //     console.log('User roles fetched:', info);
+    //   })
+    //   .catch((error) => {
+    //     console.error('Error fetching user roles:', error);
+    //   });
+  }
+
+  adminRoles: any = [];
+
+  getUserRolesSync(username: string) {
+    let rolesUrl =
+      this.authUrl + `user-access-list-by-user?userName=${username}`;
     return fetch(rolesUrl)
       .then((response) => response.json())
       .then((info) => {
-        this.userRoles = info['userRoles'];
+        this.userAccessRoles =
+          info['userRoles'].map((role: any) => role.roleName) || [];
+        this.adminRoles = info['userRoles']
+          .filter((r) => r.roleAdmin === 'Y')
+          .map((r) => (r.roleId !== 2 ? r.roleName + '_ADMIN' : r.roleName));
       })
       .catch((error) => {
         console.error('Error fetching user roles:', error);
@@ -185,6 +206,14 @@ export class AuthenticationService {
 
   getRoles() {
     return this.userRoles;
+  }
+
+  getUserAccessRoles(): string[] {
+    if (this.enableMockAuth) {
+      return ['ADMIN'];
+    }
+
+    return [...this.userAccessRoles, ...this.adminRoles];
   }
 
   ssoLogout() {

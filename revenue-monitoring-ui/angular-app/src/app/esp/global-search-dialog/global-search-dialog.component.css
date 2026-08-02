@@ -1,0 +1,43 @@
+.global-search-dialog {
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1px 10px;
+  background-color: #00bceb;
+  color: #ffffff;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.close-button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #ffffff;
+}
+
+.dialog-body {
+  flex: 1;
+  min-height: 100px;
+  padding: 10px 10px 10px;
+}
+
+/* Hide CaseIQ table header (filters, upload/download) only inside this dialog */
+:host ::ng-deep app-caseiq-table .table-header {
+  display: none !important;
+}
+
+/* Hide paginator only inside this dialog (extra safety even with enablePagination=false) */
+:host ::ng-deep app-caseiq-table mat-paginator {
+  display: none !important;
+}

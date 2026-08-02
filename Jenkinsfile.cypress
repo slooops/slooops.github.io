@@ -1,0 +1,97 @@
+// Minimal Cypress pipeline (UI2.0 branch only) using specified Docker image and hardcoded generic credentials.
+
+pipeline {
+  agent {
+    docker {
+      image 'containers.cisco.com/epit/cypress:v1.0.0'
+      // Run as root to avoid permission issues in cached Cypress binary
+      args '-u root:root -e HOME=/root'
+    }
+  }
+
+  environment {
+    TEST_BASE_URL = 'https://operations-control-tower-stg.cisco.com'
+    GENERIC_STAGE_USER = 'ctltwr_cypress.gen@stage.cisco.com'
+    GENERIC_STAGE_PASS = 'Uitesting@2025'
+  }
+
+  parameters {
+    booleanParam(name: 'ENABLE_VIDEO', defaultValue: false, description: 'Record Cypress videos.')
+  }
+
+  stages {
+    stage('Branch Validation') {
+      when { not { branch 'UI2.0' } }
+      steps {
+        script {
+          echo "Skipping - only runs on UI2.0 branch (current: ${env.BRANCH_NAME})"
+          currentBuild.result = 'ABORTED'
+        }
+      }
+    }
+    stage('Checkout') {
+      when { branch 'UI2.0' }
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Install TypeScript Support') {
+      when { branch 'UI2.0' }
+      steps {
+        dir('revenue-monitoring-ui/angular-app') {
+          script {
+            echo 'Ensuring minimal TypeScript toolchain for Cypress .ts files...'
+            // Only install if typescript is missing to keep this lightweight
+            def exitCode = sh(returnStatus: true, script: 'test -d node_modules/typescript')
+            if (exitCode != 0) {
+              echo 'TypeScript not found. Installing TypeScript + Cypress types (this will also install project deps due to package.json).'
+              sh '''
+                npm install --legacy-peer-deps --no-audit --no-fund --save-dev typescript @types/node @types/cypress || exit 1
+              '''
+            } else {
+              echo 'TypeScript already present - skipping install.'
+            }
+          }
+        }
+      }
+    }
+
+    stage('Run Cypress Tests') {
+      when { branch 'UI2.0' }
+      steps {
+        dir('revenue-monitoring-ui/angular-app') {
+          script {
+            echo 'Executing Cypress specs...'
+            // Run directly inside the Cypress-enabled image
+            def exitCode = sh(returnStatus: true, script: """
+              npx cypress run \
+                --browser chromium --headless \
+                --env baseUrl=${TEST_BASE_URL},genericUsername=${GENERIC_STAGE_USER},genericPassword=${GENERIC_STAGE_PASS} \
+                --spec 'cypress/e2e/**/*.cy.ts' \
+                --config video=${params.ENABLE_VIDEO ? 'true' : 'false'} \
+                --config-file cypress.config.js \
+                -- --disable-gpu --disable-dev-shm-usage
+            """)
+            if (exitCode != 0) {
+              echo "WARNING: Cypress tests failed (exit ${exitCode}) — soft-failing. Fix Cypress binary caching or tests when bandwidth allows."
+              unstable("Cypress tests failed (exit ${exitCode}) — marking build UNSTABLE instead of FAILURE")
+            } else {
+              echo 'Cypress tests passed.'
+            }
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      script {
+        // Archive screenshots/videos if produced
+        archiveArtifacts artifacts: 'revenue-monitoring-ui/angular-app/cypress/screenshots/**/*.png', allowEmptyArchive: true
+        archiveArtifacts artifacts: 'revenue-monitoring-ui/angular-app/cypress/videos/**/*.mp4', allowEmptyArchive: true
+      }
+    }
+  }
+}

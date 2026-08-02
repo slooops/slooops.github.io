@@ -21,12 +21,18 @@ import { CloUpdatesComponent } from './clo-updates/clo-updates.component';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
+import {
+  FilterConfig,
+  ActionButtonConfig,
+  FilterValues,
+} from '../components/filter-button-bar/filter-button-bar.component';
 
 @Component({
   selector: 'app-invoice-status',
   templateUrl: './order-lifecycle.component.html',
   styleUrls: ['./order-lifecycle.component.scss'],
   providers: [DestroyManager],
+  standalone: false,
 })
 export class OrderLifecycleComponent implements OnInit {
   @ViewChild(MatTable) table: MatTable<any>;
@@ -37,7 +43,7 @@ export class OrderLifecycleComponent implements OnInit {
     private dataService: DataService,
     private destroyManager: DestroyManager,
     private authService: AuthenticationService,
-    private exportToExcelService: ExportToExcelService
+    private exportToExcelService: ExportToExcelService,
   ) {
     this.http = http;
   }
@@ -45,7 +51,7 @@ export class OrderLifecycleComponent implements OnInit {
   roles: string[] = [];
   ngOnInit(): void {
     this.username = this.dataService.getUsername();
-    this.roles = this.authService.getRoles();
+    this.roles = this.authService.getUserAccessRoles();
     this.updateClo =
       this.roles.includes('ADMIN') || this.roles.includes('CLO_UPDATE');
     this.dealUploadFlag =
@@ -54,6 +60,7 @@ export class OrderLifecycleComponent implements OnInit {
     this.getOrderStatusDownload();
     this.updateTime();
     this.currentDate = new Date();
+    this.setupFilterSubscription();
 
     // this.menuService.updateMenuItems([
     //   {
@@ -109,6 +116,256 @@ export class OrderLifecycleComponent implements OnInit {
   dealIdFilter: string = '';
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
+
+  // Filter-button-bar config
+  filterConfigs: FilterConfig[] = [];
+  filterValues: FilterValues = {
+    progName: [],
+    account: [],
+    orderStats: [],
+    invoiceStats: [],
+    salesOrdr: '',
+    dealId: '',
+  };
+  pageIndex: number = 0;
+  pageSize: number = 100;
+
+  // Sorting state for sortable columns (Order Value, Line Count)
+  sortColumn: string | null = null;
+  sortDirection: 'asc' | 'desc' | '' = '';
+  readonly sortableColumns = new Set<string>([
+    'ORDER_VALUE',
+    'TOTAL_LINE_COUNT',
+  ]);
+
+  get actionButtons(): ActionButtonConfig[] {
+    return [
+      {
+        id: 'delete',
+        label: 'Delete',
+        variant: 'danger',
+        visible: this.selection.hasValue() && this.dealUploadFlag,
+      },
+      {
+        id: 'revSummary',
+        label: 'Revenue Summary',
+        variant: 'secondary',
+        visible: true,
+      },
+      {
+        id: 'dealSummary',
+        label: 'Deal Summary',
+        variant: 'secondary',
+        visible: true,
+      },
+      {
+        id: 'columnFilter',
+        label: 'Displayed Columns',
+        variant: 'secondary',
+        visible: true,
+      },
+      {
+        id: 'cloUpdates',
+        label: 'CLO Updates',
+        variant: 'secondary',
+        visible: this.updateClo,
+      },
+      {
+        id: 'dealUpload',
+        label: 'Deal Upload',
+        variant: 'secondary',
+        visible: this.dealUploadFlag,
+      },
+      {
+        id: 'download',
+        label: 'Download',
+        variant: 'secondary',
+        icon: 'phosphorArrowLineDownBold',
+        visible: true,
+      },
+    ];
+  }
+
+  onFilterChange(values: FilterValues): void {
+    this.filterValues = values;
+    this.programNameFilter = (values['progName'] as string[]) || [];
+    this.accountFilter = (values['account'] as string[]) || [];
+    this.orderStatusFilter = (values['orderStats'] as string[]) || [];
+    this.invoiceStatusFilter = (values['invoiceStats'] as string[]) || [];
+    this.salesOrderFilter = (values['salesOrdr'] as string) || '';
+    this.dealIdFilter = (values['dealId'] as string) || '';
+
+    // Update account options based on program name selection
+    if (this.programNameFilter.length > 0) {
+      const filteredAccounts = this.filterAccountByProgramNames(
+        this.orderLifecycleStatus,
+        this.programNameFilter,
+      );
+      this.accountOptions = [...new Set(filteredAccounts)];
+      this.accountFilter = this.accountFilter.filter((a) =>
+        this.accountOptions.includes(a),
+      );
+      this.rebuildFilterConfigs();
+    } else {
+      this.accountOptions = [...new Set(this.accountTemp)];
+      this.rebuildFilterConfigs();
+    }
+
+    this.dataSource.filter = JSON.stringify({
+      progNameFilter: this.programNameFilter,
+      accountFilter: this.accountFilter,
+      orderStatusFilter: this.orderStatusFilter,
+      invoiceStatusFilter: this.invoiceStatusFilter,
+      salesOrderFilter: this.salesOrderFilter,
+      dealIdFilter: this.dealIdFilter,
+    });
+    this.pageIndex = 0;
+  }
+
+  onFilterClear(): void {
+    this.filterValues = {
+      progName: [],
+      account: [],
+      orderStats: [],
+      invoiceStats: [],
+      salesOrdr: '',
+      dealId: '',
+    };
+    this.programNameFilter = [];
+    this.accountFilter = [];
+    this.orderStatusFilter = [];
+    this.invoiceStatusFilter = [];
+    this.salesOrderFilter = '';
+    this.dealIdFilter = '';
+    this.accountOptions = [...new Set(this.accountTemp)];
+    this.rebuildFilterConfigs();
+    this.dataSource.filter = '';
+  }
+
+  onActionButtonClick(actionId: string): void {
+    switch (actionId) {
+      case 'delete':
+        this.deleteSelectedRows(this.dialogConfirmTemplate);
+        break;
+      case 'revSummary':
+        this.openRevSummaryDialog();
+        break;
+      case 'dealSummary':
+        this.openDialog();
+        break;
+      case 'cloUpdates':
+        this.openCloUpdateDialog();
+        break;
+      case 'dealUpload':
+        this.openUploadDialog();
+        break;
+      case 'download':
+        this.export('Large Deal Tracker', 'large_deal_tracker');
+        break;
+      case 'columnFilter':
+        this.logSelectedColumns();
+        break;
+    }
+  }
+
+  onPageChange(event: any): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    if (this.paginator) {
+      this.paginator.pageIndex = event.pageIndex;
+      this.paginator.pageSize = event.pageSize;
+      this.paginator.page.emit({
+        pageIndex: event.pageIndex,
+        pageSize: event.pageSize,
+        length: this.paginator.length,
+      });
+    }
+  }
+
+  onSort(col: string): void {
+    if (!this.sortableColumns.has(col)) {
+      return;
+    }
+    if (this.sortColumn !== col) {
+      this.sortColumn = col;
+      this.sortDirection = 'asc';
+    } else if (this.sortDirection === 'asc') {
+      this.sortDirection = 'desc';
+    } else if (this.sortDirection === 'desc') {
+      this.sortColumn = null;
+      this.sortDirection = '';
+    } else {
+      this.sortDirection = 'asc';
+    }
+    this.pageIndex = 0;
+  }
+
+  private toSortableNumber(value: any): number | null {
+    if (value === null || value === undefined || value === 'TBD') {
+      return null;
+    }
+    const num = parseFloat(String(value).replace(/[^0-9.\-]/g, ''));
+    return isNaN(num) ? null : num;
+  }
+
+  // Format a currency value to 2 decimals; leaves 'TBD'/empty untouched
+  formatOrderValue(value: any): string {
+    const num = this.toSortableNumber(value);
+    if (num === null) {
+      return value === null || value === undefined ? 'TBD' : String(value);
+    }
+    return num.toFixed(2);
+  }
+
+  rebuildFilterConfigs(): void {
+    this.filterConfigs = [
+      {
+        id: 'progName',
+        label: 'Program Name',
+        type: 'multi-select',
+        placeholder: 'Select Program',
+        options: this.progNameOptions.map((p) => ({ label: p, value: p })),
+      },
+      {
+        id: 'account',
+        label: 'Account',
+        type: 'multi-select',
+        placeholder: 'Select Account',
+        options: this.accountOptions.map((a) => ({ label: a, value: a })),
+      },
+      {
+        id: 'orderStats',
+        label: 'Booking Status',
+        type: 'multi-select',
+        placeholder: 'Select Status',
+        options: this.orderStatusOptions.map((o) => ({ label: o, value: o })),
+      },
+      {
+        id: 'invoiceStats',
+        label: 'Invoicing Status',
+        type: 'multi-select',
+        placeholder: 'Select Status',
+        options: this.invoiceStatusOptions.map((i) => ({
+          label: i,
+          value: i,
+        })),
+      },
+      {
+        id: 'dealId',
+        label: 'Deal ID',
+        type: 'text',
+        placeholder: 'Enter Deal ID',
+      },
+      {
+        id: 'salesOrdr',
+        label: 'Order #',
+        type: 'text',
+        placeholder: 'Enter Order #',
+      },
+    ];
+  }
+
+  @ViewChild('dialogConfirmTemplate') dialogConfirmTemplate: TemplateRef<any>;
 
   orderLifecycleStatus: OrderLifecycleModel[];
   orderLifeCycleDownload: OrderLifecycleModel[];
@@ -166,7 +423,7 @@ export class OrderLifecycleComponent implements OnInit {
       next: (data: any) => {
         this.orderLifecycleStatus = data['orderLifecycleResult'];
         this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
-          this.orderLifecycleStatus
+          this.orderLifecycleStatus,
         );
         this.updatedData = false;
         // this.updateClo =
@@ -214,7 +471,6 @@ export class OrderLifecycleComponent implements OnInit {
 
         this.filterData();
         this.length = this.orderLifecycleStatus.length;
-        console.log(this.length);
         this.setSortAndPaginator();
         this.dataSource.filterPredicate = this.filterPredicate;
       },
@@ -234,7 +490,7 @@ export class OrderLifecycleComponent implements OnInit {
 
   deleteSelectedRows(dialogTemplate: TemplateRef<any>) {
     this.rowsToDelete = this.dataSource.data.filter((row) =>
-      this.selection.isSelected(row)
+      this.selection.isSelected(row),
     );
     this.dialog.open(dialogTemplate);
   }
@@ -259,7 +515,7 @@ export class OrderLifecycleComponent implements OnInit {
         },
         (error) => {
           this.uploadText = 'Delete request failed!';
-        }
+        },
       );
   }
 
@@ -280,6 +536,7 @@ export class OrderLifecycleComponent implements OnInit {
     this.accountOptions = [...new Set(this.accountTemp)];
     this.orderStatusOptions = [...new Set(this.orderStatusTemp)];
     this.invoiceStatusOptions = [...new Set(this.invoiceStatusTemp)];
+    this.rebuildFilterConfigs();
   }
 
   filterPredicate = (data: OrderLifecycleModel, filter: any) => {
@@ -310,14 +567,14 @@ export class OrderLifecycleComponent implements OnInit {
     );
   };
 
-  filter() {
+  setupFilterSubscription() {
     this.searchForm.valueChanges.subscribe((data) => {
-      this.programNameFilter = data['progName'];
-      this.accountFilter = data['account'];
-      this.orderStatusFilter = data['orderStats'];
-      this.invoiceStatusFilter = data['invoiceStats'];
-      this.salesOrderFilter = data['salesOrdr'];
-      this.dealIdFilter = data['dealId'];
+      this.programNameFilter = data['progName'] ?? [];
+      this.accountFilter = data['account'] ?? [];
+      this.orderStatusFilter = data['orderStats'] ?? [];
+      this.invoiceStatusFilter = data['invoiceStats'] ?? [];
+      this.salesOrderFilter = data['salesOrdr'] ?? '';
+      this.dealIdFilter = data['dealId'] ?? '';
 
       if (
         this.programNameFilter.length > 0 &&
@@ -325,7 +582,7 @@ export class OrderLifecycleComponent implements OnInit {
       ) {
         const filteredAccounts = this.filterAccountByProgramNames(
           this.orderLifecycleStatus,
-          this.programNameFilter
+          this.programNameFilter,
         );
         this.accountOptions = [...new Set(filteredAccounts)];
       } else if (
@@ -334,13 +591,13 @@ export class OrderLifecycleComponent implements OnInit {
       ) {
         const filteredAccounts = this.filterAccountByProgramNames(
           this.orderLifecycleStatus,
-          this.programNameFilter
+          this.programNameFilter,
         );
 
         this.accountFilter.forEach((data) => {
           if (!filteredAccounts.includes(data)) {
             this.accountFilter = this.accountFilter.filter(
-              (ele) => ele !== data
+              (ele) => ele !== data,
             );
           }
           this.accountOptions = [...new Set(filteredAccounts)];
@@ -352,9 +609,13 @@ export class OrderLifecycleComponent implements OnInit {
     });
   }
 
+  filter() {
+    this.applyFilter();
+  }
+
   applyFilter() {
-    this.salesOrderFilter = this.searchForm.get('salesOrdr').value;
-    this.dealIdFilter = this.searchForm.get('dealId').value;
+    this.salesOrderFilter = this.searchForm.get('salesOrdr').value ?? '';
+    this.dealIdFilter = this.searchForm.get('dealId').value ?? '';
     this.dataSource.filter = JSON.stringify({
       progNameFilter: this.programNameFilter,
       accountFilter: this.accountFilter,
@@ -367,7 +628,7 @@ export class OrderLifecycleComponent implements OnInit {
 
   filterAccountByProgramNames(
     data: OrderLifecycleModel[],
-    programNames: string[]
+    programNames: string[],
   ): string[] {
     return data
       .filter((order) => programNames.includes(order.PROGRAM_NAME))
@@ -375,19 +636,35 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   clearFilters() {
+    this.programNameFilter = [];
+    this.accountFilter = [];
+    this.orderStatusFilter = [];
+    this.invoiceStatusFilter = [];
+    this.salesOrderFilter = '';
+    this.dealIdFilter = '';
+    this.accountOptions = [...new Set(this.accountTemp)];
+    this.searchForm.reset({
+      progName: [],
+      account: [],
+      orderStats: [],
+      invoiceStats: [],
+      salesOrdr: '',
+      dealId: '',
+    });
     this.dataSource.filter = '';
-    this.searchForm.reset();
   }
 
   openDialog() {
     this.dialog.open(OrderLifecycleSummaryComponent, {
-      width: '450px',
+      width: '500px',
+      panelClass: 'rounded-dialog',
     });
   }
 
   openUploadDialog() {
     const dialogRef = this.dialog.open(OrderLifecycleUploadComponent, {
       width: '400px',
+      panelClass: 'rounded-dialog',
     });
 
     dialogRef.afterClosed().subscribe((data) => {
@@ -401,13 +678,14 @@ export class OrderLifecycleComponent implements OnInit {
 
   openRevSummaryDialog() {
     this.dialog.open(OrderLifecycleRevSummaryComponent, {
-      width: '900px',
+      panelClass: 'rounded-dialog',
     });
   }
 
   openCloUpdateDialog() {
     const dialogRef = this.dialog.open(CloUpdatesComponent, {
-      width: '600px',
+      width: '400px',
+      panelClass: 'rounded-dialog',
     });
 
     dialogRef.afterClosed().subscribe((data) => {
@@ -510,12 +788,73 @@ export class OrderLifecycleComponent implements OnInit {
 
   columnsToDisplay: string[] = this.displayedColumns.slice();
 
+  // Column metadata for the native HTML table (label + optional header class)
+  columnMeta: {
+    [key: string]: { label: string; headerClass?: string; highlight?: boolean };
+  } = {
+    PROGRAM_NAME: { label: 'Program Name' },
+    ACCOUNT: { label: 'Account', highlight: true },
+    DEAL_ID: { label: 'Deal Id', highlight: true },
+    DEAL_UPLOAD_DATE: { label: 'Upload Date' },
+    ORDER_STATUS: { label: '1.Booking Status', headerClass: 'ol-step-header' },
+    BOOK_DATE: { label: 'Book Date' },
+    SALES_ORDER: { label: 'Order (#)', highlight: true },
+    ORDER_VALUE: { label: 'Order Value ($M)' },
+    TOTAL_LINE_COUNT: { label: 'Line Count' },
+    CONTRACT_NUMBER: { label: '2.Order Status', headerClass: 'ol-step-header' },
+    LINES_ON_HOLD: { label: 'Lines on Hold' },
+    FLEXIBLE_INVOICE_ELIGIBLE: { label: 'Flex Invoice' },
+    INVOICING_STATUS: { label: '3.Invoicing', headerClass: 'ol-step-header' },
+    INVOICE_LINES: { label: 'Invoice Lines' },
+    INVOICE_DATE: { label: 'Invoice Date' },
+    INVOICE_AMOUNT: { label: 'Invoice Amount ($M)' },
+    REV_ACCR_STATUS: {
+      label: '4.Revenue Accruals',
+      headerClass: 'ol-step-header',
+    },
+    GL_POSTING_STATUS: { label: '5.GL Posting', headerClass: 'ol-step-header' },
+    ACCRUALS_EXECUTION_TIME: { label: 'Accruals Time (Mins)' },
+    SUBSCRIPTION_ID: { label: 'Subscription Id' },
+    FUTURE_INVOICE_RELEASE_DATE: { label: 'Future Invoice Date' },
+    TERM_IN_YEARS: { label: 'Term' },
+    INVOICE_ELIGIBLE_DATE: { label: 'Invoice Eligible Date' },
+    CLO_COMMENTS: { label: 'CLO Updates' },
+    COMMENTS: { label: 'Comments' },
+  };
+
+  // Rows currently visible (filtered + paginated) for the native table
+  get visibleRows(): OrderLifecycleModel[] {
+    if (!this.dataSource) {
+      return [];
+    }
+    let rows: OrderLifecycleModel[] =
+      this.dataSource.filteredData ?? this.dataSource.data ?? [];
+
+    if (this.sortColumn && this.sortDirection) {
+      const col = this.sortColumn;
+      const dir = this.sortDirection === 'asc' ? 1 : -1;
+      rows = [...rows].sort((a, b) => {
+        const av = this.toSortableNumber((a as any)[col]);
+        const bv = this.toSortableNumber((b as any)[col]);
+        // Push nulls/TBD to the bottom regardless of direction
+        if (av === null && bv === null) return 0;
+        if (av === null) return 1;
+        if (bv === null) return -1;
+        return (av - bv) * dir;
+      });
+    }
+
+    const start = this.pageIndex * this.pageSize;
+    return rows.slice(start, start + this.pageSize);
+  }
+
   selectedColumnsToDisplay: string[] = [];
 
   logSelectedColumns() {
     const dialogRef = this.dialog.open(ColumnSelectComponent, {
       width: '350px',
       data: this.selectedColumnsToDisplay,
+      panelClass: 'rounded-dialog',
     });
 
     dialogRef.afterClosed().subscribe((data) => {
@@ -547,7 +886,11 @@ export class OrderLifecycleComponent implements OnInit {
 
   setSortAndPaginator() {
     this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
+    setTimeout(() => {
+      if (this.paginator) {
+        this.dataSource.paginator = this.paginator;
+      }
+    });
   }
 
   @Input() data: any;
@@ -577,7 +920,7 @@ export class OrderLifecycleComponent implements OnInit {
           return (
             data.DEAL_ID === ele.DEAL_ID && data.SALES_ORDER === ele.SALES_ORDER
           );
-        })
+        }),
       );
       this.exportTableToExcel(this.selectedArr, sheetName, filename);
     }
@@ -648,6 +991,7 @@ export interface OrderLifecycleModel {
   INVOICE_ELIGIBLE_DATE: Date;
   DEAL_UPLOAD_DATE: string;
   CLO_COMMENTS: string;
+  SUBSCRIPTION_ID: string;
 }
 
 export interface ColumnSelection {

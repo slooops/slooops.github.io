@@ -1,0 +1,147 @@
+<!-- Launcher (icon-only) -->
+@if (!open) {
+  <button
+    type="button"
+    class="cm-aic-launcher"
+    (click)="toggle()"
+    aria-label="Open Control-M AI assistant"
+    title="Ask about jobs"
+  >
+    <ng-icon name="phosphorChatCenteredTextBold" size="20" />
+  </button>
+}
+
+<!-- Panel -->
+@if (open) {
+  <div
+    class="cm-aic-panel"
+    role="dialog"
+    aria-modal="false"
+    aria-label="Control-M AI assistant"
+  >
+    <!-- Header -->
+    <header class="cm-aic-header">
+      <div class="cm-aic-header-left">
+        <ng-icon
+          name="phosphorSparkleBold"
+          size="16"
+          class="cm-aic-header-icon"
+        />
+        <div>
+          <div class="cm-aic-header-title">AI Assistant</div>
+          <div class="cm-aic-header-sub">Ask about any job</div>
+        </div>
+      </div>
+      <div class="cm-aic-header-actions">
+        @if (messages.length > 0) {
+          <button
+            type="button"
+            class="cm-aic-header-btn"
+            (click)="clearChat()"
+            title="Clear conversation"
+          >
+            Clear
+          </button>
+        }
+        <button
+          type="button"
+          class="cm-aic-header-icon-btn"
+          (click)="close()"
+          aria-label="Close"
+        >
+          <ng-icon name="phosphorXBold" size="14" />
+        </button>
+      </div>
+    </header>
+
+    <!-- Messages region -->
+    <div class="cm-aic-messages" #scrollRegion>
+      @if (messages.length === 0) {
+        <div class="cm-aic-intro">
+          Hi! I can answer questions about jobs in
+          <strong>{{ application }}</strong> — current status, last run, run
+          frequency, and history.
+        </div>
+        <div class="cm-aic-intro-label">Try asking</div>
+        <div class="cm-aic-chips">
+          @for (q of starterQuestions; track q) {
+            <button type="button" class="cm-aic-chip" (click)="send(q)">
+              {{ q }}
+            </button>
+          }
+        </div>
+      }
+
+      @for (m of messages; track trackByIndex($index)) {
+        <div class="cm-aic-row" [class.cm-aic-row-user]="m.role === 'user'">
+          <div
+            class="cm-aic-bubble"
+            [class.cm-aic-bubble-user]="m.role === 'user'"
+          >
+            {{ m.content }}
+          </div>
+        </div>
+      }
+
+      @if (busy) {
+        <div class="cm-aic-thinking">
+          <ng-icon
+            name="phosphorArrowClockwiseBold"
+            size="12"
+            class="cm-aic-spin"
+          />
+          Thinking…
+        </div>
+      }
+
+      @if (!busy && lastMatches.length > 0) {
+        <div class="cm-aic-matches">
+          <div class="cm-aic-matches-title">
+            Matched jobs ({{ lastMatches.length }})
+          </div>
+          <div class="cm-aic-matches-list">
+            @for (j of lastMatches; track trackByJobName($index, j)) {
+              <div class="cm-aic-match">
+                <div class="cm-aic-match-name">{{ j.job_name }}</div>
+                <div class="cm-aic-match-meta">
+                  {{ j.status || "—" }} · {{ j.category || "—" }}
+                  @if (j.start_time) {
+                    · {{ j.start_time }}
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Input -->
+    <div class="cm-aic-input-row">
+      <div class="cm-aic-input-wrap">
+        <textarea
+          #inputEl
+          class="cm-aic-input"
+          rows="1"
+          placeholder="Ask about a job or folder…"
+          [(ngModel)]="input"
+          (keydown)="onKeyDown($event)"
+          (input)="autogrow($event)"
+          [disabled]="busy"
+        ></textarea>
+        <button
+          type="button"
+          class="cm-aic-send"
+          [disabled]="busy || !input.trim()"
+          (click)="send(input)"
+          aria-label="Send"
+        >
+          <ng-icon name="phosphorPaperPlaneRightBold" size="14" />
+        </button>
+      </div>
+      <div class="cm-aic-hint">
+        Press Enter to send · Shift+Enter for a new line
+      </div>
+    </div>
+  </div>
+}

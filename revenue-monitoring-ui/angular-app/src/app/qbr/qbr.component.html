@@ -1,0 +1,168 @@
+<section class="qbr-shell">
+  @if (isLoading) {
+    <div class="qbr-loading">Loading QBR data…</div>
+  } @else {
+    <!-- ═══ Header row ═══ -->
+    <header class="qbr-header">
+      <div class="qbr-title-block">
+        <h1 class="qbr-title">CaseIQ Metrics</h1>
+        <p class="qbr-subtitle">Measure. Monitor. Improve.</p>
+      </div>
+
+      <aside class="qbr-target-box">
+        <div class="qbr-target-title">Q4FY26 Target</div>
+        <ul class="qbr-target-list">
+          @for (t of targets; track t.label) {
+            <li>
+              <span class="qbr-target-label">{{ t.label }}</span>
+              <span class="qbr-target-sep"> : </span>
+              <span class="qbr-target-val">{{ t.threshold }}</span>
+            </li>
+          }
+        </ul>
+        <a class="qbr-target-link" routerLink="/case-iq">
+          <ng-icon name="phosphorLinkBold" size="14" />
+          <span>Dashboard</span>
+          <span class="qbr-target-link-suffix">for : Metrics and monitoring</span>
+        </a>
+      </aside>
+    </header>
+
+    <!-- ═══ Three column body ═══ -->
+    <div class="qbr-columns">
+      <!-- Column 1: Case Analyzer -->
+      <section class="qbr-col">
+        <h2 class="qbr-col-title">
+          Case Analyzer
+          <span class="qbr-col-title-sub">- Core Issue identification</span>
+        </h2>
+
+        <div class="qbr-tiles qbr-tiles--2">
+          <div class="qbr-tile">
+            <div class="qbr-tile-label">
+              Total Cases <sup class="qbr-footnote-ref">1</sup>
+            </div>
+            <div class="qbr-tile-value">{{ fmtInt(qbrTotalCases()) }}</div>
+          </div>
+          <div class="qbr-tile">
+            <div class="qbr-tile-label">Accuracy</div>
+            <div class="qbr-tile-value">{{ fmtPct(qbrAccuracyPct()) }}</div>
+          </div>
+        </div>
+
+        <ul class="qbr-notes">
+          <li class="qbr-note qbr-note--check">
+            <ng-icon name="phosphorCheckBold" size="14" />
+            <span>Met target of 80% Accuracy</span>
+          </li>
+          <li class="qbr-note">
+            <span
+              >{{ fmtInt(qbrNotPicked()) }} cases were not picked by CaseIQ due
+              to ESP Datamart <sup class="qbr-footnote-ref">2</sup> lead time
+              delays (~90 Mins)</span
+            >
+          </li>
+          <li class="qbr-note">
+            <span
+              >{{ qbrNotAnalyzed() }} cases were not analyzed due to timeout on
+              Conversational Bot</span
+            >
+          </li>
+        </ul>
+      </section>
+
+      <!-- Column 2: Resolution -->
+      <section class="qbr-col qbr-col--wide">
+        <h2 class="qbr-col-title">
+          Resolution
+          <span class="qbr-col-title-sub"
+            >- Service Request, Route out and Cancel recommendation</span
+          >
+        </h2>
+
+        <div class="qbr-tiles qbr-tiles--4">
+          @for (tile of qbrResolutionTiles(); track tile.label) {
+            <div
+              class="qbr-tile"
+              [class.qbr-tile--highlight]="tile.highlight"
+            >
+              <div class="qbr-tile-label">{{ tile.label }}</div>
+              <div class="qbr-tile-value">
+                <span class="qbr-tile-num">{{ fmtInt(tile.agent) }}</span
+                ><span class="qbr-tile-slash">/{{ fmtInt(tile.total) }}</span>
+                <span class="qbr-tile-pct"
+                  >({{ fmtPct(tile.pct) }})</span
+                >
+              </div>
+            </div>
+          }
+        </div>
+
+        <ul class="qbr-notes">
+          <li class="qbr-note qbr-note--check">
+            <ng-icon name="phosphorCheckBold" size="14" />
+            <span>Met target to process &gt;= 50%</span>
+          </li>
+          <li class="qbr-note">
+            <span
+              >Response time 80/90 (in Hrs)
+              <sup class="qbr-footnote-ref">3</sup> (NEW) →
+              {{ fmtHrs(qbrResponseTimeHrs().p80) }} /
+              {{ fmtHrs(qbrResponseTimeHrs().p90) }}</span
+            >
+          </li>
+          <li class="qbr-note">
+            <span
+              >MTTR is not yet tracked for CaseIQ, as cases are marked as
+              &ldquo;Resolved&rdquo; manually by ops.</span
+            >
+          </li>
+        </ul>
+      </section>
+
+      <!-- Column 3: Not processed by CaseIQ -->
+      <section class="qbr-col">
+        <h2 class="qbr-col-title">Not processed by CaseIQ</h2>
+
+        <div class="qbr-tiles qbr-tiles--2">
+          <div class="qbr-tile">
+            <div class="qbr-tile-label">Backlog</div>
+            <div class="qbr-tile-value">{{ qbrBacklog() }}</div>
+          </div>
+          <div class="qbr-tile">
+            <div class="qbr-tile-label">Service Incidents</div>
+            <div class="qbr-tile-value">
+              {{ fmtInt(qbrServiceIncidents()) }}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ═══ Next steps callout ═══ -->
+    <div class="qbr-next-steps">
+      <div class="qbr-next-steps-title">Next steps</div>
+      <ul class="qbr-notes">
+        @for (step of nextSteps; track step) {
+          <li class="qbr-note">
+            <span>{{ step }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <!-- ═══ Footer footnotes ═══ -->
+    <footer class="qbr-footer">
+      <div class="qbr-footnote">
+        <sup>1</sup> Finance IT (Includes P2P business cases) Q4FY26 case volume
+      </div>
+      <div class="qbr-footnote">
+        <sup>2</sup> CaseIQ integrated with ESP Kafka publisher for NTR starting
+        week10
+      </div>
+      <div class="qbr-footnote">
+        <sup>3</sup> Includes pre and post Kafka integration execution times
+      </div>
+    </footer>
+  }
+</section>

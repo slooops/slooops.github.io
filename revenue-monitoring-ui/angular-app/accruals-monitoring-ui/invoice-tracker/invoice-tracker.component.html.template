@@ -1,0 +1,62 @@
+<div class="dashboard-header">
+  <div class="header-main">
+    <div class="header-left">
+      <app-menu-mini
+        [items]="menuItems"
+        [activeIndex]="selectedIndex"
+        (selected)="onGridMenuItemClick($event.index)"
+      />
+      <h2>{{ filteredTabs[selectedIndex]?.label || "Invoice Tracker" }}</h2>
+    </div>
+
+    <div class="period-info" *ngIf="periodStatus as period">
+      <span><b>Period name:</b> {{ period.periodName }} &nbsp;</span>
+      <span class="divider"> | </span>
+      <span
+        >&nbsp;<b>Period end date:</b> {{ period.periodEndDate }} &nbsp;</span
+      >
+      <span class="divider"> | </span>
+      <span>&nbsp;<b>Last Updated:</b> {{ period.lastUpdated }} &nbsp;</span>
+    </div>
+  </div>
+</div>
+
+<hr />
+
+<div class="dashboard-content">
+  @if (filteredTabs.length > 0) {
+    @switch (filteredTabs[selectedIndex]?.component) {
+      <!-- ──────────────────────────────────────────────────────────────── -->
+      <!-- ─── DASHBOARD_CASES (INSERT AI-GENERATED @case BLOCKS BELOW) ──── -->
+      <!-- ──────────────────────────────────────────────────────────────── -->
+      <!-- 
+        Format for each case:
+        @case ("app-<feature-name>") {
+          <app-monitoring-dashboard
+            [userContext]="userContextData"
+            [urls]="<featureName>Urls"
+            [keysToMap]="<featureName>KeysToMap"
+            [componentName]="'<Feature Display Name>'"
+            [columnsToFilter]="<featureName>Filters"
+            [detailsColumnsToHide]="[...]"
+            [assignmentDialogFieldConfig]="fieldConfig"
+            [submitKeysToMap]="[...]"
+            [webexKeysToMap]="[...]"
+          ></app-monitoring-dashboard>
+        }
+      -->
+    }
+  }
+</div>
+
+<div
+  style="display: flex; justify-content: center; align-items: center !important"
+>
+  @if (!roles.length) {
+    <tr>
+      <td colspan="100%" style="text-align: center">
+        <app-loading-symbol></app-loading-symbol>
+      </td>
+    </tr>
+  }
+</div>
