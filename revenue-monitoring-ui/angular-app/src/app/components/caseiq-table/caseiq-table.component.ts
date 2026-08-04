@@ -35,6 +35,7 @@ import {
   phosphorMagnifyingGlassBold,
 } from '@ng-icons/phosphor-icons/bold';
 import { ThemeService } from '../../providers/theme.service';
+import { AuthenticationService } from 'src/app/providers/authentication.service';
 
 interface FilterTag {
   id: string;
@@ -112,6 +113,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   constructor(
     private dialog: MatDialog,
     public themeService: ThemeService,
+    private authService: AuthenticationService,
   ) {}
 
   // Filter properties
@@ -162,7 +164,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     {
       id: 'analyzedBy',
       label: 'Analyzed By',
-      values: ['Supervisor', 'CaseIQ'],
+      values: ['CaseIQ Agent'],
     },
     {
       id: 'coreIssueMatch',
@@ -181,8 +183,10 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     },
   ];
 
+  isAdmin: boolean = false;
   ngOnInit() {
     this.syncReopenedIncidentSet();
+    this.isAdmin = this.authService.getUserAccessRoles().includes('ADMIN');
     console.log(
       'CaseIQ Table initialized with dataSource:',
       this.dataSource.data.length,
@@ -360,6 +364,66 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     this.pageSize = event.pageSize;
     // Don't clear expansion state on pagination to preserve user interaction
     // Only clear if the user explicitly navigates away from the page
+  }
+
+  openIncidentDetail(row: any): void {
+    this.timelineDetailOpen.emit(this.toSupervisorIncident(row));
+  }
+
+  private toSupervisorIncident(row: any): SupervisorIncident {
+    const outcomeRaw = (
+      row?.['INCIDENT_STATE'] ??
+      row?.['incident_state'] ??
+      row?.['OUTCOME'] ??
+      row?.['outcome'] ??
+      ''
+    )
+      .toString()
+      .trim()
+      .toUpperCase();
+
+    const outcome: SupervisorIncident['outcome'] =
+      outcomeRaw === 'RESOLVED'
+        ? 'Resolved'
+        : outcomeRaw === 'ROUTED_OUT' || outcomeRaw === 'ROUTED OUT'
+          ? 'Routed Out'
+          : outcomeRaw === 'CANCELLED' || outcomeRaw === 'CANCELED'
+            ? 'Cancelled'
+            : outcomeRaw === 'FAILED'
+              ? 'Failed'
+              : outcomeRaw === 'BOT_HANDOFF' || outcomeRaw === 'BOT HANDOFF'
+                ? 'Bot Handoff'
+                : outcomeRaw === 'IN_PROGRESS' || outcomeRaw === 'IN PROGRESS'
+                  ? 'In Progress'
+                  : 'Resolved';
+
+    const incidentNumber =
+      this.getFirstValue(row, ['INCIDENT_NUMBER', 'incident_number']) ||
+      'INC00000000';
+
+    return {
+      incidentNumber,
+      team:
+        this.getFirstValue(row, ['TEAM_NAME', 'team_name', 'TEAM']) ||
+        'BRIM/BRM',
+      category: this.getFirstValue(row, ['CATEGORY', 'category']) || '--',
+      coreIssue: this.getFirstValue(row, ['CORE_ISSUE', 'core_issue']) || '--',
+      outcome,
+      resolutionPath:
+        this.getFirstValue(row, ['RESOLUTION_PATH', 'resolution_path']) || '--',
+      processedAt:
+        this.getFirstValue(row, [
+          'PROCESSED_AT',
+          'processed_at',
+          'LAST_UPDATED',
+          'last_updated',
+        ]) || this.mockProcessedDate,
+      processedEpoch: Date.now(),
+      pipelineStages: 0,
+      fiscalQuarter: this.getFirstValue(row, ['Quarter', 'FISCAL_QTR']) || '',
+      runs: 1,
+      history: [],
+    };
   }
 
   trackByRowId(row: any): string {
@@ -586,13 +650,39 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     this.addFilter('impactedServiceOffering', label, value);
   }
 
-  // Analyzed By inner multi-select
+  // Analyzed By single-select dropdown
   toggleAnalyzedByInner(event: Event) {
     event.stopPropagation();
     this.showAnalyzedByInner = !this.showAnalyzedByInner;
   }
   toggleAnalyzedByValue(value: string, label: string) {
-    this.addFilter('analyzedBy', label, value);
+    const newFilterId = `analyzedBy-${value}`;
+    const isSameSelectionActive = this.activeFilters.some(
+      (filter) => filter.id === newFilterId,
+    );
+
+    this.activeFilters = this.activeFilters.filter(
+      (filter) => filter.filterId !== 'analyzedBy',
+    );
+
+    if (!isSameSelectionActive) {
+      this.activeFilters.push({
+        id: newFilterId,
+        label,
+        value,
+        filterId: 'analyzedBy',
+      });
+    }
+
+    this.showAnalyzedByInner = false;
+    this.applyFilters();
+  }
+
+  getSingleSelectValue(filterId: string): string {
+    return (
+      this.activeFilters.find((filter) => filter.filterId === filterId)
+        ?.value || 'Select'
+    );
   }
 
   // Incident Number search handler
@@ -924,13 +1014,18 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       activeFiltersMap.get(filter.filterId)!.add(filter.value);
     });
 
-    // Check if (Y,Y) rows should be included
-    // Only include (Y,Y) rows if BOTH categoryMatch='Y' AND coreIssueMatch='Y' are selected
+    // Check if (Y,Y) rows should be included.
+    // Include (Y,Y) rows when:
+    // 1) both categoryMatch='Y' and coreIssueMatch='Y' are selected, OR
+    // 2) analyzedBy filter is selected (so supervisor-analyzed incidents are
+    //    evaluated across both datasets: Y/Y and non-Y/Y).
     const categoryHasY =
       activeFiltersMap.get('categoryMatch')?.has('Y') ?? false;
     const coreIssueHasY =
       activeFiltersMap.get('coreIssueMatch')?.has('Y') ?? false;
-    const shouldIncludeYY = categoryHasY && coreIssueHasY;
+    const hasAnalyzedByFilter = activeFiltersMap.has('analyzedBy');
+    const shouldIncludeYY =
+      (categoryHasY && coreIssueHasY) || hasAnalyzedByFilter;
 
     // Apply combination-based filtering
     const filtered = this.fullData.filter((row) => {
@@ -1069,20 +1164,10 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         let matches = false;
         for (const value of selectedValues) {
           const valueLower = value.toLowerCase();
-          if (valueLower === 'supervisor') {
+          if (valueLower === 'caseiq agent') {
             if (
               analyzedBy === 'supervisor analyzed' ||
-              analyzedBy === 'supervisor agent' ||
-              analyzedBy === 'true'
-            ) {
-              matches = true;
-              break;
-            }
-          } else if (valueLower === 'caseiq') {
-            if (
-              analyzedBy === 'caseiq analyzed' ||
-              analyzedBy === 'case iq analyzed' ||
-              analyzedBy === 'caseiq agent'
+              analyzedBy === 'supervisor agent'
             ) {
               matches = true;
               break;

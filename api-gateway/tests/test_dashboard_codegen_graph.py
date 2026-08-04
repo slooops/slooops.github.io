@@ -21,6 +21,22 @@ class FakeLLM:
         if "backend" in system_text.lower():
             return AIMessage(content=f"BACKEND DOC for {user_payload['componentName']}")
 
+        if "apply manifest" in system_text.lower() or "fileoperations" in system_text.lower():
+            return AIMessage(
+                content=json.dumps(
+                    {
+                        "fileOperations": [
+                            {
+                                "path": "src/main/resources/queries.properties",
+                                "op": "append",
+                                "content": "ait.jobs.summary.q=${AIT_JOBS_SUMMARY_Q}",
+                                "description": "Append summary property",
+                            }
+                        ]
+                    }
+                )
+            )
+
         return AIMessage(content=f"UI DOC for {user_payload['componentName']}")
 
 
@@ -69,4 +85,5 @@ def test_run_dashboard_codegen_with_mocked_llm(monkeypatch):
     assert result.backendHandoff["featureName"] == "ait-monitoring"
     assert result.backendHandoff["submitKeysToMap"] == ["ctm_folder", "job_name"]
     assert result.backendHandoff["webexKeysToMap"] == ["ctm_folder", "job_name"]
-    assert len(fake.calls) == 2
+    assert result.fileOperations[0]["path"] == "src/main/resources/queries.properties"
+    assert len(fake.calls) == 3

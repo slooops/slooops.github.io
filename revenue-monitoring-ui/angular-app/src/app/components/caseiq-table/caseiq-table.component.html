@@ -266,7 +266,7 @@
                               class="multi-select-trigger"
                               (click)="toggleAnalyzedByInner($event)"
                             >
-                              Select
+                              {{ getSingleSelectValue("analyzedBy") }}
                               <span
                                 class="chevron"
                                 [class.open]="showAnalyzedByInner"
@@ -295,12 +295,6 @@
                                         )
                                       "
                                     >
-                                      <input
-                                        type="checkbox"
-                                        [checked]="
-                                          isFilterActive('analyzedBy', value)
-                                        "
-                                      />
                                       <span class="option-label">{{
                                         value
                                       }}</span>
@@ -431,14 +425,11 @@
                   [class.extra-wide-column]="extraWideColumns.includes(column)"
                 >
                   @if (isIncidentNumberColumn(column)) {
-                    <button
-                      type="button"
-                      class="ciq-sort-header-btn"
-                      (click)="toggleIncidentNumberAnalyzedSort($event)"
-                      [matTooltip]="'Sort by: ' + analyzedSortLabel"
-                    >
+                    <button type="button" class="ciq-sort-header-btn">
+                      <!--(click)="toggleIncidentNumberAnalyzedSort($event)"
+                      [matTooltip]="'Sort by: ' + analyzedSortLabel" -->
                       <span>{{ removeUnderscores(column) }}</span>
-                      <svg
+                      <!-- <svg
                         class="ciq-sort-icon"
                         width="12"
                         height="12"
@@ -447,7 +438,6 @@
                         xmlns="http://www.w3.org/2000/svg"
                       >
                         @if (analyzedSortMode === "supervisor") {
-                          <!-- Up arrow active (supervisor = top) -->
                           <path
                             d="M6 2L10 7H2L6 2Z"
                             fill="currentColor"
@@ -459,7 +449,6 @@
                             opacity="0.3"
                           />
                         } @else {
-                          <!-- Down arrow active (caseiq = bottom priority shown) -->
                           <path
                             d="M6 2L10 7H2L6 2Z"
                             fill="currentColor"
@@ -471,7 +460,7 @@
                             opacity="1"
                           />
                         }
-                      </svg>
+                      </svg> -->
                     </button>
                   } @else {
                     {{ removeUnderscores(column) }}
@@ -512,15 +501,30 @@
                     [class.extra-wide-column]="
                       extraWideColumns.includes(column)
                     "
-                    [class.clickable-cell]="clickableColumns.includes(column)"
+                    [class.clickable-cell]="
+                      clickableColumns.includes(column) &&
+                      (!(
+                        column === 'incident_number' ||
+                        column === 'INCIDENT_NUMBER'
+                      ) ||
+                        row['ANALYZED_BY'] === 'Supervisor Analyzed')
+                    "
                     (click)="
-                      clickableColumns.includes(column)
-                        ? cellClick.emit({
-                            column: column,
-                            value: row[column],
-                            row: row,
-                          })
-                        : null
+                      isIncidentNumberColumn(column) &&
+                      row['ANALYZED_BY'] === 'Supervisor Analyzed'
+                        ? openIncidentDetail(row)
+                        : clickableColumns.includes(column) &&
+                            (!(
+                              column === 'incident_number' ||
+                              column === 'INCIDENT_NUMBER'
+                            ) ||
+                              row['ANALYZED_BY'] === 'Supervisor Analyzed')
+                          ? cellClick.emit({
+                              column: column,
+                              value: row[column],
+                              row: row,
+                            })
+                          : null
                     "
                   >
                     @if (column.includes("TIME") || column.includes("DATE")) {
@@ -552,7 +556,7 @@
                             [matTooltip]="'Analyzed by: Supervisor Agent'"
                           ></ng-icon>
 
-                          @if (isReopenedIncident(row, column)) {
+                          @if (isReopenedIncident(row, column) && isAdmin) {
                             <ng-icon
                               name="phosphorArrowClockwiseBold"
                               size="13"
@@ -588,7 +592,7 @@
                 </tr>
               }
 
-              @if (isI2CSource && isRowExpanded(row, rowIndex)) {
+              @if (isRowExpanded(row, rowIndex)) {
                 <tr class="timeline-row">
                   <td [attr.colspan]="expandedColspan" class="timeline-cell">
                     <div class="timeline-header-outer">

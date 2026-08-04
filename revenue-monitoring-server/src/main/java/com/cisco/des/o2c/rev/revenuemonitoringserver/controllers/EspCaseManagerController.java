@@ -157,7 +157,13 @@ public class EspCaseManagerController {
 
     @GetMapping("/xxcaseiq-capital-case-details-v")
     public ResponseEntity<List<Map<String, Object>>> getXxcaseiqCapitalCaseDetailsV() {
-        return new ResponseEntity<>(service.getXxcaseiqCapitalCaseDetailsV(), HttpStatus.OK);
+        List<Map<String, Object>> result = service.getXxcaseiqCapitalCaseDetailsV();
+        if (result.isEmpty()) {
+            // Upstream view returned no data or threw ORA-06502 – return 200 with empty list
+            // so the UI can degrade gracefully.  See service log for root cause detail.
+            return ResponseEntity.ok(result);
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PostMapping(value = "/xxcaseiq-esp-case-analyzer-table-update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

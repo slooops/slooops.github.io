@@ -10,7 +10,7 @@ The app team will:
 
 Do not include any instructions about post-PR build operations.
 
-> **Orchestration:** This is the **first** of a two-prompt sequence. After producing the backend document, the agent computes the handoff metadata internally and **automatically continues to the UI prompt in the same run** (no separate trigger). The two generated documents (backend + UI) are the final deliverables.
+> **Orchestration:** This is the **first** step of a three-prompt sequence. After producing the backend document, the agent computes the handoff metadata internally, automatically continues to the UI prompt in the same run, and then runs a third machine-oriented prompt that converts both documents into a structured apply manifest (`fileOperations`) for automated GitHub application.
 
 ---
 

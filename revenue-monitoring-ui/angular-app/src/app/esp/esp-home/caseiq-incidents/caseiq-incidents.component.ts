@@ -24,6 +24,7 @@ import {
 } from 'src/app/components/filter-button-bar/filter-button-bar.component';
 import { PaginationComponent } from 'src/app/ui/atoms/pagination/pagination.component';
 import { PageChangeEvent } from 'src/app/ui/types/common.types';
+import { CaseiqIncidentDetailComponent } from '../caseiq-incident-detail/caseiq-incident-detail.component';
 
 export interface SupervisorIncident {
   incidentNumber: string;
@@ -113,6 +114,7 @@ interface CaseReopenMetric {
     NgIcon,
     FilterButtonBarComponent,
     PaginationComponent,
+    CaseiqIncidentDetailComponent,
   ],
 })
 export class CaseiqIncidentsComponent implements OnInit, OnChanges {
@@ -131,6 +133,10 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
   @HostBinding('class.dark-theme') get darkThemeClass() {
     return this.themeService.isDarkMode;
   }
+
+  // ── Full-panel incident detail ───────────────────────────────
+  showIncidentDetail = false;
+  detailIncident: SupervisorIncident | null = null;
 
   incidents: SupervisorIncident[] = [];
 
@@ -885,6 +891,18 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
       default:
         return '';
     }
+  }
+
+  openIncidentDetail(incident: SupervisorIncident): void {
+    this.showIncidentDetail = true;
+    this.detailIncident = incident;
+    this.expandedIncidentKey = null;
+    this.closePipelineDetail();
+  }
+
+  closeIncidentDetail(): void {
+    this.showIncidentDetail = false;
+    this.detailIncident = null;
   }
 
   toggleIncidentTimeline(incident: SupervisorIncident, index: number): void {

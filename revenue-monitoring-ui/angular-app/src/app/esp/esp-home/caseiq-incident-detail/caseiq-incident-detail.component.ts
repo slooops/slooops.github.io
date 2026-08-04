@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient as NgHttpClient } from '@angular/common/http';
 import { NgIconComponent } from '@ng-icons/core';
 import { ThemeService } from '../../../providers/theme.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
@@ -117,15 +117,170 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
   ];
   private readonly reopenUpdateUrl = 'xxcaseiq-reopen-update';
 
+  // ── SSID tab state ───────────────────────────────────────────
+  sharedStateIds: string[] = [];
+  sharedStateIdsLoading = false;
+  sharedStateIdsError: string | null = null;
+  activeSharedStateId: string | null = null;
+  private tabDetailCache: Record<string, any> = {};
+  tabDetailLoading: Record<string, boolean> = {};
+  tabDetailError: Record<string, string> = {};
+
+  private readonly sharedStateIdsUrl =
+    '/api/caseiq-supervisor/api/v1/shared-state-ids/search/incident_number';
+  private readonly incidentDetailBaseUrl =
+    '/api/caseiq-supervisor/api/v1/incidents';
+
   constructor(
     public themeService: ThemeService,
     private readonly httpClient: ApiHttpService,
+    private readonly http: NgHttpClient,
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['incident'] || changes['incidentDetailData']) {
+    if (changes['incidentDetailData'] && this.incidentDetailData) {
+      // Data pre-fetched by parent — skip SSID fetch
+      this.sharedStateIds = [];
+      this.activeSharedStateId = null;
       this.hydrateDetail();
+    } else if (
+      changes['incident'] &&
+      this.incident?.incidentNumber &&
+      !this.incidentDetailData
+    ) {
+      this.loadSharedStateIds(this.incident.incidentNumber);
     }
+  }
+
+  // ── SSID fetch & tab methods ────────────────────────────────
+
+  private loadSharedStateIds(incidentNumber: string): void {
+    this.sharedStateIdsLoading = true;
+    this.sharedStateIdsError = null;
+    this.sharedStateIds = [];
+    this.activeSharedStateId = null;
+    this.tabDetailCache = {};
+    this.tabDetailLoading = {};
+    this.tabDetailError = {};
+    this.incidentNumber = incidentNumber;
+    this.incidentViewModel = null;
+    this.pipelineSteps = [];
+
+    const url = `${this.sharedStateIdsUrl}/${encodeURIComponent(incidentNumber)}`;
+    this.http.get<unknown>(url).subscribe({
+      next: (response) => {
+        this.sharedStateIds = this.extractSharedStateIds(response);
+        this.sharedStateIdsLoading = false;
+        if (this.sharedStateIds.length > 0) {
+          this.selectSharedStateTab(this.sharedStateIds[0]);
+        } else {
+          this.hydrateDetail();
+        }
+      },
+      error: () => {
+        this.sharedStateIdsLoading = false;
+        this.sharedStateIdsError = 'Failed to load executions.';
+        this.hydrateDetail();
+      },
+    });
+  }
+
+  private extractSharedStateIds(response: unknown): string[] {
+    if (Array.isArray(response)) {
+      return response
+        .map((item) => {
+          if (typeof item === 'string') return item;
+          if (typeof item === 'object' && item !== null) {
+            const obj = item as Record<string, unknown>;
+            return (
+              (obj['shared_state_id'] as string) ||
+              (obj['sharedStateId'] as string) ||
+              (obj['id'] as string) ||
+              ''
+            );
+          }
+          return '';
+        })
+        .filter(Boolean);
+    }
+    if (typeof response === 'object' && response !== null) {
+      const obj = response as Record<string, unknown>;
+      for (const key of [
+        'shared_state_ids',
+        'sharedStateIds',
+        'ids',
+        'items',
+        'results',
+        'data',
+      ]) {
+        if (Array.isArray(obj[key])) {
+          return this.extractSharedStateIds(obj[key]);
+        }
+      }
+    }
+    return [];
+  }
+
+  selectSharedStateTab(ssid: string): void {
+    if (this.activeSharedStateId === ssid) return;
+    this.activeSharedStateId = ssid;
+    if (this.tabDetailCache[ssid]) {
+      this.isLoading = false;
+      this.error = null;
+      this.hydrateFromApiDetail(this.tabDetailCache[ssid]);
+    } else {
+      this.loadTabDetail(ssid);
+    }
+  }
+
+  private loadTabDetail(ssid: string): void {
+    const incNum = this.incident?.incidentNumber || this.incidentNumber;
+    if (!incNum || !ssid) return;
+
+    this.tabDetailLoading[ssid] = true;
+    this.tabDetailError[ssid] = '';
+    this.isLoading = true;
+    this.error = null;
+    this.incidentViewModel = null;
+    this.pipelineSteps = [];
+
+    const url = `${this.incidentDetailBaseUrl}/${encodeURIComponent(incNum)}?ssid=${encodeURIComponent(ssid)}`;
+    this.http.get<unknown>(url).subscribe({
+      next: (response) => {
+        const data =
+          typeof response === 'object' && response !== null
+            ? (response as any)
+            : {};
+        this.tabDetailCache[ssid] = data;
+        this.tabDetailLoading[ssid] = false;
+        if (this.activeSharedStateId === ssid) {
+          this.isLoading = false;
+          this.hydrateFromApiDetail(data);
+        }
+      },
+      error: () => {
+        this.tabDetailLoading[ssid] = false;
+        this.tabDetailError[ssid] = 'Failed to load execution detail.';
+        if (this.activeSharedStateId === ssid) {
+          this.isLoading = false;
+          this.error = 'Failed to load execution detail.';
+        }
+      },
+    });
+  }
+
+  getTabTruncatedId(ssid: string): string {
+    if (!ssid) return '--';
+    if (ssid.length <= 22) return ssid;
+    return `${ssid.slice(0, 12)}…${ssid.slice(-6)}`;
+  }
+
+  isTabLoading(ssid: string): boolean {
+    return !!this.tabDetailLoading[ssid];
+  }
+
+  getTabError(ssid: string): string {
+    return this.tabDetailError[ssid] || '';
   }
 
   goBack(): void {

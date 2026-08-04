@@ -302,6 +302,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('caseIqMetrics' in changes) {
+      console.log('caseIqMetrics changed:', changes['caseIqMetrics']);
       // Always rebuild section list so template reflects latest metrics
       this.buildSectionsFromMetrics();
 
@@ -849,7 +850,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     const totalCases =
       (this.getFinanceITAgentTotalCases() ?? 0) +
       (this.getOpsTotalCases() ?? 0);
-
     if (!totalCases) return 0;
     const totalOps = this.getFinanceITAgentTotalCases();
     return Math.round((totalOps / totalCases) * 1000) / 10; // 1 decimal

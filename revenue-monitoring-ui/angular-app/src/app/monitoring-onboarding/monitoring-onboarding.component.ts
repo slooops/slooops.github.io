@@ -21,9 +21,12 @@ import { AuthenticationService } from '../providers/authentication.service';
 import { ThemeService } from '../providers/theme.service';
 
 interface GeneratedDocs {
+  backendDocument?: string;
+  uiDocument?: string;
   backend?: string;
   ui?: string;
   backendHandoff?: Record<string, unknown>;
+  fileOperations?: unknown[];
   [key: string]: unknown;
 }
 
@@ -139,8 +142,9 @@ export class MonitoringOnboardingComponent implements OnInit {
   dismissLeaveWarning(): void {
     this.leaveWarningDismissed = true;
   }
-
+  userId: string;
   ngOnInit(): void {
+    this.userId = this.authService.getUserID();
     this.form = this.fb.group({
       componentName: ['', [Validators.required, Validators.maxLength(60)]],
       featureName: [
@@ -395,6 +399,47 @@ export class MonitoringOnboardingComponent implements OnInit {
     return JSON.stringify(this.buildPayload(), null, 2);
   }
 
+  /**
+   * Normalizes backend response shapes so the renderer can keep using
+   * `generated.backend` / `generated.ui` exactly as before.
+   */
+  private mapGeneratedDocsResponse(
+    data: Record<string, unknown>,
+  ): GeneratedDocs {
+    const backendRaw =
+      data['backendDocument'] ??
+      data['backend_document'] ??
+      data['backendDoc'] ??
+      data['backend'];
+    const uiRaw =
+      data['uiDocument'] ?? data['ui_document'] ?? data['uiDoc'] ?? data['ui'];
+
+    const backend = typeof backendRaw === 'string' ? backendRaw : '';
+    const ui = typeof uiRaw === 'string' ? uiRaw : '';
+
+    const backendHandoffRaw = data['backendHandoff'] ?? data['backend_handoff'];
+    const backendHandoff =
+      backendHandoffRaw && typeof backendHandoffRaw === 'object'
+        ? (backendHandoffRaw as Record<string, unknown>)
+        : {};
+
+    const fileOperationsRaw = data['fileOperations'] ?? data['file_operations'];
+    const fileOperations = Array.isArray(fileOperationsRaw)
+      ? fileOperationsRaw
+      : [];
+
+    return {
+      ...data,
+      backendDocument: backend,
+      uiDocument: ui,
+      // Keep old keys for current UI binding/parsers.
+      backend,
+      ui,
+      backendHandoff,
+      fileOperations,
+    };
+  }
+
   // ── submit ─────────────────────────────────────────────────
   async submit(): Promise<void> {
     const resolvedUrl = this.resolveApiUrl(
@@ -439,16 +484,8 @@ export class MonitoringOnboardingComponent implements OnInit {
         );
       }
 
-      const data = await response.json();
-      this.generated = {
-        backend:
-          data.backend ??
-          data.backendDoc ??
-          data.backend_document ??
-          data.backendDocument,
-        ui: data.ui ?? data.uiDoc ?? data.ui_document ?? data.uiDocument,
-        backendHandoff: data.backendHandoff ?? data.backend_handoff,
-      };
+      const data = (await response.json()) as Record<string, unknown>;
+      this.generated = this.mapGeneratedDocsResponse(data);
     } catch (err) {
       this.submitError =
         err instanceof Error

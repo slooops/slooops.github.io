@@ -19,33 +19,65 @@
     </button>
   </div>
 
-  @if (isLoading) {
+  @if (isLoading || sharedStateIdsLoading) {
     <div class="id__loading">
       <div class="id__spinner"></div>
       <span>Loading incident details…</span>
     </div>
   }
 
-  @if (error && !isLoading) {
+  @if (error && !isLoading && !sharedStateIdsLoading) {
     <div class="id__error">
       <span>{{ error }}</span>
       <button class="id__retry-btn" (click)="reloadDetail()">Retry</button>
     </div>
   }
 
-  @if (!isLoading && !error && !incidentViewModel) {
+  @if (!isLoading && !sharedStateIdsLoading && !error && !incidentViewModel) {
     <div class="id__empty">
       <ng-icon name="phosphorWarningBold" size="32"></ng-icon>
       <span>No data found for this incident.</span>
     </div>
   }
 
-  @if (!isLoading && !error && incidentViewModel) {
+  @if (!isLoading && !sharedStateIdsLoading && !error && incidentViewModel) {
     @let incident = incidentViewModel;
     <!-- Header Card -->
     <header class="id__header-card">
       <div class="id__header-top">
-        <h1 class="id__incident-number">{{ incidentNumber }}</h1>
+        <div class="id__header-title-block">
+          <h1 class="id__incident-number">{{ incidentNumber }}</h1>
+
+          @if (sharedStateIdsLoading) {
+            <div class="id__ssid-loading id__ssid-loading--inline">
+              <div class="id__ssid-spinner"></div>
+              <span>Loading executions…</span>
+            </div>
+          }
+
+          @if (!sharedStateIdsLoading && sharedStateIds.length > 0) {
+            <div class="id__ssid-tab-list">
+              @for (ssid of sharedStateIds; track ssid) {
+                <button
+                  class="id__ssid-tab"
+                  [class.id__ssid-tab--active]="activeSharedStateId === ssid"
+                  (click)="selectSharedStateTab(ssid)"
+                >
+                  {{ ssid }}
+                  @if (isTabLoading(ssid)) {
+                    <span
+                      class="id__ssid-tab-dot id__ssid-tab-dot--loading"
+                    ></span>
+                  } @else if (getTabError(ssid)) {
+                    <span
+                      class="id__ssid-tab-dot id__ssid-tab-dot--error"
+                    ></span>
+                  }
+                </button>
+              }
+            </div>
+          }
+        </div>
         <span
           class="id__status-badge"
           [ngClass]="
@@ -105,14 +137,6 @@
           </div>
         }
       </div>
-      @if (incident.shared_state_id || incident.shared_state) {
-        <div class="id__shared-state">
-          <span class="id__meta-label">SHARED STATE</span>
-          <span class="id__meta-value id__mono">{{
-            incident.shared_state_id || incident.shared_state
-          }}</span>
-        </div>
-      }
     </header>
 
     <!-- Tabs -->

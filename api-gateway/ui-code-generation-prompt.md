@@ -16,7 +16,7 @@ The app team will:
 
 Do not include any instructions about post-PR build operations.
 
-> **Orchestration:** This is the **second** of a two-prompt sequence, run automatically right after the backend prompt in the same agent run. The `backendHandoff` object is supplied **silently by the agent** from the backend step — it is never shown to the user and never appears in the backend output document.
+> **Orchestration:** This is the **second** step of a three-prompt sequence, run automatically right after the backend prompt in the same agent run. The `backendHandoff` object is supplied **silently by the agent** from the backend step. After this UI document is generated, a third machine-oriented prompt runs to produce structured `fileOperations` apply artifacts for automated GitHub application.
 
 ---
 

@@ -14,6 +14,7 @@ const o2cRedirectTarget =
 const CONTROL_TOWER_SUPPORT_AGENT_API_URL =
   process.env.CONTROL_TOWER_SUPPORT_AGENT_API_URL || "http://localhost:8000";
 const environment = process.env.ENVIRONMENT || "local";
+const myArgs = process.argv.slice(2);
 
 app.use(express.json());
 app.set("trust proxy", true);
@@ -38,8 +39,8 @@ function extractClientIp(req) {
 }
 
 app.use((req, res, next) => {
-  req.authenticatedUserName = req.headers["auth_user"];
-  req.authenticatedUserFirstName = req.headers["givenname"];
+  req.authenticatedUserName = req.headers["auth_user"] || myArgs[0] || "";
+  req.authenticatedUserFirstName = req.headers["givenname"] || "Test User";
 
   const clientIp = extractClientIp(req);
 
@@ -272,10 +273,15 @@ app.use(
   }),
 );
 
-app.use(express.static(path.join(__dirname, "../ui/dist/browser")));
+const uiPath =
+  environment === "local"
+    ? "../angular-app/dist/browser"
+    : "../ui/dist/browser";
+
+app.use(express.static(path.join(__dirname, uiPath)));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../ui/dist/browser", "index.html"));
+  res.sendFile(path.join(__dirname, uiPath, "index.html"));
 });
 
 app.listen(port, () => {
