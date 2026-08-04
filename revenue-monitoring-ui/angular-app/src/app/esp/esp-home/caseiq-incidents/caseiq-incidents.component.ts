@@ -11,7 +11,6 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { forkJoin } from 'rxjs';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { phosphorArrowClockwiseBold } from '@ng-icons/phosphor-icons/bold';
 import { ThemeService } from 'src/app/providers/theme.service';
@@ -93,6 +92,24 @@ interface SupervisorMetricsSummary {
   outcomes?: Record<string, number>;
 }
 
+interface ExecutionSummaryTeam {
+  team_name: string;
+  unique_incidents: number;
+  success: number;
+  failed: number;
+  delegated: number;
+  need_info_user: number;
+}
+
+interface ExecutionSummaryQuarter {
+  fiscal_quarter: string;
+  teams: ExecutionSummaryTeam[];
+}
+
+interface ExecutionSummaryResponse {
+  execution_summary: ExecutionSummaryQuarter[];
+}
+
 interface CaseReopenMetric {
   TEAM_NAME: string;
   INCIDENT_NUMBER: string;
@@ -125,6 +142,8 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
 
   private readonly metricsSummaryUrl =
     '/api/caseiq-supervisor/api/v2/metrics/summary';
+  private readonly executionSummaryUrl =
+    '/api/caseiq-supervisor/api/v2/metrics/execution-summary';
   private readonly metricsIncidentsUrl =
     '/api/caseiq-supervisor/api/v1/incidents';
   private readonly dashboardIncidentDetailUrl =
@@ -235,6 +254,7 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
 
   metricsSummary: Record<string, number> = {};
   kpiConfig: DynamicKpi[] = [];
+  private rawExecutionSummary: ExecutionSummaryQuarter[] = [];
   private allIncidents: SupervisorIncident[] = [];
   private userTeamFilters: string[] = [];
   private isAdminOrManager = false;
@@ -253,6 +273,7 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
     }
     if (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) {
       this.applyFilter();
+      this.recomputeKpisFromCache();
     }
   }
 
@@ -692,30 +713,90 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
   }
 
   private loadMetricsSummary(): void {
-    this.reloadKpis([]);
+    this.httpClient
+      .get<ExecutionSummaryResponse>(this.executionSummaryUrl)
+      .subscribe({
+        next: (response) => {
+          this.rawExecutionSummary = Array.isArray(response?.execution_summary)
+            ? response.execution_summary
+            : [];
+          this.recomputeKpisFromCache();
+        },
+        error: () => {
+          this.rawExecutionSummary = [];
+          this.metricsSummary = {};
+          this.kpiConfig = [];
+        },
+      });
   }
 
-  private reloadKpis(selectedTeams: string[]): void {
-    const requests =
-      selectedTeams.length === 0
-        ? [this.httpClient.get(this.getMetricsSummaryUrl())]
-        : selectedTeams.map((team) =>
-            this.httpClient.get(
-              `${this.metricsSummaryUrl}?team=${encodeURIComponent(team)}`,
-            ),
-          );
+  /**
+   * Re-derives KPI values from the cached execution-summary data using the
+   * currently active quarter and team filters. Called whenever either changes.
+   */
+  private recomputeKpisFromCache(): void {
+    const selectedQuarter = this.normalizeQuarter(this.selectedQuarter);
+    const selectedTeams = this.getSelectedFilterValues('team').map((t) =>
+      t.toUpperCase(),
+    );
 
-    forkJoin(requests).subscribe({
-      next: (responses) => {
-        const aggregated = this.aggregateMetricsSummaries(responses as any);
-        this.metricsSummary = this.buildMetricsSummary(aggregated);
-        this.kpiConfig = this.buildKpiConfig(this.metricsSummary);
-      },
-      error: () => {
-        this.metricsSummary = {};
-        this.kpiConfig = [];
-      },
-    });
+    const totals: Record<string, number> = {
+      unique_incidents: 0,
+      success: 0,
+      failed: 0,
+      delegated: 0,
+      need_info_user: 0,
+    };
+
+    for (const quarterEntry of this.rawExecutionSummary) {
+      // Quarter filter: skip if a quarter is selected and this entry doesn't match
+      if (
+        selectedQuarter &&
+        this.normalizeQuarter(quarterEntry.fiscal_quarter) !== selectedQuarter
+      ) {
+        continue;
+      }
+
+      for (const teamEntry of quarterEntry.teams ?? []) {
+        const teamName = (teamEntry.team_name ?? '').toUpperCase();
+        // Skip the synthetic 'all' row — we sum manually
+        if (teamName === 'ALL') continue;
+
+        // Team filter: skip if team filters are active and this team is not selected
+        if (selectedTeams.length > 0 && !selectedTeams.includes(teamName)) {
+          continue;
+        }
+
+        // Also respect role-based access: skip teams the user cannot see
+        if (
+          !this.isAdminOrManager &&
+          this.userTeamFilters.length > 0 &&
+          !this.userTeamFilters.map((t) => t.toUpperCase()).includes(teamName)
+        ) {
+          continue;
+        }
+
+        totals['unique_incidents'] += teamEntry.unique_incidents ?? 0;
+        totals['success'] += teamEntry.success ?? 0;
+        totals['failed'] += teamEntry.failed ?? 0;
+        totals['delegated'] += teamEntry.delegated ?? 0;
+        totals['need_info_user'] += teamEntry.need_info_user ?? 0;
+      }
+    }
+
+    this.metricsSummary = totals;
+    this.kpiConfig = [
+      { key: 'unique_incidents', label: 'Unique Incidents' },
+      { key: 'success', label: 'Success' },
+      { key: 'failed', label: 'Failed' },
+      { key: 'delegated', label: 'Delegated' },
+      { key: 'need_info_user', label: 'Need Info User' },
+    ];
+  }
+
+  // Legacy helpers kept for backward compatibility with other callers
+  private reloadKpis(_selectedTeams: string[]): void {
+    this.recomputeKpisFromCache();
   }
 
   private aggregateMetricsSummaries(
@@ -744,11 +825,9 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
     response: SupervisorMetricsSummary,
   ): Record<string, number> {
     const result: Record<string, number> = {};
-
     if (typeof response?.unique_incidents === 'number') {
       result['unique_incidents'] = response.unique_incidents;
     }
-
     if (response?.outcomes && typeof response.outcomes === 'object') {
       for (const [key, value] of Object.entries(response.outcomes)) {
         if (typeof value === 'number') {
@@ -756,7 +835,6 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
         }
       }
     }
-
     return result;
   }
 
@@ -1228,7 +1306,7 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
       this.customDateRangeEnd = '';
     }
     this.applyFilter();
-    this.reloadKpis(this.getSelectedFilterValues('team'));
+    this.recomputeKpisFromCache();
   }
 
   onTopFilterClear(): void {
@@ -1237,7 +1315,7 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
     this.customDateRangeStart = '';
     this.customDateRangeEnd = '';
     this.applyFilter();
-    this.reloadKpis([]);
+    this.recomputeKpisFromCache();
   }
 
   onCustomDateRangeSelection(event: DateRangeChangeEvent): void {
