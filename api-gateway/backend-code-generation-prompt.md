@@ -116,13 +116,13 @@ Then **two clearly labelled sub-steps**:
 
 #### Step 3a — @Value field declarations
 
-> `Copy to: src/main/java/.../config/QueryConfigs.java — add these four @Value fields alongside the existing ones`
+> `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/config/QueryConfigs.java — add these four @Value fields alongside the existing ones`
 
 `java` code fence with the four `@Value` + `public String` declarations.
 
 #### Step 3b — @Bean getter methods
 
-> `Copy to: src/main/java/.../config/QueryConfigs.java — add these four @Bean methods alongside the existing getters`
+> `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/config/QueryConfigs.java — add these four @Bean methods alongside the existing getters`
 
 `java` code fence with the four `@Bean`-annotated getter methods.
 
@@ -134,9 +134,9 @@ Then **two clearly labelled sub-steps**:
 
 Short explanation: _"The service class owns the business logic: it runs the queries, formats date columns, and handles the assignment update. It is wired together entirely through Spring constructor injection — you do not call `new` anywhere."_
 
-> `Copy to: src/main/java/.../services/`**[derive: `PascalCase(featureName)` + `Service.java`]** `— create this file`
+> `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/services/`**[derive: `PascalCase(featureName)` + `Service.java`]** `— create this file`
 >
-> ⚠️ **You MUST emit the actual file name in the Copy-to label above** — not the template. Derive it now: convert `featureName` to PascalCase and append `Service.java`. Example: `featureName = "ait-monitoring"` → label reads `Copy to: src/main/java/.../services/AitMonitoringService.java`. Never write `<FeaturePascalCase>` literally in your output.
+> ⚠️ **You MUST emit the actual file name in the Copy-to label above** — not the template. Derive it now: convert `featureName` to PascalCase and append `Service.java`. Example: `featureName = "ait-monitoring"` → label reads `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/services/AitMonitoringService.java`. Never write `<FeaturePascalCase>` literally in your output.
 
 Emit the **complete, ready-to-paste service file** in a single `java` code fence. Do NOT split it into sub-blocks — one contiguous file.
 
@@ -170,9 +170,9 @@ Then add a **🗺️ Update-method mapping box** (visible even when `paramAliase
 
 Short explanation: _"The controller exposes the four HTTP endpoints the Angular frontend calls. It delegates all work to the service — it contains no business logic."_
 
-> `Copy to: src/main/java/.../controllers/`**[derive: `PascalCase(featureName)` + `Controller.java`]** `— create this file`
+> `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/controllers/`**[derive: `PascalCase(featureName)` + `Controller.java`]** `— create this file`
 >
-> ⚠️ **You MUST emit the actual file name in the Copy-to label above** — not the template. Derive it now: convert `featureName` to PascalCase and append `Controller.java`. Example: `featureName = "ait-monitoring"` → label reads `Copy to: src/main/java/.../controllers/AitMonitoringController.java`. Never write `<FeaturePascalCase>` literally in your output.
+> ⚠️ **You MUST emit the actual file name in the Copy-to label above** — not the template. Derive it now: convert `featureName` to PascalCase and append `Controller.java`. Example: `featureName = "ait-monitoring"` → label reads `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/controllers/AitMonitoringController.java`. Never write `<FeaturePascalCase>` literally in your output.
 
 Emit the **complete, ready-to-paste controller file** in a single `java` code fence.
 
@@ -310,7 +310,7 @@ public String get<ComponentPascalCase>SummaryUpdate() {
 
 Generate a **complete service class** named `<FeaturePascalCase>Service` (from `featureName`). Emit the whole file, ready to drop in. All member naming inside (fields, methods, params) is driven by `componentName`, not `featureName`.
 
-`Copy to: src/main/java/.../services/`**[derive and emit: `PascalCase(featureName)` + `Service.java`]**` (new file)` — **you MUST write the actual derived name here, not the template** (e.g. `AitMonitoringService.java` for `featureName = "ait-monitoring"`)
+`Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/services/`**[derive and emit: `PascalCase(featureName)` + `Service.java`]**` (new file)` — **you MUST write the actual derived name here, not the template** (e.g. `AitMonitoringService.java` for `featureName = "ait-monitoring"`)
 
 ### A) Class shell, fields, dependencies, constructor
 
@@ -348,6 +348,8 @@ public class <FeaturePascalCase>Service {
     // ... read + update methods (below) go inside this class
 }
 ```
+
+The file must start with the package declaration: `package com.cisco.des.o2c.rev.revenuemonitoringserver.services;`
 
 Include the required imports at the top of the file: `org.springframework.beans.factory.annotation.Autowired`, `org.springframework.stereotype.Service`, the project's `JdbcManager` and `Common` utils, `java.util.List`, `java.util.Map` (and `java.util.HashMap` if used).
 
@@ -402,7 +404,7 @@ In the output document, explicitly state:
 
 Generate a **complete controller class** named `<FeaturePascalCase>Controller` (from `featureName`). Emit the whole file, ready to drop in. Endpoint paths and method names are driven by `componentName`, not `featureName`.
 
-`Copy to: src/main/java/.../controllers/`**[derive and emit: `PascalCase(featureName)` + `Controller.java`]**` (new file)` — **you MUST write the actual derived name here, not the template** (e.g. `AitMonitoringController.java` for `featureName = "ait-monitoring"`)
+`Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/controllers/`**[derive and emit: `PascalCase(featureName)` + `Controller.java`]**` (new file)` — **you MUST write the actual derived name here, not the template** (e.g. `AitMonitoringController.java` for `featureName = "ait-monitoring"`)
 
 Class shell:
 
@@ -419,7 +421,9 @@ public class <FeaturePascalCase>Controller {
 }
 ```
 
-Include the required imports at the top of the file: `org.springframework.beans.factory.annotation.Autowired`, `org.springframework.http.HttpStatus`, `org.springframework.http.ResponseEntity`, `org.springframework.web.bind.annotation.*`, `java.util.ArrayList`, `java.util.HashMap`, `java.util.List`, `java.util.Map`, and the `<FeaturePascalCase>Service` import.
+The file must start with the package declaration: `package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;`
+
+Include the required imports at the top of the file: `org.springframework.beans.factory.annotation.Autowired`, `org.springframework.http.HttpStatus`, `org.springframework.http.ResponseEntity`, `org.springframework.web.bind.annotation.*`, `java.util.ArrayList`, `java.util.HashMap`, `java.util.List`, `java.util.Map`, and the service import: `com.cisco.des.o2c.rev.revenuemonitoringserver.services.<FeaturePascalCase>Service` (derive the actual class name from `featureName`).
 
 Generate all four endpoint methods (full method bodies), all using kebab-case paths.
 

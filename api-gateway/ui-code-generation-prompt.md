@@ -68,7 +68,9 @@ From `componentName`, derive:
 
 The component selector is always `app-<component-kebab-case>`.
 
-From `featureName`, derive **only** the schematic-generation command argument shown in Step 1 (the `ng generate` command below). `featureName` is supplied by the user in the input object already in **kebab-case** (e.g. `ait-monitoring`) and is used **verbatim** as the schematic `name` argument — do not transform it. It is not used anywhere else in the UI config.
+From `featureName`, derive **only** the schematic-generation command argument shown in Step 1 (the `ng generate` command below). `featureName` is supplied by the user in the input object already in **kebab-case** (e.g. `ait-monitoring`) and is used **verbatim** as the schematic `name` argument — do not transform it.
+
+From `assignmentUsersKey`, generate a **code update** in the feature component that sets `userContextData.assignmentUsersFilterKey` to that value after scaffolding. Do not rely on schematic CLI options for this value.
 
 > **featureName validation (UI form concern):** the input form / request layer validates `featureName` against `^[a-z][a-z0-9]*(-[a-z0-9]+)*$` and rejects non-kebab-case values with an error before this prompt runs, so you may assume `featureName` is already valid kebab-case here.
 
@@ -115,6 +117,10 @@ ng generate @rev-ops-monitoring/dashboard-schematics:monitoring-dashboard <featu
 ```
 
 Use `featureName` **verbatim** — no quotes, no transformation.
+
+After the command, add one short validation sentence:
+
+> Update `userContextData.assignmentUsersFilterKey` in `<featureName>.component.ts` to `<assignmentUsersKey>` as a code change in the generated block steps below.
 
 After the command, add a small **Files created** note:
 

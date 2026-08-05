@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 import os
 import re
@@ -23,6 +24,8 @@ BACKEND_PROMPT_FILE = PROMPT_DIR / "backend-code-generation-prompt.md"
 UI_PROMPT_FILE = PROMPT_DIR / "ui-code-generation-prompt.md"
 OPERATIONS_PROMPT_FILE = PROMPT_DIR / "code-apply-operations-prompt.md"
 DEFAULT_CODEGEN_MODEL = os.getenv("DASHBOARD_CODEGEN_MODEL", "gpt-5-nano")
+REPO_ROOT = Path(__file__).resolve().parent.parent
+SCHEMATICS_ROOT = REPO_ROOT / "revenue-monitoring-ui" / "angular-app" / "schematics" / "monitoring-dashboard" / "files"
 
 router = APIRouter()
 
@@ -91,7 +94,7 @@ class DashboardApplyTriggerRequest(BaseModel):
 
     owner: str
     repo: str
-    baseBranch: str = "main"
+    baseBranch: str = "develop"
     dryRun: bool = True
     backendDocument: str
     uiDocument: str
@@ -105,6 +108,623 @@ class DashboardCodegenState(TypedDict, total=False):
     backend_handoff: dict[str, Any]
     ui_document: str
     file_operations: list[dict[str, Any]]
+
+
+def _title_case_kebab(value: str) -> str:
+    return " ".join(part.capitalize() for part in value.split("-") if part)
+
+
+def _classify_kebab(value: str) -> str:
+    return "".join(part.capitalize() for part in value.split("-") if part)
+
+
+def _is_safe_relative_path(path: str) -> bool:
+    if not path or Path(path).is_absolute():
+        return False
+    parts = Path(path).parts
+    return all(part not in ("..", "") for part in parts)
+
+
+def _resolve_group_file(root_path: str, relative_path: str, repo_root: Path = REPO_ROOT) -> Path:
+    if not _is_safe_relative_path(root_path) or not _is_safe_relative_path(relative_path):
+        raise ValueError(f"Unsafe path: {root_path}/{relative_path}")
+    return (repo_root / root_path / relative_path).resolve()
+
+
+def _render_monitoring_schematic_template(relative_path: str, assignment_filter_key: str) -> str | None:
+    feature_match = re.match(r"src/app/([^/]+)/\1\.component\.(ts|html|css|spec\.ts)$", relative_path)
+    if not feature_match:
+        return None
+
+    feature_name, ext = feature_match.groups()
+    template_name = f"__name@dasherize__.component.{ext}.template"
+    template_path = SCHEMATICS_ROOT / template_name
+    if not template_path.exists():
+        return None
+
+    content = template_path.read_text(encoding="utf-8")
+    replacements = {
+        "<%= selectorPrefix %>": "app-",
+        "<%= dasherize(name) %>": feature_name,
+        "<%= classify(name) %>": _classify_kebab(feature_name),
+        "<%= title %>": _title_case_kebab(feature_name),
+        "<%= assignmentFilterKey %>": assignment_filter_key,
+    }
+    for key, value in replacements.items():
+        content = content.replace(key, value)
+    return content
+
+
+def _extract_monitoring_schematic_name(command: str) -> str | None:
+    match = re.search(r"monitoring-dashboard\s+([^\s]+)", command)
+    if not match:
+        return None
+    return match.group(1).strip()
+
+
+def _monitoring_schematic_paths(feature_name: str, include_tests: bool) -> list[str]:
+    base = f"src/app/{feature_name}/{feature_name}.component"
+    paths = [
+        f"{base}.ts",
+        f"{base}.html",
+        f"{base}.css",
+    ]
+    if include_tests:
+        paths.append(f"{base}.spec.ts")
+    return paths
+
+
+def _command_skips_tests(command: str) -> bool:
+    return "--skip-tests" in command or "--skipTests" in command
+
+
+def _replace_marker_block(content: str, marker: str, replacement: str, file_path: str) -> str:
+    marker_patterns = {
+        "VISIBLE_TABS": re.compile(r"visibleTabs:\s*\{.*?\}\[\]\s*=\s*\[\];", re.DOTALL),
+        "FIELD_CONFIG": re.compile(r"fieldConfig:\s*\{.*?\}\[\]\s*=\s*\[\];", re.DOTALL),
+    }
+
+    if marker in marker_patterns:
+        pattern = marker_patterns[marker]
+        if not pattern.search(content):
+            raise ValueError(f"Marker block '{marker}' not found in {file_path}")
+        return pattern.sub(replacement, content, count=1)
+
+    line_pattern = re.compile(rf"^.*{re.escape(marker)}.*$", re.MULTILINE)
+    marker_match = line_pattern.search(content)
+    if not marker_match:
+        raise ValueError(f"Marker line '{marker}' not found in {file_path}")
+
+    insert_at = marker_match.end()
+    snippet = "\n" + replacement.rstrip() + "\n"
+    return content[:insert_at] + snippet + content[insert_at:]
+
+
+def _apply_routing_update(content: str, import_path: str, component_class: str, route_path: str) -> str:
+    import_line = f"import {{ {component_class} }} from '{import_path}';"
+    if import_line not in content:
+        import_matches = list(re.finditer(r"^import .*;$", content, re.MULTILINE))
+        if not import_matches:
+            raise ValueError("No import section found in routing module")
+        insert_at = import_matches[-1].end()
+        content = content[:insert_at] + "\n" + import_line + content[insert_at:]
+
+    route_snippet = (
+        "  {\n"
+        f"    path: '{route_path}',\n"
+        f"    component: {component_class},\n"
+        "  },\n"
+    )
+    if f"path: '{route_path}'" not in content and f'path: "{route_path}"' not in content:
+        routes_match = re.search(r"export const routes: Routes = \[(.*?)\n\];", content, re.DOTALL)
+        if not routes_match:
+            raise ValueError("Routes array not found in routing module")
+        insert_at = routes_match.end() - 3
+        content = content[:insert_at] + route_snippet + content[insert_at:]
+
+    return content
+
+
+def _validate_grouped_file_operations(file_operations: list[dict[str, Any]]) -> tuple[list[str], list[str]]:
+    errors: list[str] = []
+    warnings: list[str] = []
+
+    if not file_operations:
+        errors.append("fileOperations must contain backend/frontend groups")
+        return errors, warnings
+
+    groups_by_target = {group.get("target"): group for group in file_operations if isinstance(group, dict)}
+    for target, expected_root in (("backend", "revenue-monitoring-server"), ("frontend", "revenue-monitoring-ui/angular-app")):
+        group = groups_by_target.get(target)
+        if not isinstance(group, dict):
+            errors.append(f"Missing '{target}' fileOperations group")
+            continue
+        if group.get("rootPath") != expected_root:
+            errors.append(f"{target}.rootPath must be '{expected_root}'")
+        if not isinstance(group.get("preSteps"), list):
+            errors.append(f"{target}.preSteps must be a list")
+        if not isinstance(group.get("operations"), list):
+            errors.append(f"{target}.operations must be a list")
+
+    frontend = groups_by_target.get("frontend")
+    if isinstance(frontend, dict):
+        pre_steps = frontend.get("preSteps") if isinstance(frontend.get("preSteps"), list) else []
+        if len(pre_steps) < 2:
+            errors.append("frontend.preSteps must include schematic run_command and update_routing_module")
+        else:
+            if pre_steps[0].get("op") != "run_command":
+                errors.append("frontend.preSteps[0] must be run_command")
+            if pre_steps[1].get("op") != "update_routing_module":
+                errors.append("frontend.preSteps[1] must be update_routing_module")
+
+        operations = frontend.get("operations") if isinstance(frontend.get("operations"), list) else []
+        if not operations:
+            errors.append("frontend.operations cannot be empty")
+        else:
+            first_op = operations[0]
+            if first_op.get("op") != "replace_text":
+                errors.append("frontend.operations[0] must set assignmentUsersFilterKey via replace_text")
+
+    for group in file_operations:
+        if not isinstance(group, dict):
+            errors.append("Each fileOperations group must be an object")
+            continue
+        target = group.get("target", "unknown")
+        pre_steps = group.get("preSteps") if isinstance(group.get("preSteps"), list) else []
+        for index, step in enumerate(pre_steps):
+            if not isinstance(step, dict):
+                errors.append(f"{target}.preSteps[{index}] must be an object")
+                continue
+            step_op = step.get("op")
+            if step_op == "run_command":
+                if not isinstance(step.get("command"), str) or not step.get("command", "").strip():
+                    errors.append(f"{target}.preSteps[{index}].command is required")
+            elif step_op == "update_routing_module":
+                required = ("filePath", "importPath", "componentClass", "routePath")
+                for field_name in required:
+                    if not isinstance(step.get(field_name), str) or not step.get(field_name, "").strip():
+                        errors.append(f"{target}.preSteps[{index}].{field_name} is required")
+                file_path = step.get("filePath")
+                if isinstance(file_path, str) and not _is_safe_relative_path(file_path):
+                    errors.append(f"Unsafe routing filePath: {file_path}")
+            else:
+                errors.append(f"Unsupported preStep op '{step_op}' in {target}.preSteps[{index}]")
+
+        operations = group.get("operations") if isinstance(group.get("operations"), list) else []
+        for index, operation in enumerate(operations):
+            if not isinstance(operation, dict):
+                errors.append(f"{target}.operations[{index}] must be an object")
+                continue
+            op = operation.get("op")
+            path = operation.get("path")
+            if not isinstance(path, str) or not path.strip():
+                errors.append(f"{target}.operations[{index}].path is required")
+                continue
+            if not _is_safe_relative_path(path):
+                errors.append(f"Unsafe path in {target}.operations[{index}]: {path}")
+            if op not in {"json_merge", "append", "create_or_replace", "replace_text", "replace_marker_block"}:
+                errors.append(f"Unsupported op '{op}' in {target}.operations[{index}]")
+            if op == "replace_marker_block" and not operation.get("marker"):
+                errors.append(f"{target}.operations[{index}].marker is required for replace_marker_block")
+            if op == "replace_text":
+                content = operation.get("content")
+                if not isinstance(content, dict) or not content.get("find") or not content.get("replace"):
+                    errors.append(f"{target}.operations[{index}].content must include find/replace for replace_text")
+            elif op != "json_merge":
+                if operation.get("content") in (None, ""):
+                    errors.append(f"{target}.operations[{index}].content cannot be empty")
+            if op == "json_merge" and not isinstance(operation.get("content"), dict):
+                errors.append(f"{target}.operations[{index}].content must be an object for json_merge")
+
+    return errors, warnings
+
+
+def _simulate_grouped_file_operations(
+    file_operations: list[dict[str, Any]],
+    backend_handoff: dict[str, Any],
+    repo_root: Path = REPO_ROOT,
+) -> dict[str, Any]:
+    simulated_files: dict[Path, str] = {}
+    steps: list[dict[str, Any]] = []
+    changed_files: list[str] = []
+    warnings: list[str] = []
+
+    assignment_users_key = str(backend_handoff.get("assignmentUsersKey") or "FILTER_KEY_PLACEHOLDER")
+
+    def read_or_seed(root_path: str, relative_path: str) -> str:
+        absolute_path = _resolve_group_file(root_path, relative_path, repo_root)
+        if absolute_path in simulated_files:
+            return simulated_files[absolute_path]
+        if absolute_path.exists():
+            content = absolute_path.read_text(encoding="utf-8")
+        else:
+            content = _render_monitoring_schematic_template(relative_path, "FILTER_KEY_PLACEHOLDER")
+            if content is None:
+                content = ""
+        simulated_files[absolute_path] = content
+        return content
+
+    def write_simulated(root_path: str, relative_path: str, content: str) -> None:
+        absolute_path = _resolve_group_file(root_path, relative_path, repo_root)
+        simulated_files[absolute_path] = content
+        relative_to_repo = absolute_path.relative_to(repo_root).as_posix()
+        if relative_to_repo not in changed_files:
+            changed_files.append(relative_to_repo)
+
+    for group in file_operations:
+        target = str(group.get("target"))
+        root_path = str(group.get("rootPath"))
+        for pre_step in group.get("preSteps", []):
+            step_op = pre_step.get("op")
+            if step_op == "run_command":
+                command = str(pre_step.get("command"))
+                feature_name = _extract_monitoring_schematic_name(command)
+                include_tests = not _command_skips_tests(command)
+                materialized_files: list[str] = []
+                if feature_name:
+                    for relative_path in _monitoring_schematic_paths(feature_name, include_tests):
+                        content = _render_monitoring_schematic_template(
+                            relative_path,
+                            "FILTER_KEY_PLACEHOLDER",
+                        )
+                        if content is None:
+                            continue
+                        write_simulated(root_path, relative_path, content)
+                        materialized_files.append(f"{root_path}/{relative_path}")
+                steps.append({
+                    "type": "preStep",
+                    "target": target,
+                    "op": step_op,
+                    "status": "simulated",
+                    "command": command,
+                    "materializedFiles": materialized_files,
+                    "description": pre_step.get("description", ""),
+                })
+            elif step_op == "update_routing_module":
+                routing_file = str(pre_step.get("filePath"))
+                current = read_or_seed(root_path, routing_file)
+                updated = _apply_routing_update(
+                    current,
+                    str(pre_step.get("importPath")),
+                    str(pre_step.get("componentClass")),
+                    str(pre_step.get("routePath")),
+                )
+                write_simulated(root_path, routing_file, updated)
+                steps.append({
+                    "type": "preStep",
+                    "target": target,
+                    "op": step_op,
+                    "status": "simulated",
+                    "path": f"{root_path}/{routing_file}",
+                    "description": pre_step.get("description", ""),
+                })
+
+        for operation in group.get("operations", []):
+            relative_path = str(operation.get("path"))
+            op = str(operation.get("op"))
+            current = read_or_seed(root_path, relative_path)
+            updated = current
+            if op == "json_merge":
+                existing_obj = json.loads(current) if current.strip() else {}
+                if not isinstance(existing_obj, dict):
+                    raise ValueError(f"Existing JSON content is not an object for {relative_path}")
+                existing_obj.update(operation.get("content") or {})
+                updated = json.dumps(existing_obj, indent=2, sort_keys=True) + "\n"
+            elif op == "append":
+                updated = current + str(operation.get("content"))
+            elif op == "create_or_replace":
+                updated = str(operation.get("content"))
+            elif op == "replace_text":
+                replacement = operation.get("content") or {}
+                find_text = str(replacement.get("find"))
+                replace_text = str(replacement.get("replace"))
+                if find_text not in current:
+                    raise ValueError(f"Text to replace not found in {relative_path}")
+                updated = current.replace(find_text, replace_text, 1)
+            elif op == "replace_marker_block":
+                updated = _replace_marker_block(current, str(operation.get("marker")), str(operation.get("content")), relative_path)
+
+            write_simulated(root_path, relative_path, updated)
+            steps.append({
+                "type": "operation",
+                "target": target,
+                "op": op,
+                "status": "simulated",
+                "path": f"{root_path}/{relative_path}",
+                "description": operation.get("description", ""),
+            })
+
+    return {
+        "steps": steps,
+        "changedFiles": changed_files,
+        "changedFileCount": len(changed_files),
+        "warnings": warnings,
+        "assignmentUsersKey": assignment_users_key,
+    }
+
+
+def _github_headers(token: str) -> dict[str, str]:
+    return {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+
+
+def _codegen_branch_name(backend_handoff: dict[str, Any]) -> str:
+    feature = backend_handoff.get("featureName") or "dashboard"
+    safe = re.sub(r"[^a-z0-9-]", "-", feature.lower()).strip("-")
+    return f"codegen/{safe}"
+
+
+async def _github_get_branch_sha(owner: str, repo: str, branch: str, token: str) -> str:
+    url = f"{GITHUB_API_BASE_URL}/repos/{owner}/{repo}/git/ref/heads/{branch}"
+    resp = await _http_client.get(url, headers=_github_headers(token))
+    resp.raise_for_status()
+    return resp.json()["object"]["sha"]
+
+
+async def _github_list_branch_names(owner: str, repo: str, token: str) -> set[str]:
+    branch_names: set[str] = set()
+    page = 1
+    per_page = 100
+
+    while True:
+        url = f"{GITHUB_API_BASE_URL}/repos/{owner}/{repo}/branches"
+        resp = await _http_client.get(
+            url,
+            params={"per_page": per_page, "page": page},
+            headers=_github_headers(token),
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        if not isinstance(data, list) or not data:
+            break
+
+        for item in data:
+            if isinstance(item, dict):
+                name = item.get("name")
+                if isinstance(name, str) and name.strip():
+                    branch_names.add(name)
+
+        if len(data) < per_page:
+            break
+        page += 1
+
+    return branch_names
+
+
+async def _github_branch_exists(owner: str, repo: str, branch: str, token: str) -> bool:
+    branches = await _github_list_branch_names(owner, repo, token)
+    return branch in branches
+
+
+async def _github_create_branch(owner: str, repo: str, new_branch: str, sha: str, token: str) -> None:
+    url = f"{GITHUB_API_BASE_URL}/repos/{owner}/{repo}/git/refs"
+    resp = await _http_client.post(
+        url,
+        json={"ref": f"refs/heads/{new_branch}", "sha": sha},
+        headers=_github_headers(token),
+    )
+    resp.raise_for_status()
+
+
+async def _github_create_blob(owner: str, repo: str, content: str, token: str) -> str:
+    url = f"{GITHUB_API_BASE_URL}/repos/{owner}/{repo}/git/blobs"
+    resp = await _http_client.post(
+        url,
+        json={
+            "content": base64.b64encode(content.encode("utf-8")).decode("ascii"),
+            "encoding": "base64",
+        },
+        headers=_github_headers(token),
+    )
+    resp.raise_for_status()
+    return resp.json()["sha"]
+
+
+async def _github_create_tree(
+    owner: str,
+    repo: str,
+    base_tree_sha: str,
+    file_blobs: list[dict[str, Any]],
+    token: str,
+) -> str:
+    url = f"{GITHUB_API_BASE_URL}/repos/{owner}/{repo}/git/trees"
+    resp = await _http_client.post(
+        url,
+        json={"base_tree": base_tree_sha, "tree": file_blobs},
+        headers=_github_headers(token),
+    )
+    resp.raise_for_status()
+    return resp.json()["sha"]
+
+
+async def _github_create_commit(
+    owner: str,
+    repo: str,
+    message: str,
+    tree_sha: str,
+    parent_sha: str,
+    token: str,
+) -> str:
+    url = f"{GITHUB_API_BASE_URL}/repos/{owner}/{repo}/git/commits"
+    resp = await _http_client.post(
+        url,
+        json={"message": message, "tree": tree_sha, "parents": [parent_sha]},
+        headers=_github_headers(token),
+    )
+    resp.raise_for_status()
+    return resp.json()["sha"]
+
+
+async def _github_update_ref(owner: str, repo: str, branch: str, commit_sha: str, token: str) -> None:
+    url = f"{GITHUB_API_BASE_URL}/repos/{owner}/{repo}/git/refs/heads/{branch}"
+    resp = await _http_client.patch(
+        url,
+        json={"sha": commit_sha, "force": False},
+        headers=_github_headers(token),
+    )
+    resp.raise_for_status()
+
+
+async def _github_create_pr(
+    owner: str,
+    repo: str,
+    head: str,
+    base: str,
+    title: str,
+    body: str,
+    token: str,
+) -> str:
+    url = f"{GITHUB_API_BASE_URL}/repos/{owner}/{repo}/pulls"
+    resp = await _http_client.post(
+        url,
+        json={"title": title, "body": body, "head": head, "base": base},
+        headers=_github_headers(token),
+    )
+    resp.raise_for_status()
+    return resp.json()["html_url"]
+
+
+async def _execute_grouped_file_operations(
+    file_operations: list[dict[str, Any]],
+    backend_handoff: dict[str, Any],
+    owner: str,
+    repo: str,
+    base_branch: str,
+    token: str,
+) -> tuple[dict[str, str], list[dict[str, Any]]]:
+    """Apply grouped file operations against live GitHub content.
+
+    Returns:
+        changed_files: repo-relative path → final file content
+        steps: log of each operation applied
+    """
+    file_cache: dict[str, str] = {}
+    changed_files: dict[str, str] = {}
+    steps: list[dict[str, Any]] = []
+
+    async def fetch_or_seed(root_path: str, relative_path: str) -> str:
+        repo_relative = f"{root_path}/{relative_path}"
+        if repo_relative in file_cache:
+            return file_cache[repo_relative]
+        url = f"{GITHUB_API_BASE_URL}/repos/{owner}/{repo}/contents/{repo_relative}"
+        try:
+            resp = await _http_client.get(
+                url,
+                params={"ref": base_branch},
+                headers=_github_headers(token),
+            )
+            if resp.status_code == 200:
+                raw = resp.json()
+                content = base64.b64decode(
+                    raw["content"].replace("\n", "")
+                ).decode("utf-8")
+                file_cache[repo_relative] = content
+                return content
+        except Exception:
+            pass
+        # New file — seed from schematic template
+        content = _render_monitoring_schematic_template(relative_path, "FILTER_KEY_PLACEHOLDER") or ""
+        file_cache[repo_relative] = content
+        return content
+
+    def write_changed(root_path: str, relative_path: str, content: str) -> None:
+        repo_relative = f"{root_path}/{relative_path}"
+        file_cache[repo_relative] = content
+        changed_files[repo_relative] = content
+
+    for group in file_operations:
+        target = str(group.get("target"))
+        root_path = str(group.get("rootPath"))
+
+        for pre_step in group.get("preSteps", []):
+            step_op = pre_step.get("op")
+            if step_op == "run_command":
+                command = str(pre_step.get("command", ""))
+                feature_name = _extract_monitoring_schematic_name(command)
+                include_tests = not _command_skips_tests(command)
+                materialized_files: list[str] = []
+                if feature_name:
+                    for relative_path in _monitoring_schematic_paths(feature_name, include_tests):
+                        content = _render_monitoring_schematic_template(
+                            relative_path,
+                            "FILTER_KEY_PLACEHOLDER",
+                        )
+                        if content is None:
+                            continue
+                        write_changed(root_path, relative_path, content)
+                        materialized_files.append(f"{root_path}/{relative_path}")
+
+                # Angular schematic cannot run against a remote repo — component files are materialized from templates
+                steps.append({
+                    "type": "preStep",
+                    "target": target,
+                    "op": step_op,
+                    "status": "template_seeded",
+                    "command": command,
+                    "note": "Schematic not executed remotely; component files materialized from templates",
+                    "materializedFiles": materialized_files,
+                })
+            elif step_op == "update_routing_module":
+                routing_file = str(pre_step.get("filePath"))
+                current = await fetch_or_seed(root_path, routing_file)
+                updated = _apply_routing_update(
+                    current,
+                    str(pre_step.get("importPath")),
+                    str(pre_step.get("componentClass")),
+                    str(pre_step.get("routePath")),
+                )
+                write_changed(root_path, routing_file, updated)
+                steps.append({
+                    "type": "preStep",
+                    "target": target,
+                    "op": step_op,
+                    "status": "applied",
+                    "path": f"{root_path}/{routing_file}",
+                })
+
+        for operation in group.get("operations", []):
+            relative_path = str(operation.get("path"))
+            op = str(operation.get("op"))
+            current = await fetch_or_seed(root_path, relative_path)
+
+            if op == "json_merge":
+                existing_obj = json.loads(current) if current.strip() else {}
+                existing_obj.update(operation.get("content") or {})
+                updated = json.dumps(existing_obj, indent=2, sort_keys=True) + "\n"
+            elif op == "append":
+                updated = current + str(operation.get("content"))
+            elif op == "create_or_replace":
+                updated = str(operation.get("content"))
+            elif op == "replace_text":
+                replacement = operation.get("content") or {}
+                find_text = str(replacement.get("find"))
+                replace_text_val = str(replacement.get("replace"))
+                if find_text not in current:
+                    raise ValueError(f"replace_text: pattern not found in {relative_path}")
+                updated = current.replace(find_text, replace_text_val, 1)
+            elif op == "replace_marker_block":
+                updated = _replace_marker_block(
+                    current,
+                    str(operation.get("marker")),
+                    str(operation.get("content")),
+                    relative_path,
+                )
+            else:
+                updated = current
+
+            write_changed(root_path, relative_path, updated)
+            steps.append({
+                "type": "operation",
+                "target": target,
+                "op": op,
+                "status": "applied",
+                "path": f"{root_path}/{relative_path}",
+            })
+
+    return changed_files, steps
 
 
 def _github_missing_config() -> list[str]:
@@ -210,15 +830,51 @@ async def github_app_smoke_test(payload: GitHubSmokeTestRequest) -> dict[str, An
     except Exception as exc:
         return {"ok": False, "stage": "repo_read", "error": str(exc)}
 
+    installation_repo_access: dict[str, Any] = {
+        "checked": False,
+        "accessible": None,
+        "visibleRepositoryCount": None,
+    }
+    try:
+        installation_repos_resp = await _http_client.get(
+            f"{GITHUB_API_BASE_URL}/installation/repositories",
+            headers={
+                "Authorization": f"token {installation_token}",
+                "Accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+            },
+        )
+        if installation_repos_resp.status_code == 200:
+            installation_repo_access["checked"] = True
+            repositories = installation_repos_resp.json().get("repositories", [])
+            visible_repo_names = {
+                f"{item.get('owner', {}).get('login')}/{item.get('name')}"
+                for item in repositories
+                if isinstance(item, dict)
+            }
+            installation_repo_access["accessible"] = (
+                f"{payload.owner}/{payload.repo}" in visible_repo_names
+            )
+            installation_repo_access["visibleRepositoryCount"] = len(repositories)
+    except Exception:
+        # Keep smoke-test non-fatal if installation repository listing fails
+        pass
+
     return {
         "ok": True,
         "repo": f"{payload.owner}/{payload.repo}",
         "defaultBranch": repo_data.get("default_branch"),
+        "repoAccessible": True,
+        "installationRepoAccess": installation_repo_access,
         "permissions": {
             "admin": (repo_data.get("permissions") or {}).get("admin", False),
             "push": (repo_data.get("permissions") or {}).get("push", False),
             "pull": (repo_data.get("permissions") or {}).get("pull", False),
         },
+        "permissionsNote": (
+            "For GitHub App installation tokens, repository 'permissions' booleans can be false/empty "
+            "even when app permissions are correctly configured."
+        ),
     }
 
 
@@ -271,19 +927,180 @@ async def dashboard_codegen_apply_with_agent(payload: DashboardApplyTriggerReque
             "error": "fileOperations is required. First call /api/dashboard-codegen and pass its fileOperations into apply-with-agent.",
         }
 
+    normalized_file_operations = _normalize_file_operations(payload.fileOperations)
+    validation_errors, validation_warnings = _validate_grouped_file_operations(
+        normalized_file_operations
+    )
+    if validation_errors:
+        return {
+            "ok": False,
+            "stage": "validate_payload",
+            "errors": validation_errors,
+            "warnings": validation_warnings,
+            "repo": f"{payload.owner}/{payload.repo}",
+            "baseBranch": payload.baseBranch,
+        }
+
+    if payload.dryRun:
+        try:
+            preview = _simulate_grouped_file_operations(
+                normalized_file_operations,
+                payload.backendHandoff,
+            )
+        except Exception as exc:
+            return {
+                "ok": False,
+                "stage": "dry_run_apply",
+                "error": str(exc),
+                "repo": f"{payload.owner}/{payload.repo}",
+                "baseBranch": payload.baseBranch,
+                "defaultBranch": repo_data.get("default_branch"),
+            }
+
+        return {
+            "ok": True,
+            "triggered": True,
+            "dryRun": True,
+            "stage": "dry_run_apply",
+            "repo": f"{payload.owner}/{payload.repo}",
+            "baseBranch": payload.baseBranch,
+            "defaultBranch": repo_data.get("default_branch"),
+            "connection": {
+                "githubAuthenticated": True,
+                "repoAccessible": True,
+            },
+            "validation": {
+                "passed": True,
+                "warnings": validation_warnings,
+            },
+            "executionPreview": preview,
+            "fileOperations": normalized_file_operations,
+            "nextSteps": [
+                "Reuse GitHub App installation token flow for real apply execution.",
+                "Create a working branch from the requested base branch.",
+                "Execute backend preSteps and operations in order.",
+                "Execute frontend schematic, routing update, and code operations in order.",
+                "Create commit(s), push branch, and open a pull request.",
+                "Return final PR link and changed-file summary to the UI.",
+            ],
+        }
+
+    # ── Real apply: branch → blobs → tree → commit → PR ──────────────────────
+    feature_name: str = str(payload.backendHandoff.get("featureName") or "dashboard")
+    new_branch = _codegen_branch_name(payload.backendHandoff)
+
+    try:
+        base_sha = await _github_get_branch_sha(
+            payload.owner, payload.repo, payload.baseBranch, installation_token
+        )
+    except Exception as exc:
+        return {"ok": False, "stage": "get_base_sha", "error": str(exc)}
+
+    try:
+        if await _github_branch_exists(
+            payload.owner, payload.repo, new_branch, installation_token
+        ):
+            return {
+                "ok": False,
+                "stage": "branch_collision",
+                "error": f"Branch '{new_branch}' already exists.",
+                "branch": new_branch,
+                "resolution": "Use a different featureName or enable branch suffix strategy.",
+            }
+    except Exception as exc:
+        return {"ok": False, "stage": "check_branch_exists", "error": str(exc), "branch": new_branch}
+
+    try:
+        await _github_create_branch(
+            payload.owner, payload.repo, new_branch, base_sha, installation_token
+        )
+    except Exception as exc:
+        return {"ok": False, "stage": "create_branch", "error": str(exc), "branch": new_branch}
+
+    try:
+        changed_files, apply_steps = await _execute_grouped_file_operations(
+            normalized_file_operations,
+            payload.backendHandoff,
+            payload.owner,
+            payload.repo,
+            payload.baseBranch,
+            installation_token,
+        )
+    except Exception as exc:
+        return {"ok": False, "stage": "execute_operations", "error": str(exc), "branch": new_branch}
+
+    try:
+        tree_entries: list[dict[str, Any]] = []
+        for repo_path, file_content in changed_files.items():
+            blob_sha = await _github_create_blob(
+                payload.owner, payload.repo, file_content, installation_token
+            )
+            tree_entries.append({
+                "path": repo_path,
+                "mode": "100644",
+                "type": "blob",
+                "sha": blob_sha,
+            })
+        tree_sha = await _github_create_tree(
+            payload.owner, payload.repo, base_sha, tree_entries, installation_token
+        )
+    except Exception as exc:
+        return {"ok": False, "stage": "create_tree", "error": str(exc), "branch": new_branch}
+
+    commit_sha: str = ""
+    try:
+        commit_message = (
+            f"feat: codegen {feature_name} dashboard\n\n"
+            f"Generated by dashboard-codegen agent.\n"
+            f"Changed files: {len(changed_files)}"
+        )
+        commit_sha = await _github_create_commit(
+            payload.owner, payload.repo, commit_message, tree_sha, base_sha, installation_token
+        )
+        await _github_update_ref(
+            payload.owner, payload.repo, new_branch, commit_sha, installation_token
+        )
+    except Exception as exc:
+        return {"ok": False, "stage": "create_commit", "error": str(exc), "branch": new_branch}
+
+    try:
+        pr_title = f"feat: codegen {_title_case_kebab(feature_name)} dashboard"
+        file_list = "\n".join(f"- `{f}`" for f in changed_files)
+        pr_body = (
+            f"## Dashboard Codegen — `{feature_name}`\n\n"
+            f"Generated by the automated dashboard-codegen agent.\n\n"
+            f"### Changed files ({len(changed_files)})\n"
+            f"{file_list}\n\n"
+            f"> Review and merge after confirming component behaviour in staging."
+        )
+        pr_url = await _github_create_pr(
+            payload.owner, payload.repo,
+            new_branch, payload.baseBranch,
+            pr_title, pr_body,
+            installation_token,
+        )
+    except Exception as exc:
+        return {
+            "ok": False,
+            "stage": "create_pr",
+            "error": str(exc),
+            "branch": new_branch,
+            "commitSha": commit_sha,
+        }
+
     return {
         "ok": True,
         "triggered": True,
-        "dryRun": payload.dryRun,
+        "dryRun": False,
+        "stage": "apply_complete",
         "repo": f"{payload.owner}/{payload.repo}",
+        "branch": new_branch,
         "baseBranch": payload.baseBranch,
-        "defaultBranch": repo_data.get("default_branch"),
-        "backendDocument": payload.backendDocument,
-        "uiDocument": payload.uiDocument,
-        "backendHandoff": payload.backendHandoff,
-        "fileOperations": payload.fileOperations,
-        "fileOperationCount": len(payload.fileOperations),
-        "next": "Implement branch/create-commit/PR job execution using fileOperations.",
+        "prUrl": pr_url,
+        "commitSha": commit_sha,
+        "changedFiles": list(changed_files.keys()),
+        "changedFileCount": len(changed_files),
+        "steps": apply_steps,
     }
 
 
@@ -327,6 +1144,38 @@ def _extract_json_object(text: str) -> dict[str, Any]:
         except Exception:
             return {}
     return {}
+
+
+def _normalize_file_operations(raw_ops: Any) -> list[dict[str, Any]]:
+    """Normalize fileOperations payloads to a list of dicts.
+
+    Supports:
+    1) legacy flat list of operation dicts
+    2) grouped list with target/rootPath/operations objects
+    3) grouped object map: {"backend": {...}, "frontend": {...}}
+    """
+    if isinstance(raw_ops, list):
+        return [op for op in raw_ops if isinstance(op, dict)]
+
+    if isinstance(raw_ops, dict):
+        grouped: list[dict[str, Any]] = []
+
+        # object-map grouped form
+        for target in ("backend", "frontend"):
+            section = raw_ops.get(target)
+            if isinstance(section, dict):
+                item = dict(section)
+                item.setdefault("target", target)
+                grouped.append(item)
+
+        if grouped:
+            return grouped
+
+        # single grouped object fallback
+        if any(k in raw_ops for k in ("target", "rootPath", "operations", "preSteps")):
+            return [raw_ops]
+
+    return []
 
 
 async def _get_codegen_llm(model_name: str = DEFAULT_CODEGEN_MODEL):
@@ -453,7 +1302,7 @@ def extract_where_placeholders(sql: str) -> list[str]:
     if not where_part:
         return []
 
-    conditions = re.split(r"\bAND\b|\bOR\b", where_part, flags=re.IGNORECASE)
+    conditions = re.split(r"\bAND\b|\bOR\b|,", where_part, flags=re.IGNORECASE)
     result: list[str] = []
 
     for cond in conditions:
@@ -565,9 +1414,7 @@ async def operations_generation_node(state: DashboardCodegenState) -> DashboardC
     raw = _content_to_text(response.content)
     parsed = _extract_json_object(raw)
     ops = parsed.get("fileOperations", []) if isinstance(parsed, dict) else []
-    if not isinstance(ops, list):
-        ops = []
-    normalized_ops = [op for op in ops if isinstance(op, dict)]
+    normalized_ops = _normalize_file_operations(ops)
     return {"file_operations": normalized_ops}
 
 

@@ -109,6 +109,16 @@ export class MonitoringOnboardingComponent implements OnInit {
   submitError: string | null = null;
   generated: GeneratedDocs | null = null;
 
+  /** Apply-with-agent UX state (post-generation). */
+  applyConfirmationOpen = false;
+  applyAcknowledged = false;
+  applyInProgress = false;
+  applyError: string | null = null;
+  applyResult: Record<string, unknown> | null = null;
+  applyOwner = 'cisco-it-finance';
+  applyRepo = 'rev-ops-monitoring';
+  applyBaseBranch = 'develop';
+
   /** Whether the user has copied or downloaded at least one generated doc. */
   docsSaved = false;
   /** Whether the in-page "unsaved changes" warning banner is visible. */
@@ -183,6 +193,12 @@ export class MonitoringOnboardingComponent implements OnInit {
       return `${normalized}/dashboard-codegen`;
     }
     return `${normalized}/api/dashboard-codegen`;
+  }
+
+  private resolveApplyApiUrl(rawUrl: string): string {
+    const codegenUrl = this.resolveApiUrl(rawUrl);
+    if (!codegenUrl) return '';
+    return `${codegenUrl.replace(/\/+$/, '')}/apply-with-agent`;
   }
 
   // ── typed getters ──────────────────────────────────────────
@@ -440,6 +456,156 @@ export class MonitoringOnboardingComponent implements OnInit {
     };
   }
 
+  get canStartApplyWithAgent(): boolean {
+    if (!this.generated) return false;
+    return (
+      Array.isArray(this.generated.fileOperations) &&
+      this.generated.fileOperations.length > 0
+    );
+  }
+
+  get applySucceeded(): boolean {
+    return this.applyResult?.['ok'] === true;
+  }
+
+  get applyStage(): string {
+    const value = this.applyResult?.['stage'];
+    return typeof value === 'string' ? value : '';
+  }
+
+  get applyPrUrl(): string | null {
+    const value = this.applyResult?.['prUrl'];
+    return typeof value === 'string' && value.trim() ? value : null;
+  }
+
+  get applyBranch(): string | null {
+    const value = this.applyResult?.['branch'];
+    return typeof value === 'string' && value.trim() ? value : null;
+  }
+
+  get applyResultError(): string | null {
+    const value = this.applyResult?.['error'];
+    return typeof value === 'string' && value.trim() ? value : null;
+  }
+
+  get applyChangedFileCount(): number | null {
+    const value = this.applyResult?.['changedFileCount'];
+    return typeof value === 'number' ? value : null;
+  }
+
+  openApplyConfirmation(): void {
+    if (!this.canStartApplyWithAgent || this.applyInProgress) return;
+    this.applyError = null;
+    this.applyAcknowledged = false;
+    this.applyConfirmationOpen = true;
+  }
+
+  cancelApplyConfirmation(): void {
+    this.applyConfirmationOpen = false;
+    this.applyAcknowledged = false;
+  }
+
+  private resetApplyState(): void {
+    this.applyConfirmationOpen = false;
+    this.applyAcknowledged = false;
+    this.applyInProgress = false;
+    this.applyError = null;
+    this.applyResult = null;
+  }
+
+  async confirmApplyAndProceed(): Promise<void> {
+    if (!this.applyAcknowledged || this.applyInProgress) return;
+
+    const resolvedApplyUrl = this.resolveApplyApiUrl(
+      this.authService.getControlTowerSupportAgentApiUrl() || '',
+    );
+    if (!resolvedApplyUrl) {
+      this.applyError =
+        'Apply endpoint is unavailable from user context. Please refresh and try again.';
+      return;
+    }
+
+    if (!this.generated) {
+      this.applyError =
+        'No generated output found. Generate backend/frontend documents first.';
+      return;
+    }
+
+    const backendDocument =
+      (this.generated.backendDocument || this.generated.backend || '') + '';
+    const uiDocument =
+      (this.generated.uiDocument || this.generated.ui || '') + '';
+    const backendHandoff =
+      this.generated.backendHandoff &&
+      typeof this.generated.backendHandoff === 'object'
+        ? this.generated.backendHandoff
+        : {};
+    const fileOperations = Array.isArray(this.generated.fileOperations)
+      ? this.generated.fileOperations
+      : [];
+
+    if (!fileOperations.length) {
+      this.applyError =
+        'No file operations were generated. Regenerate the documents and try again.';
+      return;
+    }
+
+    const payload = {
+      owner: this.applyOwner.trim(),
+      repo: this.applyRepo.trim(),
+      baseBranch: this.applyBaseBranch.trim() || 'develop',
+      dryRun: false,
+      backendDocument,
+      uiDocument,
+      backendHandoff,
+      fileOperations,
+    };
+
+    this.applyInProgress = true;
+    this.applyError = null;
+    this.applyResult = null;
+    this.applyConfirmationOpen = false;
+
+    try {
+      const response = await fetch(resolvedApplyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const raw = await response.text();
+      const data = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+      this.applyResult = data;
+
+      if (!response.ok) {
+        const message =
+          (typeof data['error'] === 'string' && data['error']) ||
+          `Apply request failed (${response.status} ${response.statusText}).`;
+        throw new Error(message);
+      }
+
+      if (data['ok'] !== true) {
+        const stage =
+          typeof data['stage'] === 'string' && data['stage']
+            ? `[${data['stage']}] `
+            : '';
+        const error =
+          typeof data['error'] === 'string' && data['error']
+            ? data['error']
+            : 'Apply flow did not complete successfully.';
+        this.applyError = `${stage}${error}`;
+      }
+    } catch (err) {
+      this.applyError =
+        err instanceof Error
+          ? err.message
+          : 'Unexpected error while applying generated code.';
+    } finally {
+      this.applyInProgress = false;
+      this.applyAcknowledged = false;
+    }
+  }
+
   // ── submit ─────────────────────────────────────────────────
   async submit(): Promise<void> {
     const resolvedUrl = this.resolveApiUrl(
@@ -467,6 +633,7 @@ export class MonitoringOnboardingComponent implements OnInit {
     this.submitting = true;
     this.submitError = null;
     this.generated = null;
+    this.resetApplyState();
     this.docsSaved = false;
     this.leaveWarningDismissed = false;
 
@@ -1130,6 +1297,7 @@ export class MonitoringOnboardingComponent implements OnInit {
   editForRegeneration(): void {
     this.generated = null;
     this.submitError = null;
+    this.resetApplyState();
     this.docsSaved = false;
     this.leaveWarningDismissed = false;
     this.currentStep = this.steps.findIndex((s) => s.key === 'review');
@@ -1138,6 +1306,7 @@ export class MonitoringOnboardingComponent implements OnInit {
   resetForm(): void {
     this.generated = null;
     this.submitError = null;
+    this.resetApplyState();
     this.docsSaved = false;
     this.leaveWarningDismissed = false;
     this.currentStep = 0;

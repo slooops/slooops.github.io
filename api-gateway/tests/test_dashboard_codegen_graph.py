@@ -15,13 +15,11 @@ class FakeLLM:
 
     async def ainvoke(self, messages):
         self.calls.append(messages)
-        system_text = messages[0].content
         user_payload = json.loads(messages[1].content)
 
-        if "backend" in system_text.lower():
-            return AIMessage(content=f"BACKEND DOC for {user_payload['componentName']}")
-
-        if "apply manifest" in system_text.lower() or "fileoperations" in system_text.lower():
+        if isinstance(user_payload, dict) and all(
+            key in user_payload for key in ("input", "backendHandoff", "backendDocument", "uiDocument")
+        ):
             return AIMessage(
                 content=json.dumps(
                     {
@@ -37,7 +35,17 @@ class FakeLLM:
                 )
             )
 
-        return AIMessage(content=f"UI DOC for {user_payload['componentName']}")
+        if (
+            isinstance(user_payload, dict)
+            and "componentName" in user_payload
+            and "backendHandoff" not in user_payload
+        ):
+            return AIMessage(content=f"BACKEND DOC for {user_payload['componentName']}")
+
+        if isinstance(user_payload, dict) and "componentName" in user_payload:
+            return AIMessage(content=f"UI DOC for {user_payload['componentName']}")
+
+        return AIMessage(content="UI DOC")
 
 
 def _payload():

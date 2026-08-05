@@ -11,5 +11,7 @@ pydantic>=2.7.4
 python-multipart==0.0.6
 sqlglot>=20.0.0
 sql-metadata>=2.6.0
+pyjwt>=2.9.0
+cryptography>=42.0.0
 webexteamssdk
 webex-bot
