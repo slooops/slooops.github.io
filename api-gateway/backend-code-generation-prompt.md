@@ -116,13 +116,13 @@ Then **two clearly labelled sub-steps**:
 
 #### Step 3a — @Value field declarations
 
-> `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/config/QueryConfigs.java — add these four @Value fields alongside the existing ones`
+> `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/configs/QueryConfigs.java — add these four @Value fields alongside the existing ones`
 
 `java` code fence with the four `@Value` + `public String` declarations.
 
 #### Step 3b — @Bean getter methods
 
-> `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/config/QueryConfigs.java — add these four @Bean methods alongside the existing getters`
+> `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/configs/QueryConfigs.java — add these four @Bean methods alongside the existing getters`
 
 `java` code fence with the four `@Bean`-annotated getter methods.
 
@@ -351,7 +351,14 @@ public class <FeaturePascalCase>Service {
 
 The file must start with the package declaration: `package com.cisco.des.o2c.rev.revenuemonitoringserver.services;`
 
-Include the required imports at the top of the file: `org.springframework.beans.factory.annotation.Autowired`, `org.springframework.stereotype.Service`, the project's `JdbcManager` and `Common` utils, `java.util.List`, `java.util.Map` (and `java.util.HashMap` if used).
+Include the required imports at the top of the file: `org.springframework.beans.factory.annotation.Autowired`, `org.springframework.stereotype.Service`, `java.util.List`, `java.util.Map` (and `java.util.HashMap` if used), and the two project utility classes with their **exact** fully-qualified package paths:
+
+```java
+import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.Common;
+```
+
+> ⚠️ **Import path is fixed — do not invent packages.** Both `JdbcManager` and `Common` live in `com.cisco.des.o2c.rev.revenuemonitoringserver.utils` (note: `utils`, plural). Never emit `...revenuemonitoringserver.db.JdbcManager` or `...revenuemonitoringserver.util.Common` — those packages do not exist and will not compile.
 
 ### B) Read methods
 
@@ -367,8 +374,27 @@ Each read method must:
    - `jdbcManager.queryForList(query)` for summary/details,
    - `jdbcManager.queryForListWithParams(query, params...)` for filtered.
 2. define `String[] dateColumns = {...}` inside the method,
-3. call `common.formatDateColumns(data, dateColumns)` for each row,
+3. **iterate the result list and format each row individually** — `common.formatDateColumns` takes a single `Map<String, Object>` row, **never** the whole `List`. You MUST use the per-row `forEach` form:
+   ```java
+   result.forEach(data -> {
+       common.formatDateColumns(data, dateColumns);
+   });
+   ```
+   > ⚠️ **Do NOT write `common.formatDateColumns(result, dateColumns);`** — `result` is a `List<Map<String, Object>>` and the method signature is `formatDateColumns(Map<String, Object> data, String[] dateColumns)`. Passing the `List` is a compile error (incompatible types).
 4. return `result`.
+
+Canonical read-method shape:
+
+```java
+public List<Map<String, Object>> get<ComponentPascalCase>Summary() {
+    List<Map<String, Object>> result = jdbcManager.queryForList(<componentCamelCase>Summary);
+    String[] dateColumns = { /* date columns, verify before PR */ };
+    result.forEach(data -> {
+        common.formatDateColumns(data, dateColumns);
+    });
+    return result;
+}
+```
 
 ### C) Update method
 
@@ -447,7 +473,11 @@ public ResponseEntity<List<Map<String, Object>>> get<ComponentPascalCase>Details
 
 ### 3) Details Filtered (GET)
 
-The params are the `detailsFiltered` WHERE columns, in placeholder order, **pluralized** as `List<String>`. The loop calls the service with the singular values in the same order.
+The params are the `detailsFiltered` WHERE columns, in placeholder order, exposed as `List<String>`. **Each `@RequestParam` name MUST be `camelCase(column) + "s"`** — the frontend builds these query-param names by camelCasing the `keysToMap` value and appending a single `s` (see `camelCase()` in `data-formatting.service.ts`). For example `run_date` → `runDates`, `ctm_folder` → `ctmFolders`.
+
+> ⚠️ **Do NOT append `List` to the param name** (e.g. `runDateList` is WRONG). The name is the camelCased column with a trailing `s` (`runDates`). A mismatched `@RequestParam` name breaks Spring binding and the filter endpoint fails. The loop-local singular variable (`runDate`) can be any name — only the `@RequestParam` name is contract-bound.
+
+The loop calls the service with the singular values in the same order.
 
 ```java
 @GetMapping("/<component-kebab-case>-details-filtered")

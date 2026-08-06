@@ -149,7 +149,7 @@ Directly after the block add the **Adding a tab later** note:
 > {
 >   label: '<Title-Case label>',
 >   component: 'app-<component-kebab-case>',
->   role: ['ADMIN', '<ROLE_NAME>', '<ROLE_NAME>_ADMIN'],
+>   role: ['ADMIN', 'MONITORING_<ROLE_NAME>', 'MONITORING_<ROLE_NAME>_ADMIN'],
 > },
 > ```
 >
@@ -238,7 +238,9 @@ Build a single-tab array. Derive from `componentName` and `roleName`:
 
 - `label` = Title-Case form of `componentName`
 - `component` = `app-<component-kebab-case>`
-- `role` = `['ADMIN', '<ROLE_NAME>', '<ROLE_NAME>_ADMIN']`
+- `role` = `['ADMIN', 'MONITORING_<ROLE_NAME>', 'MONITORING_<ROLE_NAME>_ADMIN']`
+
+> 🔑 **Role convention (mandatory):** every generated role guard uses the `MONITORING_` prefix on the base `roleName`, plus its `_ADMIN` variant, and **always** includes the global `ADMIN` role. For `roleName: "AIT_TEST"` the array is `['ADMIN', 'MONITORING_AIT_TEST', 'MONITORING_AIT_TEST_ADMIN']`. Never emit the bare `roleName` without the `MONITORING_` prefix.
 
 Example — `componentName: "test-tracker"`, `roleName: "TEST_TRACKER"`:
 
@@ -252,7 +254,7 @@ visibleTabs: {
   {
     label: 'Test-Tracker',
     component: 'app-test-tracker',
-    role: ['ADMIN', 'TEST_TRACKER', 'TEST_TRACKER_ADMIN'],
+    role: ['ADMIN', 'MONITORING_TEST_TRACKER', 'MONITORING_TEST_TRACKER_ADMIN'],
   },
 ];
 ```
@@ -263,7 +265,7 @@ visibleTabs: {
 > {
 >   label: 'AIT-Jobs',
 >   component: 'app-ait-jobs',
->   role: ['ADMIN', 'AIT_JOBS', 'AIT_JOBS_ADMIN'],
+>   role: ['ADMIN', 'MONITORING_AIT_JOBS', 'MONITORING_AIT_JOBS_ADMIN'],
 > },
 > ```
 

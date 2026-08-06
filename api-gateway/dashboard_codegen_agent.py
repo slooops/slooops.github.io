@@ -200,7 +200,137 @@ def _replace_marker_block(content: str, marker: str, replacement: str, file_path
     return content[:insert_at] + snippet + content[insert_at:]
 
 
-def _apply_routing_update(content: str, import_path: str, component_class: str, route_path: str) -> str:
+def _ts_string_literal(value: str) -> str:
+    """Render a value as a single-quoted TS string literal, escaping quotes."""
+    return "'" + str(value).replace("\\", "\\\\").replace("'", "\\'") + "'"
+
+
+def _build_route_data_block(route_path: str, route_data: dict[str, Any] | None) -> str:
+    """Build the `data: { ... }` block for a generated route.
+
+    Every generated route MUST carry a `data` block with at least `header`,
+    otherwise AppComponent's `@if (header.length > 0)` throws on direct URL
+    load and blanks the entire app shell. Defaults are supplied here and can be
+    overridden by an optional `route_data` map from the preStep.
+    """
+    default_sub_header = f"Continuous Monitoring > {_title_case_kebab(route_path)}"
+    data: dict[str, Any] = {
+        "title": "Finance-IT Control Tower",
+        "header": "Finance-IT Control Tower",
+        "subHeader": default_sub_header,
+        "supportsDarkMode": True,
+    }
+    if route_data:
+        data.update({k: v for k, v in route_data.items() if v is not None})
+
+    lines = ["    data: {\n"]
+    for key, value in data.items():
+        if isinstance(value, bool):
+            rendered = "true" if value else "false"
+        else:
+            rendered = _ts_string_literal(value)
+        lines.append(f"      {key}: {rendered},\n")
+    lines.append("    },\n")
+    return "".join(lines)
+
+
+QUERY_BEANS_MARKER = "GENERATED_QUERY_BEANS"
+
+
+def _insert_before_class_close(content: str, snippet: str) -> str:
+    """Insert Java class members into a class body.
+
+    Preferred: splice immediately above the GENERATED_QUERY_BEANS marker line
+    (robust anchor, matching the menu/UI marker pattern). Fallback: if no
+    marker is present, insert before the class-closing brace (last `}`).
+
+    Appending generated `@Value`/`@Bean` members to the raw end of the file
+    places them *after* the final `}`, outside the class body (a compile
+    error). Both strategies keep blank-line separation so members never glue
+    onto the previous `;` or the closing brace (`;@Bean` / `}@Value`).
+    """
+    body = snippet.strip("\n")
+
+    marker_match = re.search(
+        rf"^[ \t]*.*{re.escape(QUERY_BEANS_MARKER)}.*$", content, re.MULTILINE
+    )
+    if marker_match:
+        insert_at = marker_match.start()
+        before = content[:insert_at].rstrip()
+        return before + "\n\n" + body + "\n\n" + content[insert_at:]
+
+    idx = content.rfind("}")
+    if idx == -1:
+        return content.rstrip() + "\n\n" + body.strip() + "\n"
+    before = content[:idx].rstrip()
+    after = content[idx:]  # begins with the class-closing brace
+    return before + "\n\n" + body + "\n" + after
+
+
+def _apply_append_operation(relative_path: str, current: str, content: str) -> str:
+    """Append content, but for Java files insert before the class-closing brace."""
+    if relative_path.endswith(".java"):
+        return _insert_before_class_close(current, content)
+    return current + content
+
+
+MENU_NAV_MARKER = "GENERATED_MONITORING_NAV_ITEMS"
+
+
+def _build_nav_item_block(
+    label: str,
+    route_path: str,
+    icon: str,
+    roles: list[str],
+    indent: str,
+) -> str:
+    prop_indent = indent + "  "
+    roles_literal = "[" + ", ".join(_ts_string_literal(r) for r in roles) + "]"
+    return (
+        f"{indent}{{\n"
+        f"{prop_indent}label: {_ts_string_literal(label)},\n"
+        f"{prop_indent}icon: {_ts_string_literal(icon)},\n"
+        f"{prop_indent}route: '/{route_path}',\n"
+        f"{prop_indent}roles: {roles_literal},\n"
+        f"{indent}}},\n"
+    )
+
+
+def _apply_menu_update(
+    content: str,
+    label: str,
+    route_path: str,
+    icon: str,
+    roles: list[str],
+) -> str:
+    """Insert a side-nav child item into the Continuous Monitoring group.
+
+    The new NavItem is spliced in immediately before the
+    GENERATED_MONITORING_NAV_ITEMS marker line so generated dashboards appear
+    in the left navigation. Idempotent: a route already present is left as-is.
+    """
+    if f"route: '/{route_path}'" in content:
+        return content
+    marker_match = re.search(
+        rf"^([ \t]*).*{re.escape(MENU_NAV_MARKER)}.*$", content, re.MULTILINE
+    )
+    if not marker_match:
+        raise ValueError(
+            f"Menu nav marker '{MENU_NAV_MARKER}' not found in menu.component.ts"
+        )
+    indent = marker_match.group(1)
+    block = _build_nav_item_block(label, route_path, icon, roles, indent)
+    insert_at = marker_match.start()
+    return content[:insert_at] + block + content[insert_at:]
+
+
+def _apply_routing_update(
+    content: str,
+    import_path: str,
+    component_class: str,
+    route_path: str,
+    route_data: dict[str, Any] | None = None,
+) -> str:
     import_line = f"import {{ {component_class} }} from '{import_path}';"
     if import_line not in content:
         import_matches = list(re.finditer(r"^import .*;$", content, re.MULTILINE))
@@ -209,10 +339,12 @@ def _apply_routing_update(content: str, import_path: str, component_class: str, 
         insert_at = import_matches[-1].end()
         content = content[:insert_at] + "\n" + import_line + content[insert_at:]
 
+    data_block = _build_route_data_block(route_path, route_data)
     route_snippet = (
         "  {\n"
         f"    path: '{route_path}',\n"
         f"    component: {component_class},\n"
+        f"{data_block}"
         "  },\n"
     )
     if f"path: '{route_path}'" not in content and f'path: "{route_path}"' not in content:
@@ -287,6 +419,16 @@ def _validate_grouped_file_operations(file_operations: list[dict[str, Any]]) -> 
                 file_path = step.get("filePath")
                 if isinstance(file_path, str) and not _is_safe_relative_path(file_path):
                     errors.append(f"Unsafe routing filePath: {file_path}")
+            elif step_op == "update_menu_component":
+                required = ("filePath", "label", "routePath")
+                for field_name in required:
+                    if not isinstance(step.get(field_name), str) or not step.get(field_name, "").strip():
+                        errors.append(f"{target}.preSteps[{index}].{field_name} is required")
+                file_path = step.get("filePath")
+                if isinstance(file_path, str) and not _is_safe_relative_path(file_path):
+                    errors.append(f"Unsafe menu filePath: {file_path}")
+                if not isinstance(step.get("roles"), list) or not step.get("roles"):
+                    errors.append(f"{target}.preSteps[{index}].roles must be a non-empty list")
             else:
                 errors.append(f"Unsupported preStep op '{step_op}' in {target}.preSteps[{index}]")
 
@@ -388,6 +530,7 @@ def _simulate_grouped_file_operations(
                     str(pre_step.get("importPath")),
                     str(pre_step.get("componentClass")),
                     str(pre_step.get("routePath")),
+                    pre_step.get("routeData") if isinstance(pre_step.get("routeData"), dict) else None,
                 )
                 write_simulated(root_path, routing_file, updated)
                 steps.append({
@@ -396,6 +539,25 @@ def _simulate_grouped_file_operations(
                     "op": step_op,
                     "status": "simulated",
                     "path": f"{root_path}/{routing_file}",
+                    "description": pre_step.get("description", ""),
+                })
+            elif step_op == "update_menu_component":
+                menu_file = str(pre_step.get("filePath"))
+                current = read_or_seed(root_path, menu_file)
+                updated = _apply_menu_update(
+                    current,
+                    str(pre_step.get("label")),
+                    str(pre_step.get("routePath")),
+                    str(pre_step.get("icon") or "phosphorPulseBold"),
+                    list(pre_step.get("roles") or []),
+                )
+                write_simulated(root_path, menu_file, updated)
+                steps.append({
+                    "type": "preStep",
+                    "target": target,
+                    "op": step_op,
+                    "status": "simulated",
+                    "path": f"{root_path}/{menu_file}",
                     "description": pre_step.get("description", ""),
                 })
 
@@ -411,7 +573,7 @@ def _simulate_grouped_file_operations(
                 existing_obj.update(operation.get("content") or {})
                 updated = json.dumps(existing_obj, indent=2, sort_keys=True) + "\n"
             elif op == "append":
-                updated = current + str(operation.get("content"))
+                updated = _apply_append_operation(relative_path, current, str(operation.get("content")))
             elif op == "create_or_replace":
                 updated = str(operation.get("content"))
             elif op == "replace_text":
@@ -675,6 +837,7 @@ async def _execute_grouped_file_operations(
                     str(pre_step.get("importPath")),
                     str(pre_step.get("componentClass")),
                     str(pre_step.get("routePath")),
+                    pre_step.get("routeData") if isinstance(pre_step.get("routeData"), dict) else None,
                 )
                 write_changed(root_path, routing_file, updated)
                 steps.append({
@@ -683,6 +846,24 @@ async def _execute_grouped_file_operations(
                     "op": step_op,
                     "status": "applied",
                     "path": f"{root_path}/{routing_file}",
+                })
+            elif step_op == "update_menu_component":
+                menu_file = str(pre_step.get("filePath"))
+                current = await fetch_or_seed(root_path, menu_file)
+                updated = _apply_menu_update(
+                    current,
+                    str(pre_step.get("label")),
+                    str(pre_step.get("routePath")),
+                    str(pre_step.get("icon") or "phosphorPulseBold"),
+                    list(pre_step.get("roles") or []),
+                )
+                write_changed(root_path, menu_file, updated)
+                steps.append({
+                    "type": "preStep",
+                    "target": target,
+                    "op": step_op,
+                    "status": "applied",
+                    "path": f"{root_path}/{menu_file}",
                 })
 
         for operation in group.get("operations", []):
@@ -695,7 +876,7 @@ async def _execute_grouped_file_operations(
                 existing_obj.update(operation.get("content") or {})
                 updated = json.dumps(existing_obj, indent=2, sort_keys=True) + "\n"
             elif op == "append":
-                updated = current + str(operation.get("content"))
+                updated = _apply_append_operation(relative_path, current, str(operation.get("content")))
             elif op == "create_or_replace":
                 updated = str(operation.get("content"))
             elif op == "replace_text":

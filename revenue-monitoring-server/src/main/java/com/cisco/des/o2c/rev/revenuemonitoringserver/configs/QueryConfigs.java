@@ -2110,4 +2110,6 @@ public class QueryConfigs {
     public String getCtlTwrUserAccessByUser() {
         return this.ctlTwrUserAccessByUser;
     }
+
+    // ─── GENERATED_QUERY_BEANS (INSERT AI-GENERATED @Value FIELDS AND @Bean GETTERS ABOVE THIS LINE) ───
 }

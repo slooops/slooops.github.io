@@ -45,7 +45,7 @@ Return a single JSON object with this exact top-level shape:
       "rootPath": "revenue-monitoring-ui/angular-app",
       "preSteps": [
         {
-          "op": "run_command|update_routing_module",
+          "op": "run_command|update_routing_module|update_menu_component",
           "description": "short explanation"
         }
       ],
@@ -128,12 +128,36 @@ Return a single JSON object with this exact top-level shape:
   "importPath": "./<featureName>/<featureName>.component",
   "componentClass": "<FeatureNamePascalCase>Component",
   "routePath": "<featureName>",
-  "description": "Add route entry and import for generated monitoring dashboard component"
+  "routeData": {
+    "title": "Finance-IT Control Tower",
+    "header": "Finance-IT Control Tower",
+    "subHeader": "Continuous Monitoring > <Component Title-Case Label>",
+    "supportsDarkMode": true
+  },
+  "description": "Add route entry (with data block) and import for generated monitoring dashboard component"
 }
 ```
 
+> The `routeData` block is **required**. Without it the generated route has no `header`, and AppComponent's `@if (header.length > 0)` throws on direct URL load, blanking the entire app. Always emit `title`, `header`, `subHeader`, and `supportsDarkMode`.
+
+- Immediately after the routing pre-step, emit a third pre-step to add the dashboard to the left side-navigation:
+
+```json
+{
+  "op": "update_menu_component",
+  "filePath": "src/app/menu/menu.component.ts",
+  "label": "<Component Title-Case Label>",
+  "routePath": "<featureName>",
+  "icon": "phosphorPulseBold",
+  "roles": ["ADMIN", "MONITORING_<ROLE_NAME>", "MONITORING_<ROLE_NAME>_ADMIN"],
+  "description": "Add side-nav entry for generated monitoring dashboard under Continuous Monitoring"
+}
+```
+
+> `roles` MUST follow the `MONITORING_` convention: `["ADMIN", "MONITORING_<ROLE_NAME>", "MONITORING_<ROLE_NAME>_ADMIN"]`. `icon` must be an already-registered phosphor icon (default `phosphorPulseBold`).
+
 - If `src/app/app-routing.module.ts` does not exist but `src/app/app.routes.ts` exists, use `filePath: "src/app/app.routes.ts"` and add an equivalent route entry in that file format.
-- Routing pre-step must always come **after** schematic generation and **before** frontend marker replacements.
+- Routing and menu pre-steps must always come **after** schematic generation and **before** frontend marker replacements.
 
 - If no explicit command is present but UI paths imply a new Angular component/module scaffold, infer one `ng generate` command using `featureName` and include it in `frontend.preSteps`.
 - When inferring or preserving the schematic command for monitoring dashboards, use:
@@ -190,5 +214,6 @@ Supported markers are exactly:
 - Do not place frontend file operations before required schematic `preSteps`.
 - Ensure frontend `preSteps` includes both:
   1. schematic generation command, and
-  2. routing-module update step.
+  2. routing-module update step (with a `routeData` block), and
+  3. menu-component update step (side-nav entry).
 - Ensure frontend `operations` includes a code change that sets `assignmentUsersFilterKey` to input `assignmentUsersKey`.
