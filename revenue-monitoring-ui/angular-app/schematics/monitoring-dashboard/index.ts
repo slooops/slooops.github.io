@@ -8,6 +8,9 @@ import {
   template,
   url,
   move,
+  filter,
+  noop,
+  forEach,
 } from '@angular-devkit/schematics';
 import { normalize, strings } from '@angular-devkit/core';
 
@@ -18,6 +21,7 @@ export interface MonitoringDashboardOptions {
   assignmentFilterKey?: string;
   path?: string;
   skipTests?: boolean;
+  'skip-tests'?: boolean;
 }
 
 function titleCase(input: string): string {
@@ -29,6 +33,7 @@ function titleCase(input: string): string {
 
 export default function (options: MonitoringDashboardOptions): Rule {
   return (tree: Tree, context: SchematicContext) => {
+    const skipTests = Boolean(options.skipTests ?? options['skip-tests']);
     const normalizedPath = normalize(options.path || 'src/app');
     const componentPath = `${normalizedPath}/${strings.dasherize(options.name)}`;
 
@@ -52,6 +57,29 @@ export default function (options: MonitoringDashboardOptions): Rule {
     // Load and apply templates
     const sourceTemplates = url('./files');
     const sourceParametrized = apply(sourceTemplates, [
+      skipTests
+        ? filter((path) => {
+            const includeFile = !path.endsWith('.spec.ts');
+            if (includeFile) {
+              context.logger.info(
+                `[monitoring-dashboard] including template: ${path}`,
+              );
+            } else {
+              context.logger.info(
+                `[monitoring-dashboard] skipping test template: ${path}`,
+              );
+            }
+            return includeFile;
+          })
+        : noop(),
+      !skipTests
+        ? forEach((entry) => {
+            context.logger.info(
+              `[monitoring-dashboard] including template: ${entry.path}`,
+            );
+            return entry;
+          })
+        : noop(),
       renameTemplateFiles(),
       template(templateOptions),
       move(componentPath),

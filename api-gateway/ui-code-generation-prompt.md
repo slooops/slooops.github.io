@@ -16,7 +16,7 @@ The app team will:
 
 Do not include any instructions about post-PR build operations.
 
-> **Orchestration:** This is the **second** of a two-prompt sequence, run automatically right after the backend prompt in the same agent run. The `backendHandoff` object is supplied **silently by the agent** from the backend step — it is never shown to the user and never appears in the backend output document.
+> **Orchestration:** This is the **second** step of a three-prompt sequence, run automatically right after the backend prompt in the same agent run. The `backendHandoff` object is supplied **silently by the agent** from the backend step. After this UI document is generated, a third machine-oriented prompt runs to produce structured `fileOperations` apply artifacts for automated GitHub application.
 
 ---
 
@@ -68,7 +68,9 @@ From `componentName`, derive:
 
 The component selector is always `app-<component-kebab-case>`.
 
-From `featureName`, derive **only** the schematic-generation command argument shown in Step 1 (the `ng generate` command below). `featureName` is supplied by the user in the input object already in **kebab-case** (e.g. `ait-monitoring`) and is used **verbatim** as the schematic `name` argument — do not transform it. It is not used anywhere else in the UI config.
+From `featureName`, derive **only** the schematic-generation command argument shown in Step 1 (the `ng generate` command below). `featureName` is supplied by the user in the input object already in **kebab-case** (e.g. `ait-monitoring`) and is used **verbatim** as the schematic `name` argument — do not transform it.
+
+From `assignmentUsersKey`, generate a **code update** in the feature component that sets `userContextData.assignmentUsersFilterKey` to that value after scaffolding. Do not rely on schematic CLI options for this value.
 
 > **featureName validation (UI form concern):** the input form / request layer validates `featureName` against `^[a-z][a-z0-9]*(-[a-z0-9]+)*$` and rejects non-kebab-case values with an error before this prompt runs, so you may assume `featureName` is already valid kebab-case here.
 
@@ -116,6 +118,10 @@ ng generate @rev-ops-monitoring/dashboard-schematics:monitoring-dashboard <featu
 
 Use `featureName` **verbatim** — no quotes, no transformation.
 
+After the command, add one short validation sentence:
+
+> Update `userContextData.assignmentUsersFilterKey` in `<featureName>.component.ts` to `<assignmentUsersKey>` as a code change in the generated block steps below.
+
 After the command, add a small **Files created** note:
 
 > This generates (substitute the actual `featureName` value — e.g. `ait-monitoring`):
@@ -143,7 +149,7 @@ Directly after the block add the **Adding a tab later** note:
 > {
 >   label: '<Title-Case label>',
 >   component: 'app-<component-kebab-case>',
->   role: ['ADMIN', '<ROLE_NAME>', '<ROLE_NAME>_ADMIN'],
+>   role: ['ADMIN', 'MONITORING_<ROLE_NAME>', 'MONITORING_<ROLE_NAME>_ADMIN'],
 > },
 > ```
 >
@@ -232,7 +238,9 @@ Build a single-tab array. Derive from `componentName` and `roleName`:
 
 - `label` = Title-Case form of `componentName`
 - `component` = `app-<component-kebab-case>`
-- `role` = `['ADMIN', '<ROLE_NAME>', '<ROLE_NAME>_ADMIN']`
+- `role` = `['ADMIN', 'MONITORING_<ROLE_NAME>', 'MONITORING_<ROLE_NAME>_ADMIN']`
+
+> 🔑 **Role convention (mandatory):** every generated role guard uses the `MONITORING_` prefix on the base `roleName`, plus its `_ADMIN` variant, and **always** includes the global `ADMIN` role. For `roleName: "AIT_TEST"` the array is `['ADMIN', 'MONITORING_AIT_TEST', 'MONITORING_AIT_TEST_ADMIN']`. Never emit the bare `roleName` without the `MONITORING_` prefix.
 
 Example — `componentName: "test-tracker"`, `roleName: "TEST_TRACKER"`:
 
@@ -246,7 +254,7 @@ visibleTabs: {
   {
     label: 'Test-Tracker',
     component: 'app-test-tracker',
-    role: ['ADMIN', 'TEST_TRACKER', 'TEST_TRACKER_ADMIN'],
+    role: ['ADMIN', 'MONITORING_TEST_TRACKER', 'MONITORING_TEST_TRACKER_ADMIN'],
   },
 ];
 ```
@@ -257,7 +265,7 @@ visibleTabs: {
 > {
 >   label: 'AIT-Jobs',
 >   component: 'app-ait-jobs',
->   role: ['ADMIN', 'AIT_JOBS', 'AIT_JOBS_ADMIN'],
+>   role: ['ADMIN', 'MONITORING_AIT_JOBS', 'MONITORING_AIT_JOBS_ADMIN'],
 > },
 > ```
 

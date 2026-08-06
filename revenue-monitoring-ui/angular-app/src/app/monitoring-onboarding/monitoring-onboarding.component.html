@@ -78,6 +78,124 @@
           </div>
         }
 
+        <div class="mo-apply-guide" role="note">
+          <div class="mo-apply-guide-text">
+            <span class="mo-apply-guide-title">Ready to implement?</span>
+            <p>
+              After reviewing both onboarding documents, you can ask the agent
+              to apply the generated file operations to the repository, and open
+              a pull request.
+            </p>
+          </div>
+          <button
+            class="mo-btn mo-btn-primary"
+            type="button"
+            [disabled]="!canStartApplyWithAgent || applyInProgress"
+            (click)="openApplyConfirmation()"
+          >
+            @if (applyInProgress) {
+              Applying...
+            } @else {
+              Apply with Agent
+            }
+          </button>
+        </div>
+
+        @if (!canStartApplyWithAgent) {
+          <div class="mo-apply-inline-note" role="status">
+            Apply is unavailable because generated file operations are missing.
+            Regenerate the documents and try again.
+          </div>
+        }
+
+        @if (applyConfirmationOpen) {
+          <div class="mo-apply-confirm" role="dialog" aria-modal="false">
+            <div class="mo-apply-confirm-title">
+              Proceed with repository changes?
+            </div>
+            <p class="mo-apply-confirm-text">
+              Please confirm you reviewed both backend and frontend documents.
+              If you continue, the agent will create a branch from the base
+              branch , apply generated updates, commit changes, and open a PR.
+            </p>
+
+            <button
+              class="mo-apply-check"
+              type="button"
+              [class.mo-apply-check-on]="applyAcknowledged"
+              (click)="applyAcknowledged = !applyAcknowledged"
+            >
+              <ng-icon
+                [name]="
+                  applyAcknowledged
+                    ? 'phosphorCheckSquareBold'
+                    : 'phosphorSquareBold'
+                "
+                size="15"
+              />
+              I reviewed both documents and want to proceed.
+            </button>
+
+            <div class="mo-apply-confirm-actions">
+              <button
+                class="mo-btn mo-btn-ghost"
+                type="button"
+                (click)="cancelApplyConfirmation()"
+              >
+                No, review documents
+              </button>
+              <button
+                class="mo-btn mo-btn-primary"
+                type="button"
+                [disabled]="!applyAcknowledged || applyInProgress"
+                (click)="confirmApplyAndProceed()"
+              >
+                Yes, proceed
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (applyError) {
+          <div class="mo-apply-status mo-apply-status-error" role="alert">
+            <strong>Apply failed.</strong>
+            <span>{{ applyError }}</span>
+          </div>
+        }
+
+        @if (applyResult && applySucceeded) {
+          <div class="mo-apply-status mo-apply-status-success" role="status">
+            <strong>Apply completed.</strong>
+            <span>
+              Branch
+              <code>{{ applyBranch || "codegen branch" }}</code> was created
+              with <code>{{ applyChangedFileCount ?? 0 }}</code> changed files.
+            </span>
+            @if (applyPrUrl) {
+              <a
+                class="mo-apply-pr-link"
+                [href]="applyPrUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open pull request
+              </a>
+            }
+          </div>
+        }
+
+        @if (applyResult && !applySucceeded && !applyError) {
+          <div class="mo-apply-status mo-apply-status-warning" role="status">
+            <strong>Apply did not complete.</strong>
+            <span>
+              Stage: <code>{{ applyStage || "unknown" }}</code>
+              @if (applyResultError) {
+                — {{ applyResultError }}
+              }
+            </span>
+          </div>
+        }
+
         <div class="mo-generated-grid">
           <section class="mo-generated-section">
             <div class="mo-doc-head">

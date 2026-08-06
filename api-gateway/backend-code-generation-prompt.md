@@ -10,7 +10,7 @@ The app team will:
 
 Do not include any instructions about post-PR build operations.
 
-> **Orchestration:** This is the **first** of a two-prompt sequence. After producing the backend document, the agent computes the handoff metadata internally and **automatically continues to the UI prompt in the same run** (no separate trigger). The two generated documents (backend + UI) are the final deliverables.
+> **Orchestration:** This is the **first** step of a three-prompt sequence. After producing the backend document, the agent computes the handoff metadata internally, automatically continues to the UI prompt in the same run, and then runs a third machine-oriented prompt that converts both documents into a structured apply manifest (`fileOperations`) for automated GitHub application.
 
 ---
 
@@ -116,13 +116,13 @@ Then **two clearly labelled sub-steps**:
 
 #### Step 3a — @Value field declarations
 
-> `Copy to: src/main/java/.../config/QueryConfigs.java — add these four @Value fields alongside the existing ones`
+> `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/configs/QueryConfigs.java — add these four @Value fields alongside the existing ones`
 
 `java` code fence with the four `@Value` + `public String` declarations.
 
 #### Step 3b — @Bean getter methods
 
-> `Copy to: src/main/java/.../config/QueryConfigs.java — add these four @Bean methods alongside the existing getters`
+> `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/configs/QueryConfigs.java — add these four @Bean methods alongside the existing getters`
 
 `java` code fence with the four `@Bean`-annotated getter methods.
 
@@ -134,9 +134,9 @@ Then **two clearly labelled sub-steps**:
 
 Short explanation: _"The service class owns the business logic: it runs the queries, formats date columns, and handles the assignment update. It is wired together entirely through Spring constructor injection — you do not call `new` anywhere."_
 
-> `Copy to: src/main/java/.../services/`**[derive: `PascalCase(featureName)` + `Service.java`]** `— create this file`
+> `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/services/`**[derive: `PascalCase(featureName)` + `Service.java`]** `— create this file`
 >
-> ⚠️ **You MUST emit the actual file name in the Copy-to label above** — not the template. Derive it now: convert `featureName` to PascalCase and append `Service.java`. Example: `featureName = "ait-monitoring"` → label reads `Copy to: src/main/java/.../services/AitMonitoringService.java`. Never write `<FeaturePascalCase>` literally in your output.
+> ⚠️ **You MUST emit the actual file name in the Copy-to label above** — not the template. Derive it now: convert `featureName` to PascalCase and append `Service.java`. Example: `featureName = "ait-monitoring"` → label reads `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/services/AitMonitoringService.java`. Never write `<FeaturePascalCase>` literally in your output.
 
 Emit the **complete, ready-to-paste service file** in a single `java` code fence. Do NOT split it into sub-blocks — one contiguous file.
 
@@ -170,9 +170,9 @@ Then add a **🗺️ Update-method mapping box** (visible even when `paramAliase
 
 Short explanation: _"The controller exposes the four HTTP endpoints the Angular frontend calls. It delegates all work to the service — it contains no business logic."_
 
-> `Copy to: src/main/java/.../controllers/`**[derive: `PascalCase(featureName)` + `Controller.java`]** `— create this file`
+> `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/controllers/`**[derive: `PascalCase(featureName)` + `Controller.java`]** `— create this file`
 >
-> ⚠️ **You MUST emit the actual file name in the Copy-to label above** — not the template. Derive it now: convert `featureName` to PascalCase and append `Controller.java`. Example: `featureName = "ait-monitoring"` → label reads `Copy to: src/main/java/.../controllers/AitMonitoringController.java`. Never write `<FeaturePascalCase>` literally in your output.
+> ⚠️ **You MUST emit the actual file name in the Copy-to label above** — not the template. Derive it now: convert `featureName` to PascalCase and append `Controller.java`. Example: `featureName = "ait-monitoring"` → label reads `Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/controllers/AitMonitoringController.java`. Never write `<FeaturePascalCase>` literally in your output.
 
 Emit the **complete, ready-to-paste controller file** in a single `java` code fence.
 
@@ -310,7 +310,7 @@ public String get<ComponentPascalCase>SummaryUpdate() {
 
 Generate a **complete service class** named `<FeaturePascalCase>Service` (from `featureName`). Emit the whole file, ready to drop in. All member naming inside (fields, methods, params) is driven by `componentName`, not `featureName`.
 
-`Copy to: src/main/java/.../services/`**[derive and emit: `PascalCase(featureName)` + `Service.java`]**` (new file)` — **you MUST write the actual derived name here, not the template** (e.g. `AitMonitoringService.java` for `featureName = "ait-monitoring"`)
+`Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/services/`**[derive and emit: `PascalCase(featureName)` + `Service.java`]**` (new file)` — **you MUST write the actual derived name here, not the template** (e.g. `AitMonitoringService.java` for `featureName = "ait-monitoring"`)
 
 ### A) Class shell, fields, dependencies, constructor
 
@@ -349,7 +349,16 @@ public class <FeaturePascalCase>Service {
 }
 ```
 
-Include the required imports at the top of the file: `org.springframework.beans.factory.annotation.Autowired`, `org.springframework.stereotype.Service`, the project's `JdbcManager` and `Common` utils, `java.util.List`, `java.util.Map` (and `java.util.HashMap` if used).
+The file must start with the package declaration: `package com.cisco.des.o2c.rev.revenuemonitoringserver.services;`
+
+Include the required imports at the top of the file: `org.springframework.beans.factory.annotation.Autowired`, `org.springframework.stereotype.Service`, `java.util.List`, `java.util.Map` (and `java.util.HashMap` if used), and the two project utility classes with their **exact** fully-qualified package paths:
+
+```java
+import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.Common;
+```
+
+> ⚠️ **Import path is fixed — do not invent packages.** Both `JdbcManager` and `Common` live in `com.cisco.des.o2c.rev.revenuemonitoringserver.utils` (note: `utils`, plural). Never emit `...revenuemonitoringserver.db.JdbcManager` or `...revenuemonitoringserver.util.Common` — those packages do not exist and will not compile.
 
 ### B) Read methods
 
@@ -365,8 +374,27 @@ Each read method must:
    - `jdbcManager.queryForList(query)` for summary/details,
    - `jdbcManager.queryForListWithParams(query, params...)` for filtered.
 2. define `String[] dateColumns = {...}` inside the method,
-3. call `common.formatDateColumns(data, dateColumns)` for each row,
+3. **iterate the result list and format each row individually** — `common.formatDateColumns` takes a single `Map<String, Object>` row, **never** the whole `List`. You MUST use the per-row `forEach` form:
+   ```java
+   result.forEach(data -> {
+       common.formatDateColumns(data, dateColumns);
+   });
+   ```
+   > ⚠️ **Do NOT write `common.formatDateColumns(result, dateColumns);`** — `result` is a `List<Map<String, Object>>` and the method signature is `formatDateColumns(Map<String, Object> data, String[] dateColumns)`. Passing the `List` is a compile error (incompatible types).
 4. return `result`.
+
+Canonical read-method shape:
+
+```java
+public List<Map<String, Object>> get<ComponentPascalCase>Summary() {
+    List<Map<String, Object>> result = jdbcManager.queryForList(<componentCamelCase>Summary);
+    String[] dateColumns = { /* date columns, verify before PR */ };
+    result.forEach(data -> {
+        common.formatDateColumns(data, dateColumns);
+    });
+    return result;
+}
+```
 
 ### C) Update method
 
@@ -402,7 +430,7 @@ In the output document, explicitly state:
 
 Generate a **complete controller class** named `<FeaturePascalCase>Controller` (from `featureName`). Emit the whole file, ready to drop in. Endpoint paths and method names are driven by `componentName`, not `featureName`.
 
-`Copy to: src/main/java/.../controllers/`**[derive and emit: `PascalCase(featureName)` + `Controller.java`]**` (new file)` — **you MUST write the actual derived name here, not the template** (e.g. `AitMonitoringController.java` for `featureName = "ait-monitoring"`)
+`Copy to: src/main/java/com/cisco/des/o2c/rev/revenuemonitoringserver/controllers/`**[derive and emit: `PascalCase(featureName)` + `Controller.java`]**` (new file)` — **you MUST write the actual derived name here, not the template** (e.g. `AitMonitoringController.java` for `featureName = "ait-monitoring"`)
 
 Class shell:
 
@@ -419,7 +447,9 @@ public class <FeaturePascalCase>Controller {
 }
 ```
 
-Include the required imports at the top of the file: `org.springframework.beans.factory.annotation.Autowired`, `org.springframework.http.HttpStatus`, `org.springframework.http.ResponseEntity`, `org.springframework.web.bind.annotation.*`, `java.util.ArrayList`, `java.util.HashMap`, `java.util.List`, `java.util.Map`, and the `<FeaturePascalCase>Service` import.
+The file must start with the package declaration: `package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;`
+
+Include the required imports at the top of the file: `org.springframework.beans.factory.annotation.Autowired`, `org.springframework.http.HttpStatus`, `org.springframework.http.ResponseEntity`, `org.springframework.web.bind.annotation.*`, `java.util.ArrayList`, `java.util.HashMap`, `java.util.List`, `java.util.Map`, and the service import: `com.cisco.des.o2c.rev.revenuemonitoringserver.services.<FeaturePascalCase>Service` (derive the actual class name from `featureName`).
 
 Generate all four endpoint methods (full method bodies), all using kebab-case paths.
 
@@ -443,7 +473,11 @@ public ResponseEntity<List<Map<String, Object>>> get<ComponentPascalCase>Details
 
 ### 3) Details Filtered (GET)
 
-The params are the `detailsFiltered` WHERE columns, in placeholder order, **pluralized** as `List<String>`. The loop calls the service with the singular values in the same order.
+The params are the `detailsFiltered` WHERE columns, in placeholder order, exposed as `List<String>`. **Each `@RequestParam` name MUST be `camelCase(column) + "s"`** — the frontend builds these query-param names by camelCasing the `keysToMap` value and appending a single `s` (see `camelCase()` in `data-formatting.service.ts`). For example `run_date` → `runDates`, `ctm_folder` → `ctmFolders`.
+
+> ⚠️ **Do NOT append `List` to the param name** (e.g. `runDateList` is WRONG). The name is the camelCased column with a trailing `s` (`runDates`). A mismatched `@RequestParam` name breaks Spring binding and the filter endpoint fails. The loop-local singular variable (`runDate`) can be any name — only the `@RequestParam` name is contract-bound.
+
+The loop calls the service with the singular values in the same order.
 
 ```java
 @GetMapping("/<component-kebab-case>-details-filtered")

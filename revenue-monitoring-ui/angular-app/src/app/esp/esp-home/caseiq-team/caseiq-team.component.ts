@@ -455,6 +455,7 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
     this.fullDetailData = null;
     this.fullDetailError = null;
     this.fullDetailLoading = false;
+    this.restoreFullTableData();
   }
 
   closePipelineSection(): void {
@@ -468,6 +469,7 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
     this.pipelineDetailErrorBySharedStateId = {};
     this.showFullIncidentDetail = false;
     this.fullDetailSharedStateId = null;
+    this.restoreFullTableData();
   }
 
   closeIncidentDetail(): void {
@@ -480,6 +482,21 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
 
   closeTimelineDetail(): void {
     this.selectedTimelineIncident = null;
+    this.restoreFullTableData();
+  }
+
+  private restoreFullTableData(): void {
+    if (!Array.isArray(this.fullTableData) || this.fullTableData.length === 0) {
+      return;
+    }
+
+    this.tableData.data = [...this.fullTableData];
+    this.totalRecords = this.fullTableData.length;
+    this.tableData._updateChangeSubscription();
+
+    setTimeout(() => {
+      this.teamTable?.setExternalData([...this.fullTableData], true);
+    }, 0);
   }
 
   nextView(): void {

@@ -324,6 +324,7 @@ export class MenuComponent {
             },
           ],
         },
+        // ─── GENERATED_MONITORING_NAV_ITEMS (INSERT AI-GENERATED CHILD NAV ITEMS ABOVE THIS LINE) ───
       ],
     },
     {

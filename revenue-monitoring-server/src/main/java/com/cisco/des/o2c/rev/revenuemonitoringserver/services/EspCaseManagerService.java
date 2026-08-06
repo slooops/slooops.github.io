@@ -285,12 +285,21 @@ public class EspCaseManagerService {
     }
 
     public List<Map<String, Object>> getXxcaseiqCapitalCaseDetailsV() {
-        List<Map<String, Object>> result = jdbcManager.queryForList(xxcaseiqCapitalCaseDetailsV);
-        result.forEach(data -> {
-            common.renameKey(data,"Cancel prediction", "CANCEL_PREDICTION");
-            common.renameKey(data,"LLM Summary", "LLM_SUMMARY");
-        });
-        return result;
+        try {
+            List<Map<String, Object>> result = jdbcManager.queryForList(xxcaseiqCapitalCaseDetailsV);
+            result.forEach(data -> {
+                common.renameKey(data,"Cancel prediction", "CANCEL_PREDICTION");
+                common.renameKey(data,"LLM Summary", "LLM_SUMMARY");
+            });
+            return result;
+        } catch (Exception e) {
+            // ORA-06502: PL/SQL numeric or value error – character string buffer too small
+            // This is a DB-side issue in XXCASEIQ_CAPITAL_CASE_DETAILS_SUPERVISOR_V.
+            // The underlying PL/SQL function/view needs its VARCHAR2 buffer enlarged in Oracle.
+            // Returning empty list so the Capital tab degrades gracefully instead of 500-ing.
+            System.err.println("[getXxcaseiqCapitalCaseDetailsV] Query failed – likely ORA-06502 buffer overflow in view: " + e.getMessage());
+            return new java.util.ArrayList<>();
+        }
     }
 
     public void updateEspCaseAnalyzerTable(MultipartFile file, String username) throws IOException {

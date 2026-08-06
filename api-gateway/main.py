@@ -21,7 +21,9 @@ app = FastAPI(title="Control Tower AI Agent API", version="1.0.0")
 
 # Register the Webex webhook router from control_tower_admin_agent
 from control_tower_admin_agent import router as webhook_router
+from dashboard_codegen_agent import router as dashboard_codegen_router
 app.include_router(webhook_router)
+app.include_router(dashboard_codegen_router)
 
 # Add CORS middleware
 app.add_middleware(
