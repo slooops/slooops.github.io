@@ -351,12 +351,19 @@ public class <FeaturePascalCase>Service {
 
 The file must start with the package declaration: `package com.cisco.des.o2c.rev.revenuemonitoringserver.services;`
 
-Include the required imports at the top of the file: `org.springframework.beans.factory.annotation.Autowired`, `org.springframework.stereotype.Service`, `java.util.List`, `java.util.Map` (and `java.util.HashMap` if used), and the two project utility classes with their **exact** fully-qualified package paths:
+Include the required imports at the top of the file. Emit them **exactly** as shown below — each `import` statement is a complete Java statement and **must end with a semicolon (`;`)**. Do not drop the trailing semicolon on any line (a missing `;` after any import is a compile error):
 
 ```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap; // include only if used
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.Common;
 ```
+
+> ⚠️ **Every `import` line MUST terminate with `;`.** Do not emit a bare `import org.springframework.stereotype.Service` without the trailing semicolon.
 
 > ⚠️ **Import path is fixed — do not invent packages.** Both `JdbcManager` and `Common` live in `com.cisco.des.o2c.rev.revenuemonitoringserver.utils` (note: `utils`, plural). Never emit `...revenuemonitoringserver.db.JdbcManager` or `...revenuemonitoringserver.util.Common` — those packages do not exist and will not compile.
 
@@ -449,7 +456,21 @@ public class <FeaturePascalCase>Controller {
 
 The file must start with the package declaration: `package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;`
 
-Include the required imports at the top of the file: `org.springframework.beans.factory.annotation.Autowired`, `org.springframework.http.HttpStatus`, `org.springframework.http.ResponseEntity`, `org.springframework.web.bind.annotation.*`, `java.util.ArrayList`, `java.util.HashMap`, `java.util.List`, `java.util.Map`, and the service import: `com.cisco.des.o2c.rev.revenuemonitoringserver.services.<FeaturePascalCase>Service` (derive the actual class name from `featureName`).
+Include the required imports at the top of the file. Emit them **exactly** as shown below — each `import` statement is a complete Java statement and **must end with a semicolon (`;`)**. Do not drop the trailing semicolon on any line (a missing `;` after any import is a compile error). Derive the actual service class name from `featureName` on the last line:
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.services.<FeaturePascalCase>Service;
+```
+
+> ⚠️ **Every `import` line MUST terminate with `;`.** Do not emit a bare import without the trailing semicolon.
 
 Generate all four endpoint methods (full method bodies), all using kebab-case paths.
 
