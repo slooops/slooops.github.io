@@ -349,6 +349,8 @@ Produce one array named `<componentCamelCase>Filters`. For each entry in
 
 Example — `detailsTableFilters: [{ "columnName": "PROCESS_FLOW", "type": "select" }, { "columnName": "ORG_NAME", "type": "select" }, { "columnName": "TRANSACTION_ID", "type": "text" }]`:
 
+> ⚠️ **Keep `}[] = [` on a single line.** The array-type suffix `[]` must stay attached to the closing brace of the inline type — writing `}` and `[] = [` on separate lines is a TypeScript compile error. Do **not** insert a line break between `}` and `[]`.
+
 ```typescript
 testTrackerFilters: {
   formControlName: string;
