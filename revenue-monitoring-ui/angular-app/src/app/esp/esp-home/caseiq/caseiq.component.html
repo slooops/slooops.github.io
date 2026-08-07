@@ -1271,7 +1271,7 @@
         }
       </div>
 
-      <!-- Components Table (same as ctx 1) -->
+      <!-- Components Table (ctx 1 layout + Resolution Time column) -->
       <div class="ciq-card ciq-components-card" style="margin: 1rem 0">
         <div class="ciq-table-scroll">
           <table class="ciq-table ciq-components-table">
@@ -1284,9 +1284,8 @@
                 <th>Routed Out</th>
                 <th>Canceled</th>
                 <th>Service Requests</th>
-                <th>Total (Agent)</th>
-                <th>Agent vs Ops %</th>
-                <th>Active Agents</th>
+                <th>Agent</th>
+                <th>Resolution Time</th>
                 <th>Service Incidents</th>
               </tr>
             </thead>
@@ -1386,33 +1385,38 @@
                     }
                   </td>
                   <td>
-                    <span class="summary-total-cases">{{
-                      getAgentTotalCases(row) | number
-                    }}</span
-                    ><span class="td-sub">
-                      /
-                      {{ row.totalCases - row.serviceIncidents | number }}</span
-                    >
-                  </td>
-                  <td>
-                    <div class="caseiq-pill table-pill">
-                      <div
-                        class="caseiq-pill-fill cyan"
-                        [style.width.%]="getAgentRatio(row)"
-                      ></div>
-                      <span class="caseiq-pill-text"
-                        >{{ getAgentRatio(row) }}%</span
-                      >
+                    <div class="ciq-pill-with-pct">
+                      <div class="caseiq-pill table-pill">
+                        <div
+                          class="caseiq-pill-fill cyan"
+                          [style.width.%]="getAgentRatio(row)"
+                        ></div>
+                        <span class="caseiq-pill-text"
+                          >{{ getAgentTotalCases(row) | number }} /
+                          {{
+                            row.totalCases - row.serviceIncidents | number
+                          }}</span
+                        >
+                      </div>
+                      <span class="summary-pct">{{ getAgentRatio(row) }}%</span>
                     </div>
                   </td>
                   <td>
-                    <a
-                      class="active-agents-link"
-                      (click)="openResolutionAgents($event)"
-                    >
-                      {{ getAgentForRow(row).deployed }} /
-                      {{ getAgentForRow(row).total }}
-                    </a>
+                    @if (autoResolveForComponent(row.sectionName); as ar) {
+                      <span
+                        class="ciq-clickable-value"
+                        (click)="openResolutionTimeModal(row.sectionName)"
+                        [title]="'Click to see import + execution time'"
+                        ><span class="summary-total-cases">{{
+                          durationParts(ar.resolutionTime).value
+                        }}</span
+                        ><span class="td-sub">
+                          {{ durationParts(ar.resolutionTime).unit }}</span
+                        ></span
+                      >
+                    } @else {
+                      <span class="summary-empty">--</span>
+                    }
                   </td>
                   <td>
                     @if (row.serviceIncidents != null) {
@@ -1428,15 +1432,15 @@
         </div>
       </div>
 
-      <!-- ═══ Analytics row (1 : 1 : 1) — Auto Resolve + 2 placeholders ═══ -->
+      <!-- ═══ Analytics row (1 : 1) — Auto Resolve + Not Interfaced ═══ -->
       <div class="analytics-section">
-        <div class="analytics-row analytics-row-1-1-1">
+        <div class="analytics-row analytics-row-1-1">
           <!-- Slot 1: Auto Resolve Metrics -->
           <div class="ciq-card ciq-card--chart">
             <div class="ciq-card-header">
               <span class="ciq-card-title">Auto Resolve Metrics</span>
               <span class="analytics-date-range">{{
-                selectedQuarter || 'Q4FY26'
+                selectedQuarter || "Q4FY26"
               }}</span>
             </div>
             <div class="ciq-table-scroll ciq-table-scroll--no-max">
@@ -1471,7 +1475,7 @@
                           </div>
                           <span class="summary-pct"
                             >{{
-                              autoResolveShare(row) | number: '1.0-0'
+                              autoResolveShare(row) | number: "1.0-0"
                             }}%</span
                           >
                         </div>
@@ -1520,24 +1524,283 @@
             </div>
           </div>
 
-          <!-- Slots 2 & 3: Placeholders -->
-          @for (slot of [2, 3]; track slot) {
-            <div class="ciq-card ciq-card--chart">
-              <div class="ciq-card-header">
-                <span class="ciq-card-title">Placeholder {{ slot }}</span>
-                <span class="analytics-date-range">Coming soon</span>
-              </div>
-              <div class="analytics-chart-wrapper">
-                <div class="ciq-brewing">
-                  <ng-icon name="phosphorSparkleBold" size="26" />
-                  <span class="ciq-brewing-title">Placeholder {{ slot }}</span>
-                  <span class="ciq-brewing-text"
-                    >Ctx 4 chart slot — content TBD.</span
-                  >
-                </div>
-              </div>
+          <!-- Slot 2: Not Interfaced (issue type × team badges) -->
+          <div class="ciq-card ciq-card--chart">
+            <div class="ciq-card-header">
+              <span class="ciq-card-title">Not Interfaced</span>
+              <span class="analytics-date-range">{{
+                selectedQuarter || "Q4FY26"
+              }}</span>
             </div>
-          }
+            <div class="ciq-table-scroll ciq-table-scroll--no-max">
+              <table class="ciq-table ciq-not-interfaced-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Issue Type</th>
+                    <th scope="col">Teams Affected</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of notInterfacedRows(); track row.issueKey) {
+                    <tr>
+                      <td class="ni-issue-type">{{ row.issueType }}</td>
+                      <td class="ni-team-badges">
+                        @if (row.teams.length) {
+                          @for (team of row.teams; track team.component) {
+                            <span class="component-badge badge-amber ni-badge">
+                              {{ team.component }}
+                              <span class="ni-badge-count">{{
+                                team.count | number
+                              }}</span>
+                            </span>
+                          }
+                        } @else {
+                          <span
+                            class="component-badge badge-grey ni-badge ni-badge--empty"
+                          >
+                            0 incidents this quarter
+                          </span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                  @if (!notInterfacedRows().length) {
+                    <tr>
+                      <td colspan="2">
+                        @if (notInterfacedLoading) {
+                          <span class="summary-empty"
+                            >Loading not-interfaced counts…</span
+                          >
+                        } @else {
+                          <ng-container [ngTemplateOutlet]="brewing" />
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Resolution Status (full width, click row for core issue drilldown) ═══ -->
+      <div class="analytics-section">
+        <div class="ciq-card ciq-components-card">
+          <div class="ciq-card-header">
+            <span class="ciq-card-title">Resolution Status</span>
+            <span class="analytics-date-range">{{
+              selectedQuarter || "Q4FY26"
+            }}</span>
+          </div>
+          <div class="ciq-table-scroll ciq-table-scroll--no-max">
+            <table class="ciq-table ciq-components-table ciq-resolution-table">
+              <thead>
+                <tr>
+                  <th scope="col">Component</th>
+                  <th scope="col">Core Issues</th>
+                  <th scope="col" class="resolution-mix-col">Outcome Mix</th>
+                  <th scope="col">
+                    <span class="th-dot dot-success"></span>Success
+                  </th>
+                  <th scope="col">
+                    <span class="th-dot dot-notsup"></span>Not Supported
+                  </th>
+                  <th scope="col">
+                    <span class="th-dot dot-error"></span>Error
+                  </th>
+                  <th scope="col">
+                    <span class="th-dot dot-warning"></span>Warning
+                  </th>
+                  <th scope="col">
+                    <span class="th-dot dot-unknown"></span>Unknown
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of resolutionStatusRows(); track row.component) {
+                  <tr
+                    class="ciq-row-clickable"
+                    (click)="openResolutionDetail(row.component)"
+                  >
+                    <td class="summary-component">
+                      <span class="component-badge badge-cyan">{{
+                        row.component
+                      }}</span>
+                    </td>
+                    <td>
+                      <span class="summary-total-cases">{{
+                        row.coreIssueCount | number
+                      }}</span>
+                    </td>
+                    <td class="resolution-mix-col">
+                      <div class="caseiq-pill segmented-pill outcome-mix-pill">
+                        @if (row.success > 0) {
+                          <div
+                            class="pill-seg seg-success"
+                            [style.width.px]="
+                              resolutionMixWidthPx(row, 'success')
+                            "
+                            [title]="'Success: ' + (row.success | number)"
+                          >
+                            @if (
+                              resolutionSegmentPct(row.success, row.total) >= 20
+                            ) {
+                              <span class="pill-seg-label"
+                                >{{
+                                  resolutionSegmentPct(row.success, row.total)
+                                    | number: "1.0-0"
+                                }}%</span
+                              >
+                            }
+                          </div>
+                        }
+                        @if (row.notSupported > 0) {
+                          <div
+                            class="pill-seg seg-notsup"
+                            [style.width.px]="
+                              resolutionMixWidthPx(row, 'notSupported')
+                            "
+                            [title]="
+                              'Not Supported: ' + (row.notSupported | number)
+                            "
+                          >
+                            @if (
+                              resolutionSegmentPct(
+                                row.notSupported,
+                                row.total
+                              ) >= 20
+                            ) {
+                              <span class="pill-seg-label"
+                                >{{
+                                  resolutionSegmentPct(
+                                    row.notSupported,
+                                    row.total
+                                  ) | number: "1.0-0"
+                                }}%</span
+                              >
+                            }
+                          </div>
+                        }
+                        @if (row.error > 0) {
+                          <div
+                            class="pill-seg seg-error"
+                            [style.width.px]="
+                              resolutionMixWidthPx(row, 'error')
+                            "
+                            [title]="'Error: ' + (row.error | number)"
+                          >
+                            @if (
+                              resolutionSegmentPct(row.error, row.total) >= 20
+                            ) {
+                              <span class="pill-seg-label"
+                                >{{
+                                  resolutionSegmentPct(row.error, row.total)
+                                    | number: "1.0-0"
+                                }}%</span
+                              >
+                            }
+                          </div>
+                        }
+                        @if (row.warning > 0) {
+                          <div
+                            class="pill-seg seg-warning"
+                            [style.width.px]="
+                              resolutionMixWidthPx(row, 'warning')
+                            "
+                            [title]="'Warning: ' + (row.warning | number)"
+                          >
+                            @if (
+                              resolutionSegmentPct(row.warning, row.total) >= 20
+                            ) {
+                              <span class="pill-seg-label"
+                                >{{
+                                  resolutionSegmentPct(row.warning, row.total)
+                                    | number: "1.0-0"
+                                }}%</span
+                              >
+                            }
+                          </div>
+                        }
+                        @if (row.unknown > 0) {
+                          <div
+                            class="pill-seg seg-unknown"
+                            [style.width.px]="
+                              resolutionMixWidthPx(row, 'unknown')
+                            "
+                            [title]="'Unknown: ' + (row.unknown | number)"
+                          >
+                            @if (
+                              resolutionSegmentPct(row.unknown, row.total) >= 20
+                            ) {
+                              <span class="pill-seg-label"
+                                >{{
+                                  resolutionSegmentPct(row.unknown, row.total)
+                                    | number: "1.0-0"
+                                }}%</span
+                              >
+                            }
+                          </div>
+                        }
+                      </div>
+                    </td>
+                    <td>
+                      <span class="summary-total-cases">{{
+                        row.success | number
+                      }}</span
+                      ><span class="td-sub"> / {{ row.total | number }}</span>
+                      <span class="summary-pct"
+                        >({{
+                          resolutionSegmentPct(row.success, row.total)
+                            | number: "1.0-0"
+                        }}%)</span
+                      >
+                    </td>
+                    <td>
+                      <span class="summary-total-cases">{{
+                        row.notSupported | number
+                      }}</span
+                      ><span class="td-sub"> / {{ row.total | number }}</span>
+                      <span class="summary-pct"
+                        >({{
+                          resolutionSegmentPct(row.notSupported, row.total)
+                            | number: "1.0-0"
+                        }}%)</span
+                      >
+                    </td>
+                    <td>
+                      <span class="summary-total-cases">{{
+                        row.error | number
+                      }}</span>
+                    </td>
+                    <td>
+                      <span class="summary-total-cases">{{
+                        row.warning | number
+                      }}</span>
+                    </td>
+                    <td>
+                      <span class="summary-total-cases">{{
+                        row.unknown | number
+                      }}</span>
+                    </td>
+                  </tr>
+                }
+                @if (!resolutionStatusRows().length) {
+                  <tr>
+                    <td colspan="8">
+                      @if (resolutionStatusLoading) {
+                        <span class="summary-empty"
+                          >Loading resolution status…</span
+                        >
+                      } @else {
+                        <ng-container [ngTemplateOutlet]="brewing" />
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -1889,6 +2152,313 @@
             </table>
           </div>
         }
+      </div>
+    </div>
+  </div>
+}
+
+@if (resolutionModalOpen) {
+  <div class="ciq-modal-backdrop" (click)="closeResolutionDetail()">
+    <div
+      class="ciq-modal ciq-modal--detail ciq-modal--wide"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="ciq-modal__header">
+        <div>
+          <h3 class="ciq-modal__title">
+            {{ resolutionModalTeam }} — Resolution Status by Core Issue for
+            {{ selectedQuarter || "Q4FY26" }}
+          </h3>
+        </div>
+        <button
+          class="ciq-modal__close"
+          (click)="closeResolutionDetail()"
+          aria-label="Close modal"
+        >
+          ✕
+        </button>
+      </div>
+      <div class="ciq-modal__body ciq-modal__body--table">
+        @if (resolutionModalLoading) {
+          <div class="ciq-no-data">Loading core issue breakdown…</div>
+        } @else if (resolutionModalFailed) {
+          <div class="ciq-no-data">
+            <span class="ciq-no-data-icon"
+              ><ng-icon name="phosphorEmptyDuotone" size="24"
+            /></span>
+            Core issue breakdown could not be loaded for
+            {{ resolutionModalTeam }}.
+          </div>
+        } @else if (!resolutionModalRows.length) {
+          <ng-container [ngTemplateOutlet]="brewing" />
+        } @else {
+          <div class="ciq-table-scroll ciq-table-scroll--no-max">
+            <table
+              class="ciq-table ciq-components-table ciq-resolution-table ciq-core-issue-table"
+            >
+              <thead>
+                <tr>
+                  <th scope="col">Core Issue</th>
+                  <th scope="col" class="resolution-mix-col">Outcome Mix</th>
+                  <th scope="col">
+                    <span class="th-dot dot-success"></span>Success
+                  </th>
+                  <th scope="col">
+                    <span class="th-dot dot-notsup"></span>Not Supported
+                  </th>
+                  <th scope="col">
+                    <span class="th-dot dot-error"></span>Error
+                  </th>
+                  <th scope="col">
+                    <span class="th-dot dot-warning"></span>Warning
+                  </th>
+                  <th scope="col">
+                    <span class="th-dot dot-unknown"></span>Unknown
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of resolutionModalRows; track row.coreIssue) {
+                  <tr>
+                    <td class="summary-component ciq-core-issue-cell">
+                      <span class="ciq-core-issue-label">{{
+                        row.coreIssue
+                      }}</span>
+                      <span class="td-sub">{{ row.total | number }} cases</span>
+                    </td>
+                    <td class="resolution-mix-col">
+                      <div class="caseiq-pill segmented-pill outcome-mix-pill">
+                        @if (row.success > 0) {
+                          <div
+                            class="pill-seg seg-success"
+                            [style.width.px]="
+                              resolutionMixWidthPx(row, 'success')
+                            "
+                            [title]="'Success: ' + (row.success | number)"
+                          >
+                            @if (
+                              resolutionSegmentPct(row.success, row.total) >= 20
+                            ) {
+                              <span class="pill-seg-label"
+                                >{{
+                                  resolutionSegmentPct(row.success, row.total)
+                                    | number: "1.0-0"
+                                }}%</span
+                              >
+                            }
+                          </div>
+                        }
+                        @if (row.notSupported > 0) {
+                          <div
+                            class="pill-seg seg-notsup"
+                            [style.width.px]="
+                              resolutionMixWidthPx(row, 'notSupported')
+                            "
+                            [title]="
+                              'Not Supported: ' + (row.notSupported | number)
+                            "
+                          >
+                            @if (
+                              resolutionSegmentPct(
+                                row.notSupported,
+                                row.total
+                              ) >= 20
+                            ) {
+                              <span class="pill-seg-label"
+                                >{{
+                                  resolutionSegmentPct(
+                                    row.notSupported,
+                                    row.total
+                                  ) | number: "1.0-0"
+                                }}%</span
+                              >
+                            }
+                          </div>
+                        }
+                        @if (row.error > 0) {
+                          <div
+                            class="pill-seg seg-error"
+                            [style.width.px]="
+                              resolutionMixWidthPx(row, 'error')
+                            "
+                            [title]="'Error: ' + (row.error | number)"
+                          >
+                            @if (
+                              resolutionSegmentPct(row.error, row.total) >= 20
+                            ) {
+                              <span class="pill-seg-label"
+                                >{{
+                                  resolutionSegmentPct(row.error, row.total)
+                                    | number: "1.0-0"
+                                }}%</span
+                              >
+                            }
+                          </div>
+                        }
+                        @if (row.warning > 0) {
+                          <div
+                            class="pill-seg seg-warning"
+                            [style.width.px]="
+                              resolutionMixWidthPx(row, 'warning')
+                            "
+                            [title]="'Warning: ' + (row.warning | number)"
+                          >
+                            @if (
+                              resolutionSegmentPct(row.warning, row.total) >= 20
+                            ) {
+                              <span class="pill-seg-label"
+                                >{{
+                                  resolutionSegmentPct(row.warning, row.total)
+                                    | number: "1.0-0"
+                                }}%</span
+                              >
+                            }
+                          </div>
+                        }
+                        @if (row.unknown > 0) {
+                          <div
+                            class="pill-seg seg-unknown"
+                            [style.width.px]="
+                              resolutionMixWidthPx(row, 'unknown')
+                            "
+                            [title]="'Unknown: ' + (row.unknown | number)"
+                          >
+                            @if (
+                              resolutionSegmentPct(row.unknown, row.total) >= 20
+                            ) {
+                              <span class="pill-seg-label"
+                                >{{
+                                  resolutionSegmentPct(row.unknown, row.total)
+                                    | number: "1.0-0"
+                                }}%</span
+                              >
+                            }
+                          </div>
+                        }
+                      </div>
+                    </td>
+                    <td>
+                      <span class="summary-total-cases">{{
+                        row.success | number
+                      }}</span
+                      ><span class="td-sub"> / {{ row.total | number }}</span>
+                      <span class="summary-pct"
+                        >({{
+                          resolutionSegmentPct(row.success, row.total)
+                            | number: "1.0-0"
+                        }}%)</span
+                      >
+                    </td>
+                    <td>
+                      <span class="summary-total-cases">{{
+                        row.notSupported | number
+                      }}</span
+                      ><span class="td-sub"> / {{ row.total | number }}</span>
+                      <span class="summary-pct"
+                        >({{
+                          resolutionSegmentPct(row.notSupported, row.total)
+                            | number: "1.0-0"
+                        }}%)</span
+                      >
+                    </td>
+                    <td>
+                      <span class="summary-total-cases">{{
+                        row.error | number
+                      }}</span>
+                    </td>
+                    <td>
+                      <span class="summary-total-cases">{{
+                        row.warning | number
+                      }}</span>
+                    </td>
+                    <td>
+                      <span class="summary-total-cases">{{
+                        row.unknown | number
+                      }}</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+@if (resolutionTimeModalOpen && resolutionTimeModalRow) {
+  <div class="ciq-modal-backdrop" (click)="closeResolutionTimeModal()">
+    <div
+      class="ciq-modal ciq-modal--detail"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="ciq-modal__header">
+        <div>
+          <h3 class="ciq-modal__title">
+            {{ resolutionTimeModalComponent }} — Resolution Time Breakdown for
+            {{ selectedQuarter || "Q4FY26" }}
+          </h3>
+        </div>
+        <button
+          class="ciq-modal__close"
+          (click)="closeResolutionTimeModal()"
+          aria-label="Close modal"
+        >
+          ✕
+        </button>
+      </div>
+      <div class="ciq-modal__body ciq-modal__body--table">
+        <div class="ciq-table-scroll ciq-table-scroll--no-max">
+          <table class="ciq-table ciq-components-table">
+            <thead>
+              <tr>
+                <th scope="col">Metric</th>
+                <th scope="col">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="summary-component">Import Time</td>
+                <td>
+                  <span class="summary-total-cases">{{
+                    durationParts(resolutionTimeModalRow.importTime).value
+                  }}</span
+                  ><span class="td-sub">
+                    {{
+                      durationParts(resolutionTimeModalRow.importTime).unit
+                    }}</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td class="summary-component">Execution Time</td>
+                <td>
+                  <span class="summary-total-cases">{{
+                    durationParts(resolutionTimeModalRow.executionTime).value
+                  }}</span
+                  ><span class="td-sub">
+                    {{
+                      durationParts(resolutionTimeModalRow.executionTime).unit
+                    }}</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td class="summary-component">Incidents</td>
+                <td>
+                  <span class="summary-total-cases">{{
+                    resolutionTimeModalRow.incidentCount | number
+                  }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

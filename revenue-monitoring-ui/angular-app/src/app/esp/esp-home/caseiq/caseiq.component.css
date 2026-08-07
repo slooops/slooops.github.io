@@ -1477,3 +1477,205 @@
   max-width: 26ch;
   line-height: 1.4;
 }
+
+/* ── ctx-4: Not Interfaced badge grid ─────────────────────────────────── */
+.ciq-not-interfaced-table .ni-issue-type {
+  font-weight: 600;
+  color: var(--ciq-text);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.ciq-not-interfaced-table .ni-team-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+}
+
+.ni-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  cursor: default;
+}
+
+.ni-badge-count {
+  font-weight: 700;
+  font-size: 0.625rem;
+  letter-spacing: normal;
+  opacity: 0.85;
+}
+
+.ni-badge--empty {
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+  font-size: 0.5625rem;
+  opacity: 0.75;
+}
+
+/* ── ctx-4: Resolution Status segmented outcome pill ─────────────────── */
+.ciq-resolution-table .resolution-mix-col {
+  min-width: 12rem;
+  width: 16rem;
+}
+
+.caseiq-pill.segmented-pill {
+  position: relative;
+  height: 0.75rem;
+  width: 100%;
+  min-width: 6rem;
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+:host(.dark-theme) .caseiq-pill.segmented-pill {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.segmented-pill .pill-seg {
+  height: 100%;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.segmented-pill .pill-seg.seg-success {
+  background: linear-gradient(135deg, #16a34a, #4ade80);
+}
+
+.segmented-pill .pill-seg.seg-notsup {
+  background: linear-gradient(135deg, #9ca3af, #6b7280);
+}
+
+.segmented-pill .pill-seg.seg-error {
+  background: linear-gradient(135deg, #dc2626, #f87171);
+}
+
+.segmented-pill .pill-seg.seg-warning {
+  background: linear-gradient(135deg, #d97706, #fbbf24);
+}
+
+.segmented-pill .pill-seg.seg-unknown {
+  background: linear-gradient(135deg, #a855f7, #d8b4fe);
+}
+
+:host(.dark-theme) .segmented-pill .pill-seg.seg-success {
+  background: linear-gradient(135deg, #22c55e, #86efac);
+}
+
+:host(.dark-theme) .segmented-pill .pill-seg.seg-notsup {
+  background: linear-gradient(135deg, #d1d5db, #9ca3af);
+}
+
+:host(.dark-theme) .segmented-pill .pill-seg.seg-error {
+  background: linear-gradient(135deg, #ef4444, #fca5a5);
+}
+
+:host(.dark-theme) .segmented-pill .pill-seg.seg-warning {
+  background: linear-gradient(135deg, #f59e0b, #fcd34d);
+}
+
+:host(.dark-theme) .segmented-pill .pill-seg.seg-unknown {
+  background: linear-gradient(135deg, #c084fc, #e9d5ff);
+}
+
+/* ── ctx-4: Resolution Status legend dots (in column headers) ────────── */
+.th-dot {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  margin-right: 0.375rem;
+  vertical-align: baseline;
+  transform: translateY(0px);
+}
+
+.th-dot.dot-success {
+  background: linear-gradient(135deg, #16a34a, #4ade80);
+}
+
+.th-dot.dot-notsup {
+  background: linear-gradient(135deg, #9ca3af, #6b7280);
+}
+
+.th-dot.dot-error {
+  background: linear-gradient(135deg, #dc2626, #f87171);
+}
+
+.th-dot.dot-warning {
+  background: linear-gradient(135deg, #d97706, #fbbf24);
+}
+
+.th-dot.dot-unknown {
+  background: linear-gradient(135deg, #a855f7, #d8b4fe);
+}
+
+:host(.dark-theme) .th-dot.dot-success {
+  background: linear-gradient(135deg, #22c55e, #86efac);
+}
+
+:host(.dark-theme) .th-dot.dot-notsup {
+  background: linear-gradient(135deg, #d1d5db, #9ca3af);
+}
+
+:host(.dark-theme) .th-dot.dot-error {
+  background: linear-gradient(135deg, #ef4444, #fca5a5);
+}
+
+:host(.dark-theme) .th-dot.dot-warning {
+  background: linear-gradient(135deg, #f59e0b, #fcd34d);
+}
+
+:host(.dark-theme) .th-dot.dot-unknown {
+  background: linear-gradient(135deg, #c084fc, #e9d5ff);
+}
+
+/* ── Discrete Outcome Mix pill (Resolution Status) ───────────────────── */
+
+/* Discrete pills: each non-zero outcome renders as its own rounded pill.
+   Overrides the shared .segmented-pill track + single-pill radius. */
+.segmented-pill.outcome-mix-pill {
+  height: 1.125rem;
+  min-width: 0;
+  background: transparent;
+  overflow: visible;
+  border-radius: 0;
+  gap: 3px;
+  cursor: pointer;
+  transition: transform var(--fit-transition-fast, 150ms) ease;
+}
+.segmented-pill.outcome-mix-pill:hover {
+  transform: scale(1.02);
+}
+.outcome-mix-pill .pill-seg {
+  border-radius: 999px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Pct label rendered inside a pill segment when its share ≥ 20% */
+.pill-seg-label {
+  font-size: 0.5625rem;
+  font-weight: var(--fit-font-weight-semibold);
+  color: #fff;
+  line-height: 1;
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+/* Component-table Resolution Time cell click affordance */
+.ciq-clickable-value {
+  cursor: pointer;
+  border-bottom: 1px dashed transparent;
+  transition: border-color var(--fit-transition-fast, 150ms) ease;
+}
+.ciq-clickable-value:hover {
+  border-bottom-color: currentColor;
+}
