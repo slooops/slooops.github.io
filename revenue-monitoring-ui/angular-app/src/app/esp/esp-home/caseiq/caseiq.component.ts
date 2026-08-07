@@ -22,6 +22,7 @@ import {
   phosphorLinkBold,
   phosphorArrowsClockwiseBold,
   phosphorArrowLineDownBold,
+  phosphorSparkleBold,
 } from '@ng-icons/phosphor-icons/bold';
 import {
   phosphorEmptyDuotone,
@@ -141,6 +142,15 @@ interface CoreIssueRow extends Omit<ResponseTimeRow, 'component'> {
   coreIssue: string;
 }
 
+/** One team row of the ctx-4 auto-resolve metrics table. */
+interface AutoResolveRow {
+  component: string;
+  incidentCount: number;
+  importTime: number | null;
+  executionTime: number | null;
+  resolutionTime: number | null;
+}
+
 /** Display order shared by every per-component table in this dashboard. */
 const COMPONENT_ORDER = ['OM', 'SM', 'I2C', 'AIT', 'FPP', 'P2P', 'CAPITAL'];
 
@@ -169,6 +179,7 @@ const COMPONENT_ORDER = ['OM', 'SM', 'I2C', 'AIT', 'FPP', 'P2P', 'CAPITAL'];
       phosphorLinkBold,
       phosphorArrowsClockwiseBold,
       phosphorArrowLineDownBold,
+      phosphorSparkleBold,
       phosphorEmptyDuotone,
       phosphorCoffeeDuotone,
     }),
@@ -250,7 +261,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   sankeyCardFlipped = false;
 
   // ── Context Switcher: 1 = Operations, 2 = Executive, 3 = Executive (redux) ──
-  @Input() caseiqView: 1 | 2 | 3 = 1;
+  @Input() caseiqView: 1 | 2 | 3 | 4 = 1;
 
   // ── Executive view data (all from new p80/p90/worknotes/coverage-gap views) ──
   /** p80 metrics per team from ASK_CASEIQ_METRICS_DSH_80_V */
@@ -264,6 +275,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   /** Response time + post-CaseIQ churn per component, filtered by quarter (ctx 3) */
   execResponseTimeData: any[] = [];
   execResponseTimeLoading = false;
+  /** Per-team auto-resolve metrics from ASK_CASEIQ_AUTO_RESOLVE_METRICS_V (ctx 4) */
+  autoResolveData: any[] = [];
+  autoResolveLoading = false;
   /** True until every executive dataset for the selected quarter has settled */
   execViewLoading = true;
   /** Response time drilldown modal (per component core-issue breakdown) */
@@ -326,6 +340,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         this.refetchWeeklyCasesAnalyzed();
         this.fetchExecResponseTime();
         this.fetchExecViewData();
+        this.fetchAutoResolveMetrics();
         // Rebuild the active context's charts when the quarter changes
         this.scheduleContextChartRebuild(100, false);
       }
@@ -400,6 +415,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     // Fetch executive-view datasets (p80, p90, worknotes churn, coverage gap)
     this.fetchExecViewData();
     this.fetchExecResponseTime();
+    this.fetchAutoResolveMetrics();
 
     // Initial build of sections/charts once view is ready
     this.buildSectionsFromMetrics();
@@ -3479,6 +3495,59 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           this.execResponseTimeLoading = false;
         },
       });
+  }
+
+  /** Per-team auto-resolve metrics for ctx 4, filtered by selected quarter. */
+  private fetchAutoResolveMetrics(): void {
+    const qtr = this.selectedQuarter || 'Q4FY26';
+    this.autoResolveLoading = true;
+    this.http
+      .get(
+        `caseiq/auto-resolve-metrics?fiscQtr=${encodeURIComponent(qtr)}`,
+        this.destroyManager,
+      )
+      .subscribe({
+        next: (d: any) => {
+          this.autoResolveData = Array.isArray(d) ? d : [];
+          this.autoResolveLoading = false;
+        },
+        error: () => {
+          this.autoResolveData = [];
+          this.autoResolveLoading = false;
+        },
+      });
+  }
+
+  /** Rows for the ctx-4 auto-resolve table, one per team, sorted by component order. */
+  autoResolveRows(): AutoResolveRow[] {
+    const num = (row: any, key: string): number | null => {
+      const val = Number(row?.[key] ?? row?.[key.toUpperCase()]);
+      return Number.isFinite(val) ? val : null;
+    };
+    return this.autoResolveData
+      .map((row) => ({
+        component: this.execTeam(row) ?? '—',
+        incidentCount: num(row, 'INCIDENT_COUNT') ?? 0,
+        importTime: num(row, 'IMPORT_TIME'),
+        executionTime: num(row, 'EXECUTION_TIME'),
+        resolutionTime: num(row, 'RESOLUTION_TIME'),
+      }))
+      .filter((r) => r.component !== 'UNKNOWN')
+      .sort(
+        (a, b) =>
+          this.componentRank(a.component) - this.componentRank(b.component),
+      );
+  }
+
+  /** Total incident count across all teams — denominator for the share pill. */
+  autoResolveTotalIncidents(): number {
+    return this.autoResolveRows().reduce((sum, r) => sum + r.incidentCount, 0);
+  }
+
+  /** Share of total incidents contributed by a single team (0–100). */
+  autoResolveShare(row: AutoResolveRow): number {
+    const total = this.autoResolveTotalIncidents();
+    return total > 0 ? (row.incidentCount / total) * 100 : 0;
   }
 
   /** Rows for the ctx-3 response time table, one per component. */

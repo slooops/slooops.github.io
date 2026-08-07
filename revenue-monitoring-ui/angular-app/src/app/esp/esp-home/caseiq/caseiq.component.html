@@ -1244,6 +1244,441 @@
       <br /><br />
     </div>
   }
+
+  <!-- ═══ Ctx 4 — Ops variant (placeholder analytics row) ═══ -->
+  @if (caseiqView === 4 && summaryRows.length) {
+    <div class="ciq-ctx-pane">
+      <!-- KPI Strip (same as ctx 1) -->
+      <div class="caseiq-kpi-strip">
+        @for (kpi of caseiqKpis(); track kpi.title) {
+          <div class="caseiq-kpi {{ kpi.color }}">
+            <span class="caseiq-kpi-title">{{ kpi.title }}</span>
+            <div class="caseiq-kpi-body">
+              @if (kpi.plain) {
+                <span class="caseiq-kpi-value-plain">{{ kpi.plainValue }}</span>
+              } @else {
+                <div class="caseiq-pill">
+                  <div
+                    class="caseiq-pill-fill {{ kpi.color }}"
+                    [style.width.%]="kpi.pillWidth"
+                  ></div>
+                  <span class="caseiq-pill-text">{{ kpi.pillText }}</span>
+                </div>
+                <span class="caseiq-kpi-pct">{{ kpi.pctText }}</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Components Table (same as ctx 1) -->
+      <div class="ciq-card ciq-components-card" style="margin: 1rem 0">
+        <div class="ciq-table-scroll">
+          <table class="ciq-table ciq-components-table">
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Total Cases</th>
+                <th>Accuracy</th>
+                <th>In Progress</th>
+                <th>Routed Out</th>
+                <th>Canceled</th>
+                <th>Service Requests</th>
+                <th>Total (Agent)</th>
+                <th>Agent vs Ops %</th>
+                <th>Active Agents</th>
+                <th>Service Incidents</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of summaryRows; track row.sectionName) {
+                <tr>
+                  <td class="summary-component">
+                    <span
+                      class="component-badge badge-{{
+                        getValidationColor(row.sectionName)
+                      }}"
+                      (click)="navigateToTeam(row.sectionName)"
+                      >{{ row.sectionName }}</span
+                    >
+                  </td>
+                  <td>
+                    @if (getTotalCasesFromAccuracy(row.sectionName) != null) {
+                      <span class="summary-total-cases">
+                        {{
+                          getTotalCasesFromAccuracy(row.sectionName) | number
+                        }}
+                      </span>
+                    } @else {
+                      <span class="summary-empty">--</span>
+                    }
+                  </td>
+                  <td>
+                    @if (getValidationForSection(row.sectionName) != null) {
+                      <div
+                        class="caseiq-pill accuracy-pill"
+                        [class.clickable]="row.sectionName !== 'Finance IT'"
+                        (click)="openAccuracyModal(row.sectionName)"
+                      >
+                        <div
+                          class="caseiq-pill-fill {{
+                            getValidationColor(row.sectionName)
+                          }}"
+                          [style.width.%]="
+                            getValidationForSection(row.sectionName)
+                          "
+                        ></div>
+                        <span class="caseiq-pill-text"
+                          >{{
+                            getValidationForSection(row.sectionName)
+                              | number: "1.1-1"
+                          }}%</span
+                        >
+                      </div>
+                    } @else {
+                      <span class="summary-empty">--</span>
+                    }
+                  </td>
+                  <td>
+                    {{ valueDisplay(row.inProgress.agent)
+                    }}<span class="td-sub">
+                      / {{ row.inProgress.total || 0 | number }}</span
+                    >
+                    @if (row.inProgress.agentPct != null) {
+                      <span class="summary-pct"
+                        >({{
+                          row.inProgress.agentPct | number: "1.0-0"
+                        }}%)</span
+                      >
+                    }
+                  </td>
+                  <td>
+                    {{ valueDisplay(row.routed.agent)
+                    }}<span class="td-sub">
+                      / {{ row.routed.total || 0 | number }}</span
+                    >
+                    @if (row.routed.agentPct != null) {
+                      <span class="summary-pct"
+                        >({{ row.routed.agentPct | number: "1.0-0" }}%)</span
+                      >
+                    }
+                  </td>
+                  <td>
+                    {{ valueDisplay(row.cancelled.agent)
+                    }}<span class="td-sub">
+                      / {{ row.cancelled.total || 0 | number }}</span
+                    >
+                    @if (row.cancelled.agentPct != null) {
+                      <span class="summary-pct"
+                        >({{ row.cancelled.agentPct | number: "1.0-0" }}%)</span
+                      >
+                    }
+                  </td>
+                  <td>
+                    {{ valueDisplay(row.service.agent)
+                    }}<span class="td-sub">
+                      / {{ row.service.total || 0 | number }}</span
+                    >
+                    @if (row.service.agentPct != null) {
+                      <span class="summary-pct"
+                        >({{ row.service.agentPct | number: "1.0-0" }}%)</span
+                      >
+                    }
+                  </td>
+                  <td>
+                    <span class="summary-total-cases">{{
+                      getAgentTotalCases(row) | number
+                    }}</span
+                    ><span class="td-sub">
+                      /
+                      {{ row.totalCases - row.serviceIncidents | number }}</span
+                    >
+                  </td>
+                  <td>
+                    <div class="caseiq-pill table-pill">
+                      <div
+                        class="caseiq-pill-fill cyan"
+                        [style.width.%]="getAgentRatio(row)"
+                      ></div>
+                      <span class="caseiq-pill-text"
+                        >{{ getAgentRatio(row) }}%</span
+                      >
+                    </div>
+                  </td>
+                  <td>
+                    <a
+                      class="active-agents-link"
+                      (click)="openResolutionAgents($event)"
+                    >
+                      {{ getAgentForRow(row).deployed }} /
+                      {{ getAgentForRow(row).total }}
+                    </a>
+                  </td>
+                  <td>
+                    @if (row.serviceIncidents != null) {
+                      {{ row.serviceIncidents | number }}
+                    } @else {
+                      <span class="summary-empty">--</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══ Analytics row (1 : 1 : 1) — Auto Resolve + 2 placeholders ═══ -->
+      <div class="analytics-section">
+        <div class="analytics-row analytics-row-1-1-1">
+          <!-- Slot 1: Auto Resolve Metrics -->
+          <div class="ciq-card ciq-card--chart">
+            <div class="ciq-card-header">
+              <span class="ciq-card-title">Auto Resolve Metrics</span>
+              <span class="analytics-date-range">{{
+                selectedQuarter || 'Q4FY26'
+              }}</span>
+            </div>
+            <div class="ciq-table-scroll ciq-table-scroll--no-max">
+              <table class="ciq-table ciq-components-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Component</th>
+                    <th scope="col">Incidents</th>
+                    <th scope="col">Import Time</th>
+                    <th scope="col">Execution Time</th>
+                    <th scope="col">Resolution Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of autoResolveRows(); track row.component) {
+                    <tr>
+                      <td class="summary-component">
+                        <span class="component-badge badge-cyan">{{
+                          row.component
+                        }}</span>
+                      </td>
+                      <td>
+                        <div class="ciq-pill-with-pct">
+                          <div class="caseiq-pill table-pill">
+                            <div
+                              class="caseiq-pill-fill cyan"
+                              [style.width.%]="autoResolveShare(row)"
+                            ></div>
+                            <span class="caseiq-pill-text">{{
+                              row.incidentCount | number
+                            }}</span>
+                          </div>
+                          <span class="summary-pct"
+                            >{{
+                              autoResolveShare(row) | number: '1.0-0'
+                            }}%</span
+                          >
+                        </div>
+                      </td>
+                      <td>
+                        <span class="summary-total-cases">{{
+                          durationParts(row.importTime).value
+                        }}</span
+                        ><span class="td-sub">
+                          {{ durationParts(row.importTime).unit }}</span
+                        >
+                      </td>
+                      <td>
+                        <span class="summary-total-cases">{{
+                          durationParts(row.executionTime).value
+                        }}</span
+                        ><span class="td-sub">
+                          {{ durationParts(row.executionTime).unit }}</span
+                        >
+                      </td>
+                      <td>
+                        <span class="summary-total-cases">{{
+                          durationParts(row.resolutionTime).value
+                        }}</span
+                        ><span class="td-sub">
+                          {{ durationParts(row.resolutionTime).unit }}</span
+                        >
+                      </td>
+                    </tr>
+                  }
+                  @if (!autoResolveRows().length) {
+                    <tr>
+                      <td colspan="5">
+                        @if (autoResolveLoading) {
+                          <span class="summary-empty"
+                            >Loading auto-resolve metrics…</span
+                          >
+                        } @else {
+                          <ng-container [ngTemplateOutlet]="brewing" />
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Slots 2 & 3: Placeholders -->
+          @for (slot of [2, 3]; track slot) {
+            <div class="ciq-card ciq-card--chart">
+              <div class="ciq-card-header">
+                <span class="ciq-card-title">Placeholder {{ slot }}</span>
+                <span class="analytics-date-range">Coming soon</span>
+              </div>
+              <div class="analytics-chart-wrapper">
+                <div class="ciq-brewing">
+                  <ng-icon name="phosphorSparkleBold" size="26" />
+                  <span class="ciq-brewing-title">Placeholder {{ slot }}</span>
+                  <span class="ciq-brewing-text"
+                    >Ctx 4 chart slot — content TBD.</span
+                  >
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ═══ Monitoring: Error Incidents (same as ctx 1) ═══ -->
+      <div class="monitoring-section">
+        <div class="ciq-error-table-header">
+          <span class="ciq-error-table-title">Error Incidents</span>
+
+          <div class="ciq-error-table-toolbar">
+            <app-filter-button-bar
+              class="ciq-error-table-filters"
+              [filters]="errorFilterConfigs"
+              [filterValues]="errorFilterValues"
+              [actions]="[]"
+              [totalCount]="errorTotalCount"
+              [filteredCount]="errorTotalCount"
+              [showFilterToggle]="true"
+              countLabel="incidents"
+              (filterChange)="onErrorFilterChange($event)"
+              (filterClear)="onErrorFilterClear()"
+            ></app-filter-button-bar>
+
+            <button
+              class="ciq-download-btn"
+              [class.ciq-download-btn--downloading]="csvDownloading"
+              [class.ciq-download-btn--done]="csvDownloadDone"
+              [disabled]="csvDownloading || errorTotalCount === 0"
+              (click)="downloadErrorCsv()"
+              title="Download CSV"
+            >
+              <span
+                class="ciq-download-btn__fill"
+                [style.width.%]="csvDownloadProgress"
+              ></span>
+              <span class="ciq-download-btn__content">
+                <ng-icon name="phosphorArrowLineDownBold" size="14"></ng-icon>
+                CSV
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div class="ciq-card ciq-components-card">
+          <div class="ciq-table-scroll ciq-table-scroll--no-max">
+            <table class="ciq-table ciq-error-table">
+              <thead>
+                <tr>
+                  <th>Incident</th>
+                  <th>Team</th>
+                  <th>Category</th>
+                  <th>Core Issue</th>
+                  <th>LLM Summary</th>
+                  <th>Issue Description</th>
+                  <th>Detail</th>
+                  <th>Resolution</th>
+                  <th>Run Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                @if (errorLoading) {
+                  <tr>
+                    <td colspan="9">
+                      <div class="ciq-table-loading">
+                        <app-loading-symbol animationStyle="origins" />
+                      </div>
+                    </td>
+                  </tr>
+                }
+                @for (row of monitoringErrorData; track $index) {
+                  <tr>
+                    <td class="ciq-mono">{{ row.INCIDENT_NUMBER || "N/A" }}</td>
+                    <td>{{ row.TEAM_NAME || "N/A" }}</td>
+                    <td>{{ row.CATEGORY || "—" }}</td>
+                    <td class="ciq-text-sm">{{ row.CORE_ISSUE || "—" }}</td>
+                    <td class="ciq-text-sm">{{ row.LLM_SUMMARY || "—" }}</td>
+                    <td>
+                      <span class="ciq-badge badge-critical">{{
+                        (row.anomalyLabel || row.ANOMALY_TYPE || "") ===
+                        "Not Defined"
+                          ? 'LLM Summary is "Not Defined"'
+                          : row.anomalyLabel || row.ANOMALY_TYPE || ""
+                      }}</span>
+                    </td>
+                    <td>
+                      @if (row.INCIDENT_DESCRIPTION) {
+                        <button
+                          class="ciq-detail-badge ciq-detail-badge--desc"
+                          (click)="openErrorDetailModal(row, 'description')"
+                        >
+                          View
+                        </button>
+                      } @else {
+                        <span class="ciq-muted-text">—</span>
+                      }
+                    </td>
+                    <td>
+                      @if (row.RESOLUTION_API_SUMMARY) {
+                        <button
+                          class="ciq-detail-badge ciq-detail-badge--res"
+                          (click)="openErrorDetailModal(row, 'resolution')"
+                        >
+                          View
+                        </button>
+                      } @else {
+                        <span class="ciq-muted-text">—</span>
+                      }
+                    </td>
+                    <td class="ciq-text-sm">
+                      {{ formatMonitoringDate(row.CASEIQ_RUN_DATE) }}
+                    </td>
+                  </tr>
+                }
+                @if (monitoringErrorData.length === 0 && !errorLoading) {
+                  <tr>
+                    <td colspan="9">
+                      <div class="ciq-no-data">
+                        <span class="ciq-no-data-icon"
+                          ><ng-icon name="phosphorEmptyDuotone" size="24"
+                        /></span>
+                        No errors detected in this period
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <app-pagination
+          [pageIndex]="errorCurrentPage - 1"
+          [pageSize]="errorPageSize"
+          [totalItems]="errorTotalCount"
+          [pageSizeOptions]="[10, 25, 50, 100]"
+          (pageChange)="onErrorPageChange($event)"
+        ></app-pagination>
+      </div>
+
+      <br />
+      <br />
+    </div>
+  }
 }
 
 @if (drilldownOpen) {

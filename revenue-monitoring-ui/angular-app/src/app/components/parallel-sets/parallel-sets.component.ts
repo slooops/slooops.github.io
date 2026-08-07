@@ -301,7 +301,6 @@ export class ParallelSetsComponent
         .attr('y', (c) => slots[dim][c.name].y)
         .attr('width', barWidth)
         .attr('height', (c) => Math.max(1, slots[dim][c.name].height))
-        .attr('rx', 2)
         .attr('fill', (c) => this.color(c.name))
         .append('title')
         .text(

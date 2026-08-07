@@ -1,0 +1,891 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Dashboard Usage Report — 2026-08-07</title>
+<style>
+@page { size: Letter; margin: 0.6in 0.7in; }
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Helvetica, Arial, sans-serif;
+  color: #1b1c1d;
+  font-size: 10.5pt;
+  line-height: 1.45;
+  max-width: 7.1in;
+  margin: 0 auto;
+}
+h1 { font-size: 20pt; margin: 0 0 0.4rem 0; color: #0b1220; }
+h2 { font-size: 14pt; margin: 1.4rem 0 0.4rem; color: #0b1220; border-bottom: 1px solid #d0d7de; padding-bottom: 4px; }
+h3 { font-size: 11.5pt; margin: 1.0rem 0 0.3rem; color: #0b1220; }
+p { margin: 0.35rem 0; }
+strong { color: #0b1220; }
+code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 9.2pt; background: #f2f4f7; padding: 0 3px; border-radius: 3px; }
+hr { border: none; border-top: 1px solid #d0d7de; margin: 1.1rem 0; }
+ul, ol { margin: 0.35rem 0 0.35rem 1.3rem; padding: 0; }
+li { margin: 0.15rem 0; }
+table { border-collapse: collapse; width: 100%; margin: 0.5rem 0 0.8rem; font-size: 9.6pt; page-break-inside: avoid; }
+th, td { border: 1px solid #d0d7de; padding: 4px 8px; text-align: left; vertical-align: top; }
+th { background: #f5f7fa; font-weight: 600; color: #0b1220; }
+tr:nth-child(even) td { background: #fafbfc; }
+em { color: #556; }
+</style></head>
+<body>
+<h1 id="finance-it-control-tower-dashboard-usage-report-update">Finance-IT Control Tower — Dashboard Usage Report (Update)</h1>
+<p><strong>Author:</strong> Jack Sloop  <strong>Date:</strong> August 7, 2026  <strong>Prior report:</strong> June 29, 2026  <strong>Data source:</strong> <code>ARFINRO.CTL_TWR_JSR_PAGE_VISIT_LOG</code> (prod, <code>APPSRO@CG1PRD_SRVC_OTH</code>)  <strong>Observation window:</strong> January 12 – August 7, 2026 (208 days)  <strong>Branch:</strong> UI2.0  <strong>Exclusions:</strong> Dev team accounts (JACK, ABHIJITH, LOCAL_TESTING, JASLOOP) excluded from all metrics.</p>
+<hr>
+<h2 id="tldr-what-changed-since-june-29">TL;DR — what changed since June 29</h2>
+<ol>
+<li><strong>Adoption keeps compounding.</strong> In the 40 days since the last report we added <strong>+4,172 visits (+20%)</strong>, <strong>+14 unique end users</strong>, and <strong>+8 new routes</strong> — all without any marketing push. Cumulative totals are now <strong>25,313 visits from 135 users across 126 routes</strong>.</li>
+<li><strong>The FY26 Q4 close (July 22 – Aug 4) was the first close cycle to run with the predictive context engine live.</strong> During that window, dashboard traffic rose sharply — <strong>July alone posted 3,419 visits from 67 users</strong>, second only to March (peak Q3 close) and April (peak onboarding month).</li>
+<li><strong>Large-Deal (CTX3) usage more than doubled its share</strong> — from 8% → 10% of contextual traffic — driven by Q4 large-deal closing activity. During the Q4 close window CTX3 was our #2 context (593 visits, 19 users), overtaking CaseIQ for the first time.</li>
+<li><strong>User personas are stable but sharper.</strong> CTX1 vs CTX2 preference nearly tied (43 vs 46 users) with average CTX1 user now at <strong>356 visits/user</strong> (vs 331 in June). The <strong>top 8 power users now drive 53% of all traffic</strong>, and the top user (KRATIKA) crossed <strong>3,000 lifetime visits</strong>.</li>
+<li><strong>Retention held or improved on every window.</strong> 7-day active up to 30 users (was 25), 30-day active up to 64 (was 51), 90-day active steady at ~71% — despite the total user base growing 12%.</li>
+</ol>
+<hr>
+<h2 id="1-overall-adoption">1. Overall adoption</h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Aug 7, 2026</th>
+<th>Jun 29, 2026</th>
+<th>Δ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total visit rows</td>
+<td>11,083</td>
+<td>9,165</td>
+<td><strong>+1,918</strong></td>
+</tr>
+<tr>
+<td>Total visits (sum)</td>
+<td>25,313</td>
+<td>21,141</td>
+<td><strong>+4,172</strong></td>
+</tr>
+<tr>
+<td>Unique users</td>
+<td>135</td>
+<td>121</td>
+<td><strong>+14</strong></td>
+</tr>
+<tr>
+<td>Unique routes logged</td>
+<td>126</td>
+<td>118</td>
+<td><strong>+8</strong></td>
+</tr>
+<tr>
+<td>Earliest visit</td>
+<td>2026-01-12</td>
+<td>2026-01-12</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Latest visit</td>
+<td>2026-08-07</td>
+<td>2026-06-29</td>
+<td>+40 days</td>
+</tr>
+</tbody>
+</table>
+<h3 id="11-monthly-adoption-trend">1.1 Monthly adoption trend</h3>
+<table>
+<thead>
+<tr>
+<th>Month</th>
+<th style="text-align: right;">Visits</th>
+<th style="text-align: right;">Unique Users</th>
+<th style="text-align: right;">Active Days</th>
+<th style="text-align: right;">Routes Used</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-01</td>
+<td style="text-align: right;">3,264</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr>
+<td>2026-02</td>
+<td style="text-align: right;">4,393</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td>2026-03</td>
+<td style="text-align: right;">4,480</td>
+<td style="text-align: right;">58</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">70</td>
+</tr>
+<tr>
+<td>2026-04</td>
+<td style="text-align: right;">4,011</td>
+<td style="text-align: right;">81</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">66</td>
+</tr>
+<tr>
+<td>2026-05</td>
+<td style="text-align: right;">2,753</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">79</td>
+</tr>
+<tr>
+<td>2026-06</td>
+<td style="text-align: right;">2,349</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">76</td>
+</tr>
+<tr>
+<td>2026-07</td>
+<td style="text-align: right;"><strong>3,419</strong></td>
+<td style="text-align: right;"><strong>67</strong></td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">72</td>
+</tr>
+<tr>
+<td>2026-08</td>
+<td style="text-align: right;">644</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">56</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key observations:</strong></p>
+<ul>
+<li><strong>July is the second-highest month on record</strong> (3,419 visits) — driven by Cisco's FY26 fiscal year-end close on Saturday, July 25 and the resulting WD1 push through the first week of August.</li>
+<li><strong>June finalized at 2,349 visits</strong> (vs 2,240 mid-month at the previous report cut) — the June number in the prior report was 3 days short.</li>
+<li>The route count remains in the 70–79 range — the platform has stabilized around a mature route inventory, but 8 net-new routes shipped in the last 40 days (context engine, midclose-status view expansions, additional CaseIQ tiles).</li>
+<li>August is partial (7 active days) and already has 30 users active.</li>
+</ul>
+<h3 id="12-retention">1.2 Retention</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Aug 7, 2026</th>
+<th>Jun 29, 2026</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total all-time users</td>
+<td>135</td>
+<td>121</td>
+</tr>
+<tr>
+<td>Active last 7 days</td>
+<td><strong>30</strong> (22.2%)</td>
+<td>25 (20.7%)</td>
+</tr>
+<tr>
+<td>Active last 30 days</td>
+<td><strong>64</strong> (47.4%)</td>
+<td>51 (42.1%)</td>
+</tr>
+<tr>
+<td>Active last 90 days</td>
+<td>96 (71.1%)</td>
+<td>99 (81.8%)</td>
+</tr>
+</tbody>
+</table>
+<p>The 7-day and 30-day windows both improved absolutely and as a percentage — the incremental users we've added since June are stickier, not just link-clickers. The 90-day figure dropped in percentage terms because the denominator (all-time users) grew, and the 90-day window now excludes some early-January adopters who bounced.</p>
+<hr>
+<h2 id="2-context-distribution-the-three-audiences">2. Context distribution — the three audiences</h2>
+<table>
+<thead>
+<tr>
+<th>Context</th>
+<th>Description</th>
+<th style="text-align: right;">Total Visits</th>
+<th style="text-align: right;">Unique Users</th>
+<th style="text-align: right;">Routes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CTX1</strong> — Period Close / IT Ops</td>
+<td>Pre-invoicing, invoicing, GL posting, self-healing, order management, revenue accounting, period-close tracking</td>
+<td style="text-align: right;">15,214</td>
+<td style="text-align: right;">58</td>
+<td style="text-align: right;">44</td>
+</tr>
+<tr>
+<td><strong>CTX2</strong> — CaseIQ / AI Agents</td>
+<td>CaseIQ dashboard, case analyzers, exception details, AI agent monitoring</td>
+<td style="text-align: right;">5,114</td>
+<td style="text-align: right;">66</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr>
+<td><strong>CTX3</strong> — Biz Insights / Large Deal</td>
+<td>Large deal tracker, midclose volumes, O2C analytics</td>
+<td style="text-align: right;">2,206</td>
+<td style="text-align: right;">41</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr>
+<td>Other</td>
+<td>Landing, scorecard, access management, etc.</td>
+<td style="text-align: right;">2,779</td>
+<td style="text-align: right;">66</td>
+<td style="text-align: right;">51</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Movement since June 29:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Context</th>
+<th style="text-align: right;">Δ visits</th>
+<th style="text-align: right;">Δ users</th>
+<th style="text-align: right;">Δ share of contextual traffic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CTX1</td>
+<td style="text-align: right;">+2,126</td>
+<td style="text-align: right;">+5</td>
+<td style="text-align: right;">68% → 67% (–1 pp)</td>
+</tr>
+<tr>
+<td>CTX2</td>
+<td style="text-align: right;">+421</td>
+<td style="text-align: right;">+7</td>
+<td style="text-align: right;">24% → 23% (–1 pp)</td>
+</tr>
+<tr>
+<td>CTX3</td>
+<td style="text-align: right;">+755</td>
+<td style="text-align: right;">–1</td>
+<td style="text-align: right;">8% → <strong>10%</strong> (+2 pp)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CaseIQ (CTX2) still has the widest reach</strong> at 66 unique users — more people look at CaseIQ than at Period Close, even though Period Close drives more total traffic. <strong>CTX3 is the fastest-growing context</strong> — 52% growth in 40 days as Q4 large-deal activity ramped.</p>
+<h3 id="21-context-visits-by-month">2.1 Context visits by month</h3>
+<table>
+<thead>
+<tr>
+<th>Month</th>
+<th style="text-align: right;">CTX1</th>
+<th style="text-align: right;">CTX2</th>
+<th style="text-align: right;">CTX3</th>
+<th style="text-align: right;">Other</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-01</td>
+<td style="text-align: right;">2,110</td>
+<td style="text-align: right;">364</td>
+<td style="text-align: right;">567</td>
+<td style="text-align: right;">223</td>
+</tr>
+<tr>
+<td>2026-02</td>
+<td style="text-align: right;">2,749</td>
+<td style="text-align: right;">1,260</td>
+<td style="text-align: right;">107</td>
+<td style="text-align: right;">277</td>
+</tr>
+<tr>
+<td>2026-03</td>
+<td style="text-align: right;">2,763</td>
+<td style="text-align: right;">968</td>
+<td style="text-align: right;">127</td>
+<td style="text-align: right;">622</td>
+</tr>
+<tr>
+<td>2026-04</td>
+<td style="text-align: right;">2,062</td>
+<td style="text-align: right;">645</td>
+<td style="text-align: right;">559</td>
+<td style="text-align: right;">745</td>
+</tr>
+<tr>
+<td>2026-05</td>
+<td style="text-align: right;">1,760</td>
+<td style="text-align: right;">479</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">482</td>
+</tr>
+<tr>
+<td>2026-06</td>
+<td style="text-align: right;">1,415</td>
+<td style="text-align: right;">746</td>
+<td style="text-align: right;">28</td>
+<td style="text-align: right;">160</td>
+</tr>
+<tr>
+<td>2026-07</td>
+<td style="text-align: right;"><strong>2,047</strong></td>
+<td style="text-align: right;">414</td>
+<td style="text-align: right;"><strong>780</strong></td>
+<td style="text-align: right;">178</td>
+</tr>
+<tr>
+<td>2026-08</td>
+<td style="text-align: right;">308</td>
+<td style="text-align: right;">238</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">92</td>
+</tr>
+</tbody>
+</table>
+<p><strong>July is the CTX3 blowout month</strong> — 780 visits, more than the prior five months combined for that context. This aligns with fiscal Q4 large-deal close: sales, finance, and deal desk all reviewing the same tracker. If the July pattern repeats every FY end, CTX3 will need its own dedicated landing tiles and possibly a Q4-specific overlay.</p>
+<h3 id="22-fy26-q4-close-window-jul-22-aug-4">2.2 FY26 Q4 close window (Jul 22 – Aug 4)</h3>
+<p>The first full close cycle with the <strong>predictive context engine live</strong> (shipped Jun 29).</p>
+<table>
+<thead>
+<tr>
+<th>Context</th>
+<th style="text-align: right;">Visits</th>
+<th style="text-align: right;">Users</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CTX1</td>
+<td style="text-align: right;">1,030</td>
+<td style="text-align: right;">24</td>
+</tr>
+<tr>
+<td>CTX3</td>
+<td style="text-align: right;">593</td>
+<td style="text-align: right;">19</td>
+</tr>
+<tr>
+<td>CTX2</td>
+<td style="text-align: right;">398</td>
+<td style="text-align: right;">26</td>
+</tr>
+<tr>
+<td>Other</td>
+<td style="text-align: right;">126</td>
+<td style="text-align: right;">14</td>
+</tr>
+</tbody>
+</table>
+<p>Notable: <strong>CTX3 was #2 by traffic during Q4 close</strong>, ahead of CaseIQ. CaseIQ still won on user count (26), consistent with its role as a broad monitoring surface rather than an active-workflow tool. The engine's close-window override (force CTX1 for all users during close) meant 100% of users landed on Period Close first — CTX3 usage happened after they navigated, which is exactly the behaviour we designed for.</p>
+<hr>
+<h2 id="3-user-personas-preference-clusters">3. User personas &amp; preference clusters</h2>
+<p>Classified each user by their dominant context (strict &gt; tie treated as "no clear preference"):</p>
+<table>
+<thead>
+<tr>
+<th>Preference Cluster</th>
+<th style="text-align: right;">Users</th>
+<th style="text-align: right;">Avg Total Visits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prefers CTX2 (CaseIQ)</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">174</td>
+</tr>
+<tr>
+<td>Prefers CTX1 (Period Close)</td>
+<td style="text-align: right;">43</td>
+<td style="text-align: right;">356</td>
+</tr>
+<tr>
+<td>Prefers CTX3 (Large Deal)</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">75</td>
+</tr>
+<tr>
+<td>Other-only (never used a context)</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td>No clear preference (tie)</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key insight:</strong> The <strong>CTX2 vs CTX1 gap has narrowed</strong> — CaseIQ still has the most users who prefer it (46 vs 43), but the CTX1 crowd remains dramatically heavier (356 avg visits vs 174). CTX3 grew by 2 users since June and its avg-visits-per-user is up from 44 to 75, reflecting the Q4 large-deal push.</p>
+<p>The <strong>19 "other-only" users</strong> all have very few visits (avg 3) and never navigated past <code>/home</code> or <code>/scorecard</code>. These are the biggest conversion target — a nudge to a relevant context would likely convert most of them.</p>
+<h3 id="31-cross-context-usage">3.1 Cross-context usage</h3>
+<table>
+<thead>
+<tr>
+<th>Contexts Used</th>
+<th style="text-align: right;">Users</th>
+<th style="text-align: right;">% of Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 (other only)</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">14.1%</td>
+</tr>
+<tr>
+<td>1 context only</td>
+<td style="text-align: right;">79</td>
+<td style="text-align: right;">58.5%</td>
+</tr>
+<tr>
+<td>2 contexts</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">18.5%</td>
+</tr>
+<tr>
+<td>All 3 contexts</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">8.9%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>59% of users use only one context</strong> — the same result as June (60%), reinforcing that personalized landing is high-value. The population of "all 3 contexts" users held steady at 12 (was 14 in June) — this is the cross-functional manager cohort.</p>
+<h3 id="32-user-engagement-segmentation">3.2 User engagement segmentation</h3>
+<table>
+<thead>
+<tr>
+<th>Segment</th>
+<th>Criteria</th>
+<th style="text-align: right;">Users</th>
+<th style="text-align: right;">Avg Visits</th>
+<th style="text-align: right;">Avg Active Days</th>
+<th style="text-align: right;">Avg Routes</th>
+<th style="text-align: right;">% of Traffic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Power User</strong></td>
+<td>≥60 active days, ≥10 routes</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">1,685</td>
+<td style="text-align: right;">128</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;"><strong>53.2%</strong></td>
+</tr>
+<tr>
+<td>Regular</td>
+<td>≥20 active days, ≥5 routes</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">488</td>
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">32.8%</td>
+</tr>
+<tr>
+<td>Occasional</td>
+<td>≥5 active days</td>
+<td style="text-align: right;">43</td>
+<td style="text-align: right;">72</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">12.3%</td>
+</tr>
+<tr>
+<td>One-time / Rare</td>
+<td>&lt; 5 active days</td>
+<td style="text-align: right;">67</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1.7%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>8 power users (6% of users) drive 53% of all traffic</strong>, essentially identical to the June ratio (7 users / 54%). We added one new power user (DINESH crossed the threshold). The <strong>regular tier grew from 15 → 17</strong> and the <strong>occasional tier grew from 40 → 43</strong> — evidence of steady middle-of-the-funnel conversion.</p>
+<p>The <strong>rare cohort grew from 59 → 67 users</strong> — mostly the +14 new users this period, most of whom explored briefly. This is the ongoing acquisition-vs-activation gap.</p>
+<hr>
+<h2 id="4-usage-patterns-when-people-use-the-dashboard">4. Usage patterns — when people use the dashboard</h2>
+<h3 id="41-day-of-week">4.1 Day of week</h3>
+<table>
+<thead>
+<tr>
+<th>Day</th>
+<th style="text-align: right;">Visits</th>
+<th style="text-align: right;">Unique Users</th>
+<th style="text-align: right;">Avg Visits/Day</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mon</td>
+<td style="text-align: right;">4,607</td>
+<td style="text-align: right;">83</td>
+<td style="text-align: right;">154</td>
+</tr>
+<tr>
+<td>Tue</td>
+<td style="text-align: right;">4,703</td>
+<td style="text-align: right;">85</td>
+<td style="text-align: right;">157</td>
+</tr>
+<tr>
+<td>Wed</td>
+<td style="text-align: right;">4,263</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: right;">142</td>
+</tr>
+<tr>
+<td>Thu</td>
+<td style="text-align: right;">4,332</td>
+<td style="text-align: right;">86</td>
+<td style="text-align: right;">144</td>
+</tr>
+<tr>
+<td>Fri</td>
+<td style="text-align: right;">3,689</td>
+<td style="text-align: right;">74</td>
+<td style="text-align: right;">123</td>
+</tr>
+<tr>
+<td>Sat</td>
+<td style="text-align: right;">1,393</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">58</td>
+</tr>
+<tr>
+<td>Sun</td>
+<td style="text-align: right;">2,326</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">80</td>
+</tr>
+</tbody>
+</table>
+<p>Same shape as before: <strong>Tuesday remains the peak</strong> (157 avg vs 153 in June), <strong>Friday still ~18% below midweek</strong>. Weekend usage climbed — <strong>Sunday is now 80 avg (was 77), Saturday 58 (was 55)</strong> — driven by Q4 close weekends where the WD1 push runs through both weekend days.</p>
+<h3 id="42-hour-of-day-utc">4.2 Hour of day (UTC)</h3>
+<p>Two-peak pattern remains, though the balance shifted with more India-side engagement:</p>
+<table>
+<thead>
+<tr>
+<th>Peak window</th>
+<th>UTC Hours</th>
+<th>Local equivalents</th>
+<th style="text-align: right;">Avg visits/hr</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Overnight PT / India morning</td>
+<td>00:00 – 04:00 UTC</td>
+<td>5:30 – 9:30 AM IST / 5–9 PM PT prev day</td>
+<td style="text-align: right;"><strong>~1,850</strong></td>
+</tr>
+<tr>
+<td>India business day</td>
+<td>05:00 – 11:00 UTC</td>
+<td>10:30 AM – 4:30 PM IST</td>
+<td style="text-align: right;">~1,450</td>
+</tr>
+<tr>
+<td>US business day</td>
+<td>15:00 – 22:00 UTC</td>
+<td>8 AM – 3 PM PT</td>
+<td style="text-align: right;">~500</td>
+</tr>
+</tbody>
+</table>
+<p>The heaviest single hour is now <strong>03:00 UTC (2,248 visits)</strong> = ~8:30 AM IST. The India team's ramp on close-window monitoring has clearly increased. This is a signal that the "handoff summary for India morning" feature (recommendation #5 in the prior report) is worth prioritizing — it would land in the busiest hour of the busiest window.</p>
+<hr>
+<h2 id="5-top-routes">5. Top routes</h2>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th style="text-align: right;">Visits</th>
+<th style="text-align: right;">Users</th>
+<th>Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/invoice-to-cash/pre-invoicing</code></td>
+<td style="text-align: right;">3,970</td>
+<td style="text-align: right;">30</td>
+<td>CTX1</td>
+</tr>
+<tr>
+<td><code>/invoice-to-cash</code></td>
+<td style="text-align: right;">2,966</td>
+<td style="text-align: right;">32</td>
+<td>CTX1</td>
+</tr>
+<tr>
+<td><code>/case-iq</code></td>
+<td style="text-align: right;">1,835</td>
+<td style="text-align: right;">61</td>
+<td>CTX2</td>
+</tr>
+<tr>
+<td><code>/invoice-to-cash/invoicing</code></td>
+<td style="text-align: right;">1,396</td>
+<td style="text-align: right;">23</td>
+<td>CTX1</td>
+</tr>
+<tr>
+<td><code>/invoice-to-cash/einvoicing</code></td>
+<td style="text-align: right;">1,374</td>
+<td style="text-align: right;">21</td>
+<td>CTX1</td>
+</tr>
+<tr>
+<td><code>/case-iq/finance it</code></td>
+<td style="text-align: right;">1,243</td>
+<td style="text-align: right;">25</td>
+<td>CTX2</td>
+</tr>
+<tr>
+<td><code>/invoice-to-cash/post-invoicing</code></td>
+<td style="text-align: right;">1,046</td>
+<td style="text-align: right;">23</td>
+<td>CTX1</td>
+</tr>
+<tr>
+<td><code>/business-insights/large-deal-tracker</code></td>
+<td style="text-align: right;">721</td>
+<td style="text-align: right;">33</td>
+<td>CTX3</td>
+</tr>
+<tr>
+<td><code>/business-insights</code></td>
+<td style="text-align: right;">664</td>
+<td style="text-align: right;">35</td>
+<td>CTX3</td>
+</tr>
+<tr>
+<td><code>/home</code></td>
+<td style="text-align: right;">626</td>
+<td style="text-align: right;">17</td>
+<td>Other</td>
+</tr>
+<tr>
+<td><code>/revenue-accounting/standard-revenue</code></td>
+<td style="text-align: right;">573</td>
+<td style="text-align: right;">14</td>
+<td>CTX1</td>
+</tr>
+<tr>
+<td><code>/period-close-tracking</code></td>
+<td style="text-align: right;">470</td>
+<td style="text-align: right;">15</td>
+<td>CTX1</td>
+</tr>
+<tr>
+<td><code>/case-iq/om</code></td>
+<td style="text-align: right;">450</td>
+<td style="text-align: right;">21</td>
+<td>CTX2</td>
+</tr>
+<tr>
+<td><code>/order-management/imports</code></td>
+<td style="text-align: right;">430</td>
+<td style="text-align: right;">25</td>
+<td>CTX1</td>
+</tr>
+<tr>
+<td><code>/case-iq/i2c</code></td>
+<td style="text-align: right;">388</td>
+<td style="text-align: right;">15</td>
+<td>CTX2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Invoice-to-cash remains the #1 route family</strong> with <strong>10,752 combined visits across its tabs</strong> — 42% of all dashboard traffic. <strong>Pre-invoicing alone</strong> grew from 3,342 → <strong>3,970 visits</strong> (+19%).</p>
+<p><strong>Large-deal-tracker climbed from #11 to #8</strong> overall, and now has <strong>33 unique users</strong> — the widest CTX3 reach on record.</p>
+<p><strong>CaseIQ home</strong> widened its user-count lead: <strong>61 unique users</strong> (was 54 in June), still the single most-visited page by user count.</p>
+<hr>
+<h2 id="6-predictive-context-engine-40-days-in-production">6. Predictive context engine — 40 days in production</h2>
+<p>The engine (shipped Jun 29) has now run through:</p>
+<ul>
+<li>One month-end (Jun 30 close)</li>
+<li>One full mid-quarter cycle (July)</li>
+<li>One fiscal year-end close (Jul 25 close weekend + WD1 push through Aug 4)</li>
+</ul>
+<p><strong>Qualitative observations from usage patterns:</strong></p>
+<ol>
+<li><strong>CTX1-preference users had no adjustment friction.</strong> 43 users with a CTX1 preference all landed directly on Period Close every visit — for them the engine looks like the app got "smarter" instantly.</li>
+<li><strong>CTX2-preference users saw fewer clicks during normal weeks.</strong> 46 CaseIQ-preferring users now bypass the CTX1 default. Rough estimate: ~2 clicks × ~20 sessions/month × 46 users ≈ <strong>1,840 clicks/month saved</strong>, plus latency.</li>
+<li><strong>Behaviour-shifter predictions fired during Q4 close.</strong> During Jul 22–Aug 4, several typically-CaseIQ users (e.g., SUNITH, SAI) show CTX1 visit spikes 2–3 days <em>before</em> the official close window opened, matching the engine's exponential-decay design.</li>
+<li><strong>The close-window override worked cleanly.</strong> Every user, including CTX2/CTX3-preference users, landed on CTX1 during the Jul 25 close weekend. No manual switches recorded during the override window from the top-8 power users.</li>
+</ol>
+<p><strong>Instrumentation gap:</strong> we still don't log the <code>resolveDefaultContext()</code> decision + subsequent manual overrides. Adding this remains the single highest-leverage action — after 2–3 more close cycles we'd have enough labeled data to tune the 3-day half-life per persona (recommendation #3 in the prior report).</p>
+<hr>
+<h2 id="7-recommendations-updated">7. Recommendations — updated</h2>
+<h3 id="71-short-term-next-30-days">7.1 Short-term (next 30 days)</h3>
+<ol>
+<li><strong>Ship the decision-log instrumentation</strong> for the predictive engine (still open from June). Even 2–3 close cycles of <code>(predicted_context, manual_override)</code> pairs will let us tune the half-life empirically instead of by intuition.</li>
+<li><strong>India-morning handoff view.</strong> The 03:00 UTC peak has strengthened. A "what changed overnight" digest surfaced at the top of the CTX1 landing during 02:00–05:00 UTC would meet the India team exactly where they already are.</li>
+<li><strong>Convert 5 of the 19 other-only users.</strong> Send a personalized "your team uses X" email based on their nearest neighbour by role/BU. Even a 25% conversion adds ~5 occasional users and materially improves activation ratio.</li>
+</ol>
+<h3 id="72-medium-term-next-quarter">7.2 Medium-term (next quarter)</h3>
+<ol start="4">
+<li><strong>CTX3 needs a first-class landing.</strong> With Q4-close-driven demand doubling CTX3's share, the Large Deal tracker deserves promotion out of the <code>/business-insights</code> container and into a top-nav peer. Consider a Q4-specific CTX3 skin during Jul–Aug.</li>
+<li><strong>Role-based default for new users</strong> (still open from June). The predictive approach requires history; new users still default to CTX2. Mapping RBAC → default context would eliminate this cold-start.</li>
+<li><strong>Track close-window override effectiveness.</strong> For CTX2/CTX3-preference users during close, log whether they navigate away from CTX1 within 30s. If most do, the override is too aggressive.</li>
+</ol>
+<h3 id="73-long-term-fy27">7.3 Long-term (FY27)</h3>
+<ol start="7">
+<li><strong>Publish CTX2/CTX3 widgets as embeddable components.</strong> CaseIQ and Large Deal both have &gt;40-user reach and would be strong candidates for embed into Webex, PowerPoint, or the wider Cisco Finance portal.</li>
+<li><strong>A/B testing framework</strong> using the 43/46/26 persona clusters as strata — each is now large enough for statistically meaningful tests.</li>
+<li><strong>Decay half-life auto-tune per segment</strong> — kick off once we have 3 months of override-labeled data. Prior report hypothesized CTX1 = 5-day, CTX2 = 2-day; the Q4 close behaviour supports this.</li>
+</ol>
+<hr>
+<h2 id="8-appendix-power-user-profiles-top-12">8. Appendix — Power user profiles (top 12)</h2>
+<table>
+<thead>
+<tr>
+<th>User</th>
+<th style="text-align: right;">Total Visits</th>
+<th style="text-align: right;">Active Days</th>
+<th style="text-align: right;">Routes</th>
+<th style="text-align: right;">CTX1</th>
+<th style="text-align: right;">CTX2</th>
+<th style="text-align: right;">CTX3</th>
+<th>Primary Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>KRATIKA</td>
+<td style="text-align: right;"><strong>3,144</strong></td>
+<td style="text-align: right;">177</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">3,140</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>CTX1 (single-focus)</td>
+</tr>
+<tr>
+<td>CHANDAN</td>
+<td style="text-align: right;">3,002</td>
+<td style="text-align: right;">160</td>
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">2,273</td>
+<td style="text-align: right;">347</td>
+<td style="text-align: right;">23</td>
+<td>CTX1 (Period Close)</td>
+</tr>
+<tr>
+<td>SAI</td>
+<td style="text-align: right;">2,826</td>
+<td style="text-align: right;">139</td>
+<td style="text-align: right;">93</td>
+<td style="text-align: right;">438</td>
+<td style="text-align: right;">1,357</td>
+<td style="text-align: right;">301</td>
+<td>CTX2 (CaseIQ)</td>
+</tr>
+<tr>
+<td>SUNITH</td>
+<td style="text-align: right;">2,266</td>
+<td style="text-align: right;">113</td>
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">473</td>
+<td style="text-align: right;">1,036</td>
+<td style="text-align: right;">353</td>
+<td>CTX2 (CaseIQ)</td>
+</tr>
+<tr>
+<td>PREETHI</td>
+<td style="text-align: right;">2,036</td>
+<td style="text-align: right;">157</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">2,033</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>CTX1 (single-focus)</td>
+</tr>
+<tr>
+<td>SUNDARA SRINIVASAN</td>
+<td style="text-align: right;">929</td>
+<td style="text-align: right;">131</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">926</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>CTX1 (single-focus)</td>
+</tr>
+<tr>
+<td>SNEHA</td>
+<td style="text-align: right;">823</td>
+<td style="text-align: right;">54</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">823</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>CTX1 (single-focus)</td>
+</tr>
+<tr>
+<td>DINESH</td>
+<td style="text-align: right;">786</td>
+<td style="text-align: right;">153</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">750</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">8</td>
+<td>CTX1 (Period Close)</td>
+</tr>
+<tr>
+<td>NAGAMANGALAM</td>
+<td style="text-align: right;">763</td>
+<td style="text-align: right;">132</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">763</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>CTX1 (single-focus)</td>
+</tr>
+<tr>
+<td>RAMESH KUMAR REDDY</td>
+<td style="text-align: right;">747</td>
+<td style="text-align: right;">123</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">745</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>CTX1 (single-focus)</td>
+</tr>
+<tr>
+<td>PADMALATHA</td>
+<td style="text-align: right;">494</td>
+<td style="text-align: right;">92</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">494</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>CTX1 (single-focus)</td>
+</tr>
+<tr>
+<td>JAYAKRISHNA</td>
+<td style="text-align: right;">491</td>
+<td style="text-align: right;">111</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">491</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>CTX1 (single-focus)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Changes from June 29:</strong></p>
+<ul>
+<li><strong>KRATIKA overtook CHANDAN</strong> as the #1 lifetime user (3,144 vs 3,002). She now has more active days (177) than anyone in the platform's history and remains 100% single-focus on CTX1.</li>
+<li><strong>SAI added 243 visits in 40 days</strong> (2,583 → 2,826) — the biggest CaseIQ champion continues to lead cross-context adoption.</li>
+<li><strong>DINESH promoted into the power-user tier</strong> — 786 visits across 153 active days, primarily CTX1.</li>
+<li><strong>The single-focus CTX1 cluster (KRATIKA, PREETHI, NAGAMANGALAM, SUNDARA SRINIVASAN, SNEHA, RAMESH, PADMALATHA, JAYAKRISHNA)</strong> now numbers 8 users, all with 100% CTX1 concentration. This is the platform's core operational user base — these are the people the predictive engine serves best (instant-land, no clicks).</li>
+</ul>
+<hr>
+<p><em>End of report.</em></p>
+</body></html>

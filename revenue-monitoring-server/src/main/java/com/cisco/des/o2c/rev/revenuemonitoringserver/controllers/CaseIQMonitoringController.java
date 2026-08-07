@@ -292,4 +292,10 @@ public class CaseIQMonitoringController {
             @RequestParam String teamName) {
         return new ResponseEntity<>(service.getExecResponseTimeByCoreIssue(fiscQtr, teamName), HttpStatus.OK);
     }
+
+    @GetMapping("/auto-resolve-metrics")
+    public ResponseEntity<List<Map<String, Object>>> autoResolveMetrics(
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getAutoResolveMetrics(fiscQtr), HttpStatus.OK);
+    }
 }

@@ -677,6 +677,12 @@ public class CaseIQMonitoringService {
             "FROM times t LEFT JOIN churn c ON c.core_issue = t.core_issue " +
             "ORDER BY t.incident_count DESC, t.core_issue";
 
+    private static final String AUTO_RESOLVE_METRICS = "SELECT team_name, incident_count, " +
+            "import_time, execution_time, resolution_time " +
+            "FROM ARFINRO.ASK_CASEIQ_AUTO_RESOLVE_METRICS_V " +
+            "WHERE fiscal_qtr = :fisc_qtr " +
+            "ORDER BY team_name";
+
     // ─── Fiscal quarter injection ───────────────────────────────────────────────
 
     private static final Pattern FISC_QTR_INJECT_PATTERN = Pattern.compile("\\s+(GROUP BY|ORDER BY|FETCH)",
@@ -1442,5 +1448,14 @@ public class CaseIQMonitoringService {
         params.put("fisc_qtr", fiscQtr);
         params.put("team_name", teamName);
         return jdbcManager.queryWithNamedParams(EXEC_RESPONSE_TIME_BY_CORE_ISSUE, params);
+    }
+
+    /**
+     * Per-team auto-resolve metrics (incident count + import/execution/resolution
+     * timings) for one fiscal quarter, sourced from the pre-aggregated
+     * ASK_CASEIQ_AUTO_RESOLVE_METRICS_V view.
+     */
+    public List<Map<String, Object>> getAutoResolveMetrics(String fiscQtr) {
+        return jdbcManager.queryWithNamedParams(AUTO_RESOLVE_METRICS, buildParams("fisc_qtr", fiscQtr));
     }
 }
