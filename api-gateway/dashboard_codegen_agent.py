@@ -8,8 +8,9 @@ import inspect
 import time
 import hmac
 import hashlib
+import functools
 from pathlib import Path
-from typing import Any, Literal, TypedDict
+from typing import Any, AsyncGenerator, Literal, TypedDict
 
 import httpx
 from fastapi import APIRouter, Request
@@ -78,6 +79,7 @@ class DashboardCodegenResult(BaseModel):
     uiDocument: str
     backendHandoff: dict[str, Any]
     fileOperations: list[dict[str, Any]] = Field(default_factory=list)
+    warnings: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class GitHubSmokeTestRequest(BaseModel):
@@ -108,6 +110,7 @@ class DashboardCodegenState(TypedDict, total=False):
     backend_handoff: dict[str, Any]
     ui_document: str
     file_operations: list[dict[str, Any]]
+    warnings: list[dict[str, Any]]
 
 
 def _title_case_kebab(value: str) -> str:
@@ -131,6 +134,15 @@ def _resolve_group_file(root_path: str, relative_path: str, repo_root: Path = RE
     return (repo_root / root_path / relative_path).resolve()
 
 
+@functools.lru_cache(maxsize=16)
+def _read_schematic_template(template_name: str) -> str | None:
+    # Schematic template files are static at runtime; cache reads (C4).
+    template_path = SCHEMATICS_ROOT / template_name
+    if not template_path.exists():
+        return None
+    return template_path.read_text(encoding="utf-8")
+
+
 def _render_monitoring_schematic_template(relative_path: str, assignment_filter_key: str) -> str | None:
     feature_match = re.match(r"src/app/([^/]+)/\1\.component\.(ts|html|css|spec\.ts)$", relative_path)
     if not feature_match:
@@ -138,11 +150,10 @@ def _render_monitoring_schematic_template(relative_path: str, assignment_filter_
 
     feature_name, ext = feature_match.groups()
     template_name = f"__name@dasherize__.component.{ext}.template"
-    template_path = SCHEMATICS_ROOT / template_name
-    if not template_path.exists():
+    content = _read_schematic_template(template_name)
+    if content is None:
         return None
 
-    content = template_path.read_text(encoding="utf-8")
     replacements = {
         "<%= selectorPrefix %>": "app-",
         "<%= dasherize(name) %>": feature_name,
@@ -1285,7 +1296,10 @@ async def dashboard_codegen_apply_with_agent(payload: DashboardApplyTriggerReque
     }
 
 
+@functools.lru_cache(maxsize=8)
 def _load_prompt_file(path: Path) -> str:
+    # Prompt files are static at runtime; cache to avoid re-reading on every
+    # request (C4).
     return path.read_text(encoding="utf-8")
 
 
@@ -1325,6 +1339,145 @@ def _extract_json_object(text: str) -> dict[str, Any]:
         except Exception:
             return {}
     return {}
+
+
+def _repair_double_escaped(text: str) -> str:
+    """Repair a string that was double-escaped by the operations LLM.
+
+    When the model hand-writes JSON it sometimes emits literal backslash
+    sequences (``\\n``, ``\\"``) instead of real characters, so a multi-line
+    code block lands in the file as one line containing literal ``\n``. A
+    genuine multi-line block always contains real newlines, so we only repair
+    strings that carry escape sequences *and* have no real newline. This keeps
+    legitimate code (e.g. a regex like ``/\\s+/``) untouched.
+    """
+    if "\n" in text:
+        return text
+    if "\\n" not in text and "\\t" not in text and '\\"' not in text:
+        return text
+    return (
+        text.replace("\\r\\n", "\n")
+        .replace("\\n", "\n")
+        .replace("\\t", "\t")
+        .replace('\\"', '"')
+        .replace("\\'", "'")
+    )
+
+
+def _deep_repair_escaped(value: Any) -> Any:
+    """Recursively apply :func:`_repair_double_escaped` to all string leaves."""
+    if isinstance(value, str):
+        return _repair_double_escaped(value)
+    if isinstance(value, list):
+        return [_deep_repair_escaped(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _deep_repair_escaped(item) for key, item in value.items()}
+    return value
+
+
+def _iter_operation_contents(file_operations: list[dict[str, Any]]):
+    """Yield (target, path, content_str) for every operation with string content."""
+    for group in file_operations:
+        if not isinstance(group, dict):
+            continue
+        target = str(group.get("target", "unknown"))
+        for operation in group.get("operations", []) or []:
+            if not isinstance(operation, dict):
+                continue
+            content = operation.get("content")
+            if isinstance(content, str):
+                yield target, str(operation.get("path", "")), content
+
+
+def _validate_generated_artifacts(
+    file_operations: list[dict[str, Any]],
+    expected_filter_params: list[str] | None = None,
+) -> list[dict[str, Any]]:
+    """Deterministic backstop checks over the assembled apply manifest.
+
+    Returns a list of structured warnings (never raises) so the UI can surface
+    issues without blocking generation. Covers the failure modes that the
+    prompt-only fixes cannot guarantee: residual escaped literals, Java import
+    semicolons, leaked angle-bracket placeholders, the @RequestParam
+    pluralization contract, and UPPER_SNAKE key casing.
+    """
+    warnings: list[dict[str, Any]] = []
+
+    def warn(code: str, path: str, message: str) -> None:
+        warnings.append({"code": code, "path": path, "message": message})
+
+    for target, path, content in _iter_operation_contents(file_operations):
+        # 1) Residual double-escaped literals (should be repaired already).
+        if "\n" not in content and ("\\n" in content or '\\"' in content):
+            warn("escaped_literal", path,
+                 "Content appears double-escaped (literal \\n or \\\" on a single line).")
+
+        # 2) Leaked angle-bracket template placeholders.
+        if re.search(r"<[A-Za-z][A-Za-z0-9]*(?:PascalCase|CamelCase|Name|SNAKE)[^>]*>", content):
+            warn("leaked_placeholder", path,
+                 "Unresolved <...> template placeholder left in generated content.")
+
+        # 3) Java-specific checks.
+        if path.endswith(".java"):
+            for line in content.splitlines():
+                stripped = line.strip()
+                if stripped.startswith("import ") and not stripped.endswith(";"):
+                    warn("java_import_semicolon", path,
+                         f"Import statement missing trailing ';': {stripped}")
+            if content.count("{") != content.count("}"):
+                warn("java_brace_balance", path,
+                     "Unbalanced braces in generated Java file.")
+
+        # 4) @RequestParam names must match the deterministic contract.
+        if path.endswith("Controller.java") and expected_filter_params:
+            for expected in expected_filter_params:
+                if re.search(r"@RequestParam\b", content) and expected not in content:
+                    warn("request_param_contract", path,
+                         f"Expected @RequestParam name '{expected}' not found "
+                         f"(frontend sends this exact key).")
+
+        # 5) keysToMap / submit / webex arrays must be UPPER_SNAKE_CASE.
+        if path.endswith(".component.ts"):
+            for m in re.finditer(r"(KeysToMap|submitKeysToMap|webexKeysToMap)\b[^=]*=\s*\[([^\]]*)\]", content):
+                for token in re.findall(r"['\"]([^'\"]+)['\"]", m.group(2)):
+                    if token and not re.fullmatch(r"[A-Z0-9_]+", token):
+                        warn("key_casing", path,
+                             f"Key '{token}' is not UPPER_SNAKE_CASE.")
+
+        # 6) Split array-type annotation `}\n[] =` (ASI compile error).
+        if path.endswith(".ts") and _SPLIT_ARRAY_TYPE_RE.search(content):
+            warn("ts_array_type_split", path,
+                 "Array-type annotation is split across lines (`}` then `[] =`), "
+                 "which is a TypeScript ASI compile error.")
+
+    return warnings
+
+
+# ── response_format capability probe (cached) ──────────────────────
+_json_mode_supported: bool | None = None
+
+
+def _bind_json_mode(llm: Any) -> Any:
+    """Bind response_format=json_object when supported; probe once and cache.
+
+    Avoids silently re-attempting an unsupported parameter on every request and
+    logs the outcome a single time so degradation is visible.
+    """
+    global _json_mode_supported
+    if _json_mode_supported is False or not hasattr(llm, "bind"):
+        return llm
+    try:
+        bound = llm.bind(response_format={"type": "json_object"})
+        if _json_mode_supported is None:
+            _json_mode_supported = True
+            print("[dashboard-codegen] response_format=json_object enabled.")
+        return bound
+    except Exception as exc:  # pragma: no cover
+        if _json_mode_supported is None:
+            _json_mode_supported = False
+            print(f"[dashboard-codegen] response_format unsupported, "
+                  f"falling back to text+repair: {exc}")
+        return llm
 
 
 def _normalize_file_operations(raw_ops: Any) -> list[dict[str, Any]]:
@@ -1423,7 +1576,11 @@ def _normalize_column_name(expr: str) -> str:
 
     s = re.sub(r"[^A-Za-z0-9_]", "_", s)
     s = re.sub(r"_+", "_", s).strip("_")
-    return s.lower()
+    # UPPER_SNAKE_CASE is the contract for keysToMap / submitKeysToMap /
+    # webexKeysToMap. The frontend camelCase() lowercases its input before
+    # building request-param names, so uppercasing here is safe for the
+    # filter contract while giving the UI the required UPPER_SNAKE keys.
+    return s.upper()
 
 
 def _where_clause(sql: str) -> str:
@@ -1504,6 +1661,417 @@ def extract_update_where_placeholders(update_sql: str) -> list[str]:
     return extract_where_placeholders.func(update_sql)
 
 
+def _camel_plural(column: str) -> str:
+    """Mirror the frontend camelCase() contract: camelCase(column) + a single 's'.
+
+    This matches `camelCase()` in data-formatting.service.ts, which lowercases
+    the column, camelCases on underscores, then appends exactly one 's'. It is a
+    MECHANICAL append (never English pluralization): CTM_STATUS -> ctmStatuss.
+    """
+    lowered = column.lower()
+    camel = re.sub(r"_([a-z0-9])", lambda m: m.group(1).upper(), lowered)
+    return f"{camel}s"
+
+
+def _expected_filter_param_names(details_filtered_sql: str) -> list[str]:
+    """Deterministically compute the controller @RequestParam names.
+
+    These are the exact query-param names the frontend sends for the filtered
+    details endpoint. Computing them in Python removes any reliance on the LLM
+    to pluralize correctly (see Bug 3).
+    """
+    cols = extract_where_placeholders.func(details_filtered_sql)
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for col in cols:
+        name = _camel_plural(col)
+        if name not in seen:
+            seen.add(name)
+            ordered.append(name)
+    return ordered
+
+
+# ── Phase 3: deterministic markdown → fileOperations parser ─────────
+#
+# The stage-3 "operations" LLM re-transcribes the backend/UI markdown into JSON
+# fileOperations. That re-transcription is the single largest source of bugs
+# (double-escaped newlines, dropped Java semicolons, mis-pluralized params)
+# because the model rewrites code it should copy verbatim. These helpers extract
+# the `Copy to:` labels + fenced code blocks directly in Python and assemble the
+# apply manifest deterministically, so on the happy path the LLM never touches
+# the code. If parsing is incomplete or fails validation, the caller falls back
+# to the LLM path — so this is strictly zero-regression.
+
+_FRONTEND_MARKERS = (
+    "VISIBLE_TABS",
+    "FIELD_CONFIG",
+    "FILTER_CONFIGS",
+    "KEYS_TO_MAP",
+    "URL_MAPS",
+    "DASHBOARD_CASES",
+)
+
+_COPY_TO_RE = re.compile(r"copy\s+to\s*:\s*(.+)$", re.IGNORECASE)
+_PATH_RE = re.compile(r"[\w./@-]+\.(?:java|json|properties|ts|html|css)")
+_FENCE_RE = re.compile(r"^\s*```")
+# A .properties assignment line (e.g. `ait.jobs.summary.q=${AIT_JOBS_SUMMARY_Q}`).
+# Property lines are unambiguous (never prose), so they can be captured even
+# when the model forgets to wrap them in a code fence.
+_PROP_LINE_RE = re.compile(r"^\s*[A-Za-z0-9_][\w.\-]*\s*=")
+
+
+def _clean_label(raw: str) -> str:
+    """Strip markdown emphasis / backticks / trailing em-dash noise from a label."""
+    text = raw.replace("**", "").replace("`", "")
+    # Normalize the various dash characters used before the instruction clause.
+    return text.strip()
+
+
+def _extract_copy_to_blocks(document: str) -> list[dict[str, str]]:
+    """Extract ordered (label, lang, code) triples from a codegen markdown doc.
+
+    Rules:
+    - A label is any line that, once leading blockquote markers (`>`) and
+      markdown emphasis are stripped, starts with `Copy to:`.
+    - The code for a label is the FIRST fenced code block that follows it on
+      lines that are NOT blockquoted (so the 💡 "Adding a tab later" tip blocks,
+      which live inside `>` blockquotes, are ignored).
+    """
+    lines = document.splitlines()
+    blocks: list[dict[str, str]] = []
+    pending_label: str | None = None
+    i = 0
+    n = len(lines)
+    while i < n:
+        line = lines[i]
+        stripped = line.lstrip()
+        is_blockquote = stripped.startswith(">")
+        # Strip leading blockquote markers for label detection only.
+        deblock = stripped
+        while deblock.startswith(">"):
+            deblock = deblock[1:].lstrip()
+        deblock_clean = _clean_label(deblock)
+
+        label_match = _COPY_TO_RE.match(deblock_clean)
+        if label_match:
+            pending_label = _clean_label(label_match.group(1))
+            i += 1
+            continue
+
+        # Unfenced .properties capture: the prompt asks for a fenced block, but
+        # the model frequently emits bare `key=value` lines instead. Those lines
+        # are unambiguous (never prose), so when the pending label targets a
+        # .properties file we capture consecutive assignment lines directly.
+        # This runs BEFORE the fence check, and only when no fence is present
+        # (a fence line does not match _PROP_LINE_RE), so a properly fenced
+        # block still flows through the standard path below.
+        if (
+            pending_label is not None
+            and not is_blockquote
+            and ".properties" in pending_label.lower()
+            and _PROP_LINE_RE.match(line)
+        ):
+            prop_lines: list[str] = []
+            while i < n and _PROP_LINE_RE.match(lines[i]):
+                prop_lines.append(lines[i].rstrip("\r\n"))
+                i += 1
+            blocks.append(
+                {
+                    "label": pending_label,
+                    "lang": "properties",
+                    "code": "\n".join(prop_lines),
+                }
+            )
+            pending_label = None
+            continue
+
+        # A non-blockquote opening fence closes a pending label into a block.
+        if pending_label is not None and not is_blockquote and _FENCE_RE.match(line):
+            lang = stripped[3:].strip()
+            code_lines: list[str] = []
+            i += 1
+            while i < n and not _FENCE_RE.match(lines[i]):
+                code_lines.append(lines[i])
+                i += 1
+            # Skip the closing fence.
+            i += 1
+            blocks.append(
+                {
+                    "label": pending_label,
+                    "lang": lang,
+                    "code": "\n".join(code_lines),
+                }
+            )
+            pending_label = None
+            continue
+
+        i += 1
+
+    return blocks
+
+
+def _label_path(label: str) -> str | None:
+    match = _PATH_RE.search(label)
+    return match.group(0) if match else None
+
+
+# A split array-type annotation where the model put a newline between the object
+# type's closing `}` and the `[]` array operator, e.g.
+#     aitJobsFilters: {
+#       ...
+#     }
+#     [] = [ ... ];
+# In a class body this triggers ASI: the `}` ends the property and `[]` is then
+# parsed as a computed member name -> `TS1005 ';' expected` / `TS1109`. The fix
+# is purely mechanical: pull the `[]` back onto the `}` line. This is safe
+# because `}` immediately followed by a line starting with `[]` never occurs in
+# valid generated code other than this exact split.
+_SPLIT_ARRAY_TYPE_RE = re.compile(r"\}[ \t]*\r?\n[ \t]*\[\][ \t]*=")
+
+
+def _normalize_ts_array_type_split(code: str) -> str:
+    """Collapse a `}\\n[] =` split array-type annotation back to `}[] =`."""
+    return _SPLIT_ARRAY_TYPE_RE.sub("}[] =", code)
+
+
+def _repair_ts_array_type_splits(
+    file_operations: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Apply the split array-type repair to every .ts operation's string content.
+
+    Runs on the LLM-fallback path so both code-assembly routes are protected.
+    Idempotent: the regex cannot match already-joined `}[] =`.
+    """
+    for group in file_operations:
+        if not isinstance(group, dict):
+            continue
+        for operation in group.get("operations", []) or []:
+            if not isinstance(operation, dict):
+                continue
+            path = str(operation.get("path", ""))
+            content = operation.get("content")
+            if path.endswith(".ts") and isinstance(content, str):
+                operation["content"] = _normalize_ts_array_type_split(content)
+    return file_operations
+
+
+def _deterministic_backend_group(
+    backend_document: str,
+) -> dict[str, Any] | None:
+    """Assemble the backend fileOperations group from the backend markdown.
+
+    Returns None (deferring to the LLM) unless EVERY essential backend artifact
+    is present and unambiguous. Failing safe here is what makes the deterministic
+    path leak-proof: a partial parse never reaches the apply layer.
+    """
+    operations: list[dict[str, Any]] = []
+    present: set[str] = set()
+    for block in _extract_copy_to_blocks(backend_document):
+        label = block["label"]
+        code = block["code"]
+        path = _label_path(label)
+        if not path or not code.strip():
+            continue
+
+        base = path.rsplit("/", 1)[-1]
+
+        if base == "envfile.json":
+            try:
+                content: Any = json.loads(code)
+            except json.JSONDecodeError:
+                return None  # cannot safely merge — defer to LLM
+            if not isinstance(content, dict) or not content:
+                return None
+            operations.append(
+                {
+                    "path": "envfile.json",
+                    "op": "json_merge",
+                    "content": content,
+                    "description": "Add query env vars",
+                }
+            )
+            present.add("envfile")
+        elif base == "queries.properties":
+            operations.append(
+                {
+                    "path": "src/main/resources/queries.properties",
+                    "op": "append",
+                    "content": code,
+                    "description": "Add query property keys",
+                }
+            )
+            present.add("queries")
+        elif base == "QueryConfigs.java":
+            # Two sub-steps (3a @Value fields, 3b @Bean getters) legitimately
+            # share this path+op; both are appended in document order.
+            operations.append(
+                {
+                    "path": path,
+                    "op": "append",
+                    "content": code,
+                    "description": "Add @Value fields / @Bean getters",
+                }
+            )
+            present.add("queryconfigs")
+        elif base.endswith("Service.java") or base.endswith("Controller.java"):
+            # Guard against a leaked angle-bracket placeholder collapsing to a
+            # bare filename (e.g. "<FeaturePascalCase>Service.java" -> the regex
+            # only captures "Service.java", which would create a file at the
+            # backend root). Require the real package directory in the path.
+            # NOTE: we intentionally do NOT require the words "create this file"
+            # in the label — real model output often emits just the path.
+            expected_dir = "/services/" if base.endswith("Service.java") else "/controllers/"
+            if expected_dir not in path or "<" in label or ">" in label:
+                return None
+            operations.append(
+                {
+                    "path": path,
+                    "op": "create_or_replace",
+                    "content": code,
+                    "description": f"Create {base}",
+                }
+            )
+            present.add("service" if base.endswith("Service.java") else "controller")
+
+    required = {"envfile", "queries", "queryconfigs", "service", "controller"}
+    if not required.issubset(present):
+        return None
+
+    return {
+        "target": "backend",
+        "rootPath": "revenue-monitoring-server",
+        "preSteps": [],
+        "operations": operations,
+    }
+
+
+def _deterministic_frontend_group(
+    payload: dict[str, Any],
+    handoff: dict[str, Any],
+    ui_document: str,
+) -> dict[str, Any] | None:
+    """Assemble the frontend group: data-driven preSteps + parsed marker blocks."""
+    feature_name = str(payload["featureName"])
+    component_name = str(payload["componentName"])
+    role_upper = derive_names.func(payload["roleName"]).get("upper_snake", "")
+    assignment_key = str(payload["assignmentUsersKey"])
+    feature_pascal = _classify_kebab(feature_name)
+    component_title = _title_case_kebab(derive_names.func(component_name)["kebab"])
+
+    roles = ["ADMIN", f"MONITORING_{role_upper}", f"MONITORING_{role_upper}_ADMIN"]
+
+    pre_steps: list[dict[str, Any]] = [
+        {
+            "op": "run_command",
+            "command": (
+                "ng generate @rev-ops-monitoring/dashboard-schematics:"
+                f"monitoring-dashboard {feature_name}"
+            ),
+            "description": "Run Angular schematic before applying UI file operations",
+        },
+        {
+            "op": "update_routing_module",
+            "filePath": "src/app/app-routing.module.ts",
+            "importPath": f"./{feature_name}/{feature_name}.component",
+            "componentClass": f"{feature_pascal}Component",
+            "routePath": feature_name,
+            "routeData": {
+                "title": "Finance-IT Control Tower",
+                "header": "Finance-IT Control Tower",
+                "subHeader": f"Continuous Monitoring > {component_title}",
+                "supportsDarkMode": True,
+            },
+            "description": "Add route entry and import for generated dashboard component",
+        },
+        {
+            "op": "update_menu_component",
+            "filePath": "src/app/menu/menu.component.ts",
+            "label": component_title,
+            "routePath": feature_name,
+            "icon": "phosphorPulseBold",
+            "roles": roles,
+            "description": "Add side-nav entry under Continuous Monitoring",
+        },
+    ]
+
+    component_ts = f"src/app/{feature_name}/{feature_name}.component.ts"
+    component_html = f"src/app/{feature_name}/{feature_name}.component.html"
+
+    operations: list[dict[str, Any]] = [
+        {
+            "path": component_ts,
+            "op": "replace_text",
+            "content": {
+                "find": "assignmentUsersFilterKey: 'FILTER_KEY_PLACEHOLDER'",
+                "replace": f"assignmentUsersFilterKey: '{assignment_key}'",
+            },
+            "description": "Set assignmentUsersFilterKey in generated userContextData",
+        }
+    ]
+
+    seen_markers: set[str] = set()
+    for block in _extract_copy_to_blocks(ui_document):
+        label = block["label"]
+        code = block["code"]
+        if not code.strip():
+            continue
+        marker = next((m for m in _FRONTEND_MARKERS if m in label), None)
+        if marker is None or marker in seen_markers:
+            continue
+        seen_markers.add(marker)
+        target_path = component_html if marker == "DASHBOARD_CASES" else component_ts
+        # Repair the `}\n[] =` split array-type annotation the model sometimes
+        # emits (a hard TS compile error) before writing it verbatim.
+        if target_path.endswith(".ts"):
+            code = _normalize_ts_array_type_split(code)
+        operations.append(
+            {
+                "path": target_path,
+                "op": "replace_marker_block",
+                "marker": marker,
+                "content": code,
+                "description": f"Fill {marker} marker",
+            }
+        )
+
+    # Require the FULL set of marker blocks before trusting the deterministic
+    # parse. A missing marker would otherwise leave the scaffold's empty
+    # placeholder in the shipped component, so fall back to the LLM instead.
+    if set(_FRONTEND_MARKERS) - seen_markers:
+        return None
+
+    return {
+        "target": "frontend",
+        "rootPath": "revenue-monitoring-ui/angular-app",
+        "preSteps": pre_steps,
+        "operations": operations,
+    }
+
+
+def _deterministic_file_operations(
+    payload: dict[str, Any],
+    handoff: dict[str, Any],
+    backend_document: str,
+    ui_document: str,
+) -> list[dict[str, Any]] | None:
+    """Build the full apply manifest deterministically, or None to defer to LLM.
+
+    Returns the grouped fileOperations only when both groups parse AND the
+    result passes the same structural validation used by the apply layer, so a
+    successful return is guaranteed to be at least as valid as the LLM output.
+    """
+    backend_group = _deterministic_backend_group(backend_document)
+    frontend_group = _deterministic_frontend_group(payload, handoff, ui_document)
+    if backend_group is None or frontend_group is None:
+        return None
+
+    file_operations = [backend_group, frontend_group]
+    errors, _warnings = _validate_grouped_file_operations(file_operations)
+    if errors:
+        return None
+    return file_operations
+
+
 @tool
 def build_backend_handoff(payload: dict[str, Any]) -> dict[str, Any]:
     """Build deterministic backend handoff payload for UI generation."""
@@ -1533,6 +2101,7 @@ def build_backend_handoff(payload: dict[str, Any]) -> dict[str, Any]:
         "keysToMap": keys_to_map,
         "submitKeysToMap": mapped_submit,
         "webexKeysToMap": mapped_submit,
+        "filterParamNames": _expected_filter_param_names(queries["detailsFiltered"]),
     }
 
     return handoff
@@ -1541,7 +2110,16 @@ def build_backend_handoff(payload: dict[str, Any]) -> dict[str, Any]:
 async def backend_generation_node(state: DashboardCodegenState) -> DashboardCodegenState:
     llm = await _get_codegen_llm()
     backend_prompt = _load_prompt_file(BACKEND_PROMPT_FILE)
-    payload = state["input"]
+    payload = dict(state["input"])
+
+    # Deterministically supply the exact @RequestParam names so the model does
+    # not have to (mis)pluralize them itself (Bug 3 backstop, data-driven).
+    try:
+        payload["filterParamNames"] = _expected_filter_param_names(
+            payload["queries"]["detailsFiltered"]
+        )
+    except Exception:
+        pass
 
     response = await llm.ainvoke(
         [
@@ -1575,8 +2153,37 @@ async def ui_generation_node(state: DashboardCodegenState) -> DashboardCodegenSt
 
 
 async def operations_generation_node(state: DashboardCodegenState) -> DashboardCodegenState:
+    expected_params = state["backend_handoff"].get("filterParamNames") or []
+
+    # Phase 3: try to assemble the apply manifest deterministically from the
+    # already-generated markdown. When this succeeds the stage-3 LLM is skipped
+    # entirely, which eliminates the whole class of re-transcription bugs
+    # (double-escaped newlines, dropped Java semicolons, mis-pluralized params).
+    deterministic_ops = _deterministic_file_operations(
+        state["input"],
+        state["backend_handoff"],
+        state["backend_document"],
+        state["ui_document"],
+    )
+    if deterministic_ops is not None:
+        warnings = _validate_generated_artifacts(deterministic_ops, expected_params)
+        warnings.append(
+            {
+                "code": "operations_source",
+                "severity": "info",
+                "message": "fileOperations assembled deterministically (stage-3 LLM skipped)",
+            }
+        )
+        return {"file_operations": deterministic_ops, "warnings": warnings}
+
     llm = await _get_codegen_llm()
     operations_prompt = _load_prompt_file(OPERATIONS_PROMPT_FILE)
+
+    # Ask the model for a strict JSON object so escaping is handled once by the
+    # JSON generator instead of hand-written (which double-escapes newlines and
+    # quotes into file content). Support is probed once and cached; if the
+    # gateway rejects it we fall back to text parsing + the repair pass below.
+    llm = _bind_json_mode(llm)
 
     payload = {
         "input": state["input"],
@@ -1596,7 +2203,15 @@ async def operations_generation_node(state: DashboardCodegenState) -> DashboardC
     parsed = _extract_json_object(raw)
     ops = parsed.get("fileOperations", []) if isinstance(parsed, dict) else []
     normalized_ops = _normalize_file_operations(ops)
-    return {"file_operations": normalized_ops}
+    # Safety net: repair any residual double-escaped content before it is
+    # written verbatim to files by the apply layer.
+    repaired_ops = [_deep_repair_escaped(group) for group in normalized_ops]
+    # Repair the `}\n[] =` split array-type annotation in any .ts content
+    # (hard TS ASI compile error) so both paths stay leak-proof.
+    repaired_ops = _repair_ts_array_type_splits(repaired_ops)
+    # Deterministic backstop validation (non-blocking, surfaced to the UI).
+    warnings = _validate_generated_artifacts(repaired_ops, expected_params)
+    return {"file_operations": repaired_ops, "warnings": warnings}
 
 
 def _build_graph():
@@ -1606,9 +2221,14 @@ def _build_graph():
     graph.add_node("ui_generation_node", ui_generation_node)
     graph.add_node("operations_generation_node", operations_generation_node)
 
-    graph.add_edge(START, "backend_generation_node")
-    graph.add_edge("backend_generation_node", "compute_handoff_node")
+    # The Python handoff only reads state["input"], so it runs first. Backend
+    # generation (needs input) and UI generation (needs input + handoff) have no
+    # data dependency on each other, so they fan out and run concurrently. Both
+    # fan back in to the operations node, which consumes all prior outputs.
+    graph.add_edge(START, "compute_handoff_node")
+    graph.add_edge("compute_handoff_node", "backend_generation_node")
     graph.add_edge("compute_handoff_node", "ui_generation_node")
+    graph.add_edge("backend_generation_node", "operations_generation_node")
     graph.add_edge("ui_generation_node", "operations_generation_node")
     graph.add_edge("operations_generation_node", END)
 
@@ -1628,4 +2248,64 @@ async def run_dashboard_codegen(payload: DashboardCodegenRequest) -> DashboardCo
         uiDocument=final_state.get("ui_document", ""),
         backendHandoff=final_state.get("backend_handoff", {}),
         fileOperations=final_state.get("file_operations", []) or [],
+        warnings=final_state.get("warnings", []) or [],
     )
+
+
+# Human-readable stage labels for the streaming progress feed. Keys are graph
+# node names; values are (short stage id, user-facing message).
+_CODEGEN_STAGE_LABELS: dict[str, tuple[str, str]] = {
+    "compute_handoff_node": ("handoff", "Computed backend handoff contract"),
+    "backend_generation_node": ("backend", "Generated backend design"),
+    "ui_generation_node": ("ui", "Generated UI design"),
+    "operations_generation_node": ("operations", "Generated file operations"),
+}
+
+
+async def stream_dashboard_codegen(
+    payload: DashboardCodegenRequest,
+) -> AsyncGenerator[dict[str, Any], None]:
+    """Run the codegen graph and yield progress events as each stage lands.
+
+    Because backend and UI generation run concurrently (C1), a single graph
+    update may carry more than one completed node. Each yielded dict is a
+    JSON-serializable event of the form:
+
+      {"type": "progress", "stage": "backend", "message": "...", "done": [...]}
+      {"type": "result", "result": <DashboardCodegenResult as dict>}
+      {"type": "error", "error": "..."}
+    """
+    accumulated: dict[str, Any] = {}
+    completed: list[str] = []
+    try:
+        async for update in _dashboard_codegen_graph.astream(
+            {"input": payload.model_dump(mode="json")},
+            stream_mode="updates",
+        ):
+            # `update` maps node_name -> that node's returned state delta. With
+            # fan-out it can contain multiple nodes in a single chunk.
+            for node_name, delta in update.items():
+                if isinstance(delta, dict):
+                    accumulated.update(delta)
+                stage_id, message = _CODEGEN_STAGE_LABELS.get(
+                    node_name, (node_name, f"Completed {node_name}")
+                )
+                if stage_id not in completed:
+                    completed.append(stage_id)
+                yield {
+                    "type": "progress",
+                    "stage": stage_id,
+                    "message": message,
+                    "done": list(completed),
+                }
+
+        result = DashboardCodegenResult(
+            backendDocument=accumulated.get("backend_document", ""),
+            uiDocument=accumulated.get("ui_document", ""),
+            backendHandoff=accumulated.get("backend_handoff", {}),
+            fileOperations=accumulated.get("file_operations", []) or [],
+            warnings=accumulated.get("warnings", []) or [],
+        )
+        yield {"type": "result", "result": result.model_dump()}
+    except Exception as exc:  # surfaced to the SSE client as an error event
+        yield {"type": "error", "error": str(exc)}
