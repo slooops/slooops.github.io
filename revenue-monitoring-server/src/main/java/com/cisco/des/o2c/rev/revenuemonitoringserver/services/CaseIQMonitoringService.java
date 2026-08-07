@@ -677,6 +677,33 @@ public class CaseIQMonitoringService {
             "FROM times t LEFT JOIN churn c ON c.core_issue = t.core_issue " +
             "ORDER BY t.incident_count DESC, t.core_issue";
 
+    private static final String AUTO_RESOLVE_METRICS = "SELECT team_name, incident_count, " +
+            "import_time, execution_time, resolution_time " +
+            "FROM ARFINRO.ASK_CASEIQ_AUTO_RESOLVE_METRICS_V " +
+            "WHERE fiscal_qtr = :fisc_qtr " +
+            "ORDER BY team_name";
+
+    private static final String NOT_INTERFACED_BY_TEAM = "SELECT team_name, kafka_miss, " +
+            "awaiting_bot_response, technical_issue " +
+            "FROM ARFINRO.ASK_CASEIQ_NOT_INTERFACED_V " +
+            "WHERE fiscal_qtr = :fisc_qtr " +
+            "ORDER BY team_name";
+
+    private static final String RESOLUTION_STATUS_BY_TEAM = "SELECT team_name, " +
+            "COUNT(DISTINCT core_issue) AS core_issue_count, " +
+            "SUM(success) AS success, SUM(not_supported) AS not_supported, " +
+            "SUM(error) AS error, SUM(warning) AS warning, SUM(unknown) AS unknown " +
+            "FROM ARFINRO.ASK_CASEIQ_RESOLUTION_STATUS_V " +
+            "WHERE fiscal_qtr = :fisc_qtr " +
+            "GROUP BY team_name " +
+            "ORDER BY team_name";
+
+    private static final String RESOLUTION_STATUS_BY_CORE_ISSUE = "SELECT core_issue, success, " +
+            "not_supported, error, warning, unknown " +
+            "FROM ARFINRO.ASK_CASEIQ_RESOLUTION_STATUS_V " +
+            "WHERE fiscal_qtr = :fisc_qtr AND team_name = :team_name " +
+            "ORDER BY (success + not_supported + error + warning + unknown) DESC, core_issue";
+
     // ─── Fiscal quarter injection ───────────────────────────────────────────────
 
     private static final Pattern FISC_QTR_INJECT_PATTERN = Pattern.compile("\\s+(GROUP BY|ORDER BY|FETCH)",
@@ -1442,5 +1469,42 @@ public class CaseIQMonitoringService {
         params.put("fisc_qtr", fiscQtr);
         params.put("team_name", teamName);
         return jdbcManager.queryWithNamedParams(EXEC_RESPONSE_TIME_BY_CORE_ISSUE, params);
+    }
+
+    /**
+     * Per-team auto-resolve metrics (incident count + import/execution/resolution
+     * timings) for one fiscal quarter, sourced from the pre-aggregated
+     * ASK_CASEIQ_AUTO_RESOLVE_METRICS_V view.
+     */
+    public List<Map<String, Object>> getAutoResolveMetrics(String fiscQtr) {
+        return jdbcManager.queryWithNamedParams(AUTO_RESOLVE_METRICS, buildParams("fisc_qtr", fiscQtr));
+    }
+
+    /**
+     * Per-team not-interfaced counts (kafka miss / awaiting bot response /
+     * technical issue) for one fiscal quarter.
+     */
+    public List<Map<String, Object>> getNotInterfacedByTeam(String fiscQtr) {
+        return jdbcManager.queryWithNamedParams(NOT_INTERFACED_BY_TEAM, buildParams("fisc_qtr", fiscQtr));
+    }
+
+    /**
+     * Per-team roll-up of resolution outcomes for one fiscal quarter — one row
+     * per team with core-issue count and summed success/not_supported/error/
+     * warning/unknown volumes.
+     */
+    public List<Map<String, Object>> getResolutionStatusByTeam(String fiscQtr) {
+        return jdbcManager.queryWithNamedParams(RESOLUTION_STATUS_BY_TEAM, buildParams("fisc_qtr", fiscQtr));
+    }
+
+    /**
+     * Per-core-issue resolution outcomes for one team + fiscal quarter — powers
+     * the ctx-4 resolution-status drilldown modal.
+     */
+    public List<Map<String, Object>> getResolutionStatusByCoreIssue(String fiscQtr, String teamName) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("fisc_qtr", fiscQtr);
+        params.put("team_name", teamName);
+        return jdbcManager.queryWithNamedParams(RESOLUTION_STATUS_BY_CORE_ISSUE, params);
     }
 }

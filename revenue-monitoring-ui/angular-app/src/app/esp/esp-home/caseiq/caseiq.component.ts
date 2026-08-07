@@ -22,6 +22,7 @@ import {
   phosphorLinkBold,
   phosphorArrowsClockwiseBold,
   phosphorArrowLineDownBold,
+  phosphorSparkleBold,
 } from '@ng-icons/phosphor-icons/bold';
 import {
   phosphorEmptyDuotone,
@@ -121,6 +122,18 @@ interface CaseiqKpi {
 /** Outcome buckets tracked per component row. */
 type OutcomeKey = 'inProgress' | 'routed' | 'cancelled' | 'service';
 
+/** Resolution Status buckets shared by the team roll-up and core-issue drilldown. */
+type ResolutionMixKey =
+  'success' | 'notSupported' | 'error' | 'warning' | 'unknown';
+
+interface ResolutionMixSource {
+  success: number;
+  notSupported: number;
+  error: number;
+  warning: number;
+  unknown: number;
+}
+
 /** One component row of the ctx-3 response time table. */
 interface ResponseTimeRow {
   component: string;
@@ -139,6 +152,46 @@ interface ResponseTimeRow {
 /** One core issue row of the response time drilldown modal. */
 interface CoreIssueRow extends Omit<ResponseTimeRow, 'component'> {
   coreIssue: string;
+}
+
+/** One team row of the ctx-4 auto-resolve metrics table. */
+interface AutoResolveRow {
+  component: string;
+  incidentCount: number;
+  importTime: number | null;
+  executionTime: number | null;
+  resolutionTime: number | null;
+}
+
+/** One issue-type row of the ctx-4 not-interfaced pivot table. */
+interface NotInterfacedRow {
+  issueType: string;
+  issueKey: 'kafkaMiss' | 'awaitingBotResponse' | 'technicalIssue';
+  teams: { component: string; count: number }[];
+  totalCount: number;
+}
+
+/** One team row of the ctx-4 resolution status roll-up table. */
+interface ResolutionStatusRow {
+  component: string;
+  coreIssueCount: number;
+  success: number;
+  notSupported: number;
+  error: number;
+  warning: number;
+  unknown: number;
+  total: number;
+}
+
+/** One core issue row of the resolution status drilldown modal. */
+interface ResolutionStatusCoreIssueRow {
+  coreIssue: string;
+  success: number;
+  notSupported: number;
+  error: number;
+  warning: number;
+  unknown: number;
+  total: number;
 }
 
 /** Display order shared by every per-component table in this dashboard. */
@@ -169,6 +222,7 @@ const COMPONENT_ORDER = ['OM', 'SM', 'I2C', 'AIT', 'FPP', 'P2P', 'CAPITAL'];
       phosphorLinkBold,
       phosphorArrowsClockwiseBold,
       phosphorArrowLineDownBold,
+      phosphorSparkleBold,
       phosphorEmptyDuotone,
       phosphorCoffeeDuotone,
     }),
@@ -250,7 +304,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   sankeyCardFlipped = false;
 
   // ── Context Switcher: 1 = Operations, 2 = Executive, 3 = Executive (redux) ──
-  @Input() caseiqView: 1 | 2 | 3 = 1;
+  @Input() caseiqView: 1 | 2 | 3 | 4 = 1;
 
   // ── Executive view data (all from new p80/p90/worknotes/coverage-gap views) ──
   /** p80 metrics per team from ASK_CASEIQ_METRICS_DSH_80_V */
@@ -264,6 +318,25 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   /** Response time + post-CaseIQ churn per component, filtered by quarter (ctx 3) */
   execResponseTimeData: any[] = [];
   execResponseTimeLoading = false;
+  /** Per-team auto-resolve metrics from ASK_CASEIQ_AUTO_RESOLVE_METRICS_V (ctx 4) */
+  autoResolveData: any[] = [];
+  autoResolveLoading = false;
+  /** Per-team not-interfaced counts from ASK_CASEIQ_NOT_INTERFACED_V (ctx 4) */
+  notInterfacedData: any[] = [];
+  notInterfacedLoading = false;
+  /** Per-team resolution status roll-up from ASK_CASEIQ_RESOLUTION_STATUS_V (ctx 4) */
+  resolutionStatusData: any[] = [];
+  resolutionStatusLoading = false;
+  /** Resolution status drilldown modal (per-team core issue breakdown) */
+  resolutionModalOpen = false;
+  resolutionModalTeam = '';
+  resolutionModalRows: ResolutionStatusCoreIssueRow[] = [];
+  resolutionModalLoading = false;
+  resolutionModalFailed = false;
+  /** Ctx-4 Resolution Time drilldown modal (import/execution/incidents) */
+  resolutionTimeModalOpen = false;
+  resolutionTimeModalComponent = '';
+  resolutionTimeModalRow: AutoResolveRow | null = null;
   /** True until every executive dataset for the selected quarter has settled */
   execViewLoading = true;
   /** Response time drilldown modal (per component core-issue breakdown) */
@@ -302,7 +375,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('caseIqMetrics' in changes) {
-      console.log('caseIqMetrics changed:', changes['caseIqMetrics']);
       // Always rebuild section list so template reflects latest metrics
       this.buildSectionsFromMetrics();
 
@@ -326,6 +398,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         this.refetchWeeklyCasesAnalyzed();
         this.fetchExecResponseTime();
         this.fetchExecViewData();
+        this.fetchAutoResolveMetrics();
+        this.fetchNotInterfaced();
+        this.fetchResolutionStatus();
         // Rebuild the active context's charts when the quarter changes
         this.scheduleContextChartRebuild(100, false);
       }
@@ -400,6 +475,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     // Fetch executive-view datasets (p80, p90, worknotes churn, coverage gap)
     this.fetchExecViewData();
     this.fetchExecResponseTime();
+    this.fetchAutoResolveMetrics();
+    this.fetchNotInterfaced();
+    this.fetchResolutionStatus();
 
     // Initial build of sections/charts once view is ready
     this.buildSectionsFromMetrics();
@@ -850,6 +928,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     const totalCases =
       (this.getFinanceITAgentTotalCases() ?? 0) +
       (this.getOpsTotalCases() ?? 0);
+
     if (!totalCases) return 0;
     const totalOps = this.getFinanceITAgentTotalCases();
     return Math.round((totalOps / totalCases) * 1000) / 10; // 1 decimal
@@ -3479,6 +3558,313 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           this.execResponseTimeLoading = false;
         },
       });
+  }
+
+  /** Per-team auto-resolve metrics for ctx 4, filtered by selected quarter. */
+  private fetchAutoResolveMetrics(): void {
+    const qtr = this.selectedQuarter || 'Q4FY26';
+    this.autoResolveLoading = true;
+    this.http
+      .get(
+        `caseiq/auto-resolve-metrics?fiscQtr=${encodeURIComponent(qtr)}`,
+        this.destroyManager,
+      )
+      .subscribe({
+        next: (d: any) => {
+          this.autoResolveData = Array.isArray(d) ? d : [];
+          this.autoResolveLoading = false;
+        },
+        error: () => {
+          this.autoResolveData = [];
+          this.autoResolveLoading = false;
+        },
+      });
+  }
+
+  /** Rows for the ctx-4 auto-resolve table, one per team, sorted by component order. */
+  autoResolveRows(): AutoResolveRow[] {
+    const num = (row: any, key: string): number | null => {
+      const val = Number(row?.[key] ?? row?.[key.toUpperCase()]);
+      return Number.isFinite(val) ? val : null;
+    };
+    return this.autoResolveData
+      .map((row) => ({
+        component: this.execTeam(row) ?? '—',
+        incidentCount: num(row, 'INCIDENT_COUNT') ?? 0,
+        importTime: num(row, 'IMPORT_TIME'),
+        executionTime: num(row, 'EXECUTION_TIME'),
+        resolutionTime: num(row, 'RESOLUTION_TIME'),
+      }))
+      .filter((r) => r.component !== 'UNKNOWN')
+      .sort(
+        (a, b) =>
+          this.componentRank(a.component) - this.componentRank(b.component),
+      );
+  }
+
+  /** Total incident count across all teams — denominator for the share pill. */
+  autoResolveTotalIncidents(): number {
+    return this.autoResolveRows().reduce((sum, r) => sum + r.incidentCount, 0);
+  }
+
+  /** Share of total incidents contributed by a single team (0–100). */
+  autoResolveShare(row: AutoResolveRow): number {
+    const total = this.autoResolveTotalIncidents();
+    return total > 0 ? (row.incidentCount / total) * 100 : 0;
+  }
+
+  /** Look up the auto-resolve row for a given component name (case-insensitive). */
+  autoResolveForComponent(component: string): AutoResolveRow | undefined {
+    if (!component) return undefined;
+    const key = component.toUpperCase();
+    return this.autoResolveRows().find(
+      (r) => r.component.toUpperCase() === key,
+    );
+  }
+
+  /** Per-team not-interfaced counts for ctx 4, filtered by selected quarter. */
+  private fetchNotInterfaced(): void {
+    const qtr = this.selectedQuarter || 'Q4FY26';
+    this.notInterfacedLoading = true;
+    this.http
+      .get(
+        `caseiq/not-interfaced?fiscQtr=${encodeURIComponent(qtr)}`,
+        this.destroyManager,
+      )
+      .subscribe({
+        next: (d: any) => {
+          this.notInterfacedData = Array.isArray(d) ? d : [];
+          this.notInterfacedLoading = false;
+        },
+        error: () => {
+          this.notInterfacedData = [];
+          this.notInterfacedLoading = false;
+        },
+      });
+  }
+
+  /** Per-team resolution status roll-up for ctx 4, filtered by selected quarter. */
+  private fetchResolutionStatus(): void {
+    const qtr = this.selectedQuarter || 'Q4FY26';
+    this.resolutionStatusLoading = true;
+    this.http
+      .get(
+        `caseiq/resolution-status?fiscQtr=${encodeURIComponent(qtr)}`,
+        this.destroyManager,
+      )
+      .subscribe({
+        next: (d: any) => {
+          this.resolutionStatusData = Array.isArray(d) ? d : [];
+          this.resolutionStatusLoading = false;
+        },
+        error: () => {
+          this.resolutionStatusData = [];
+          this.resolutionStatusLoading = false;
+        },
+      });
+  }
+
+  /** Pivots ASK_CASEIQ_NOT_INTERFACED_V into 3 issue-type rows × team badges. */
+  notInterfacedRows(): NotInterfacedRow[] {
+    const num = (row: any, key: string): number => {
+      const val = Number(row?.[key] ?? row?.[key.toUpperCase()]);
+      return Number.isFinite(val) ? val : 0;
+    };
+    const teams = this.notInterfacedData
+      .map((row) => ({
+        component: this.execTeam(row) ?? '—',
+        kafkaMiss: num(row, 'KAFKA_MISS'),
+        awaitingBotResponse: num(row, 'AWAITING_BOT_RESPONSE'),
+        technicalIssue: num(row, 'TECHNICAL_ISSUE'),
+      }))
+      .filter((r) => r.component !== 'UNKNOWN')
+      .sort(
+        (a, b) =>
+          this.componentRank(a.component) - this.componentRank(b.component),
+      );
+    const buildRow = (
+      label: string,
+      key: NotInterfacedRow['issueKey'],
+      pick: (t: any) => number,
+    ): NotInterfacedRow => {
+      const teamBadges = teams
+        .map((t) => ({ component: t.component, count: pick(t) }))
+        .filter((t) => t.count > 0);
+      const total = teamBadges.reduce((s, t) => s + t.count, 0);
+      return {
+        issueType: label,
+        issueKey: key,
+        teams: teamBadges,
+        totalCount: total,
+      };
+    };
+    return [
+      buildRow('Kafka Miss', 'kafkaMiss', (t) => t.kafkaMiss),
+      buildRow(
+        'Awaiting Bot Response',
+        'awaitingBotResponse',
+        (t) => t.awaitingBotResponse,
+      ),
+      buildRow('Technical Issue', 'technicalIssue', (t) => t.technicalIssue),
+    ];
+  }
+
+  /** Rows for the ctx-4 resolution status team roll-up table. */
+  resolutionStatusRows(): ResolutionStatusRow[] {
+    const num = (row: any, key: string): number => {
+      const val = Number(row?.[key] ?? row?.[key.toUpperCase()]);
+      return Number.isFinite(val) ? val : 0;
+    };
+    return this.resolutionStatusData
+      .map((row) => {
+        const success = num(row, 'SUCCESS');
+        const notSupported = num(row, 'NOT_SUPPORTED');
+        const error = num(row, 'ERROR');
+        const warning = num(row, 'WARNING');
+        const unknown = num(row, 'UNKNOWN');
+        return {
+          component: this.execTeam(row) ?? '—',
+          coreIssueCount: num(row, 'CORE_ISSUE_COUNT'),
+          success,
+          notSupported,
+          error,
+          warning,
+          unknown,
+          total: success + notSupported + error + warning + unknown,
+        };
+      })
+      .filter((r) => r.component !== 'UNKNOWN')
+      .sort(
+        (a, b) =>
+          this.componentRank(a.component) - this.componentRank(b.component),
+      );
+  }
+
+  /** Segment percentage of the stacked outcome pill (0 when total is 0). */
+  resolutionSegmentPct(count: number, total: number): number {
+    return total > 0 ? (count / total) * 100 : 0;
+  }
+
+  /**
+   * Pixel width for one bucket inside a Resolution Status Outcome Mix cell.
+   * Same clamp-and-redistribute logic as the ctx-4 component-table pill so
+   * a row with tiny buckets never overruns the column.
+   */
+  resolutionMixWidthPx(
+    row: ResolutionMixSource,
+    key: ResolutionMixKey,
+  ): number {
+    return this.resolutionMixWidths(row)[key] ?? 0;
+  }
+
+  private resolutionMixWidths(
+    row: ResolutionMixSource,
+  ): Partial<Record<ResolutionMixKey, number>> {
+    const AVAIL = 196;
+    const MIN = 18;
+    const GAP = 3;
+    const keys: ResolutionMixKey[] = [
+      'success',
+      'notSupported',
+      'error',
+      'warning',
+      'unknown',
+    ];
+    const nonZero = keys
+      .map((k) => ({ key: k, total: row[k] || 0 }))
+      .filter((x) => x.total > 0);
+    if (!nonZero.length) return {};
+
+    let pool = AVAIL - (nonZero.length - 1) * GAP;
+    const clamped = new Set<ResolutionMixKey>();
+
+    while (true) {
+      const flex = nonZero.filter((x) => !clamped.has(x.key));
+      const flexTotal = flex.reduce((s, x) => s + x.total, 0);
+      if (!flex.length || flexTotal === 0) break;
+      const belowMin = flex.filter((x) => (x.total / flexTotal) * pool < MIN);
+      if (!belowMin.length) break;
+      for (const x of belowMin) {
+        clamped.add(x.key);
+        pool -= MIN;
+      }
+    }
+
+    const flex = nonZero.filter((x) => !clamped.has(x.key));
+    const flexTotal = flex.reduce((s, x) => s + x.total, 0);
+    const result: Partial<Record<ResolutionMixKey, number>> = {};
+    for (const x of nonZero) {
+      result[x.key] = clamped.has(x.key) ? MIN : (x.total / flexTotal) * pool;
+    }
+    return result;
+  }
+
+  openResolutionTimeModal(component: string): void {
+    const row = this.autoResolveForComponent(component);
+    if (!row) return;
+    this.resolutionTimeModalComponent = component;
+    this.resolutionTimeModalRow = row;
+    this.resolutionTimeModalOpen = true;
+  }
+
+  closeResolutionTimeModal(): void {
+    this.resolutionTimeModalOpen = false;
+    this.resolutionTimeModalRow = null;
+    this.resolutionTimeModalComponent = '';
+  }
+
+  openResolutionDetail(team: string): void {
+    this.resolutionModalTeam = team;
+    this.resolutionModalOpen = true;
+    this.fetchResolutionCoreIssues(team);
+  }
+
+  closeResolutionDetail(): void {
+    this.resolutionModalOpen = false;
+    this.resolutionModalRows = [];
+    this.resolutionModalFailed = false;
+  }
+
+  /** Fetches per-core-issue rows for one team when the drilldown modal opens. */
+  private fetchResolutionCoreIssues(team: string): void {
+    const qtr = this.selectedQuarter || 'Q4FY26';
+    this.resolutionModalRows = [];
+    this.resolutionModalFailed = false;
+    this.resolutionModalLoading = true;
+    const url =
+      `caseiq/resolution-status/core-issues?fiscQtr=${encodeURIComponent(qtr)}` +
+      `&teamName=${encodeURIComponent(team)}`;
+    this.http.get(url, this.destroyManager).subscribe({
+      next: (d: any) => {
+        const num = (row: any, key: string): number => {
+          const val = Number(row?.[key] ?? row?.[key.toUpperCase()]);
+          return Number.isFinite(val) ? val : 0;
+        };
+        const rows = Array.isArray(d) ? d : [];
+        this.resolutionModalRows = rows.map((row: any) => {
+          const success = num(row, 'SUCCESS');
+          const notSupported = num(row, 'NOT_SUPPORTED');
+          const error = num(row, 'ERROR');
+          const warning = num(row, 'WARNING');
+          const unknown = num(row, 'UNKNOWN');
+          return {
+            coreIssue: String(row?.CORE_ISSUE ?? row?.core_issue ?? '—'),
+            success,
+            notSupported,
+            error,
+            warning,
+            unknown,
+            total: success + notSupported + error + warning + unknown,
+          };
+        });
+        this.resolutionModalLoading = false;
+      },
+      error: () => {
+        this.resolutionModalRows = [];
+        this.resolutionModalFailed = true;
+        this.resolutionModalLoading = false;
+      },
+    });
   }
 
   /** Rows for the ctx-3 response time table, one per component. */

@@ -496,6 +496,20 @@ public ResponseEntity<List<Map<String, Object>>> get<ComponentPascalCase>Details
 
 The params are the `detailsFiltered` WHERE columns, in placeholder order, exposed as `List<String>`. **Each `@RequestParam` name MUST be `camelCase(column) + "s"`** — the frontend builds these query-param names by camelCasing the `keysToMap` value and appending a single `s` (see `camelCase()` in `data-formatting.service.ts`). For example `run_date` → `runDates`, `ctm_folder` → `ctmFolders`.
 
+> ✅ **AUTHORITATIVE SOURCE — use `input.filterParamNames`.** The input object includes a precomputed `filterParamNames` array holding the exact `@RequestParam` names, in placeholder order, already derived by the service. **Use these values verbatim** as the `@RequestParam` names (and reuse each as its loop `.size()`/`.get(i)` variable). Do not recompute or "correct" them. If `filterParamNames` is present it overrides any manual derivation below.
+
+> ⚠️ **This is a MECHANICAL append of one literal `s` — NEVER apply English pluralization.** Take the camelCased column and add exactly one `s`, even when that produces a doubled `s`. Do NOT change the word's ending to make it "look right" in English.
+>
+> | Column (snake_case) | camelCase      | `@RequestParam` name (camelCase + `"s"`)   |
+> | ------------------- | -------------- | ------------------------------------------ |
+> | `run_date`          | `runDate`      | `runDates`                                 |
+> | `ctm_folder`        | `ctmFolder`    | `ctmFolders`                               |
+> | `ctm_status`        | `ctmStatus`    | **`ctmStatuss`** (NOT `ctmStatuses`)       |
+> | `job_status`        | `jobStatus`    | **`jobStatuss`** (NOT `jobStatuses`)       |
+> | `process_class`     | `processClass` | **`processClasss`** (NOT `processClasses`) |
+>
+> The frontend sends the request-param name as `camelCase + "s"` verbatim, so `ctm_status` arrives as `ctmStatuss`. Emitting `ctmStatuses` breaks Spring binding and the filter endpoint fails. The loop-local singular variable and every `.size()`/`.get(i)` reference MUST reuse this exact plural name.
+
 > ⚠️ **Do NOT append `List` to the param name** (e.g. `runDateList` is WRONG). The name is the camelCased column with a trailing `s` (`runDates`). A mismatched `@RequestParam` name breaks Spring binding and the filter endpoint fails. The loop-local singular variable (`runDate`) can be any name — only the `@RequestParam` name is contract-bound.
 
 The loop calls the service with the singular values in the same order.

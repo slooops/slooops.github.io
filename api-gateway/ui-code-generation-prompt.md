@@ -195,7 +195,7 @@ Use the actual `featureName` value in the `Copy to:` line above (example: `ait-m
 
 Emit the `<componentCamelCase>KeysToMap` string array in a `typescript` code fence.
 
-> ⚠️ Keep values in **snake_case** exactly as shown — do not convert to camelCase.
+> ⚠️ Keep values in **UPPER_SNAKE_CASE** exactly as provided in `backendHandoff.keysToMap` (e.g. `JOB_DATE`, `CTM_FOLDER`) — do not lowercase and do not convert to camelCase.
 
 ---
 
@@ -385,11 +385,11 @@ testTrackerFilters: {
 ## 4) KEYS_TO_MAP (from backendHandoff.keysToMap)
 
 Produce an array named `<componentCamelCase>KeysToMap` using the backend-derived
-`keysToMap` **verbatim** (preserve order, keep snake_case as provided — do NOT
-convert to camelCase).
+`keysToMap` **verbatim** (preserve order, keep UPPER_SNAKE_CASE as provided — do
+NOT lowercase and do NOT convert to camelCase).
 
 ```typescript
-testTrackerKeysToMap: string[] = ['run_date', 'ctm_folder'];
+testTrackerKeysToMap: string[] = ['RUN_DATE', 'CTM_FOLDER'];
 ```
 
 ---
@@ -423,8 +423,8 @@ Produce a single `@case` block wiring the shared `MonitoringDashboardComponent`.
 - `[columnsToFilter]` = `<componentCamelCase>Filters`
 - `[assignmentDialogFieldConfig]` = `<componentCamelCase>FieldConfig`
 - `[componentName]` = the Title-Case label
-- `[submitKeysToMap]` = `backendHandoff.submitKeysToMap` verbatim (inline snake_case array; empty array if none)
-- `[webexKeysToMap]` = `backendHandoff.webexKeysToMap` verbatim (inline snake_case array; empty array if none)
+- `[submitKeysToMap]` = `backendHandoff.submitKeysToMap` verbatim (inline UPPER_SNAKE_CASE array; empty array if none)
+- `[webexKeysToMap]` = `backendHandoff.webexKeysToMap` verbatim (inline UPPER_SNAKE_CASE array; empty array if none)
 - `[detailsColumnsToHide]` = `[]` by default
 
 Example:
@@ -439,8 +439,8 @@ Example:
   [columnsToFilter]="testTrackerFilters"
   [detailsColumnsToHide]="[]"
   [assignmentDialogFieldConfig]="testTrackerFieldConfig"
-  [submitKeysToMap]="['ctm_folder', 'job_name']"
-  [webexKeysToMap]="['ctm_folder', 'job_name']"
+  [submitKeysToMap]="['CTM_FOLDER', 'JOB_NAME']"
+  [webexKeysToMap]="['CTM_FOLDER', 'JOB_NAME']"
 ></app-monitoring-dashboard>
 }
 ```

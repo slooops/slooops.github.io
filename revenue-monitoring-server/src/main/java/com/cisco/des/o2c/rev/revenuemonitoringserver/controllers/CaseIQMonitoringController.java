@@ -292,4 +292,29 @@ public class CaseIQMonitoringController {
             @RequestParam String teamName) {
         return new ResponseEntity<>(service.getExecResponseTimeByCoreIssue(fiscQtr, teamName), HttpStatus.OK);
     }
+
+    @GetMapping("/auto-resolve-metrics")
+    public ResponseEntity<List<Map<String, Object>>> autoResolveMetrics(
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getAutoResolveMetrics(fiscQtr), HttpStatus.OK);
+    }
+
+    @GetMapping("/not-interfaced")
+    public ResponseEntity<List<Map<String, Object>>> notInterfacedByTeam(
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getNotInterfacedByTeam(fiscQtr), HttpStatus.OK);
+    }
+
+    @GetMapping("/resolution-status")
+    public ResponseEntity<List<Map<String, Object>>> resolutionStatusByTeam(
+            @RequestParam(required = false) String fiscQtr) {
+        return new ResponseEntity<>(service.getResolutionStatusByTeam(fiscQtr), HttpStatus.OK);
+    }
+
+    @GetMapping("/resolution-status/core-issues")
+    public ResponseEntity<List<Map<String, Object>>> resolutionStatusByCoreIssue(
+            @RequestParam(required = false) String fiscQtr,
+            @RequestParam String teamName) {
+        return new ResponseEntity<>(service.getResolutionStatusByCoreIssue(fiscQtr, teamName), HttpStatus.OK);
+    }
 }

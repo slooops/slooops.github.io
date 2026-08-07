@@ -108,9 +108,9 @@ export class EspHomeComponent implements OnInit {
   activeTab: string = ''; // Will be set based on user roles
   overallAccuracy: string = '';
 
-  // CaseIQ context switcher (1 = Operations, 2 = Executive, 3 = Executive redux)
-  caseiqView: 1 | 2 | 3 = 1;
-  readonly caseiqContexts: (1 | 2 | 3)[] = [1, 2, 3];
+  // CaseIQ context switcher (1 = Operations, 2 = Executive, 3 = Executive redux, 4 = Ops variant)
+  caseiqView: 1 | 2 | 3 | 4 = 1;
+  readonly caseiqContexts: (1 | 2 | 3 | 4)[] = [1, 2, 3, 4];
 
   // Quarter filter properties
   selectedQuarter: string = '';

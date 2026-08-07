@@ -622,9 +622,17 @@
 }
 
 .ciq-modal {
+  /* Reset native <dialog> UA defaults (Safari applies position:absolute,
+     margin:auto, width/height:fit-content, and restrictive max-* which
+     collapse the modal inside the flex-centered backdrop). */
+  position: relative;
+  inset: auto;
+  margin: 0;
+  color: inherit;
   width: 92%;
   max-width: 860px;
-  max-height: 80vh;
+  min-height: 320px;
+  max-height: min(80vh, 720px);
   background: #fff;
   border: none;
   padding: 0;
@@ -698,7 +706,8 @@
 .ciq-modal__body {
   padding: 20px 24px;
   overflow-y: auto;
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .modal-loading {

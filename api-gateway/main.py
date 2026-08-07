@@ -694,5 +694,36 @@ async def dashboard_codegen(request: DashboardCodegenRequest):
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error processing dashboard codegen request: {str(e)}")
 
+@app.post("/api/dashboard-codegen/stream")
+async def dashboard_codegen_stream(request: DashboardCodegenRequest):
+    """Streaming variant of dashboard codegen.
+
+    Emits Server-Sent Events so the client sees per-stage progress
+    (handoff → backend/ui in parallel → operations) instead of waiting for the
+    full generation to finish. The terminal event carries the same payload as
+    the blocking /api/dashboard-codegen endpoint.
+    """
+    # Lazy import to avoid circular dependency
+    from dashboard_codegen_agent import (
+        DashboardCodegenRequest as AgentDashboardCodegenRequest,
+        stream_dashboard_codegen,
+    )
+    import json as _json
+
+    try:
+        agent_request = AgentDashboardCodegenRequest.model_validate(request.model_dump())
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Invalid dashboard codegen request: {str(e)}")
+
+    async def event_generator():
+        try:
+            async for event in stream_dashboard_codegen(agent_request):
+                yield f"data: {_json.dumps(event, default=str)}\n\n"
+        except Exception as e:
+            traceback.print_exc()
+            yield f"data: {_json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

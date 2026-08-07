@@ -152,15 +152,19 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     purple: ['#6600cc', '#9933ff', '#b366ff', '#cc99ff', '#e6ccff'],
     orange: ['#ff6600', '#ff8833', '#ffaa66', '#ffcc99', '#ffeecc'],
     red: ['#cc0033', '#ff3366', '#ff6699', '#ff99cc', '#ffccdd'],
+    // Categorical palette: Cisco cyan leads, then contrasting hues so
+    // adjacent slices are always visually distinguishable.
     cisco: [
-      '#00bceb',
-      '#00bceb',
-      '#64bbe3',
-      '#005073',
-      '#7f7f7f',
-      '#1e4471',
-      '#fbab18',
-      '#6ebe4a',
+      '#00bceb', // Cisco cyan (lead)
+      '#0070d2', // Cisco blue
+      '#6ebe4a', // green
+      '#fbab18', // amber
+      '#9933ff', // purple
+      '#e53935', // red
+      '#005073', // deep navy
+      '#ff6600', // orange
+      '#00a99d', // teal
+      '#7f7f7f', // gray
     ],
   };
 
@@ -411,7 +415,7 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     this.businessInsightsChartOptions = this.buildDonutOptions(
       biData,
       'Business Insights Usage',
-      this.COLORS.green,
+      this.COLORS.cisco,
     );
   }
 

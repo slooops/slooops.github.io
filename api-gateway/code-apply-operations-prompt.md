@@ -66,6 +66,7 @@ Return a single JSON object with this exact top-level shape:
 - Output must be valid JSON.
 - Do not use markdown code fences.
 - Do not include comments.
+- **Content strings must contain REAL characters, not escaped literals.** Each `content` value is written verbatim to a file. Represent line breaks as actual newline characters inside the JSON string (the JSON encoder escapes them once as `\n`). Do **NOT** hand-write a double-escaped `\\n`, `\\t`, or `\\"` — that lands in the file as a literal backslash-n / backslash-quote and breaks compilation. Never collapse a multi-line code block onto a single line of `\n` sequences.
 - Keep execution order:
   1. backend.preSteps
   2. backend.operations
