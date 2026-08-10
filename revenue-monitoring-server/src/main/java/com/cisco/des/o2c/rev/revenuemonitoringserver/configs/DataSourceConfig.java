@@ -36,6 +36,18 @@ public class DataSourceConfig {
     @Value("${spring.datasource.secondary.driver-class-name}")
     private String secondaryDriverClassName;
 
+    @Value("${spring.datasource.postgres.url}")
+    private String postgresUrl;
+
+    @Value("${spring.datasource.postgres.username}")
+    private String postgresUsername;
+
+    @Value("${spring.datasource.postgres.password}")
+    private String postgresPassword;
+
+    @Value("${spring.datasource.postgres.driver-class-name}")
+    private String postgresDriverClassName;
+
     @Bean(name = "primaryDataSource")
     @ConfigurationProperties(prefix = "spring.datasource.primary")
     public DataSource primaryDataSource() {
@@ -67,5 +79,21 @@ public class DataSourceConfig {
     @Bean(name = "secondaryJdbcTemplate")
     public JdbcTemplate secondaryJdbcTemplate(DataSource secondaryDataSource) {
         return new JdbcTemplate(secondaryDataSource);
+    }
+
+    @Bean(name = "postgresDataSource")
+    @ConfigurationProperties(prefix = "spring.datasource.postgres")
+    public DataSource postgresDataSource() {
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(postgresUrl);
+        dataSource.setUsername(postgresUsername);
+        dataSource.setPassword(postgresPassword);
+        dataSource.setDriverClassName(postgresDriverClassName);
+        return dataSource;
+    }
+
+    @Bean(name = "postgresJdbcTemplate")
+    public JdbcTemplate postgresJdbcTemplate(DataSource postgresDataSource) {
+        return new JdbcTemplate(postgresDataSource);
     }
 }

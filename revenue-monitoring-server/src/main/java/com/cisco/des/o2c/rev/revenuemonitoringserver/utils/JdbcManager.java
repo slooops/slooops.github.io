@@ -17,12 +17,15 @@ public class JdbcManager {
 
     private final JdbcTemplate primaryJdbcTemplate;
     private final JdbcTemplate secondaryJdbcTemplate;
+    private final JdbcTemplate postgresJdbcTemplate;
 
     @Autowired
     public JdbcManager(@Qualifier("primaryJdbcTemplate") JdbcTemplate primaryJdbcTemplate,
-            @Qualifier("secondaryJdbcTemplate") JdbcTemplate secondaryJdbcTemplate) {
+            @Qualifier("secondaryJdbcTemplate") JdbcTemplate secondaryJdbcTemplate,
+                       @Qualifier("postgresJdbcTemplate") JdbcTemplate postgresJdbcTemplate) {
         this.primaryJdbcTemplate = primaryJdbcTemplate;
         this.secondaryJdbcTemplate = secondaryJdbcTemplate;
+        this.postgresJdbcTemplate = postgresJdbcTemplate;
     }
 
     public List<Map<String, Object>> queryForList(String sql) {
@@ -705,27 +708,67 @@ public class JdbcManager {
 
 
     /**
-     * generic method for exception summary, details gathering
+     * generic method for exception summary, details gathering - ARFINRO
      */
     // For SELECT queries
-    public List<Map<String, Object>> executeQueryForList(String sql) {
+    public List<Map<String, Object>> executeQueryForListPrimary(String sql) {
+        return primaryJdbcTemplate.queryForList(sql);
+    }
+
+    /**
+     * generic method for exception details filtering - ARFINRO
+     */
+
+    // For SELECT with params queries
+    public List<Map<String, Object>> executeQueryForListWithParamsPrimary(String sql, Object... params) {
+        return primaryJdbcTemplate.queryForList(sql, params);
+    }
+
+    /**
+     * generic method for exception summary assignment - ARFINRO
+     */
+    // For UPDATE/INSERT/DELETE queries
+    public int executeUpdatePrimary(String sql, Object... params) {
+        return primaryJdbcTemplate.update(sql, params);
+    }
+
+    /**
+     * generic method for exception summary, details gathering - FINISRO
+     */
+    // For SELECT queries
+    public List<Map<String, Object>> executeQueryForListSecondary(String sql) {
         return secondaryJdbcTemplate.queryForList(sql);
     }
 
     /**
-     * generic method for exception details filtering
+     * generic method for exception details filtering - FINISRO
      */
 
     // For SELECT with params queries
-    public List<Map<String, Object>> executeQueryForListWithParams(String sql, Object... params) {
+    public List<Map<String, Object>> executeQueryForListWithParamsSecondary(String sql, Object... params) {
         return secondaryJdbcTemplate.queryForList(sql, params);
     }
 
     /**
-     * generic method for exception summary assignment
+     * generic method for exception summary assignment - FINISRO
      */
     // For UPDATE/INSERT/DELETE queries
-    public int executeUpdate(String sql, Object... params) {
-        return primaryJdbcTemplate.update(sql, params);
+    public int executeUpdateSecondary(String sql, Object... params) {
+        return secondaryJdbcTemplate.update(sql, params);
+    }
+
+    /**
+     * generic method for exception summary, details gathering - POSTGRES
+     */
+    // For SELECT queries
+    public List<Map<String, Object>> executeQueryForListPostgres(String sql) {
+        return postgresJdbcTemplate.queryForList(sql);
+    }
+
+    // For SELECT queries with bind parameters
+    public List<Map<String, Object>> executeQueryForListWithParamsPostgres(String sql, Object... params) {
+        return postgresJdbcTemplate.queryForList(sql, params);
     }
 }
+
+

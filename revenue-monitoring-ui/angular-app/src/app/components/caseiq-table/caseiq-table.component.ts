@@ -103,12 +103,14 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() clickableColumns: string[] = [];
   @Input() backendLoading: boolean = false; // Show loading overlay during backend fetch
   @Input() reopenedIncidentNumbers: string[] = [];
+  @Input() webexIncidentNumbers: string[] = [];
   @Input() rowDetailTemplate: TemplateRef<{ $implicit: any }> | null = null;
   @Input() expandedRowKey: string | null = null;
 
   currentPage: number = 0;
   analyzedSortMode: 'supervisor' | 'caseiq' = 'supervisor';
   private reopenedIncidentNumberSet = new Set<string>();
+  private webexIncidentNumberSet = new Set<string>();
 
   constructor(
     private dialog: MatDialog,
@@ -186,6 +188,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   isAdmin: boolean = false;
   ngOnInit() {
     this.syncReopenedIncidentSet();
+    this.syncWebexIncidentSet();
     this.isAdmin = this.authService.getUserAccessRoles().includes('ADMIN');
     console.log(
       'CaseIQ Table initialized with dataSource:',
@@ -234,6 +237,9 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['reopenedIncidentNumbers']) {
       this.syncReopenedIncidentSet();
+    }
+    if (changes['webexIncidentNumbers']) {
+      this.syncWebexIncidentSet();
     }
 
     // Only reprocess fullData if the actual data length changed
@@ -446,11 +452,44 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       .join(' ');
   }
 
+  /**
+   * Whether the incident number should be clickable. It is clickable only
+   * when the incident is likely to have detail data to show — i.e. it was
+   * analyzed by the Supervisor agent (has an agentic pipeline) OR it has been
+   * reopened. Webex-only data cannot be detected client-side without a
+   * per-row call, so it is not considered here.
+   */
+  isIncidentClickable(row: any, column: string): boolean {
+    const analyzedBy = (row?.['ANALYZED_BY'] ?? '').toString().trim();
+    if (analyzedBy === 'Supervisor Analyzed') {
+      return true;
+    }
+    if (this.isReopenedIncident(row, column)) {
+      return true;
+    }
+    return this.hasWebexConversation(row, column);
+  }
+
+  /** Whether this incident has Webex conversation data. */
+  hasWebexConversation(row: any, column: string): boolean {
+    if (!this.webexIncidentNumberSet.size) {
+      return false;
+    }
+    const candidates = [
+      row?.[column],
+      row?.['INCIDENT_NUMBER'],
+      row?.['incident_number'],
+    ];
+    return candidates.some((value) => {
+      const normalized = this.normalizeIncidentNumber(value);
+      return !!normalized && this.webexIncidentNumberSet.has(normalized);
+    });
+  }
+
   isReopenedIncident(row: any, column: string): boolean {
     if (!this.reopenedIncidentNumberSet.size) {
       return false;
     }
-
     const valueFromColumn = this.normalizeIncidentNumber(row?.[column]);
     if (
       valueFromColumn &&
@@ -480,6 +519,14 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       .filter((incident): incident is string => !!incident);
 
     this.reopenedIncidentNumberSet = new Set(normalized);
+  }
+
+  private syncWebexIncidentSet(): void {
+    const normalized = (this.webexIncidentNumbers || [])
+      .map((incident) => this.normalizeIncidentNumber(incident))
+      .filter((incident): incident is string => !!incident);
+
+    this.webexIncidentNumberSet = new Set(normalized);
   }
 
   private normalizeIncidentNumber(value: unknown): string {

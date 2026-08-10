@@ -11,6 +11,8 @@
       [incident]="null"
       [incidentDetailData]="fullDetailData"
       [reopenMetric]="selectedReopenMetric"
+      [webexConversations]="webexConversations"
+      [webexSummaries]="webexSummaries"
       backLabel="Back"
       (back)="closeFullPipelineDetail()"
     ></app-caseiq-incident-detail>
@@ -19,6 +21,9 @@
   @if (selectedTimelineIncident) {
     <app-caseiq-incident-detail
       [incident]="selectedTimelineIncident"
+      [reopenMetric]="selectedReopenMetric"
+      [webexConversations]="webexConversations"
+      [webexSummaries]="webexSummaries"
       backLabel="Back to Incidents"
       (back)="closeTimelineDetail()"
     ></app-caseiq-incident-detail>
@@ -568,6 +573,7 @@
         [source]="teamConfig.tableSource"
         [backendLoading]="refreshingData"
         [reopenedIncidentNumbers]="reopenedIncidentNumbers"
+        [webexIncidentNumbers]="webexIncidentNumbers"
         [clickableColumns]="['incident_number', 'INCIDENT_NUMBER']"
         [rowDetailTemplate]="pipelineDetailTpl"
         [expandedRowKey]="selectedIncidentNumber"

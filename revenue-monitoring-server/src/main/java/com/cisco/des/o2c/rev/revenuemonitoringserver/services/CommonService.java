@@ -331,7 +331,7 @@ public class CommonService {
         String sanitizedRoute = sanitizeInput(pageRoute, 500);
 
         // Execute MERGE statement with userName and pageRoute parameters
-        return jdbcManager.executeUpdate(logPageVisit, sanitizedUserName, sanitizedRoute);
+        return jdbcManager.executeUpdatePrimary(logPageVisit, sanitizedUserName, sanitizedRoute);
     }
 
     /**
@@ -446,7 +446,7 @@ public class CommonService {
 
         String sanitizedUsername = sanitizeInput(username, 50);
 
-        return jdbcManager.executeUpdate(ctlTwrRoleDelete, sanitizedUsername, roleId);
+        return jdbcManager.executeUpdatePrimary(ctlTwrRoleDelete, sanitizedUsername, roleId);
     }
 
     public int createUserRole(String userName, String userEmail, Integer roleId,

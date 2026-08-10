@@ -52,6 +52,10 @@ public class EspCaseManagerService {
     private String espCaseAnalyzerMetrics;
     private String xxcaseiqEspCaseReopenedMetrics;
     private String xxcaseiqEspCaseReopenedUpdate;
+    private String xxcaseiqEspCaseReopenedDecisionYesUpdateOlderRuns;
+    private String xxcaseiqEspCaseReopenedDecisionYesInsertNewCaseDetails;
+    private String xxcaseiqConvBotChat;
+    private String xxcaseiqConvBotSummary;
     @Autowired
     private Common common;
 
@@ -85,7 +89,11 @@ public class EspCaseManagerService {
             String xxcaseiqP2pCaseDetailsV,
             String xxcaseiqCapitalCaseDetailsV,
                                  String xxcaseiqEspCaseAnalyzerTblUpdate, String xxcaseiqI2cCaseDetailsMatchY, String espCaseAnalyzerGlobalSearch,
-                                 String espCaseAnalyzerMetrics, String xxcaseiqEspCaseReopenedMetrics, String xxcaseiqEspCaseReopenedUpdate) {
+                                 String espCaseAnalyzerMetrics, String xxcaseiqEspCaseReopenedMetrics, String xxcaseiqEspCaseReopenedUpdate,
+                                 String xxcaseiqEspCaseReopenedDecisionYesUpdateOlderRuns,
+                                 String xxcaseiqEspCaseReopenedDecisionYesInsertNewCaseDetails,
+                                 String xxcaseiqConvBotChat,
+                                 String xxcaseiqConvBotSummary) {
         this.jdbcManager = jdbcManager;
         this.espAgingCaseSummary = espAgingCaseSummary;
         this.espCaseServiceMetricSummary = espCaseServiceMetricSummary;
@@ -124,11 +132,68 @@ public class EspCaseManagerService {
         this.espCaseAnalyzerMetrics = espCaseAnalyzerMetrics;
         this.xxcaseiqEspCaseReopenedMetrics = xxcaseiqEspCaseReopenedMetrics;
         this.xxcaseiqEspCaseReopenedUpdate = xxcaseiqEspCaseReopenedUpdate;
+        this.xxcaseiqEspCaseReopenedDecisionYesUpdateOlderRuns = xxcaseiqEspCaseReopenedDecisionYesUpdateOlderRuns;
+        this.xxcaseiqEspCaseReopenedDecisionYesInsertNewCaseDetails = xxcaseiqEspCaseReopenedDecisionYesInsertNewCaseDetails;
+        this.xxcaseiqConvBotChat = xxcaseiqConvBotChat;
+        this.xxcaseiqConvBotSummary = xxcaseiqConvBotSummary;
+    }
+
+    public List<Map<String, Object>> getCaseIqConvBotChat() {
+        return jdbcManager.executeQueryForListPostgres(xxcaseiqConvBotChat);
+    }
+
+    public List<Map<String, Object>> getCaseIqConvBotSummary() {
+        return jdbcManager.queryForList(xxcaseiqConvBotSummary);
     }
 
     public int updateReopenedMetrics(Map<String, String> updateData) {
-        return jdbcManager.executeUpdate(xxcaseiqEspCaseReopenedUpdate, updateData.get("reopenDecision"), updateData.get("reopenRejectCategory"),
+        int rowsUpdated = jdbcManager.executeUpdatePrimary(xxcaseiqEspCaseReopenedUpdate, updateData.get("reopenDecision"), updateData.get("reopenRejectCategory"),
                 updateData.get("reopenRejectCoreIssue"), updateData.get("updateRejectReason"), updateData.get("reopenRejectTeam"), updateData.get("incidentNumber"));
+
+        // When the reopen decision is YES, deactivate the older staging runs for the
+        // incident and insert the new reopened case details as a fresh active run.
+        if ("Y".equalsIgnoreCase(updateData.get("reopenDecision"))) {
+            deactivateOlderReopenedRuns(updateData.get("incidentNumber"));
+            insertNewReopenedCaseDetails(updateData);
+        }
+
+        return rowsUpdated;
+    }
+
+    /**
+     * Marks all existing staging runs for the incident as inactive (IS_ACTIVE='FALSE')
+     * so the newly inserted reopened run becomes the single active record.
+     */
+    public int deactivateOlderReopenedRuns(String incidentNumber) {
+        System.out.println("in deactivate");
+        if (incidentNumber == null || incidentNumber.trim().isEmpty()) {
+            return 0;
+        }
+        return jdbcManager.executeUpdatePrimary(xxcaseiqEspCaseReopenedDecisionYesUpdateOlderRuns, incidentNumber.trim());
+    }
+
+    /**
+     * Inserts a new active staging record for the reopened case. The 14 values are
+     * supplied from the UI; the remaining columns (status, timestamps, is_active)
+     * are hardcoded in the query.
+     */
+    public int insertNewReopenedCaseDetails(Map<String, String> data) {
+        System.out.println("in insert new");
+        return jdbcManager.executeUpdatePrimary(xxcaseiqEspCaseReopenedDecisionYesInsertNewCaseDetails,
+                data.get("incidentNumber"),
+                data.get("impactedServiceOffering"),
+                data.get("impactedUser"),
+                data.get("incidentSummary"),
+                data.get("incidentDescription"),
+                data.get("reopenRejectTeam"),
+                data.get("openedBy"),
+                data.get("assignmentGroup"),
+                data.get("ccoUserEmail"),
+                data.get("currentCategory"),
+                data.get("currentCoreIssue"),
+                data.get("currentContextExtracted"),
+                data.get("incidentSysId"),
+                data.get("newAskSummary"));
     }
 
     public List<Map<String, Object>> getEspCaseReopenedMetrics() {

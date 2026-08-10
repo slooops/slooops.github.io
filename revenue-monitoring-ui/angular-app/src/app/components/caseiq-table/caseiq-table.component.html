@@ -503,22 +503,15 @@
                     "
                     [class.clickable-cell]="
                       clickableColumns.includes(column) &&
-                      (!(
-                        column === 'incident_number' ||
-                        column === 'INCIDENT_NUMBER'
-                      ) ||
-                        row['ANALYZED_BY'] === 'Supervisor Analyzed')
+                      (!isIncidentNumberColumn(column) ||
+                        isIncidentClickable(row, column))
                     "
                     (click)="
-                      isIncidentNumberColumn(column) &&
-                      row['ANALYZED_BY'] === 'Supervisor Analyzed'
-                        ? openIncidentDetail(row)
-                        : clickableColumns.includes(column) &&
-                            (!(
-                              column === 'incident_number' ||
-                              column === 'INCIDENT_NUMBER'
-                            ) ||
-                              row['ANALYZED_BY'] === 'Supervisor Analyzed')
+                      isIncidentNumberColumn(column)
+                        ? isIncidentClickable(row, column)
+                          ? openIncidentDetail(row)
+                          : null
+                        : clickableColumns.includes(column)
                           ? cellClick.emit({
                               column: column,
                               value: row[column],
@@ -543,18 +536,19 @@
                         {{ row[column] }}
                       </div>
                     } @else if (
-                      (column === "incident_number" ||
-                        column === "INCIDENT_NUMBER") &&
-                      row["ANALYZED_BY"] === "Supervisor Analyzed"
+                      column === "incident_number" ||
+                      column === "INCIDENT_NUMBER"
                     ) {
                       <div class="incident-number-cell">
                         <div class="incident-icons">
-                          <ng-icon
-                            name="phosphorSparkleBold"
-                            size="13"
-                            class="analyzed-icon"
-                            [matTooltip]="'Analyzed by: Supervisor Agent'"
-                          ></ng-icon>
+                          @if (row["ANALYZED_BY"] === "Supervisor Analyzed") {
+                            <ng-icon
+                              name="phosphorSparkleBold"
+                              size="13"
+                              class="analyzed-icon"
+                              [matTooltip]="'Analyzed by: Supervisor Agent'"
+                            ></ng-icon>
+                          }
 
                           @if (isReopenedIncident(row, column) && isAdmin) {
                             <ng-icon

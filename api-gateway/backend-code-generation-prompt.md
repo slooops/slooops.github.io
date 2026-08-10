@@ -367,6 +367,22 @@ import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.Common;
 
 > ⚠️ **Import path is fixed — do not invent packages.** Both `JdbcManager` and `Common` live in `com.cisco.des.o2c.rev.revenuemonitoringserver.utils` (note: `utils`, plural). Never emit `...revenuemonitoringserver.db.JdbcManager` or `...revenuemonitoringserver.util.Common` — those packages do not exist and will not compile.
 
+### Data Source Selection (mandatory — pick the JdbcManager method family)
+
+`JdbcManager` is backed by **two** datasources, each with its own method family. You MUST call the family that matches the **schema qualifier** used in the SQL queries:
+
+| Schema in SQL (e.g. `ARFINRO.table`, `finisro.table`) | Data source   | SELECT                                     | SELECT (params)                                      | UPDATE                               |
+| ----------------------------------------------------- | ------------- | ------------------------------------------ | ---------------------------------------------------- | ------------------------------------ |
+| `ARFINRO` / `arfinro`                                 | **primary**   | `jdbcManager.executeQueryForListPrimary`   | `jdbcManager.executeQueryForListWithParamsPrimary`   | `jdbcManager.executeUpdatePrimary`   |
+| `FINISRO` / `finisro`                                 | **secondary** | `jdbcManager.executeQueryForListSecondary` | `jdbcManager.executeQueryForListWithParamsSecondary` | `jdbcManager.executeUpdateSecondary` |
+
+Rules:
+
+- Detection is **case-insensitive** and based on the `<schema>.` prefix on table names (e.g. `select * from ARFINRO.XXCFI_...` → primary; `SELECT * FROM finisro.xxcfi_...` → secondary).
+- **AUTHORITATIVE SOURCE — use `input.jdbcMethodSuffix`.** The input object includes a precomputed `jdbcMethodSuffix` (`Primary` or `Secondary`) and `dataSource` field derived from the query schema. **Use `jdbcMethodSuffix` verbatim** as the method-name suffix; do not recompute or override it.
+- Every read/update method in the service MUST use the **same** family. Never mix `Primary` and `Secondary` in one service.
+- **Never** call the bare `jdbcManager.queryForList(...)`, `jdbcManager.queryForListWithParams(...)`, or `jdbcManager.executeUpdate(...)` — those un-suffixed methods are not the ones to use here; always append `Primary` or `Secondary`.
+
 ### B) Read methods
 
 Generate 3 read methods:
@@ -377,9 +393,10 @@ Generate 3 read methods:
 
 Each read method must:
 
-1. call the generic `JdbcManager` methods:
-   - `jdbcManager.queryForList(query)` for summary/details,
-   - `jdbcManager.queryForListWithParams(query, params...)` for filtered.
+1. call the datasource-specific `JdbcManager` methods (see **Data Source Selection** below):
+   - `jdbcManager.executeQueryForList<Suffix>(query)` for summary/details,
+   - `jdbcManager.executeQueryForListWithParams<Suffix>(query, params...)` for filtered.
+     where `<Suffix>` is `Primary` (ARFINRO schema) or `Secondary` (FINISRO schema).
 2. define `String[] dateColumns = {...}` inside the method,
 3. **iterate the result list and format each row individually** — `common.formatDateColumns` takes a single `Map<String, Object>` row, **never** the whole `List`. You MUST use the per-row `forEach` form:
    ```java
@@ -394,7 +411,7 @@ Canonical read-method shape:
 
 ```java
 public List<Map<String, Object>> get<ComponentPascalCase>Summary() {
-    List<Map<String, Object>> result = jdbcManager.queryForList(<componentCamelCase>Summary);
+    List<Map<String, Object>> result = jdbcManager.executeQueryForList<Suffix>(<componentCamelCase>Summary);
     String[] dateColumns = { /* date columns, verify before PR */ };
     result.forEach(data -> {
         common.formatDateColumns(data, dateColumns);
@@ -402,6 +419,8 @@ public List<Map<String, Object>> get<ComponentPascalCase>Summary() {
     return result;
 }
 ```
+
+> ⚠️ **`<Suffix>` is NOT a literal.** Replace it with `Primary` or `Secondary` per the **Data Source Selection** rule (e.g. `jdbcManager.executeQueryForListPrimary(...)`). The filtered read method uses `jdbcManager.executeQueryForListWithParams<Suffix>(...)`.
 
 ### C) Update method
 
@@ -418,8 +437,8 @@ Rules:
    - Example: update column `entity_name` with alias `{ "entity_name": "org_name" }` → `updateData.get("orgName")`. Update column `assigned_to` with no alias → `updateData.get("assignedTo")`.
 3. Special case (always): if the placeholder column is `assigned_by`, use `updateData.get("username")` regardless of aliases.
 4. Execute:
-   - `jdbcManager.executeUpdate(<componentCamelCase>SummaryUpdate, new Object[]{...})` with the resolved values in placeholder order.
-5. Return the **actual update count** from `executeUpdate` (never hardcode `1`).
+   - `jdbcManager.executeUpdate<Suffix>(<componentCamelCase>SummaryUpdate, new Object[]{...})` with the resolved values in placeholder order (`<Suffix>` = `Primary`/`Secondary` per **Data Source Selection**).
+5. Return the **actual update count** from `executeUpdate<Suffix>` (never hardcode `1`).
 
 ### D) dateColumns verification note (must be explicit)
 

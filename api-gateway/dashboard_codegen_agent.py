@@ -1392,6 +1392,7 @@ def _iter_operation_contents(file_operations: list[dict[str, Any]]):
 def _validate_generated_artifacts(
     file_operations: list[dict[str, Any]],
     expected_filter_params: list[str] | None = None,
+    expected_jdbc_suffix: str | None = None,
 ) -> list[dict[str, Any]]:
     """Deterministic backstop checks over the assembled apply manifest.
 
@@ -1427,6 +1428,21 @@ def _validate_generated_artifacts(
             if content.count("{") != content.count("}"):
                 warn("java_brace_balance", path,
                      "Unbalanced braces in generated Java file.")
+
+        # 3b) Service must call the datasource-specific JdbcManager methods.
+        if path.endswith("Service.java"):
+            for bare in ("queryForList", "queryForListWithParams", "executeUpdate"):
+                if re.search(rf"jdbcManager\.{bare}\s*\(", content):
+                    warn("jdbc_datasource_method", path,
+                         f"Service calls generic 'jdbcManager.{bare}(...)'. Use the "
+                         "datasource-specific variant (…Primary for ARFINRO, "
+                         "…Secondary for FINISRO).")
+            if expected_jdbc_suffix:
+                wrong = "Secondary" if expected_jdbc_suffix == "Primary" else "Primary"
+                if re.search(rf"jdbcManager\.\w+{wrong}\s*\(", content):
+                    warn("jdbc_datasource_method", path,
+                         f"Service uses '…{wrong}' JdbcManager methods but the query "
+                         f"schema selects '…{expected_jdbc_suffix}'.")
 
         # 4) @RequestParam names must match the deterministic contract.
         if path.endswith("Controller.java") and expected_filter_params:
@@ -1689,6 +1705,56 @@ def _expected_filter_param_names(details_filtered_sql: str) -> list[str]:
             seen.add(name)
             ordered.append(name)
     return ordered
+
+
+# ── JDBC data-source routing (primary=ARFINRO, secondary=FINISRO) ───
+#
+# JdbcManager exposes two parallel method families backed by two datasources:
+#   primary   -> ARFINRO schema  -> executeQueryForListPrimary /
+#                executeQueryForListWithParamsPrimary / executeUpdatePrimary
+#   secondary -> FINISRO schema  -> executeQueryForListSecondary /
+#                executeQueryForListWithParamsSecondary / executeUpdateSecondary
+# The correct family is selected by the schema qualifier that appears in the
+# generated SQL (e.g. `ARFINRO.XXCFI_...` vs `finisro.xxcfi_...`).
+_SCHEMA_DATASOURCE = {"arfinro": "primary", "finisro": "secondary"}
+_SCHEMA_RE = re.compile(r"\b(arfinro|finisro)\s*\.", re.IGNORECASE)
+
+# Method family per datasource: (select, selectWithParams, update).
+_JDBC_METHODS = {
+    "primary": (
+        "executeQueryForListPrimary",
+        "executeQueryForListWithParamsPrimary",
+        "executeUpdatePrimary",
+    ),
+    "secondary": (
+        "executeQueryForListSecondary",
+        "executeQueryForListWithParamsSecondary",
+        "executeUpdateSecondary",
+    ),
+}
+
+
+def _detect_query_datasource(queries: dict[str, Any]) -> str:
+    """Pick the JdbcManager datasource family from the SQL schema qualifier.
+
+    Scans every query for an `ARFINRO.`/`FINISRO.` schema prefix. Returns
+    "primary" (ARFINRO) or "secondary" (FINISRO). When no qualifier is present,
+    or both appear, it defaults to "primary" — the app team can still adjust,
+    and the backstop validator surfaces a warning on mismatch.
+    """
+    found: set[str] = set()
+    for value in (queries or {}).values():
+        if not isinstance(value, str):
+            continue
+        for match in _SCHEMA_RE.findall(value):
+            found.add(_SCHEMA_DATASOURCE[match.lower()])
+    if found == {"secondary"}:
+        return "secondary"
+    return "primary"
+
+
+def _jdbc_method_suffix(data_source: str) -> str:
+    return "Secondary" if data_source == "secondary" else "Primary"
 
 
 # ── Phase 3: deterministic markdown → fileOperations parser ─────────
@@ -2102,6 +2168,8 @@ def build_backend_handoff(payload: dict[str, Any]) -> dict[str, Any]:
         "submitKeysToMap": mapped_submit,
         "webexKeysToMap": mapped_submit,
         "filterParamNames": _expected_filter_param_names(queries["detailsFiltered"]),
+        "dataSource": _detect_query_datasource(queries),
+        "jdbcMethodSuffix": _jdbc_method_suffix(_detect_query_datasource(queries)),
     }
 
     return handoff
@@ -2118,6 +2186,16 @@ async def backend_generation_node(state: DashboardCodegenState) -> DashboardCode
         payload["filterParamNames"] = _expected_filter_param_names(
             payload["queries"]["detailsFiltered"]
         )
+    except Exception:
+        pass
+
+    # Deterministically select the JdbcManager datasource family (ARFINRO ->
+    # primary, FINISRO -> secondary) from the SQL schema qualifier so the model
+    # calls the correct executeQueryForList*/executeUpdate* variant.
+    try:
+        data_source = _detect_query_datasource(payload["queries"])
+        payload["dataSource"] = data_source
+        payload["jdbcMethodSuffix"] = _jdbc_method_suffix(data_source)
     except Exception:
         pass
 
@@ -2154,6 +2232,7 @@ async def ui_generation_node(state: DashboardCodegenState) -> DashboardCodegenSt
 
 async def operations_generation_node(state: DashboardCodegenState) -> DashboardCodegenState:
     expected_params = state["backend_handoff"].get("filterParamNames") or []
+    expected_jdbc_suffix = state["backend_handoff"].get("jdbcMethodSuffix") or None
 
     # Phase 3: try to assemble the apply manifest deterministically from the
     # already-generated markdown. When this succeeds the stage-3 LLM is skipped
@@ -2166,7 +2245,7 @@ async def operations_generation_node(state: DashboardCodegenState) -> DashboardC
         state["ui_document"],
     )
     if deterministic_ops is not None:
-        warnings = _validate_generated_artifacts(deterministic_ops, expected_params)
+        warnings = _validate_generated_artifacts(deterministic_ops, expected_params, expected_jdbc_suffix)
         warnings.append(
             {
                 "code": "operations_source",
@@ -2210,7 +2289,7 @@ async def operations_generation_node(state: DashboardCodegenState) -> DashboardC
     # (hard TS ASI compile error) so both paths stay leak-proof.
     repaired_ops = _repair_ts_array_type_splits(repaired_ops)
     # Deterministic backstop validation (non-blocking, surfaced to the UI).
-    warnings = _validate_generated_artifacts(repaired_ops, expected_params)
+    warnings = _validate_generated_artifacts(repaired_ops, expected_params, expected_jdbc_suffix)
     return {"file_operations": repaired_ops, "warnings": warnings}
 
 

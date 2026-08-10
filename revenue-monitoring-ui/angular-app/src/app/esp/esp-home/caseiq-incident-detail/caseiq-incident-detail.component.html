@@ -42,126 +42,145 @@
 
   @if (!isLoading && !sharedStateIdsLoading && !error && incidentViewModel) {
     @let incident = incidentViewModel;
-    <!-- Header Card -->
-    <header class="id__header-card">
-      <div class="id__header-top">
-        <div class="id__header-title-block">
-          <h1 class="id__incident-number">{{ incidentNumber }}</h1>
 
-          @if (sharedStateIdsLoading) {
-            <div class="id__ssid-loading id__ssid-loading--inline">
-              <div class="id__ssid-spinner"></div>
-              <span>Loading executions…</span>
+    <!-- Tabs (top-level, above content) -->
+    @if (hasAnyTab) {
+      <div class="id__tabs">
+        @if (hasPipeline) {
+          <button
+            class="id__tab"
+            [class.id__tab--active]="activeTab === 'pipeline'"
+            (click)="selectTab('pipeline')"
+          >
+            Agentic Pipeline
+          </button>
+        }
+        @if (hasReopen) {
+          <button
+            class="id__tab id__tab--reopen"
+            [class.id__tab--active]="activeTab === 'reopen'"
+            (click)="selectTab('reopen')"
+          >
+            <span class="id__tab-reopen-dot"></span>
+            Case Reopened — Updated Analysis
+          </button>
+        }
+        @if (hasWebex) {
+          <button
+            class="id__tab"
+            [class.id__tab--active]="activeTab === 'webex'"
+            (click)="selectTab('webex')"
+          >
+            Webex Conversation
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="id__empty">
+        <ng-icon name="phosphorWarningBold" size="32"></ng-icon>
+        <span>No details available for this incident.</span>
+      </div>
+    }
+
+    <!-- Pipeline Tab -->
+    @if (activeTab === "pipeline" && hasPipeline) {
+      <!-- Header Card (pipeline-scoped) -->
+      <header class="id__header-card">
+        <div class="id__header-top">
+          <div class="id__header-title-block">
+            <h1 class="id__incident-number">{{ incidentNumber }}</h1>
+
+            @if (sharedStateIdsLoading) {
+              <div class="id__ssid-loading id__ssid-loading--inline">
+                <div class="id__ssid-spinner"></div>
+                <span>Loading executions…</span>
+              </div>
+            }
+
+            @if (!sharedStateIdsLoading && sharedStateIds.length > 0) {
+              <div class="id__ssid-tab-list">
+                @for (ssid of sharedStateIds; track ssid) {
+                  <button
+                    class="id__ssid-tab"
+                    [class.id__ssid-tab--active]="activeSharedStateId === ssid"
+                    (click)="selectSharedStateTab(ssid)"
+                  >
+                    {{ ssid }}
+                    @if (isTabLoading(ssid)) {
+                      <span
+                        class="id__ssid-tab-dot id__ssid-tab-dot--loading"
+                      ></span>
+                    } @else if (getTabError(ssid)) {
+                      <span
+                        class="id__ssid-tab-dot id__ssid-tab-dot--error"
+                      ></span>
+                    }
+                  </button>
+                }
+              </div>
+            }
+          </div>
+          <span
+            class="id__status-badge"
+            [ngClass]="
+              getStatusClass(incident.status || incident.incident_state || '')
+            "
+          >
+            {{ incident.status || incident.incident_state || "Unknown" }}
+          </span>
+        </div>
+        <div class="id__header-meta">
+          @if (incident.team_name || incident.team) {
+            <div class="id__meta-item">
+              <span class="id__meta-label">TEAM</span>
+              <span class="id__meta-value">{{
+                incident.team_name || incident.team
+              }}</span>
             </div>
           }
-
-          @if (!sharedStateIdsLoading && sharedStateIds.length > 0) {
-            <div class="id__ssid-tab-list">
-              @for (ssid of sharedStateIds; track ssid) {
-                <button
-                  class="id__ssid-tab"
-                  [class.id__ssid-tab--active]="activeSharedStateId === ssid"
-                  (click)="selectSharedStateTab(ssid)"
-                >
-                  {{ ssid }}
-                  @if (isTabLoading(ssid)) {
-                    <span
-                      class="id__ssid-tab-dot id__ssid-tab-dot--loading"
-                    ></span>
-                  } @else if (getTabError(ssid)) {
-                    <span
-                      class="id__ssid-tab-dot id__ssid-tab-dot--error"
-                    ></span>
-                  }
-                </button>
-              }
+          @if (incident.category) {
+            <div class="id__meta-item">
+              <span class="id__meta-label">CATEGORY</span>
+              <span class="id__meta-value-row">
+                <span class="id__meta-value">{{ incident.category }}</span>
+                @if (categoryChanged) {
+                  <span
+                    class="id__meta-change-dot"
+                    title="Category changed"
+                  ></span>
+                }
+              </span>
+            </div>
+          }
+          @if (incident.core_issue) {
+            <div class="id__meta-item">
+              <span class="id__meta-label">CORE ISSUE</span>
+              <span class="id__meta-value-row">
+                <span class="id__meta-value">{{ incident.core_issue }}</span>
+                @if (coreIssueChanged) {
+                  <span
+                    class="id__meta-change-dot"
+                    title="Core issue changed"
+                  ></span>
+                }
+              </span>
+            </div>
+          }
+          @if (incident.resolution_path) {
+            <div class="id__meta-item">
+              <span class="id__meta-label">RESOLUTION PATH</span>
+              <span class="id__meta-value">{{ incident.resolution_path }}</span>
+            </div>
+          }
+          @if (incident.duration) {
+            <div class="id__meta-item">
+              <span class="id__meta-label">DURATION</span>
+              <span class="id__meta-value">{{ incident.duration }}</span>
             </div>
           }
         </div>
-        <span
-          class="id__status-badge"
-          [ngClass]="
-            getStatusClass(incident.status || incident.incident_state || '')
-          "
-        >
-          {{ incident.status || incident.incident_state || "Unknown" }}
-        </span>
-      </div>
-      <div class="id__header-meta">
-        @if (incident.team_name || incident.team) {
-          <div class="id__meta-item">
-            <span class="id__meta-label">TEAM</span>
-            <span class="id__meta-value">{{
-              incident.team_name || incident.team
-            }}</span>
-          </div>
-        }
-        @if (incident.category) {
-          <div class="id__meta-item">
-            <span class="id__meta-label">CATEGORY</span>
-            <span class="id__meta-value-row">
-              <span class="id__meta-value">{{ incident.category }}</span>
-              @if (categoryChanged) {
-                <span
-                  class="id__meta-change-dot"
-                  title="Category changed"
-                ></span>
-              }
-            </span>
-          </div>
-        }
-        @if (incident.core_issue) {
-          <div class="id__meta-item">
-            <span class="id__meta-label">CORE ISSUE</span>
-            <span class="id__meta-value-row">
-              <span class="id__meta-value">{{ incident.core_issue }}</span>
-              @if (coreIssueChanged) {
-                <span
-                  class="id__meta-change-dot"
-                  title="Core issue changed"
-                ></span>
-              }
-            </span>
-          </div>
-        }
-        @if (incident.resolution_path) {
-          <div class="id__meta-item">
-            <span class="id__meta-label">RESOLUTION PATH</span>
-            <span class="id__meta-value">{{ incident.resolution_path }}</span>
-          </div>
-        }
-        @if (incident.duration) {
-          <div class="id__meta-item">
-            <span class="id__meta-label">DURATION</span>
-            <span class="id__meta-value">{{ incident.duration }}</span>
-          </div>
-        }
-      </div>
-    </header>
+      </header>
 
-    <!-- Tabs -->
-    <div class="id__tabs">
-      <button
-        class="id__tab"
-        [class.id__tab--active]="activeTab === 'pipeline'"
-        (click)="activeTab = 'pipeline'"
-      >
-        Agentic Pipeline
-      </button>
-      @if (reopenMetric) {
-        <button
-          class="id__tab id__tab--reopen"
-          [class.id__tab--active]="activeTab === 'reopen'"
-          (click)="activeTab = 'reopen'"
-        >
-          <span class="id__tab-reopen-dot"></span>
-          Case Reopened — Updated Analysis
-        </button>
-      }
-    </div>
-
-    <!-- Pipeline Tab -->
-    @if (activeTab === "pipeline") {
       <div class="id__pipeline">
         <div class="id__pipeline-header">
           <h3 class="id__section-title">Agentic Pipeline</h3>
@@ -323,6 +342,155 @@
       <!-- @if (activeTab === "notifications") { ... } -->
     }
     <!-- end pipeline @if -->
+
+    <!-- Webex Conversation Tab -->
+    @if (activeTab === "webex") {
+      <div class="id__webex">
+        @if (webexLoading) {
+          <div class="id__loading">
+            <div class="id__spinner"></div>
+            <span>Loading Webex conversation…</span>
+          </div>
+        } @else if (webexError) {
+          <div class="id__error">
+            <span>{{ webexError }}</span>
+            <button class="id__retry-btn" (click)="loadWebexConversation(true)">
+              Retry
+            </button>
+          </div>
+        } @else if (webexMessages.length === 0) {
+          <div class="id__empty">
+            <ng-icon name="phosphorWarningBold" size="32"></ng-icon>
+            <span>No Webex conversation found for this incident.</span>
+          </div>
+        } @else {
+          <div class="id__chat">
+            @if (hasWebexSummary) {
+              <div class="id__convsum">
+                <div class="id__convsum-head">
+                  <div class="id__convsum-title">
+                    <ng-icon name="phosphorSparkleBold" size="15"></ng-icon>
+                    <span>Conversation Summary</span>
+                  </div>
+                  <span
+                    class="id__convsum-pill"
+                    [ngClass]="webexOutcomeClass"
+                    [title]="webexSummaryOutcomeRaw"
+                  >
+                    {{ webexOutcomeLabel }}
+                  </span>
+                </div>
+
+                <p class="id__convsum-reason">
+                  CaseIQ engaged
+                  {{ webexSummaryUserDisplayName || "the requester" }}
+                  @if (webexSummaryClassification) {
+                    to resolve a
+                    <strong>{{ webexSummaryClassification }}</strong> issue
+                  } @else {
+                    to resolve this case
+                  }
+                  {{ webexSummaryRequestPhrase }}.
+                </p>
+
+                <div class="id__convsum-chips">
+                  @if (webexSummaryIncidentNumber) {
+                    <span class="id__convsum-chip">
+                      <span class="id__convsum-chip-label">Incident</span>
+                      <span class="id__convsum-chip-value">{{
+                        webexSummaryIncidentNumber
+                      }}</span>
+                    </span>
+                  }
+                  @if (webexSummaryTeamName) {
+                    <span class="id__convsum-chip">
+                      <span class="id__convsum-chip-label">Team</span>
+                      <span class="id__convsum-chip-value">{{
+                        webexSummaryTeamName
+                      }}</span>
+                    </span>
+                  }
+                  @if (webexSummaryUserDisplayName) {
+                    <span class="id__convsum-chip">
+                      <span class="id__convsum-chip-label">User</span>
+                      <span class="id__convsum-chip-value">{{
+                        webexSummaryUserDisplayName
+                      }}</span>
+                    </span>
+                  }
+                  @if (webexMissingRequiredList.length > 0) {
+                    <span class="id__convsum-chip id__convsum-chip--accent">
+                      <span class="id__convsum-chip-label">Requested</span>
+                      <span class="id__convsum-chip-value">{{
+                        webexMissingRequiredList.join(", ")
+                      }}</span>
+                    </span>
+                  }
+                  @if (webexMissingAtLeastOneList.length > 0) {
+                    <span class="id__convsum-chip">
+                      <span class="id__convsum-chip-label">One of</span>
+                      <span class="id__convsum-chip-value">{{
+                        webexMissingAtLeastOneList.join(", ")
+                      }}</span>
+                    </span>
+                  }
+                  @if (webexDisengagedAt) {
+                    <span class="id__convsum-chip">
+                      <span class="id__convsum-chip-label">Closed</span>
+                      <span class="id__convsum-chip-value"
+                        >{{ webexDisengagedAt }} EST</span
+                      >
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="id__chat-head">
+              <ng-icon name="phosphorChatCircleTextBold" size="16"></ng-icon>
+              <span
+                >{{ webexMessages.length }} message{{
+                  webexMessages.length === 1 ? "" : "s"
+                }}</span
+              >
+            </div>
+            <div class="id__chat-thread">
+              @for (msg of webexMessages; track $index) {
+                @if (webexShowDateSeparator($index)) {
+                  <div class="id__chat-daysep">
+                    <span>{{ formatWebexDate(msg.created_at) }}</span>
+                  </div>
+                }
+                <div
+                  class="id__chat-row"
+                  [class.id__chat-row--bot]="isWebexBot(msg.username)"
+                  [class.id__chat-row--user]="!isWebexBot(msg.username)"
+                >
+                  <div
+                    class="id__chat-avatar"
+                    [class.id__chat-avatar--bot]="isWebexBot(msg.username)"
+                    [title]="msg.username"
+                  >
+                    {{ getWebexInitials(msg.username) }}
+                  </div>
+                  <div class="id__chat-bubble-wrap">
+                    <div class="id__chat-name">
+                      {{ getWebexDisplayName(msg.username) }}
+                    </div>
+                    <div class="id__chat-bubble">
+                      <p class="id__chat-text">{{ msg.text_plain }}</p>
+                    </div>
+                    <span class="id__chat-time">{{
+                      formatWebexTime(msg.created_at)
+                    }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
 
     <!-- Reopen Tab -->
     @if (activeTab === "reopen" && reopenMetric) {
