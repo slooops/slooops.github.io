@@ -33,6 +33,7 @@ import {
   phosphorInfoBold,
   phosphorFunnelSimpleBold,
   phosphorMagnifyingGlassBold,
+  phosphorRobotBold,
 } from '@ng-icons/phosphor-icons/bold';
 import { ThemeService } from '../../providers/theme.service';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
@@ -67,6 +68,7 @@ interface FilterTag {
       phosphorInfoBold,
       phosphorFunnelSimpleBold,
       phosphorMagnifyingGlassBold,
+      phosphorRobotBold,
     }),
   ],
   standalone: true,
@@ -166,7 +168,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     {
       id: 'analyzedBy',
       label: 'Analyzed By',
-      values: ['CaseIQ Agent'],
+      values: ['CaseIQ Agent', 'Operations'],
     },
     {
       id: 'coreIssueMatch',
@@ -182,6 +184,11 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       id: 'incidentNumber',
       label: 'Incident Number',
       values: [], // Text-based search, no predefined values
+    },
+    {
+      id: 'conversationInitiated',
+      label: 'Conversation Initiated',
+      values: ['Yes', 'No'],
     },
   ];
 
@@ -486,6 +493,18 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     });
   }
 
+  /** Whether this row's incident has Webex conversation data. */
+  private rowHasWebexConversation(row: any): boolean {
+    if (!this.webexIncidentNumberSet.size) {
+      return false;
+    }
+    const candidates = [row?.['INCIDENT_NUMBER'], row?.['incident_number']];
+    return candidates.some((value) => {
+      const normalized = this.normalizeIncidentNumber(value);
+      return !!normalized && this.webexIncidentNumberSet.has(normalized);
+    });
+  }
+
   isReopenedIncident(row: any, column: string): boolean {
     if (!this.reopenedIncidentNumberSet.size) {
       return false;
@@ -697,32 +716,13 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     this.addFilter('impactedServiceOffering', label, value);
   }
 
-  // Analyzed By single-select dropdown
+  // Analyzed By multi-select dropdown
   toggleAnalyzedByInner(event: Event) {
     event.stopPropagation();
     this.showAnalyzedByInner = !this.showAnalyzedByInner;
   }
   toggleAnalyzedByValue(value: string, label: string) {
-    const newFilterId = `analyzedBy-${value}`;
-    const isSameSelectionActive = this.activeFilters.some(
-      (filter) => filter.id === newFilterId,
-    );
-
-    this.activeFilters = this.activeFilters.filter(
-      (filter) => filter.filterId !== 'analyzedBy',
-    );
-
-    if (!isSameSelectionActive) {
-      this.activeFilters.push({
-        id: newFilterId,
-        label,
-        value,
-        filterId: 'analyzedBy',
-      });
-    }
-
-    this.showAnalyzedByInner = false;
-    this.applyFilters();
+    this.addFilter('analyzedBy', label, value);
   }
 
   getSingleSelectValue(filterId: string): string {
@@ -1211,10 +1211,22 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         let matches = false;
         for (const value of selectedValues) {
           const valueLower = value.toLowerCase();
+          // UI mapping requested:
+          // - CaseIQ Agent option => rows where ANALYZED_BY is Supervisor Analyzed
+          // - Operations option  => rows where ANALYZED_BY is CaseIQ Analyzed
           if (valueLower === 'caseiq agent') {
             if (
               analyzedBy === 'supervisor analyzed' ||
               analyzedBy === 'supervisor agent'
+            ) {
+              matches = true;
+              break;
+            }
+          } else if (valueLower === 'operations') {
+            if (
+              analyzedBy === 'caseiq analyzed' ||
+              analyzedBy === 'case iq analyzed' ||
+              analyzedBy === 'caseiq agent'
             ) {
               matches = true;
               break;
@@ -1236,6 +1248,29 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         let matches = false;
         for (const searchTerm of selectedValues) {
           if (rowValue.includes(searchTerm.toUpperCase())) {
+            matches = true;
+            break;
+          }
+        }
+
+        if (!matches) {
+          matchesAllFilters = false;
+        }
+      }
+
+      // Check conversationInitiated filter
+      if (matchesAllFilters && activeFiltersMap.has('conversationInitiated')) {
+        const selectedValues = activeFiltersMap.get('conversationInitiated')!;
+        const hasConversation = this.rowHasWebexConversation(row);
+
+        let matches = false;
+        for (const value of selectedValues) {
+          const normalized = value.toLowerCase();
+          if (normalized === 'yes' && hasConversation) {
+            matches = true;
+            break;
+          }
+          if (normalized === 'no' && !hasConversation) {
             matches = true;
             break;
           }

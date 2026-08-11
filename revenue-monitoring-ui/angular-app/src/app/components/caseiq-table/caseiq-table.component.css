@@ -342,12 +342,21 @@
   flex-shrink: 0;
 }
 
+.webex-icon {
+  color: #1c8c4c;
+  flex-shrink: 0;
+}
+
 :host(.dark-theme) .analyzed-icon {
   color: #00bceb;
 }
 
 :host(.dark-theme) .reopened-icon {
   color: #ffb74d;
+}
+
+:host(.dark-theme) .webex-icon {
+  color: #6ebe4a;
 }
 
 :host(.dark-theme) .ciq-table td.clickable-cell {

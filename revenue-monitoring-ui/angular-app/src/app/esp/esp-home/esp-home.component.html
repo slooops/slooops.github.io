@@ -163,7 +163,9 @@
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['CAPITAL']"
           [caseReopenMetrics]="reopenMetricsPerComponent['CAPITAL']"
-          [webexIncidentNumbers]="webexIncidentNumbers"
+          [webexIncidentNumbers]="
+            webexIncidentNumbersPerComponent['CAPITAL'] || []
+          "
           [webexConversations]="webexConversationsPerComponent['CAPITAL']"
           [webexSummaries]="webexSummariesPerComponent['CAPITAL']"
         ></app-caseiq-team>
@@ -177,7 +179,7 @@
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['FPP']"
           [caseReopenMetrics]="reopenMetricsPerComponent['FPP']"
-          [webexIncidentNumbers]="webexIncidentNumbers"
+          [webexIncidentNumbers]="webexIncidentNumbersPerComponent['FPP'] || []"
           [webexConversations]="webexConversationsPerComponent['FPP']"
           [webexSummaries]="webexSummariesPerComponent['FPP']"
         ></app-caseiq-team>
@@ -191,7 +193,7 @@
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['I2C']"
           [caseReopenMetrics]="reopenMetricsPerComponent['I2C']"
-          [webexIncidentNumbers]="webexIncidentNumbers"
+          [webexIncidentNumbers]="webexIncidentNumbersPerComponent['I2C'] || []"
           [webexConversations]="webexConversationsPerComponent['I2C']"
           [webexSummaries]="webexSummariesPerComponent['I2C']"
         ></app-caseiq-team>
@@ -205,7 +207,7 @@
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['OM']"
           [caseReopenMetrics]="reopenMetricsPerComponent['OM']"
-          [webexIncidentNumbers]="webexIncidentNumbers"
+          [webexIncidentNumbers]="webexIncidentNumbersPerComponent['OM'] || []"
           [webexConversations]="webexConversationsPerComponent['OM']"
           [webexSummaries]="webexSummariesPerComponent['OM']"
         ></app-caseiq-team>
@@ -219,7 +221,7 @@
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['P2P']"
           [caseReopenMetrics]="reopenMetricsPerComponent['P2P']"
-          [webexIncidentNumbers]="webexIncidentNumbers"
+          [webexIncidentNumbers]="webexIncidentNumbersPerComponent['P2P'] || []"
           [webexConversations]="webexConversationsPerComponent['P2P']"
           [webexSummaries]="webexSummariesPerComponent['P2P']"
         ></app-caseiq-team>
@@ -233,7 +235,7 @@
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['SM']"
           [caseReopenMetrics]="reopenMetricsPerComponent['SM']"
-          [webexIncidentNumbers]="webexIncidentNumbers"
+          [webexIncidentNumbers]="webexIncidentNumbersPerComponent['SM'] || []"
           [webexConversations]="webexConversationsPerComponent['SM']"
           [webexSummaries]="webexSummariesPerComponent['SM']"
         ></app-caseiq-team>
@@ -247,7 +249,7 @@
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['AIT']"
           [caseReopenMetrics]="reopenMetricsPerComponent['AIT']"
-          [webexIncidentNumbers]="webexIncidentNumbers"
+          [webexIncidentNumbers]="webexIncidentNumbersPerComponent['AIT'] || []"
           [webexConversations]="webexConversationsPerComponent['AIT']"
           [webexSummaries]="webexSummariesPerComponent['AIT']"
         ></app-caseiq-team>

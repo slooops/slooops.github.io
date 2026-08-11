@@ -266,7 +266,7 @@
                               class="multi-select-trigger"
                               (click)="toggleAnalyzedByInner($event)"
                             >
-                              {{ getSingleSelectValue("analyzedBy") }}
+                              Select
                               <span
                                 class="chevron"
                                 [class.open]="showAnalyzedByInner"
@@ -295,6 +295,12 @@
                                         )
                                       "
                                     >
+                                      <input
+                                        type="checkbox"
+                                        [checked]="
+                                          isFilterActive('analyzedBy', value)
+                                        "
+                                      />
                                       <span class="option-label">{{
                                         value
                                       }}</span>
@@ -547,6 +553,15 @@
                               size="13"
                               class="analyzed-icon"
                               [matTooltip]="'Analyzed by: Supervisor Agent'"
+                            ></ng-icon>
+                          }
+
+                          @if (hasWebexConversation(row, column)) {
+                            <ng-icon
+                              name="phosphorRobotBold"
+                              size="13"
+                              class="webex-icon"
+                              [matTooltip]="'Conversation initiated'"
                             ></ng-icon>
                           }
 

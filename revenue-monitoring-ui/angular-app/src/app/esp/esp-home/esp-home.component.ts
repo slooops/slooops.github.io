@@ -441,6 +441,7 @@ export class EspHomeComponent implements OnInit {
   // set of conversation rows. Loaded once here and shared across all CaseIQ
   // team tiles so the incident-detail chat can render the real conversation.
   webexIncidentNumbers: string[] = [];
+  webexIncidentNumbersPerComponent: Record<string, string[]> = {};
   webexConversations: any[] = [];
   webexConversationsPerComponent: Record<string, any[]> = {};
   loadWebexIncidentNumbers(): void {
@@ -451,6 +452,7 @@ export class EspHomeComponent implements OnInit {
         this.webexConversations = rows;
         // Split by TEAM_NAME (or team_name)
         const map: Record<string, any[]> = {};
+        const incidentSetByTeam: Record<string, Set<string>> = {};
         const unique = new Set<string>();
         for (const row of rows) {
           const raw = row?.incident_id ?? row?.INCIDENT_ID;
@@ -468,9 +470,22 @@ export class EspHomeComponent implements OnInit {
           if (team) {
             if (!map[team]) map[team] = [];
             map[team].push(row);
+
+            if (!incidentSetByTeam[team]) {
+              incidentSetByTeam[team] = new Set<string>();
+            }
+            if (normalized) {
+              incidentSetByTeam[team].add(normalized);
+            }
           }
         }
         this.webexIncidentNumbers = Array.from(unique);
+        this.webexIncidentNumbersPerComponent = Object.fromEntries(
+          Object.entries(incidentSetByTeam).map(([team, incidentSet]) => [
+            team,
+            Array.from(incidentSet),
+          ]),
+        );
         this.webexConversationsPerComponent = map;
       });
   }
