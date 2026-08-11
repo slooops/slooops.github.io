@@ -194,12 +194,12 @@
 
 .ciq-components-table.has-sr-group th:nth-child(7),
 .ciq-components-table.has-sr-group td:nth-child(7) {
-  border-left: 2px solid rgba(0, 188, 235, 0.35);
+  border-left: 2px solid #a6e8f8;
 }
 
 .ciq-components-table.has-sr-group th:nth-child(9),
 .ciq-components-table.has-sr-group td:nth-child(9) {
-  border-right: 2px solid rgba(0, 188, 235, 0.35);
+  border-right: 2px solid #a6e8f8;
 }
 
 :host(.dark-theme) .ciq-components-table.has-sr-group th:nth-child(7),
@@ -215,7 +215,60 @@
 :host(.dark-theme) .ciq-components-table.has-sr-group td:nth-child(7),
 :host(.dark-theme) .ciq-components-table.has-sr-group th:nth-child(9),
 :host(.dark-theme) .ciq-components-table.has-sr-group td:nth-child(9) {
-  border-color: rgba(0, 188, 235, 0.45);
+  border-color: #4a8fa8;
+}
+
+/* ── Umbrella header row: table title + Service Requests banner over cols 7-9 ── */
+.ciq-components-table thead tr.umbrella-row th {
+  position: static;
+  border-bottom: none;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  background: transparent;
+  padding: 0.5rem 0.75rem 0.375rem;
+}
+
+.ciq-components-table thead tr.umbrella-row .umbrella-title-cell {
+  text-align: left;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ciq-text);
+}
+
+.ciq-components-table thead tr.umbrella-row .umbrella-empty {
+  padding: 0;
+}
+
+/* border-collapse: collapse strips border-radius from <th>, so the tab shape lives on an inner div. */
+.ciq-components-table.has-sr-group thead tr.umbrella-row .sr-umbrella {
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+/* Negative side margins align the inner div's borders with the tbody's collapsed col 7/9 borders. */
+.ciq-components-table.has-sr-group thead tr.umbrella-row .sr-umbrella-inner {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgb(0, 120, 155);
+  background: rgba(0, 188, 235, 0.05);
+  border: 2px solid #a6e8f8;
+  border-bottom: none;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  padding: 0.5rem 0.5rem 0.625rem;
+  margin: 0 -1px;
+}
+
+:host(.dark-theme)
+  .ciq-components-table.has-sr-group
+  thead
+  tr.umbrella-row
+  .sr-umbrella-inner {
+  color: rgb(120, 220, 245);
+  background: rgba(0, 188, 235, 0.08);
+  border-color: #4a8fa8;
 }
 
 .component-badge {

@@ -48,6 +48,19 @@
           [class.has-sr-group]="hasAutoResolveColumns()"
         >
           <thead>
+            <tr class="umbrella-row">
+              <th class="umbrella-title-cell" colspan="6">
+                Performance Metrics
+              </th>
+              @if (hasAutoResolveColumns()) {
+                <th class="sr-umbrella" colspan="3">
+                  <div class="sr-umbrella-inner">Service Requests</div>
+                </th>
+                <th class="umbrella-empty" colspan="2"></th>
+              } @else {
+                <th class="umbrella-empty" colspan="5"></th>
+              }
+            </tr>
             <tr>
               <th>Component</th>
               <th>Total Cases</th>
@@ -55,10 +68,12 @@
               <th>In Progress</th>
               <th>Routed Out</th>
               <th>Canceled</th>
-              <th>Service Requests</th>
               @if (hasAutoResolveColumns()) {
+                <th>Requests</th>
                 <th>Auto Resolved</th>
                 <th>Cases Reopened</th>
+              } @else {
+                <th>Service Requests</th>
               }
               <th>Agent</th>
               <th>Service Incidents</th>
@@ -158,18 +173,14 @@
                 @if (hasAutoResolveColumns()) {
                   <td>
                     @if (row.autoResolved != null) {
-                      <span class="summary-total-cases">{{
-                        row.autoResolved | number
-                      }}</span>
+                      {{ row.autoResolved | number }}
                     } @else {
                       <span class="summary-empty">--</span>
                     }
                   </td>
                   <td>
                     @if (row.casesReopened != null) {
-                      <span class="summary-total-cases">{{
-                        row.casesReopened | number
-                      }}</span>
+                      {{ row.casesReopened | number }}
                     } @else {
                       <span class="summary-empty">--</span>
                     }
