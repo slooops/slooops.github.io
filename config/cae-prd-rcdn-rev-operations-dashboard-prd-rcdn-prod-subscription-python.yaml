@@ -10,8 +10,8 @@ metadata:
   namespace: "rev-operations-dashboard-prd-rcdn"
   labels:
     # softwareId is a non-sensitive unique identifier for the software
-    softwareId: "36aa8ae42452fca8a36479ddbef3daff74c031db"
-    softwareName: "subscription-financials-ai"
+    softwareId: "d7c7615e6575481186019c284daa67946d68f871"
+    softwareName: "rev-ops-monitoring"
   annotations:
     # Increase proxy timeouts for long-running AI agent requests (LLM + tool calls)
     cae.cisco.com/proxy-read-timeout: "300"
@@ -33,8 +33,8 @@ metadata:
   namespace: "rev-operations-dashboard-prd-rcdn"
   labels:
     # softwareId is a non-sensitive unique identifier for the software
-    softwareId: "36aa8ae42452fca8a36479ddbef3daff74c031db"
-    softwareName: "subscription-financials-ai"
+    softwareId: "d7c7615e6575481186019c284daa67946d68f871"
+    softwareName: "rev-ops-monitoring"
 spec:
   selector:
     matchLabels:
@@ -47,17 +47,17 @@ spec:
         app: "subscription-ai-backend-python"
         environment: "prod"
         # softwareId is a non-sensitive unique identifier for the software
-        softwareId: "36aa8ae42452fca8a36479ddbef3daff74c031db"
-        softwareName: "subscription-financials-ai"
+        softwareId: "d7c7615e6575481186019c284daa67946d68f871"
+        softwareName: "rev-ops-monitoring"
     spec:
       containers:
-        - image: 'containers.cisco.com/it_cvc_i2c_ai_core/subscription_orders_ai:${trigger["parameters"]["imageTag"]}'
+        - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:${trigger["parameters"]["imageTag"]}'
           imagePullPolicy: IfNotPresent
           name: "subscription-ai-backend-python"
           ports:
             - containerPort: 8000
       imagePullSecrets:
-        - name: it-cvc-i2c-ai-core-cdconsole-bot-pull-secret
+        - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
 ---
 apiVersion: cae.cisco.com/v1
 kind: SSOAuthConfig

@@ -138,6 +138,7 @@ export class MonitoringOnboardingComponent implements OnInit {
   submitting = false;
   submitError: string | null = null;
   generated: GeneratedDocs | null = null;
+  isEditingRegeneration = false;
 
   /** Identity-step intake mode (spec placeholder vs manual form). */
   specInputMode: 'spec' | 'manual' = 'manual';
@@ -534,6 +535,10 @@ export class MonitoringOnboardingComponent implements OnInit {
       featureName: (raw.featureName as string).trim(),
       roleName: (raw.roleName as string).trim(),
       assignmentUsersKey: (raw.assignmentUsersKey as string).trim(),
+      userName: this.authService.getUserID() || null,
+      userEmail: this.authService.getUserID()
+        ? `${this.authService.getUserID()}@cisco.com`
+        : null,
       queries: {
         summary: (raw.queries.summary as string).trim(),
         details: (raw.queries.details as string).trim(),
@@ -781,7 +786,6 @@ export class MonitoringOnboardingComponent implements OnInit {
 
     this.submitting = true;
     this.submitError = null;
-    this.generated = null;
     this.resetApplyState();
     this.docsSaved = false;
     this.leaveWarningDismissed = false;
@@ -802,6 +806,7 @@ export class MonitoringOnboardingComponent implements OnInit {
 
       const data = (await response.json()) as Record<string, unknown>;
       this.generated = this.mapGeneratedDocsResponse(data);
+      this.isEditingRegeneration = false;
     } catch (err) {
       this.submitError =
         err instanceof Error
@@ -1444,13 +1449,19 @@ export class MonitoringOnboardingComponent implements OnInit {
   }
 
   editForRegeneration(): void {
-    this.generated = null;
     this.submitError = null;
     this.resetApplyState();
     this.docsSaved = false;
     this.leaveWarningDismissed = false;
+    this.isEditingRegeneration = true;
     this.onboardingMode = 'manual';
     this.currentStep = this.manualSteps.findIndex((s) => s.key === 'review');
+  }
+
+  backToGeneratedResult(): void {
+    if (!this.generated) return;
+    this.isEditingRegeneration = false;
+    this.submitError = null;
   }
 
   resetForm(): void {
@@ -1459,6 +1470,7 @@ export class MonitoringOnboardingComponent implements OnInit {
     this.resetApplyState();
     this.docsSaved = false;
     this.leaveWarningDismissed = false;
+    this.isEditingRegeneration = false;
     this.onboardingMode = 'spec';
     this.currentStep = 0;
     this.specInputMode = 'spec';
