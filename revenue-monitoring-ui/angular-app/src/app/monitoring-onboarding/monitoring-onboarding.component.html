@@ -1326,8 +1326,12 @@
           <div class="mo-generate-progress" aria-live="polite">
             <app-loading-symbol></app-loading-symbol>
             <p class="mo-generate-progress__text">
-              Generating your implementation guide… This can take a minute or
-              two.
+              @if (generationStage) {
+                {{ generationStage }}
+              } @else {
+                Generating your implementation guide… This can take a minute or
+                two.
+              }
             </p>
           </div>
         }
