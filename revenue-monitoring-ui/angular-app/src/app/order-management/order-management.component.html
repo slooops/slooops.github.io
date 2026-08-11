@@ -42,6 +42,8 @@
     @switch (filteredTabs[selectedIndex]?.component) {
       @case ("app-imports") {
         <app-monitoring-dashboard
+          [linkColumns]="[]"
+          [detailPanel]="exceptionDetailTpl"
           [urls]="omImportUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [componentName]="'Order Management Imports'"
@@ -55,6 +57,8 @@
       }
       @case ("app-holds") {
         <app-monitoring-dashboard
+          [linkColumns]="[]"
+          [detailPanel]="exceptionDetailTpl"
           [urls]="omHoldsUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [componentName]="'Order Management Holds'"
@@ -68,6 +72,8 @@
       }
       @case ("app-bookings") {
         <app-monitoring-dashboard
+          [linkColumns]="[]"
+          [detailPanel]="exceptionDetailTpl"
           [urls]="omBookingsUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [componentName]="'Order Management Bookings'"
@@ -81,6 +87,8 @@
       }
       @case ("app-workflow") {
         <app-monitoring-dashboard
+          [linkColumns]="[]"
+          [detailPanel]="exceptionDetailTpl"
           [urls]="omWorkflowUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [componentName]="'Order Management Workflow'"
@@ -94,6 +102,8 @@
       }
       @case ("app-processing") {
         <app-monitoring-dashboard
+          [linkColumns]="[]"
+          [detailPanel]="exceptionDetailTpl"
           [urls]="omProcessingUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [componentName]="'Order Management Processing'"
@@ -107,6 +117,8 @@
       }
       @case ("app-distribution") {
         <app-monitoring-dashboard
+          [linkColumns]="[]"
+          [detailPanel]="exceptionDetailTpl"
           [urls]="omDistributionUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [componentName]="'Order Management Distribution'"
@@ -120,6 +132,8 @@
       }
       @case ("app-attribution") {
         <app-monitoring-dashboard
+          [linkColumns]="[]"
+          [detailPanel]="exceptionDetailTpl"
           [urls]="omAttributionUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [componentName]="'Order Management Attribution'"
@@ -133,6 +147,8 @@
       }
       @case ("app-jobs") {
         <app-monitoring-dashboard
+          [linkColumns]="[]"
+          [detailPanel]="exceptionDetailTpl"
           [urls]="omJobsUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [componentName]="'Order Management Jobs'"
@@ -150,3 +166,12 @@
     }
   }
 </div>
+
+<ng-template #exceptionDetailTpl let-value let-close="close">
+  <app-exception-details
+    [exceptionId]="value"
+    apiEndpoint="by-record"
+    backLabel="Back to Error Details"
+    (back)="close()"
+  ></app-exception-details>
+</ng-template>

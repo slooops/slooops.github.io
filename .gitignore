@@ -69,3 +69,17 @@ README-LOCAL.md
 scripts/local-dev.patch
 scripts/run-server.py
 scripts/__pycache__/run-server.cpython-314.pyc
+api-gateway/tests/__pycache__/conftest.cpython-313-pytest-9.1.1.pyc
+api-gateway/tests/__pycache__/test_dashboard_codegen_graph.cpython-313-pytest-9.1.1.pyc
+api-gateway/tests/__pycache__/test_dashboard_codegen_graph.cpython-313.pyc
+api-gateway/tests/__pycache__/test_dashboard_codegen_tools.cpython-313-pytest-9.1.1.pyc
+api-gateway/tests/__pycache__/test_dashboard_codegen_tools.cpython-313.pyc
+api-gateway/__pycache__/control_tower_admin_agent.cpython-313.pyc
+api-gateway/__pycache__/dashboard_codegen_agent.cpython-313.pyc
+api-gateway/__pycache__/main.cpython-313.pyc
+api-gateway/__pycache__/sql_validator.cpython-313.pyc
+api-gateway/__pycache__/webex_bot_handler.cpython-313.pyc
+.vscode/extensions.json
+.codesight/scan_configs/revops_server_Black_Duck_SCA.json
+.codesight/scan_results/black-duck-sca.json
+.github/agents/full-stack-developer.agent.md

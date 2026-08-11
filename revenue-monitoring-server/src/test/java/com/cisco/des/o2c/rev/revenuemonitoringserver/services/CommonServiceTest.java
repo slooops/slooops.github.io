@@ -110,7 +110,7 @@ class CommonServiceTest {
     }
 
     @Test void logPageVisit() {
-        when(jdbcManager.executeUpdate(eq("log"), anyString(), anyString())).thenReturn(1);
+        when(jdbcManager.executeUpdatePrimary(eq("log"), anyString(), anyString())).thenReturn(1);
         assertEquals(1, service.logPageVisit("testuser", "/home"));
     }
 
@@ -168,7 +168,7 @@ class CommonServiceTest {
     }
 
     @Test void deleteRole() {
-        when(jdbcManager.executeUpdate(eq("ctlRoleDelete"), anyString(), anyInt())).thenReturn(1);
+        when(jdbcManager.executeUpdatePrimary(eq("ctlRoleDelete"), anyString(), anyInt())).thenReturn(1);
         assertEquals(1, service.deleteRole(1, "user1"));
     }
 

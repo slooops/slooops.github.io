@@ -1,7 +1,6 @@
 <div class="esp-dashboard">
-  <!-- Loading Overlay -->
-  @if (isLoadingQuarter) {
-    <!-- @if (true) { -->
+  <!-- Finance IT (caseiq) has its own loading overlay; skip the shell overlay there to avoid stacked spinners. -->
+  @if (isLoadingQuarter && activeTab !== "Finance IT") {
     <div class="loading-overlay">
       <div class="loading-cloud" aria-hidden="true">
         <span class="loading-cloud__layer loading-cloud__layer--soft"></span>
@@ -164,6 +163,11 @@
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['CAPITAL']"
           [caseReopenMetrics]="reopenMetricsPerComponent['CAPITAL']"
+          [webexIncidentNumbers]="
+            webexIncidentNumbersPerComponent['CAPITAL'] || []
+          "
+          [webexConversations]="webexConversationsPerComponent['CAPITAL']"
+          [webexSummaries]="webexSummariesPerComponent['CAPITAL']"
         ></app-caseiq-team>
       </div>
     }
@@ -175,6 +179,9 @@
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['FPP']"
           [caseReopenMetrics]="reopenMetricsPerComponent['FPP']"
+          [webexIncidentNumbers]="webexIncidentNumbersPerComponent['FPP'] || []"
+          [webexConversations]="webexConversationsPerComponent['FPP']"
+          [webexSummaries]="webexSummariesPerComponent['FPP']"
         ></app-caseiq-team>
       </div>
     }
@@ -186,6 +193,9 @@
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['I2C']"
           [caseReopenMetrics]="reopenMetricsPerComponent['I2C']"
+          [webexIncidentNumbers]="webexIncidentNumbersPerComponent['I2C'] || []"
+          [webexConversations]="webexConversationsPerComponent['I2C']"
+          [webexSummaries]="webexSummariesPerComponent['I2C']"
         ></app-caseiq-team>
       </div>
     }
@@ -197,6 +207,9 @@
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['OM']"
           [caseReopenMetrics]="reopenMetricsPerComponent['OM']"
+          [webexIncidentNumbers]="webexIncidentNumbersPerComponent['OM'] || []"
+          [webexConversations]="webexConversationsPerComponent['OM']"
+          [webexSummaries]="webexSummariesPerComponent['OM']"
         ></app-caseiq-team>
       </div>
     }
@@ -208,6 +221,9 @@
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['P2P']"
           [caseReopenMetrics]="reopenMetricsPerComponent['P2P']"
+          [webexIncidentNumbers]="webexIncidentNumbersPerComponent['P2P'] || []"
+          [webexConversations]="webexConversationsPerComponent['P2P']"
+          [webexSummaries]="webexSummariesPerComponent['P2P']"
         ></app-caseiq-team>
       </div>
     }
@@ -219,6 +235,9 @@
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['SM']"
           [caseReopenMetrics]="reopenMetricsPerComponent['SM']"
+          [webexIncidentNumbers]="webexIncidentNumbersPerComponent['SM'] || []"
+          [webexConversations]="webexConversationsPerComponent['SM']"
+          [webexSummaries]="webexSummariesPerComponent['SM']"
         ></app-caseiq-team>
       </div>
     }
@@ -230,6 +249,9 @@
           (uploadSuccess)="onUploadSuccess()"
           [caseIqMetrics]="metricsPerComponent['AIT']"
           [caseReopenMetrics]="reopenMetricsPerComponent['AIT']"
+          [webexIncidentNumbers]="webexIncidentNumbersPerComponent['AIT'] || []"
+          [webexConversations]="webexConversationsPerComponent['AIT']"
+          [webexSummaries]="webexSummariesPerComponent['AIT']"
         ></app-caseiq-team>
       </div>
     }

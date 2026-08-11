@@ -1783,6 +1783,38 @@ public class QueryConfigs {
         return this.xxcaseiqEspCaseReopenedUpdate;
     }
 
+    @Value(("${xxcaseiq.esp.case.reopened.decision.yes.update.older.runs}"))
+    public String xxcaseiqEspCaseReopenedDecisionYesUpdateOlderRuns;
+
+    @Bean(name = "xxcaseiqEspCaseReopenedDecisionYesUpdateOlderRuns")
+    public String getXxcaseiqEspCaseReopenedDecisionYesUpdateOlderRuns() {
+        return this.xxcaseiqEspCaseReopenedDecisionYesUpdateOlderRuns;
+    }
+
+    @Value(("${xxcaseiq.esp.case.reopened.decision.yes.insert.new.case.details}"))
+    public String xxcaseiqEspCaseReopenedDecisionYesInsertNewCaseDetails;
+
+    @Bean(name = "xxcaseiqEspCaseReopenedDecisionYesInsertNewCaseDetails")
+    public String getXxcaseiqEspCaseReopenedDecisionYesInsertNewCaseDetails() {
+        return this.xxcaseiqEspCaseReopenedDecisionYesInsertNewCaseDetails;
+    }
+
+    @Value(("${xxcaseiq.conv.bot.chat}"))
+    public String xxcaseiqConvBotChat;
+
+    @Bean(name = "xxcaseiqConvBotChat")
+    public String getXxcaseiqConvBotChat() {
+        return this.xxcaseiqConvBotChat;
+    }
+
+    @Value(("${xxcaseiq.conv.bot.summary}"))
+    public String xxcaseiqConvBotSummary;
+
+    @Bean(name = "xxcaseiqConvBotSummary")
+    public String getXxcaseiqConvBotSummary() {
+        return this.xxcaseiqConvBotSummary;
+    }
+
     @Value(("${admin.table.q}"))
     public String adminTable;
 

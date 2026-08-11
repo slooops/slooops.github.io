@@ -13,6 +13,31 @@ import { HttpClient as NgHttpClient } from '@angular/common/http';
 import { NgIconComponent } from '@ng-icons/core';
 import { ThemeService } from '../../../providers/theme.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+
+interface WebexMessage {
+  incident_id: string;
+  username: string;
+  text_plain: string;
+  created_at: string;
+}
+
+/**
+ * Per-incident CaseIQ conversation summary. Explains why the bot engaged the
+ * user and how the conversation ended. One record per incident_number.
+ */
+interface WebexConvSummary {
+  incident_number?: string;
+  team_name?: string;
+  category?: string;
+  core_issue?: string;
+  conv_bot_impacted_user?: string;
+  conv_bot_room_id?: string;
+  conv_bot_disengaged_at?: string;
+  conv_bot_disengage_reason?: string;
+  conv_bot_missing_required?: string;
+  conv_bot_missing_atleast_one?: string;
+}
 
 interface PipelineStep {
   name: string;
@@ -68,6 +93,16 @@ export interface CaseReopenMetric {
   REOPEN_REJECT_CORE_ISSUE: string | null;
   CREATED_AT: string;
   UPDATED_AT: string;
+  // Fields needed to insert a new active staging run on a YES decision
+  IMPACTED_SERVICE_OFFERING?: string | null;
+  IMPACTED_USER?: string | null;
+  INCIDENT_SUMMARY?: string | null;
+  INCIDENT_DESCRIPTION?: string | null;
+  PROPOSED_TEAM_NAME?: string | null;
+  OPENED_BY?: string | null;
+  ASSIGNMENT_GROUP?: string | null;
+  CCO_USER_EMAIL?: string | null;
+  INCIDENT_SYS_ID?: string | null;
 }
 
 @Component({
@@ -76,6 +111,7 @@ export interface CaseReopenMetric {
   imports: [CommonModule, FormsModule, NgIconComponent],
   templateUrl: './caseiq-incident-detail.component.html',
   styleUrls: ['./caseiq-incident-detail.component.css'],
+  providers: [DestroyManager],
 })
 export class CaseiqIncidentDetailComponent implements OnChanges {
   @HostBinding('class.dark-theme') get darkThemeClass() {
@@ -86,6 +122,16 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
   @Input() incidentDetailData: Record<string, any> | null = null;
   @Input() backLabel: string = 'Back to Incidents';
   @Input() reopenMetric: CaseReopenMetric | null = null;
+  /**
+   * Full set of Webex conversation rows loaded once by the parent. The chat
+   * tab renders the subset whose incident_id matches the current incident.
+   */
+  @Input() webexConversations: WebexMessage[] = [];
+  /**
+   * Per-incident conversation summaries loaded once by the parent. The chat
+   * tab shows the record whose incident_number matches the current incident.
+   */
+  @Input() webexSummaries: WebexConvSummary[] = [];
   @Output() back = new EventEmitter<void>();
   @Output() reopenDecision = new EventEmitter<'yes' | 'no'>();
 
@@ -94,9 +140,17 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
   incidentNumber = '';
   incidentViewModel: any = null;
 
-  activeTab: 'pipeline' | 'reopen' = 'pipeline';
+  activeTab: 'pipeline' | 'reopen' | 'webex' = 'pipeline';
   pipelineSteps: PipelineStep[] = [];
   notifications: NotificationEvent[] = [];
+
+  // ── Webex conversation tab state ─────────────────────────────
+  webexMessages: WebexMessage[] = [];
+  webexSummary: WebexConvSummary | null = null;
+  webexLoading = false;
+  webexError: string | null = null;
+  private webexLoadedFor: string | null = null;
+  private readonly webexChatUrl = 'xxcaseiq-conv-bot-chat';
 
   showRejectForm = false;
   rejectCategory = '';
@@ -135,9 +189,18 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
     public themeService: ThemeService,
     private readonly httpClient: ApiHttpService,
     private readonly http: NgHttpClient,
+    private readonly destroyManager: DestroyManager,
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['incident'] || changes['incidentDetailData']) {
+      // Reset Webex conversation cache when a different incident loads
+      this.webexMessages = [];
+      this.webexSummary = null;
+      this.webexError = null;
+      this.webexLoadedFor = null;
+      this.webexLoading = false;
+    }
     if (changes['incidentDetailData'] && this.incidentDetailData) {
       // Data pre-fetched by parent — skip SSID fetch
       this.sharedStateIds = [];
@@ -149,6 +212,15 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
       !this.incidentDetailData
     ) {
       this.loadSharedStateIds(this.incident.incidentNumber);
+    }
+
+    // Conversation rows can arrive after the incident is already displayed;
+    // reload the chat from the latest input when they change.
+    if (
+      (changes['webexConversations'] || changes['webexSummaries']) &&
+      !changes['incident']
+    ) {
+      this.loadWebexConversation(true);
     }
   }
 
@@ -291,6 +363,422 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
     this.hydrateDetail();
   }
 
+  // ── Tab switching ────────────────────────────────────────────
+  selectTab(tab: 'pipeline' | 'reopen' | 'webex'): void {
+    this.activeTab = tab;
+    if (tab === 'webex') {
+      this.loadWebexConversation();
+    }
+  }
+
+  // ── Webex conversation ───────────────────────────────────────
+  loadWebexConversation(forceReload = false): void {
+    const incidentNumber = this.incidentNumber || this.incident?.incidentNumber;
+    if (!incidentNumber) {
+      this.webexMessages = [];
+      this.webexError = 'No incident number available.';
+      return;
+    }
+
+    // Skip refetch if already loaded for this incident
+    if (
+      !forceReload &&
+      this.webexLoadedFor === incidentNumber &&
+      !this.webexError
+    ) {
+      return;
+    }
+
+    // Filter the parent-provided conversation rows down to this incident and
+    // render oldest→newest (latest message at the bottom, like a chat).
+    this.webexLoading = false;
+    this.webexError = null;
+    const target = incidentNumber.trim().toUpperCase();
+    const rows = Array.isArray(this.webexConversations)
+      ? this.webexConversations
+      : [];
+    this.webexMessages = rows
+      .filter(
+        (m) =>
+          String(m?.incident_id ?? '')
+            .trim()
+            .toUpperCase() === target,
+      )
+      .slice()
+      .sort(
+        (a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+      );
+
+    // Resolve the matching conversation summary (why the bot engaged).
+    const summaries = Array.isArray(this.webexSummaries)
+      ? this.webexSummaries
+      : [];
+    this.webexSummary =
+      summaries.find(
+        (s) =>
+          String(
+            (s as any)?.incident_number ?? (s as any)?.INCIDENT_NUMBER ?? '',
+          )
+            .trim()
+            .toUpperCase() === target,
+      ) ?? null;
+
+    this.webexLoadedFor = incidentNumber;
+    this.reconcileActiveTab();
+  }
+
+  getWebexInitials(username: string): string {
+    if (!username) return '?';
+    const parts = username
+      .trim()
+      .split(/[\s._-]+/)
+      .filter(Boolean);
+    if (parts.length === 0) return '?';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  /** Bot/agent messages (e.g. caseiq1@webex.bot) render on the left. */
+  isWebexBot(username: string): boolean {
+    return !!username && /bot/i.test(username);
+  }
+
+  /** Friendly display name derived from the username/email. */
+  getWebexDisplayName(username: string): string {
+    if (!username) return 'Unknown';
+    if (this.isWebexBot(username)) return 'CaseIQ Bot';
+    const local = username.split('@')[0];
+    const pretty = local
+      .split(/[._-]+/)
+      .filter(Boolean)
+      .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+      .join(' ');
+    return pretty || username;
+  }
+
+  /** Timezone for all Webex conversation timestamps (Eastern, DST-aware). */
+  private readonly webexTimeZone = 'America/New_York';
+
+  /** Time portion only, e.g. "05:20 AM", rendered in Eastern time. */
+  formatWebexTime(iso: string): string {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: this.webexTimeZone,
+    });
+  }
+
+  /** Eastern-time calendar key (YYYY-MM-DD) used for day grouping. */
+  private webexDateKey(iso: string): string {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    // en-CA yields ISO-like YYYY-MM-DD which is safe to compare as strings.
+    return d.toLocaleDateString('en-CA', { timeZone: this.webexTimeZone });
+  }
+
+  /** Human-friendly date label used for day separators (Eastern time). */
+  formatWebexDate(iso: string): string {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    const key = this.webexDateKey(iso);
+    const todayKey = this.webexDateKey(new Date().toISOString());
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayKey = this.webexDateKey(yesterday.toISOString());
+    if (key === todayKey) return 'Today';
+    if (key === yesterdayKey) return 'Yesterday';
+    return d.toLocaleDateString([], {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      timeZone: this.webexTimeZone,
+    });
+  }
+
+  /** True when this message starts a new calendar day vs. the previous one. */
+  webexShowDateSeparator(index: number): boolean {
+    if (index <= 0) return true;
+    const prevKey = this.webexDateKey(this.webexMessages[index - 1].created_at);
+    const currKey = this.webexDateKey(this.webexMessages[index].created_at);
+    if (!prevKey || !currKey) return false;
+    return prevKey !== currKey;
+  }
+
+  // ── Webex conversation summary ───────────────────────────────
+
+  /** Whether a summary record is available for the current incident. */
+  get hasWebexSummary(): boolean {
+    return !!this.webexSummary;
+  }
+
+  /** Normalized summary incident number (supports upper/lower-case API keys). */
+  get webexSummaryIncidentNumber(): string {
+    return this.getSummaryField('incident_number', 'INCIDENT_NUMBER');
+  }
+
+  /** Normalized summary team name (supports upper/lower-case API keys). */
+  get webexSummaryTeamName(): string {
+    return this.getSummaryField('team_name', 'TEAM_NAME');
+  }
+
+  /** Normalized impacted user display value from summary payload. */
+  get webexSummaryUserDisplayName(): string {
+    const user = this.getSummaryField(
+      'conv_bot_impacted_user',
+      'CONV_BOT_IMPACTED_USER',
+    );
+    return user ? this.getWebexDisplayName(user) : '';
+  }
+
+  /** Raw outcome from summary payload (upper/lower key safe). */
+  get webexSummaryOutcomeRaw(): string {
+    return this.getSummaryField(
+      'conv_bot_disengage_reason',
+      'CONV_BOT_DISENGAGE_REASON',
+    );
+  }
+
+  /** Humanized classification text shown in the summary banner. */
+  get webexSummaryClassification(): string {
+    return [
+      this.getSummaryField('category', 'CATEGORY'),
+      this.getSummaryField('core_issue', 'CORE_ISSUE'),
+    ]
+      .map((v) => this.humanizeToken(v))
+      .filter(Boolean)
+      .join(' · ');
+  }
+
+  /** Optional phrase for required fields requested by the bot. */
+  get webexSummaryRequestPhrase(): string {
+    const needed = this.webexMissingRequiredList;
+    return needed.length
+      ? ` and requested the ${this.joinReadable(needed)}`
+      : '';
+  }
+
+  /**
+   * One-sentence reason the bot engaged the user, composed from the case
+   * classification and the field(s) it needed to proceed.
+   */
+  get webexSummaryReason(): string {
+    const s = this.webexSummary;
+    if (!s) return '';
+
+    const impactedUser = this.getSummaryField(
+      'conv_bot_impacted_user',
+      'CONV_BOT_IMPACTED_USER',
+    );
+    const user = impactedUser
+      ? this.getWebexDisplayName(impactedUser)
+      : 'the requester';
+
+    const classification = this.webexSummaryClassification;
+
+    const requestPhrase = this.webexSummaryRequestPhrase;
+
+    let reason = `CaseIQ engaged ${user}`;
+    if (classification) {
+      reason += ` to resolve a ${classification} issue`;
+    } else {
+      reason += ' to resolve this case';
+    }
+    reason += requestPhrase;
+    return `${reason}.`;
+  }
+
+  /** Humanized list of required fields the bot was missing (e.g. "Request ID"). */
+  get webexMissingRequiredList(): string[] {
+    return this.parseTokenList(
+      this.getSummaryField(
+        'conv_bot_missing_required',
+        'CONV_BOT_MISSING_REQUIRED',
+      ),
+    );
+  }
+
+  /** Humanized list of "at least one of" fields the bot was missing. */
+  get webexMissingAtLeastOneList(): string[] {
+    return this.parseTokenList(
+      this.getSummaryField(
+        'conv_bot_missing_atleast_one',
+        'CONV_BOT_MISSING_ATLEAST_ONE',
+      ),
+    );
+  }
+
+  /** Outcome label derived from the disengage reason. */
+  get webexOutcomeLabel(): string {
+    const reason = this.webexSummaryOutcomeRaw.trim();
+    if (!reason) return 'Unknown';
+    if (/success|complete|resolved/i.test(reason)) return 'Resolved';
+    if (/timeout|timed.?out|expired/i.test(reason)) return 'Timed Out';
+    if (/fail|error/i.test(reason)) return 'Failed';
+    return this.humanizeToken(reason);
+  }
+
+  /** Status class for the outcome pill, mirroring getStatusClass buckets. */
+  get webexOutcomeClass(): string {
+    const reason = this.webexSummaryOutcomeRaw.trim();
+    if (/success|complete|resolved/i.test(reason)) return 'status--success';
+    if (/timeout|timed.?out|expired/i.test(reason)) return 'status--warning';
+    if (/fail|error/i.test(reason)) return 'status--error';
+    return 'status--default';
+  }
+
+  /** Formatted disengage time in Eastern, or '' when unavailable. */
+  get webexDisengagedAt(): string {
+    const raw = this.getSummaryField(
+      'conv_bot_disengaged_at',
+      'CONV_BOT_DISENGAGED_AT',
+    );
+    if (!raw) return '';
+    const iso = this.normalizeOracleTimestamp(raw);
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleString([], {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: this.webexTimeZone,
+    });
+  }
+
+  /** Parses a JSON-ish array string like `["REQUEST_ID"]` into humanized labels. */
+  private parseTokenList(raw: string | null | undefined): string[] {
+    if (!raw) return [];
+    let items: unknown[] = [];
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        items = parsed;
+      } else if (parsed) {
+        items = [parsed];
+      }
+    } catch {
+      // Fallback: strip brackets/quotes and split on commas.
+      items = raw
+        .replace(/[[\]"']/g, '')
+        .split(',')
+        .map((t) => t.trim());
+    }
+    return items.map((t) => this.humanizeToken(String(t))).filter((t) => !!t);
+  }
+
+  /** Turns tokens like "REQUEST_ID" / "Activation/Onboarding" into Title Case. */
+  private humanizeToken(value: string | null | undefined): string {
+    if (!value) return '';
+    return value
+      .trim()
+      .replace(/[_-]+/g, ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+      .replace(/\bId\b/g, 'ID');
+  }
+
+  /** Safely reads a summary field across possible key casings. */
+  private getSummaryField(...keys: string[]): string {
+    if (!this.webexSummary) return '';
+    const s = this.webexSummary as Record<string, unknown>;
+    for (const key of keys) {
+      const val = s[key];
+      if (val !== null && val !== undefined && String(val).trim() !== '') {
+        return String(val);
+      }
+    }
+    return '';
+  }
+
+  /** Joins a list into readable prose: "A", "A and B", "A, B and C". */
+  private joinReadable(items: string[]): string {
+    if (items.length === 0) return '';
+    if (items.length === 1) return items[0];
+    if (items.length === 2) return `${items[0]} and ${items[1]}`;
+    return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
+  }
+
+  /**
+   * Converts an Oracle timestamp string (e.g.
+   * "05-AUG-26 10.20.12.569965000 PM AMERICA/LOS_ANGELES") into an ISO string
+   * the Date constructor can parse. Falls back to the raw value on failure.
+   */
+  private normalizeOracleTimestamp(raw: string): string {
+    const m = raw
+      .trim()
+      .match(
+        /^(\d{2})-([A-Z]{3})-(\d{2})\s+(\d{2})\.(\d{2})\.(\d{2})\.\d+\s*(AM|PM)?/i,
+      );
+    if (!m) return raw;
+
+    const [, dd, monStr, yy, hhStr, min, sec, ampm] = m;
+    const months: Record<string, string> = {
+      JAN: '01',
+      FEB: '02',
+      MAR: '03',
+      APR: '04',
+      MAY: '05',
+      JUN: '06',
+      JUL: '07',
+      AUG: '08',
+      SEP: '09',
+      OCT: '10',
+      NOV: '11',
+      DEC: '12',
+    };
+    const mon = months[monStr.toUpperCase()];
+    if (!mon) return raw;
+
+    let hh = Number(hhStr);
+    if (ampm) {
+      const upper = ampm.toUpperCase();
+      if (upper === 'PM' && hh < 12) hh += 12;
+      if (upper === 'AM' && hh === 12) hh = 0;
+    }
+    const year = `20${yy}`;
+    // Source zone is America/Los_Angeles (PDT in August = -07:00).
+    const offset = '-07:00';
+    return `${year}-${mon}-${dd}T${String(hh).padStart(2, '0')}:${min}:${sec}${offset}`;
+  }
+
+  get hasPipeline(): boolean {
+    // Real pipeline data exists when SSIDs were found or a full detail
+    // payload was passed in by the parent (not the mock fallback).
+    return this.sharedStateIds.length > 0 || !!this.incidentDetailData;
+  }
+
+  get hasReopen(): boolean {
+    return !!this.reopenMetric;
+  }
+
+  get hasWebex(): boolean {
+    return this.webexMessages.length > 0;
+  }
+
+  get hasAnyTab(): boolean {
+    return this.hasPipeline || this.hasReopen || this.hasWebex;
+  }
+
+  /** Ensure the active tab points at a tab that actually has data. */
+  private reconcileActiveTab(): void {
+    const order: Array<'pipeline' | 'reopen' | 'webex'> = [];
+    if (this.hasPipeline) order.push('pipeline');
+    if (this.hasReopen) order.push('reopen');
+    if (this.hasWebex) order.push('webex');
+    if (!order.includes(this.activeTab)) {
+      this.activeTab = order[0] ?? 'pipeline';
+    }
+  }
+
+  /** Called after hydration: eagerly load Webex and pick a valid tab. */
+  private afterHydrate(): void {
+    this.loadWebexConversation();
+    this.reconcileActiveTab();
+  }
+
   private hydrateDetail(): void {
     if (this.incidentDetailData) {
       this.hydrateFromApiDetail(this.incidentDetailData);
@@ -386,6 +874,7 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
 
     this.parsePipeline(this.incidentViewModel);
     this.parseNotifications(this.incidentViewModel);
+    this.afterHydrate();
   }
 
   private hydrateFromApiDetail(data: Record<string, any>): void {
@@ -495,6 +984,7 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
 
     this.parsePipeline(this.incidentViewModel);
     this.parseNotifications(this.incidentViewModel);
+    this.afterHydrate();
   }
 
   private normalizeResolutionSubAgentCalls(
@@ -772,17 +1262,49 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
   }[] {
     if (!this.reopenMetric) return [];
 
-    const parseCtx = (raw: string | null): Record<string, unknown[]> => {
+    const parseCtx = (raw: string | null): Record<string, unknown> => {
       if (!raw) return {};
       try {
         const parsed = JSON.parse(raw);
         if (typeof parsed === 'object' && parsed !== null) {
-          return parsed as Record<string, unknown[]>;
+          return parsed as Record<string, unknown>;
         }
       } catch {
         // ignore
       }
       return {};
+    };
+
+    /** Normalize any context value (array | object | string | scalar) to a string list. */
+    const toList = (value: unknown): string[] => {
+      if (value === null || value === undefined) return [];
+
+      // Arrays: flatten each entry to a readable string.
+      if (Array.isArray(value)) {
+        return value
+          .map((v) =>
+            v !== null && typeof v === 'object' ? JSON.stringify(v) : String(v),
+          )
+          .map((v) => v.trim())
+          .filter(Boolean);
+      }
+
+      // Objects: render as "key: value" pairs.
+      if (typeof value === 'object') {
+        return Object.entries(value as Record<string, unknown>)
+          .map(([k, v]) => {
+            const val =
+              v !== null && typeof v === 'object'
+                ? JSON.stringify(v)
+                : String(v);
+            return `${k}: ${val}`;
+          })
+          .filter(Boolean);
+      }
+
+      // Scalars (string | number | boolean): a single item.
+      const str = String(value).trim();
+      return str === '' ? [] : [str];
     };
 
     const prev = parseCtx(this.reopenMetric.PREVIOUS_CONTEXT_EXTRACTED);
@@ -791,8 +1313,8 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
     const diffs: ReturnType<typeof this.getContextDiffs> = [];
 
     for (const key of allKeys) {
-      const prevArr = Array.isArray(prev[key]) ? (prev[key] as string[]) : [];
-      const currArr = Array.isArray(curr[key]) ? (curr[key] as string[]) : [];
+      const prevArr = toList(prev[key]);
+      const currArr = toList(curr[key]);
 
       const PREVIEW = 4;
       const prevPreview = prevArr.slice(0, PREVIEW).join(', ') || 'empty';
@@ -819,23 +1341,42 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
       return;
     }
 
-    const payload: {
-      reopenDecision: 'Y' | 'N';
-      reopenRejectCategory: string;
-      reopenRejectCoreIssue: string;
-      updateRejectReason: string;
-      reopenRejectTeam: string;
-      incidentNumber: string;
-    } = {
+    const payload: Record<string, string> = {
       reopenDecision: 'Y',
       reopenRejectCategory: '',
       reopenRejectCoreIssue: '',
       updateRejectReason: '',
       reopenRejectTeam: '',
       incidentNumber: this.reopenMetric.INCIDENT_NUMBER || this.incidentNumber,
+      ...this.buildReopenInsertFields(),
     };
 
     this.submitReopenUpdate(payload, 'yes');
+  }
+
+  /**
+   * Extracts the columns needed by the backend to insert a new active staging
+   * run when the reopen decision is YES. Sourced entirely from reopenMetric.
+   */
+  private buildReopenInsertFields(): Record<string, string> {
+    const m = this.reopenMetric;
+    if (!m) return {};
+    const s = (v: string | null | undefined): string => v ?? '';
+    return {
+      impactedServiceOffering: s(m.IMPACTED_SERVICE_OFFERING),
+      impactedUser: s(m.IMPACTED_USER),
+      incidentSummary: s(m.INCIDENT_SUMMARY),
+      incidentDescription: s(m.INCIDENT_DESCRIPTION),
+      proposedTeamName: s(m.PROPOSED_TEAM_NAME) || s(m.TEAM_NAME),
+      openedBy: s(m.OPENED_BY),
+      assignmentGroup: s(m.ASSIGNMENT_GROUP),
+      ccoUserEmail: s(m.CCO_USER_EMAIL),
+      currentCategory: s(m.CURRENT_CATEGORY),
+      currentCoreIssue: s(m.CURRENT_CORE_ISSUE),
+      currentContextExtracted: s(m.CURRENT_CONTEXT_EXTRACTED),
+      incidentSysId: s(m.INCIDENT_SYS_ID),
+      newAskSummary: s(m.NEW_ASK_SUMMARY),
+    };
   }
 
   onNoDecision(): void {
@@ -853,20 +1394,14 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
       return;
     }
 
-    const payload: {
-      reopenDecision: 'Y' | 'N';
-      reopenRejectCategory: string;
-      reopenRejectCoreIssue: string;
-      updateRejectReason: string;
-      reopenRejectTeam: string;
-      incidentNumber: string;
-    } = {
+    const payload: Record<string, string> = {
       reopenDecision: 'N',
       reopenRejectCategory: this.rejectCategory.trim(),
       reopenRejectCoreIssue: this.rejectCoreIssue.trim(),
       updateRejectReason: this.rejectReason.trim(),
       reopenRejectTeam: this.rejectTeam,
       incidentNumber: this.reopenMetric.INCIDENT_NUMBER || this.incidentNumber,
+      ...this.buildReopenInsertFields(),
     };
 
     this.submitReopenUpdate(payload, 'no');
@@ -882,14 +1417,7 @@ export class CaseiqIncidentDetailComponent implements OnChanges {
   }
 
   private submitReopenUpdate(
-    payload: {
-      reopenDecision: 'Y' | 'N';
-      reopenRejectCategory: string;
-      reopenRejectCoreIssue: string;
-      updateRejectReason: string;
-      reopenRejectTeam: string;
-      incidentNumber: string;
-    },
+    payload: Record<string, string>,
     decisionType: 'yes' | 'no',
   ): void {
     this.reopenUpdateLoading = true;

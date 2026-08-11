@@ -2,6 +2,7 @@ import { Component, HostBinding, OnInit } from '@angular/core';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ThemeService } from '../providers/theme.service';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
+import { ExceptionDetailsComponent } from '../self-healing/exception-details/exception-details.component';
 import { CommonModule } from '@angular/common';
 import { AuthenticationService } from '../providers/authentication.service';
 import { DataService } from '../providers/data.service';
@@ -32,7 +33,12 @@ export interface UserContext {
       phosphorSparkleBold,
     }),
   ],
-  imports: [CommonModule, MonitoringDashboardComponent, MenuMiniComponent],
+  imports: [
+    CommonModule,
+    MonitoringDashboardComponent,
+    ExceptionDetailsComponent,
+    MenuMiniComponent,
+  ],
   standalone: true,
 })
 export class AitComponent implements OnInit {

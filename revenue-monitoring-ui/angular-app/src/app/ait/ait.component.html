@@ -61,6 +61,8 @@
           @switch (glSubIndex) {
             @case (0) {
               <app-monitoring-dashboard
+                [linkColumns]="[]"
+                [detailPanel]="exceptionDetailTpl"
                 [urls]="aitUrls"
                 [keysToMap]="aitKeysToMap"
                 [componentName]="'Interface'"
@@ -79,6 +81,8 @@
             }
             @case (1) {
               <app-monitoring-dashboard
+                [linkColumns]="[]"
+                [detailPanel]="exceptionDetailTpl"
                 [urls]="glFaJobsUrls"
                 [keysToMap]="glFaKeysToMap"
                 [componentName]="'FA Jobs'"
@@ -96,6 +100,8 @@
             }
             @case (2) {
               <app-monitoring-dashboard
+                [linkColumns]="[]"
+                [detailPanel]="exceptionDetailTpl"
                 [urls]="glUnpostedUrls"
                 [keysToMap]="glUnpostedKeysToMap"
                 [componentName]="'Unposted'"
@@ -117,3 +123,12 @@
     }
   </div>
 }
+
+<ng-template #exceptionDetailTpl let-value let-close="close">
+  <app-exception-details
+    [exceptionId]="value"
+    apiEndpoint="by-record"
+    backLabel="Back to Error Details"
+    (back)="close()"
+  ></app-exception-details>
+</ng-template>

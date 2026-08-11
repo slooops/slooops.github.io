@@ -41,6 +41,8 @@
     @switch (filteredTabs[selectedIndex]?.component) {
       @case ("app-standard-revenue") {
         <app-monitoring-dashboard
+          [linkColumns]="['TRANSACTION_ID']"
+          [detailPanel]="exceptionDetailTpl"
           [urls]="standardRevenueUrl"
           [keysToMap]="[
             'PERIOD_NAME',
@@ -73,6 +75,8 @@
       }
       @case ("app-rol") {
         <app-monitoring-dashboard
+          [linkColumns]="['TRANSACTION_ID']"
+          [detailPanel]="exceptionDetailTpl"
           [urls]="rolUrls"
           [keysToMap]="rolAndAccrualsKeysToMap"
           [componentName]="'ROL'"
@@ -100,6 +104,8 @@
       }
       @case ("app-accruals") {
         <app-monitoring-dashboard
+          [linkColumns]="['TRANSACTION_ID']"
+          [detailPanel]="exceptionDetailTpl"
           [urls]="accrualsUrls"
           [keysToMap]="rolAndAccrualsKeysToMap"
           [componentName]="'Accruals'"
@@ -121,6 +127,8 @@
       }
       @case ("app-accounts") {
         <app-monitoring-dashboard
+          [linkColumns]="['TRANSACTION_ID']"
+          [detailPanel]="exceptionDetailTpl"
           [urls]="accountsUrls"
           [keysToMap]="['SEQUENCE_NUMBER']"
           [componentName]="'Accounts'"
@@ -155,3 +163,12 @@
     </tr>
   }
 </div>
+
+<ng-template #exceptionDetailTpl let-value let-close="close">
+  <app-exception-details
+    [exceptionId]="value"
+    apiEndpoint="by-record"
+    backLabel="Back to Error Details"
+    (back)="close()"
+  ></app-exception-details>
+</ng-template>

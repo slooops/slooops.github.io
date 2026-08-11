@@ -25,12 +25,13 @@ class JdbcManagerTest {
 
     @Mock JdbcTemplate primaryJdbcTemplate;
     @Mock JdbcTemplate secondaryJdbcTemplate;
+    @Mock JdbcTemplate postgresJdbcTemplate;
 
     JdbcManager jdbc;
 
     @BeforeEach
     void setUp() {
-        jdbc = new JdbcManager(primaryJdbcTemplate, secondaryJdbcTemplate);
+        jdbc = new JdbcManager(primaryJdbcTemplate, secondaryJdbcTemplate, postgresJdbcTemplate);
     }
 
     // ── Basic query delegation ────────────────────────────────
@@ -136,7 +137,7 @@ class JdbcManagerTest {
     @Test
     void executeUpdate() {
         doReturn(3).when(primaryJdbcTemplate).update(eq("sql"), eq("a"), eq("b"));
-        assertEquals(3, jdbc.executeUpdate("sql", "a", "b"));
+        assertEquals(3, jdbc.executeUpdatePrimary("sql", "a", "b"));
     }
 
     // ── Secondary JDBC template (AIT) ─────────────────────────

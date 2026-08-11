@@ -1,5 +1,7 @@
 <div class="wips-content">
   <app-monitoring-dashboard
+    [linkColumns]="[]"
+    [detailPanel]="exceptionDetailTpl"
     [urls]="wipsUrls"
     [keysToMap]="['timestamp', 'scenario']"
     [componentName]="'WIPS'"
@@ -11,3 +13,12 @@
     [userContext]="userContextData"
   ></app-monitoring-dashboard>
 </div>
+
+<ng-template #exceptionDetailTpl let-value let-close="close">
+  <app-exception-details
+    [exceptionId]="value"
+    apiEndpoint="by-record"
+    backLabel="Back to Error Details"
+    (back)="close()"
+  ></app-exception-details>
+</ng-template>

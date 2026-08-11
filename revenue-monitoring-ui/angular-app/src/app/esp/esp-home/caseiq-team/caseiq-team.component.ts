@@ -106,6 +106,9 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string;
   @Input() caseIqMetrics: any;
   @Input() caseReopenMetrics: any;
+  @Input() webexIncidentNumbers: string[] = [];
+  @Input() webexConversations: any[] = [];
+  @Input() webexSummaries: any[] = [];
   @Output() uploadSuccess = new EventEmitter<void>();
   reopenedIncidentNumbers: string[] = [];
 
@@ -142,19 +145,8 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
       event.column === 'INCIDENT_NUMBER'
     ) {
       this.selectedIncidentNumber = event.value;
-
       // Look up a matching reopen metric for this incident
-      const normalized = String(event.value ?? '')
-        .trim()
-        .toUpperCase();
-      this.selectedReopenMetric = Array.isArray(this.caseReopenMetrics)
-        ? (this.caseReopenMetrics.find(
-            (m: any) =>
-              String(m?.INCIDENT_NUMBER ?? '')
-                .trim()
-                .toUpperCase() === normalized,
-          ) ?? null)
-        : null;
+      this.selectedReopenMetric = this.findReopenMetric(event.value);
 
       this.loadPipelinesForIncident(event.value);
     }
@@ -478,10 +470,35 @@ export class CaseiqTeamComponent implements OnInit, OnChanges {
 
   onTimelineDetailOpen(incident: SupervisorIncident): void {
     this.selectedTimelineIncident = incident;
+    this.selectedReopenMetric = this.findReopenMetric(incident?.incidentNumber);
+  }
+
+  /** Find the reopen metric matching an incident number (case/space-insensitive). */
+  private findReopenMetric(
+    incidentNumber: string | null | undefined,
+  ): any | null {
+    if (!Array.isArray(this.caseReopenMetrics)) {
+      return null;
+    }
+    const normalized = String(incidentNumber ?? '')
+      .trim()
+      .toUpperCase();
+    if (!normalized) {
+      return null;
+    }
+    return (
+      this.caseReopenMetrics.find(
+        (m: any) =>
+          String(m?.INCIDENT_NUMBER ?? '')
+            .trim()
+            .toUpperCase() === normalized,
+      ) ?? null
+    );
   }
 
   closeTimelineDetail(): void {
     this.selectedTimelineIncident = null;
+    this.selectedReopenMetric = null;
     this.restoreFullTableData();
   }
 

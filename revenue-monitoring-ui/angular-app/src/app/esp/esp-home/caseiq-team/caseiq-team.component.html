@@ -11,6 +11,8 @@
       [incident]="null"
       [incidentDetailData]="fullDetailData"
       [reopenMetric]="selectedReopenMetric"
+      [webexConversations]="webexConversations"
+      [webexSummaries]="webexSummaries"
       backLabel="Back"
       (back)="closeFullPipelineDetail()"
     ></app-caseiq-incident-detail>
@@ -19,6 +21,9 @@
   @if (selectedTimelineIncident) {
     <app-caseiq-incident-detail
       [incident]="selectedTimelineIncident"
+      [reopenMetric]="selectedReopenMetric"
+      [webexConversations]="webexConversations"
+      [webexSummaries]="webexSummaries"
       backLabel="Back to Incidents"
       (back)="closeTimelineDetail()"
     ></app-caseiq-incident-detail>
@@ -236,8 +241,14 @@
     <!-- Data refresh overlay -->
     @if (refreshingData) {
       <div class="table-loading-overlay">
-        <app-loading-symbol animationStyle="origins"></app-loading-symbol>
-        <div class="loading-text">&nbsp;</div>
+        <div class="loading-cloud" aria-hidden="true">
+          <span class="loading-cloud__layer loading-cloud__layer--soft"></span>
+          <span class="loading-cloud__layer loading-cloud__layer--mid"></span>
+          <span class="loading-cloud__layer loading-cloud__layer--core"></span>
+        </div>
+        <div class="loading-content">
+          <app-loading-symbol animationStyle="origins"></app-loading-symbol>
+        </div>
       </div>
     }
 
@@ -558,9 +569,7 @@
         [displayedColumns]="tableColumns"
         [exportFileName]="teamConfig.exportFileName"
         [tableTitle]="tableTitle"
-        [tableTitleTooltip]="
-          'Use the Upload button to submit and validate the data for accuracy. Default filter applied to display for category match or core issue match is N or NULL.'
-        "
+        [tableTitleTooltip]="'Use the Upload button to submit and validate the data for accuracy. Default filter applied to display for category match or core issue match is N or NULL.'"
         [extraWideColumns]="['Case Summary - Description']"
         [enablePagination]="true"
         [pageSize]="10"
@@ -568,6 +577,7 @@
         [source]="teamConfig.tableSource"
         [backendLoading]="refreshingData"
         [reopenedIncidentNumbers]="reopenedIncidentNumbers"
+        [webexIncidentNumbers]="webexIncidentNumbers"
         [clickableColumns]="['incident_number', 'INCIDENT_NUMBER']"
         [rowDetailTemplate]="pipelineDetailTpl"
         [expandedRowKey]="selectedIncidentNumber"

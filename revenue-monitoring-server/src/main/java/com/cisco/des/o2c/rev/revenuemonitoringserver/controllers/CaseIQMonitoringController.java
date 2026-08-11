@@ -256,16 +256,16 @@ public class CaseIQMonitoringController {
 
     // ─── Executive Dashboard endpoints ─────────────────────────────────────────
 
-    @GetMapping("/exec/metrics-p80")
-    public ResponseEntity<List<Map<String, Object>>> execMetricsP80(
+    @GetMapping("/exec/metrics")
+    public ResponseEntity<List<Map<String, Object>>> execMetrics(
             @RequestParam(required = false) String fiscQtr) {
-        return new ResponseEntity<>(service.getExecMetricsP80(fiscQtr), HttpStatus.OK);
+        return new ResponseEntity<>(service.getExecMetrics(fiscQtr), HttpStatus.OK);
     }
 
-    @GetMapping("/exec/metrics-p90")
-    public ResponseEntity<List<Map<String, Object>>> execMetricsP90(
+    @GetMapping("/exec/avg-metrics")
+    public ResponseEntity<List<Map<String, Object>>> execAvgMetrics(
             @RequestParam(required = false) String fiscQtr) {
-        return new ResponseEntity<>(service.getExecMetricsP90(fiscQtr), HttpStatus.OK);
+        return new ResponseEntity<>(service.getAvgExecMetrics(fiscQtr), HttpStatus.OK);
     }
 
     @GetMapping("/exec/worknotes-churn")

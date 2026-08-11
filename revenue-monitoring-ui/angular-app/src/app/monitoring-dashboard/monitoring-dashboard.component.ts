@@ -3,7 +3,9 @@ import {
   computed,
   effect,
   input,
+  output,
   signal,
+  TemplateRef,
   ViewChild,
 } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
@@ -33,20 +35,24 @@ import {
   MonitoringPageChangeEvent,
 } from './monitoring-pagination/monitoring-pagination.component';
 import { MonitoringFilterBarComponent } from './monitoring-filter-bar/monitoring-filter-bar.component';
-import { ExceptionDetailsComponent } from '../self-healing/exception-details/exception-details.component';
+import {
+  CellActionEvent,
+  ColumnRenderers,
+  DetailPanelContext,
+  UserContext,
+} from './monitoring-dashboard.types';
 
-export interface UserContext {
-  username: string;
-  userId: string;
-  roles: string[];
-  apiUrl: string;
-  assignmentUsersFilterKey: string;
-}
+export { UserContext } from './monitoring-dashboard.types';
 
 @Component({
   selector: 'app-monitoring-dashboard',
   templateUrl: './monitoring-dashboard.component.html',
   styleUrl: './monitoring-dashboard.component.css',
+  // Scope the stateful services to each dashboard instance so multiple
+  // dashboards on one page (or across tenants) never share a mutable host URL
+  // or a cross-contaminated response cache. The child UserAssignmentComponent
+  // resolves these same per-instance copies through the DI hierarchy.
+  providers: [HttpService, MonitoringDataService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -61,7 +67,6 @@ export interface UserContext {
     LoadingSymbolComponent,
     MonitoringPaginationComponent,
     MonitoringFilterBarComponent,
-    ExceptionDetailsComponent,
   ],
   standalone: true,
 })
@@ -69,14 +74,54 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
   @ViewChild('detailsPaginator') detailsPaginator: MatPaginator;
   @ViewChild('summaryPaginator') summaryPaginator: MatPaginator;
 
-  selectedTransactionId: string | null = null;
+  /**
+   * Columns whose cells render as clickable "action" links. When a cell is
+   * activated the dashboard emits `cellAction` and, if `detailPanel` is
+   * provided, opens the detail region with that cell's context. The library
+   * itself knows nothing about what the panel contains.
+   */
+  linkColumns = input<string[]>([]);
 
-  openExceptionDetails(transactionId: string): void {
-    this.selectedTransactionId = transactionId;
+  /** Optional per-column render overrides keyed by column name. */
+  columnRenderers = input<ColumnRenderers>({});
+
+  /**
+   * Consumer-supplied template rendered in the detail region when an `action`
+   * cell is activated. Receives a {@link DetailPanelContext}. When omitted, the
+   * dashboard emits `cellAction` only and shows no overlay.
+   */
+  detailPanel = input<TemplateRef<DetailPanelContext> | null>(null);
+
+  /** Emitted whenever an `action` column cell is activated. */
+  cellAction = output<CellActionEvent>();
+
+  /** Currently open detail context, or null when the detail region is closed. */
+  activeDetail = signal<CellActionEvent | null>(null);
+
+  /** Bound as the `close` callback handed to the projected detail template. */
+  readonly closeDetail = (): void => {
+    this.activeDetail.set(null);
+  };
+
+  /** True when a column should render as a clickable action link. */
+  isActionColumn(column: string): boolean {
+    return (
+      this.columnRenderers()[column] === 'action' ||
+      this.linkColumns().includes(column)
+    );
   }
 
-  closeExceptionDetails(): void {
-    this.selectedTransactionId = null;
+  /** Handles activation of an action cell: emits the event and opens the panel. */
+  onCellAction(
+    column: string,
+    value: string,
+    row: Record<string, unknown>,
+  ): void {
+    const event: CellActionEvent = { column, value, row };
+    this.cellAction.emit(event);
+    if (this.detailPanel()) {
+      this.activeDetail.set(event);
+    }
   }
 
   urls = input.required<{ [key: string]: string }>();
@@ -154,7 +199,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
 
   getPeriodStatus() {
     this.monitoringDataService
-      .getMonitoringPeriodStatus()
+      .getMonitoringPeriodStatus(this.urls()['periodStatusUrl'])
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: any) => {
@@ -172,7 +217,9 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
   }
 
   getSummaryAssignableUsers() {
-    return this.monitoringDataService.getAssignableUsers();
+    return this.monitoringDataService.getAssignableUsers(
+      this.urls()['assignableUsersUrl'],
+    );
   }
 
   summaryLoadTime = signal<string>('');
@@ -242,7 +289,9 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
   getProcessFlowTotals() {
     const params = { compName: this.componentName() };
     this.httpService
-      .get('process-flow-total', { params: params })
+      .get(this.urls()['processFlowTotalUrl'] || 'process-flow-total', {
+        params: params,
+      })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: any) => {

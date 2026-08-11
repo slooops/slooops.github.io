@@ -359,6 +359,8 @@ export class EspHomeComponent implements OnInit {
     this.loadPeriodInfo();
     this.loadCaseAnalyzerMetrics();
     this.loadCaseReopenMetrics();
+    this.loadWebexIncidentNumbers();
+    this.loadWebexSummaries();
 
     // Close dropdown when clicking outside
     document.addEventListener('click', () => {
@@ -388,6 +390,8 @@ export class EspHomeComponent implements OnInit {
       this.loadPeriodInfo();
       this.loadCaseAnalyzerMetrics();
       this.loadCaseReopenMetrics();
+      this.loadWebexIncidentNumbers();
+      this.loadWebexSummaries();
     }
 
     if (currentHour >= 0 && currentHour < 6) {
@@ -430,6 +434,83 @@ export class EspHomeComponent implements OnInit {
           : [];
         this.buildReopenMetricsPerComponent();
         console.log('Reopen metrics data:', this.caseReopenMetrics);
+      });
+  }
+
+  // Distinct incident numbers that have Webex conversation data, plus the full
+  // set of conversation rows. Loaded once here and shared across all CaseIQ
+  // team tiles so the incident-detail chat can render the real conversation.
+  webexIncidentNumbers: string[] = [];
+  webexIncidentNumbersPerComponent: Record<string, string[]> = {};
+  webexConversations: any[] = [];
+  webexConversationsPerComponent: Record<string, any[]> = {};
+  loadWebexIncidentNumbers(): void {
+    this.http
+      .get('xxcaseiq-conv-bot-chat', this.destroyManager)
+      .subscribe((data: any) => {
+        const rows = Array.isArray(data) ? data : [];
+        this.webexConversations = rows;
+        // Split by TEAM_NAME (or team_name)
+        const map: Record<string, any[]> = {};
+        const incidentSetByTeam: Record<string, Set<string>> = {};
+        const unique = new Set<string>();
+        for (const row of rows) {
+          const raw = row?.incident_id ?? row?.INCIDENT_ID;
+          if (raw === null || raw === undefined) {
+            continue;
+          }
+          const normalized = String(raw).trim().toUpperCase();
+          if (normalized) {
+            unique.add(normalized);
+          }
+          // Team name logic
+          const team = (row.TEAM_NAME || row.team_name || '')
+            .toString()
+            .toUpperCase();
+          if (team) {
+            if (!map[team]) map[team] = [];
+            map[team].push(row);
+
+            if (!incidentSetByTeam[team]) {
+              incidentSetByTeam[team] = new Set<string>();
+            }
+            if (normalized) {
+              incidentSetByTeam[team].add(normalized);
+            }
+          }
+        }
+        this.webexIncidentNumbers = Array.from(unique);
+        this.webexIncidentNumbersPerComponent = Object.fromEntries(
+          Object.entries(incidentSetByTeam).map(([team, incidentSet]) => [
+            team,
+            Array.from(incidentSet),
+          ]),
+        );
+        this.webexConversationsPerComponent = map;
+      });
+  }
+
+  // Per-incident CaseIQ conversation summaries (why the bot engaged, outcome,
+  // missing fields). Loaded once and split by TEAM_NAME like the chat rows.
+  webexSummaries: any[] = [];
+  webexSummariesPerComponent: Record<string, any[]> = {};
+  loadWebexSummaries(): void {
+    this.http
+      .get('xxcaseiq-conv-bot-summary', this.destroyManager)
+      .subscribe((data: any) => {
+        const rows = Array.isArray(data) ? data : [];
+        this.webexSummaries = rows;
+        const map: Record<string, any[]> = {};
+        for (const row of rows) {
+          const team = (row?.team_name || row?.TEAM_NAME || '')
+            .toString()
+            .toUpperCase();
+          if (team) {
+            if (!map[team]) map[team] = [];
+            map[team].push(row);
+          }
+        }
+        this.webexSummariesPerComponent = map;
       });
   }
 

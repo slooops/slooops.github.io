@@ -201,4 +201,13 @@ public class EspCaseManagerController {
         System.out.println(updateData);
         return new ResponseEntity<Integer>(service.updateReopenedMetrics(updateData), HttpStatus.OK);
     }
+    @GetMapping("/xxcaseiq-conv-bot-chat")
+    public ResponseEntity<List<Map<String, Object>>> getCaseIqConvBotChat() {
+        return new ResponseEntity<>(service.getCaseIqConvBotChat(), HttpStatus.OK);
+    }
+
+    @GetMapping("/xxcaseiq-conv-bot-summary")
+    public ResponseEntity<List<Map<String, Object>>> getCaseIqConvBotSummary() {
+        return new ResponseEntity<>(service.getCaseIqConvBotSummary(), HttpStatus.OK);
+    }
 }

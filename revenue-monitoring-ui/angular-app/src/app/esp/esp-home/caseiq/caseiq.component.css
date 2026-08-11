@@ -9,13 +9,7 @@
 }
 
 /* ═══════ LOADING ═══════ */
-.overall-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  width: 100%;
-}
+/* Uses .loading-overlay + .loading-cloud from esp-home.component.css */
 
 /* ═══════════════════════════════════════════════════════
    RESOLUTION AGENTS — KPI STRIP
@@ -188,6 +182,95 @@
   text-align: center;
 }
 
+/* ── Service-Requests group: bracket cols 7-9 (SR | Auto Resolved | Cases Reopened) ── */
+.ciq-components-table.has-sr-group th:nth-child(7),
+.ciq-components-table.has-sr-group td:nth-child(7),
+.ciq-components-table.has-sr-group th:nth-child(8),
+.ciq-components-table.has-sr-group td:nth-child(8),
+.ciq-components-table.has-sr-group th:nth-child(9),
+.ciq-components-table.has-sr-group td:nth-child(9) {
+  background: rgba(0, 188, 235, 0.05);
+}
+
+.ciq-components-table.has-sr-group th:nth-child(7),
+.ciq-components-table.has-sr-group td:nth-child(7) {
+  border-left: 2px solid #a6e8f8;
+}
+
+.ciq-components-table.has-sr-group th:nth-child(9),
+.ciq-components-table.has-sr-group td:nth-child(9) {
+  border-right: 2px solid #a6e8f8;
+}
+
+:host(.dark-theme) .ciq-components-table.has-sr-group th:nth-child(7),
+:host(.dark-theme) .ciq-components-table.has-sr-group td:nth-child(7),
+:host(.dark-theme) .ciq-components-table.has-sr-group th:nth-child(8),
+:host(.dark-theme) .ciq-components-table.has-sr-group td:nth-child(8),
+:host(.dark-theme) .ciq-components-table.has-sr-group th:nth-child(9),
+:host(.dark-theme) .ciq-components-table.has-sr-group td:nth-child(9) {
+  background: rgba(0, 188, 235, 0.08);
+}
+
+:host(.dark-theme) .ciq-components-table.has-sr-group th:nth-child(7),
+:host(.dark-theme) .ciq-components-table.has-sr-group td:nth-child(7),
+:host(.dark-theme) .ciq-components-table.has-sr-group th:nth-child(9),
+:host(.dark-theme) .ciq-components-table.has-sr-group td:nth-child(9) {
+  border-color: #4a8fa8;
+}
+
+/* ── Umbrella header row: table title + Service Requests banner over cols 7-9 ── */
+.ciq-components-table thead tr.umbrella-row th {
+  position: static;
+  border-bottom: none;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  background: transparent;
+  padding: 0.5rem 0.75rem 0.375rem;
+}
+
+.ciq-components-table thead tr.umbrella-row .umbrella-title-cell {
+  text-align: left;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ciq-text);
+}
+
+.ciq-components-table thead tr.umbrella-row .umbrella-empty {
+  padding: 0;
+}
+
+/* border-collapse: collapse strips border-radius from <th>, so the tab shape lives on an inner div. */
+.ciq-components-table.has-sr-group thead tr.umbrella-row .sr-umbrella {
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+/* Negative side margins align the inner div's borders with the tbody's collapsed col 7/9 borders. */
+.ciq-components-table.has-sr-group thead tr.umbrella-row .sr-umbrella-inner {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgb(0, 120, 155);
+  background: rgba(0, 188, 235, 0.05);
+  border: 2px solid #a6e8f8;
+  border-bottom: none;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  padding: 0.5rem 0.5rem 0.625rem;
+  margin: 0 -1px;
+}
+
+:host(.dark-theme)
+  .ciq-components-table.has-sr-group
+  thead
+  tr.umbrella-row
+  .sr-umbrella-inner {
+  color: rgb(120, 220, 245);
+  background: rgba(0, 188, 235, 0.08);
+  border-color: #4a8fa8;
+}
+
 .component-badge {
   display: inline-block;
   padding: 0.125rem 0.5rem;
@@ -202,14 +285,18 @@
     color var(--fit-transition-fast);
 }
 
-.component-badge:hover {
+.component-badge.component-badge--static {
+  cursor: default;
+}
+
+.component-badge:not(.component-badge--static):hover {
   background: rgba(0, 188, 235, 0.1);
   border-color: #00bceb;
   color: #00bceb;
   filter: none;
 }
 
-:host(.dark-theme) .component-badge:hover {
+:host(.dark-theme) .component-badge:not(.component-badge--static):hover {
   background: rgba(0, 188, 235, 0.15);
   border-color: #00bceb;
   color: #00bceb;
@@ -486,6 +573,12 @@
   grid-template-columns: 1fr 1fr;
 }
 
+.analytics-row-1-1 .analytics-chart-wrapper,
+.analytics-row-1-1-1 .analytics-chart-wrapper,
+.analytics-row-2-2-1 .analytics-chart-wrapper {
+  /* min-height: 250px; */
+}
+
 .analytics-row-1-1-1 {
   grid-template-columns: 1fr 1fr 1fr;
 }
@@ -538,19 +631,21 @@
 
 .analytics-row-2-2-1 {
   grid-template-columns: 2fr 2fr 1fr;
-  grid-template-rows: 300px;
+  /* grid-template-rows: 300px; */
 }
 
 .analytics-row-2-2-1 > .ciq-swap-card {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
 }
 
 .analytics-row-2-2-1 > .ciq-swap-card .ciq-anomaly-list {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  padding-bottom: 2.75rem;
 }
 
 .ciq-card--chart {
@@ -768,10 +863,23 @@
 }
 
 .ciq-anomaly-disclaimer {
-  margin: 0.5rem 0.75rem 0.25rem;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 1.75rem 0.75rem 0.5rem;
   font-size: var(--fit-font-size-xs);
   color: var(--ciq-muted);
   font-style: italic;
+  text-align: center;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    var(--ciq-surface) 0%,
+    var(--ciq-surface) 35%,
+    transparent 100%
+  );
 }
 
 /* ── Badges ── */

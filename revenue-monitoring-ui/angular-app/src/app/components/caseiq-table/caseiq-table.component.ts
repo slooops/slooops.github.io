@@ -33,6 +33,7 @@ import {
   phosphorInfoBold,
   phosphorFunnelSimpleBold,
   phosphorMagnifyingGlassBold,
+  phosphorRobotBold,
 } from '@ng-icons/phosphor-icons/bold';
 import { ThemeService } from '../../providers/theme.service';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
@@ -67,6 +68,7 @@ interface FilterTag {
       phosphorInfoBold,
       phosphorFunnelSimpleBold,
       phosphorMagnifyingGlassBold,
+      phosphorRobotBold,
     }),
   ],
   standalone: true,
@@ -103,12 +105,14 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() clickableColumns: string[] = [];
   @Input() backendLoading: boolean = false; // Show loading overlay during backend fetch
   @Input() reopenedIncidentNumbers: string[] = [];
+  @Input() webexIncidentNumbers: string[] = [];
   @Input() rowDetailTemplate: TemplateRef<{ $implicit: any }> | null = null;
   @Input() expandedRowKey: string | null = null;
 
   currentPage: number = 0;
   analyzedSortMode: 'supervisor' | 'caseiq' = 'supervisor';
   private reopenedIncidentNumberSet = new Set<string>();
+  private webexIncidentNumberSet = new Set<string>();
 
   constructor(
     private dialog: MatDialog,
@@ -164,7 +168,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     {
       id: 'analyzedBy',
       label: 'Analyzed By',
-      values: ['CaseIQ Agent'],
+      values: ['CaseIQ Agent', 'Operations'],
     },
     {
       id: 'coreIssueMatch',
@@ -181,11 +185,17 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       label: 'Incident Number',
       values: [], // Text-based search, no predefined values
     },
+    {
+      id: 'conversationInitiated',
+      label: 'Conversation Initiated',
+      values: ['Yes', 'No'],
+    },
   ];
 
   isAdmin: boolean = false;
   ngOnInit() {
     this.syncReopenedIncidentSet();
+    this.syncWebexIncidentSet();
     this.isAdmin = this.authService.getUserAccessRoles().includes('ADMIN');
     console.log(
       'CaseIQ Table initialized with dataSource:',
@@ -234,6 +244,9 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['reopenedIncidentNumbers']) {
       this.syncReopenedIncidentSet();
+    }
+    if (changes['webexIncidentNumbers']) {
+      this.syncWebexIncidentSet();
     }
 
     // Only reprocess fullData if the actual data length changed
@@ -409,6 +422,18 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       category: this.getFirstValue(row, ['CATEGORY', 'category']) || '--',
       coreIssue: this.getFirstValue(row, ['CORE_ISSUE', 'core_issue']) || '--',
       outcome,
+      resolveCase:
+        this.getFirstValue(row, [
+          'RESOLVE_CASE',
+          'resolve_case',
+          'resolveCase',
+        ]) || '--',
+      resolutionCompleted:
+        this.getFirstValue(row, [
+          'RESOLUTION_COMPLETED',
+          'resolution_completed',
+          'resolutionCompleted',
+        ]) || '--',
       resolutionPath:
         this.getFirstValue(row, ['RESOLUTION_PATH', 'resolution_path']) || '--',
       processedAt:
@@ -446,11 +471,56 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       .join(' ');
   }
 
+  /**
+   * Whether the incident number should be clickable. It is clickable only
+   * when the incident is likely to have detail data to show — i.e. it was
+   * analyzed by the Supervisor agent (has an agentic pipeline) OR it has been
+   * reopened. Webex-only data cannot be detected client-side without a
+   * per-row call, so it is not considered here.
+   */
+  isIncidentClickable(row: any, column: string): boolean {
+    const analyzedBy = (row?.['ANALYZED_BY'] ?? '').toString().trim();
+    if (analyzedBy === 'Supervisor Analyzed') {
+      return true;
+    }
+    if (this.isReopenedIncident(row, column)) {
+      return true;
+    }
+    return this.hasWebexConversation(row, column);
+  }
+
+  /** Whether this incident has Webex conversation data. */
+  hasWebexConversation(row: any, column: string): boolean {
+    if (!this.webexIncidentNumberSet.size) {
+      return false;
+    }
+    const candidates = [
+      row?.[column],
+      row?.['INCIDENT_NUMBER'],
+      row?.['incident_number'],
+    ];
+    return candidates.some((value) => {
+      const normalized = this.normalizeIncidentNumber(value);
+      return !!normalized && this.webexIncidentNumberSet.has(normalized);
+    });
+  }
+
+  /** Whether this row's incident has Webex conversation data. */
+  private rowHasWebexConversation(row: any): boolean {
+    if (!this.webexIncidentNumberSet.size) {
+      return false;
+    }
+    const candidates = [row?.['INCIDENT_NUMBER'], row?.['incident_number']];
+    return candidates.some((value) => {
+      const normalized = this.normalizeIncidentNumber(value);
+      return !!normalized && this.webexIncidentNumberSet.has(normalized);
+    });
+  }
+
   isReopenedIncident(row: any, column: string): boolean {
     if (!this.reopenedIncidentNumberSet.size) {
       return false;
     }
-
     const valueFromColumn = this.normalizeIncidentNumber(row?.[column]);
     if (
       valueFromColumn &&
@@ -480,6 +550,14 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       .filter((incident): incident is string => !!incident);
 
     this.reopenedIncidentNumberSet = new Set(normalized);
+  }
+
+  private syncWebexIncidentSet(): void {
+    const normalized = (this.webexIncidentNumbers || [])
+      .map((incident) => this.normalizeIncidentNumber(incident))
+      .filter((incident): incident is string => !!incident);
+
+    this.webexIncidentNumberSet = new Set(normalized);
   }
 
   private normalizeIncidentNumber(value: unknown): string {
@@ -650,32 +728,13 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     this.addFilter('impactedServiceOffering', label, value);
   }
 
-  // Analyzed By single-select dropdown
+  // Analyzed By multi-select dropdown
   toggleAnalyzedByInner(event: Event) {
     event.stopPropagation();
     this.showAnalyzedByInner = !this.showAnalyzedByInner;
   }
   toggleAnalyzedByValue(value: string, label: string) {
-    const newFilterId = `analyzedBy-${value}`;
-    const isSameSelectionActive = this.activeFilters.some(
-      (filter) => filter.id === newFilterId,
-    );
-
-    this.activeFilters = this.activeFilters.filter(
-      (filter) => filter.filterId !== 'analyzedBy',
-    );
-
-    if (!isSameSelectionActive) {
-      this.activeFilters.push({
-        id: newFilterId,
-        label,
-        value,
-        filterId: 'analyzedBy',
-      });
-    }
-
-    this.showAnalyzedByInner = false;
-    this.applyFilters();
+    this.addFilter('analyzedBy', label, value);
   }
 
   getSingleSelectValue(filterId: string): string {
@@ -921,6 +980,8 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       category: this.getTimelineCategory(row),
       coreIssue: this.getTimelineCoreIssue(row),
       outcome: normalizedOutcome,
+      resolveCase: '--',
+      resolutionCompleted: '--',
       resolutionPath: this.getTimelineResolutionPath(row),
       processedAt: this.mockProcessedDate,
       processedEpoch: Date.now(),
@@ -1164,10 +1225,22 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         let matches = false;
         for (const value of selectedValues) {
           const valueLower = value.toLowerCase();
+          // UI mapping requested:
+          // - CaseIQ Agent option => rows where ANALYZED_BY is Supervisor Analyzed
+          // - Operations option  => rows where ANALYZED_BY is CaseIQ Analyzed
           if (valueLower === 'caseiq agent') {
             if (
               analyzedBy === 'supervisor analyzed' ||
               analyzedBy === 'supervisor agent'
+            ) {
+              matches = true;
+              break;
+            }
+          } else if (valueLower === 'operations') {
+            if (
+              analyzedBy === 'caseiq analyzed' ||
+              analyzedBy === 'case iq analyzed' ||
+              analyzedBy === 'caseiq agent'
             ) {
               matches = true;
               break;
@@ -1189,6 +1262,29 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         let matches = false;
         for (const searchTerm of selectedValues) {
           if (rowValue.includes(searchTerm.toUpperCase())) {
+            matches = true;
+            break;
+          }
+        }
+
+        if (!matches) {
+          matchesAllFilters = false;
+        }
+      }
+
+      // Check conversationInitiated filter
+      if (matchesAllFilters && activeFiltersMap.has('conversationInitiated')) {
+        const selectedValues = activeFiltersMap.get('conversationInitiated')!;
+        const hasConversation = this.rowHasWebexConversation(row);
+
+        let matches = false;
+        for (const value of selectedValues) {
+          const normalized = value.toLowerCase();
+          if (normalized === 'yes' && hasConversation) {
+            matches = true;
+            break;
+          }
+          if (normalized === 'no' && !hasConversation) {
             matches = true;
             break;
           }

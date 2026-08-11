@@ -63,6 +63,7 @@ import {
   phosphorChartPieSliceBold,
   phosphorPresentationChartBold,
   phosphorPlusCircleBold,
+  phosphorChatCircleTextBold,
 } from '@ng-icons/phosphor-icons/bold';
 import {
   phosphorIdentificationCardDuotone,
@@ -120,6 +121,7 @@ import { MenuComponent } from './menu/menu.component';
       phosphorWarningBold,
       phosphorCrosshairBold,
       phosphorSparkleBold,
+      phosphorChatCircleTextBold,
       phosphorSunBold,
       phosphorMoonBold,
       phosphorArrowClockwiseBold,
