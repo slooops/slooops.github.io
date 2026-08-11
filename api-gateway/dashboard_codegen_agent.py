@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import base64
 import json
 import os
@@ -2353,17 +2354,43 @@ async def stream_dashboard_codegen(
       {"type": "progress", "stage": "backend", "message": "...", "done": [...]}
       {"type": "result", "result": <DashboardCodegenResult as dict>}
       {"type": "error", "error": "..."}
+
+    Implementation note: LangGraph 0.4.x has a bug where yielding from inside
+    an ``async for ... astream(...)`` loop causes the internal ``FuturesDict``
+    callback slot to become ``None`` (``TypeError: 'NoneType' object is not
+    callable``) when the outer generator is suspended at the ``yield``. The
+    fix is to run the graph in a background asyncio task that pushes events
+    onto a queue; the generator then yields from the queue without ever
+    suspending *inside* the astream iteration.
     """
+    queue: asyncio.Queue[tuple[str, Any]] = asyncio.Queue()
+
+    async def _run_graph() -> None:
+        try:
+            async for update in _dashboard_codegen_graph.astream(
+                {"input": payload.model_dump(mode="json")},
+                stream_mode="updates",
+            ):
+                await queue.put(("update", update))
+        except Exception as exc:
+            await queue.put(("error", exc))
+        finally:
+            await queue.put(("done", None))
+
+    task = asyncio.ensure_future(_run_graph())
+
     accumulated: dict[str, Any] = {}
     completed: list[str] = []
     try:
-        async for update in _dashboard_codegen_graph.astream(
-            {"input": payload.model_dump(mode="json")},
-            stream_mode="updates",
-        ):
-            # `update` maps node_name -> that node's returned state delta. With
-            # fan-out it can contain multiple nodes in a single chunk.
-            for node_name, delta in update.items():
+        while True:
+            kind, data = await queue.get()
+            if kind == "done":
+                break
+            if kind == "error":
+                yield {"type": "error", "error": str(data)}
+                return
+            # kind == "update": data is a node_name -> state_delta mapping
+            for node_name, delta in (data or {}).items():
                 if isinstance(delta, dict):
                     accumulated.update(delta)
                 stage_id, message = _CODEGEN_STAGE_LABELS.get(
@@ -2377,14 +2404,25 @@ async def stream_dashboard_codegen(
                     "message": message,
                     "done": list(completed),
                 }
+    finally:
+        # Ensure the background task is always awaited to avoid a warning.
+        if not task.done():
+            task.cancel()
+            try:
+                await task
+            except (asyncio.CancelledError, Exception):
+                pass
 
-        result = DashboardCodegenResult(
-            backendDocument=accumulated.get("backend_document", ""),
-            uiDocument=accumulated.get("ui_document", ""),
-            backendHandoff=accumulated.get("backend_handoff", {}),
-            fileOperations=accumulated.get("file_operations", []) or [],
-            warnings=accumulated.get("warnings", []) or [],
-        )
-        yield {"type": "result", "result": result.model_dump()}
-    except Exception as exc:  # surfaced to the SSE client as an error event
-        yield {"type": "error", "error": str(exc)}
+    backend_handoff = dict(accumulated.get("backend_handoff", {}) or {})
+    if accumulated.get("session_id") and "sessionId" not in backend_handoff:
+        backend_handoff["sessionId"] = accumulated.get("session_id")
+
+    result = DashboardCodegenResult(
+        sessionId=accumulated.get("session_id"),
+        backendDocument=accumulated.get("backend_document", ""),
+        uiDocument=accumulated.get("ui_document", ""),
+        backendHandoff=backend_handoff,
+        fileOperations=accumulated.get("file_operations", []) or [],
+        warnings=accumulated.get("warnings", []) or [],
+    )
+    yield {"type": "result", "result": result.model_dump()}
