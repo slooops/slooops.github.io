@@ -15,6 +15,7 @@ import {
   phosphorCheckSquareBold,
   phosphorCopyBold,
   phosphorSquareBold,
+  phosphorUploadSimpleBold,
 } from '@ng-icons/phosphor-icons/bold';
 import { LoadingSymbolComponent } from '../monitoring-dashboard/shared/loading-symbol/loading-symbol.component';
 import { AuthenticationService } from '../providers/authentication.service';
@@ -72,6 +73,7 @@ const FLEX_SNAKE_PATTERN =
       phosphorCheckSquareBold,
       phosphorSquareBold,
       phosphorCopyBold,
+      phosphorUploadSimpleBold,
     }),
   ],
   templateUrl: './monitoring-onboarding.component.html',
@@ -85,9 +87,11 @@ export class MonitoringOnboardingComponent implements OnInit {
 
   form!: FormGroup;
 
-  /** Wizard step tracking (0-based). */
+  /** Wizard step tracking (0-based) for the active flow. */
   currentStep = 0;
-  readonly steps = [
+  onboardingMode: 'spec' | 'manual' = 'spec';
+
+  readonly manualSteps = [
     {
       key: 'identity',
       label: 'Identity',
@@ -103,11 +107,45 @@ export class MonitoringOnboardingComponent implements OnInit {
     { key: 'review', label: 'Review & Generate', icon: 'phosphorSparkleBold' },
   ];
 
+  readonly specSteps = [
+    {
+      key: 'upload-spec',
+      label: 'Spec Intake',
+      icon: 'phosphorFolderOpenBold',
+    },
+    {
+      key: 'parsed-preview',
+      label: 'Parsed Spec Preview',
+      icon: 'phosphorEyeBold',
+    },
+    {
+      key: 'review-spec',
+      label: 'Review & Generate',
+      icon: 'phosphorSparkleBold',
+    },
+  ];
+
+  get activeSteps() {
+    return this.onboardingMode === 'manual' ? this.manualSteps : this.specSteps;
+  }
+
+  get activeStepKey(): string {
+    return this.activeSteps[this.currentStep]?.key || this.activeSteps[0].key;
+  }
+
   readonly filterTypes = ['select', 'text'];
 
   submitting = false;
   submitError: string | null = null;
   generated: GeneratedDocs | null = null;
+
+  /** Identity-step intake mode (spec placeholder vs manual form). */
+  specInputMode: 'spec' | 'manual' = 'manual';
+  specDraftText = '';
+  specDraftFileName = '';
+  isSpecDragActive = false;
+  specFileValidationMessage: string | null = null;
+  readonly specAcceptedExtensions = ['md', 'txt', 'doc', 'docx', 'pdf'];
 
   /** Apply-with-agent UX state (post-generation). */
   applyConfirmationOpen = false;
@@ -284,13 +322,13 @@ export class MonitoringOnboardingComponent implements OnInit {
 
   // ── step navigation ────────────────────────────────────────
   goToStep(index: number): void {
-    if (index < 0 || index >= this.steps.length) return;
+    if (index < 0 || index >= this.activeSteps.length) return;
     if (!this.canAccessStep(index)) return;
     this.currentStep = index;
   }
 
   nextStep(): void {
-    if (this.currentStep >= this.steps.length - 1) return;
+    if (this.currentStep >= this.activeSteps.length - 1) return;
     if (!this.canProceedFromCurrent()) return;
     this.currentStep++;
   }
@@ -303,7 +341,13 @@ export class MonitoringOnboardingComponent implements OnInit {
 
   /** Whether every control belonging to the given step passes validation. */
   isStepValid(index: number): boolean {
-    switch (this.steps[index]?.key) {
+    const key = this.activeSteps[index]?.key;
+    switch (key) {
+      case 'upload-spec':
+        return this.hasSpecDraft;
+      case 'parsed-preview':
+      case 'review-spec':
+        return true;
       case 'identity':
         return (
           this.controlValid('componentName') &&
@@ -326,7 +370,7 @@ export class MonitoringOnboardingComponent implements OnInit {
    * "Advanced" is optional and should not block moving to the next step.
    */
   private isBlockingStep(index: number): boolean {
-    return this.steps[index]?.key !== 'advanced';
+    return this.activeSteps[index]?.key !== 'advanced';
   }
 
   /**
@@ -364,6 +408,105 @@ export class MonitoringOnboardingComponent implements OnInit {
 
   hasError(control: AbstractControl | null, error: string): boolean {
     return !!control && control.touched && control.hasError(error);
+  }
+
+  get hasSpecDraft(): boolean {
+    return !!this.specDraftText.trim() || !!this.specDraftFileName.trim();
+  }
+
+  setSpecInputMode(mode: 'spec' | 'manual'): void {
+    this.specInputMode = mode;
+    if (mode !== 'spec') {
+      this.isSpecDragActive = false;
+    }
+  }
+
+  onSpecTextInput(event: Event): void {
+    const target = event.target as HTMLTextAreaElement | null;
+    this.specDraftText = (target?.value || '').toString();
+  }
+
+  onSpecFileSelected(event: Event): void {
+    const target = event.target as HTMLInputElement | null;
+    const file = target?.files?.[0];
+    this.assignSpecFile(file || null);
+  }
+
+  onSpecDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isSpecDragActive = true;
+  }
+
+  onSpecDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.isSpecDragActive = false;
+  }
+
+  onSpecDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isSpecDragActive = false;
+    const file = event.dataTransfer?.files?.[0] || null;
+    this.assignSpecFile(file);
+  }
+
+  clearSpecDraft(): void {
+    this.specDraftText = '';
+    this.specDraftFileName = '';
+    this.specFileValidationMessage = null;
+  }
+
+  useSampleSpec(): void {
+    this.specDraftText = [
+      '# Exception Monitoring Spec (Demo)',
+      '',
+      'Dashboard Name: AIT Jobs',
+      'Component Name: ait-monitoring',
+      'Role Name: AIT_JOBS',
+      'Assignment Users Key: AIT_USERS',
+      '',
+      'Summary Query: SELECT ...',
+      'Details Query: SELECT ...',
+      'Details Filtered Query: SELECT ... WHERE ...',
+      'Summary Update Query: UPDATE ...',
+    ].join('\n');
+  }
+
+  continueWithManualEntry(): void {
+    this.enterManualMode();
+  }
+
+  enterManualMode(): void {
+    this.onboardingMode = 'manual';
+    this.currentStep = 0;
+  }
+
+  returnToSpecMode(): void {
+    this.onboardingMode = 'spec';
+    this.currentStep = 0;
+  }
+
+  private assignSpecFile(file: File | null): void {
+    if (!file) {
+      this.specDraftFileName = '';
+      this.specFileValidationMessage = null;
+      return;
+    }
+
+    const extension = this.getFileExtension(file.name);
+    if (!this.specAcceptedExtensions.includes(extension)) {
+      this.specDraftFileName = '';
+      this.specFileValidationMessage =
+        'Unsupported file type. Use .md, .txt, .doc, .docx, or .pdf.';
+      return;
+    }
+
+    this.specDraftFileName = file.name;
+    this.specFileValidationMessage = null;
+  }
+
+  private getFileExtension(fileName: string): string {
+    const parts = (fileName || '').toLowerCase().split('.');
+    return parts.length > 1 ? parts[parts.length - 1] : '';
   }
 
   // ── payload assembly ───────────────────────────────────────
@@ -608,20 +751,26 @@ export class MonitoringOnboardingComponent implements OnInit {
 
   // ── submit ─────────────────────────────────────────────────
   async submit(): Promise<void> {
+    if (this.onboardingMode === 'spec') {
+      this.submitError =
+        'Spec-driven generation is not available yet. Click Enter manually to continue.';
+      return;
+    }
+
     const resolvedUrl = this.resolveApiUrl(
       this.authService.getControlTowerSupportAgentApiUrl() || '',
     );
     if (!resolvedUrl) {
       this.submitError =
         'Code-generation API URL is unavailable from user context. Please refresh and try again.';
-      this.currentStep = this.steps.findIndex((s) => s.key === 'review');
+      this.currentStep = this.manualSteps.findIndex((s) => s.key === 'review');
       return;
     }
 
     this.form.markAllAsTouched();
     if (this.form.invalid) {
       // Jump to the first invalid step for the user.
-      for (let i = 0; i < this.steps.length; i++) {
+      for (let i = 0; i < this.activeSteps.length; i++) {
         if (!this.isStepValid(i)) {
           this.currentStep = i;
           break;
@@ -1300,7 +1449,8 @@ export class MonitoringOnboardingComponent implements OnInit {
     this.resetApplyState();
     this.docsSaved = false;
     this.leaveWarningDismissed = false;
-    this.currentStep = this.steps.findIndex((s) => s.key === 'review');
+    this.onboardingMode = 'manual';
+    this.currentStep = this.manualSteps.findIndex((s) => s.key === 'review');
   }
 
   resetForm(): void {
@@ -1309,7 +1459,11 @@ export class MonitoringOnboardingComponent implements OnInit {
     this.resetApplyState();
     this.docsSaved = false;
     this.leaveWarningDismissed = false;
+    this.onboardingMode = 'spec';
     this.currentStep = 0;
+    this.specInputMode = 'spec';
+    this.specDraftText = '';
+    this.specDraftFileName = '';
 
     this.form.patchValue({
       componentName: '',

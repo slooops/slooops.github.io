@@ -302,7 +302,7 @@
     <section class="mo-body">
       <!-- Stepper -->
       <nav class="mo-stepper" aria-label="Progress">
-        @for (step of steps; track step.key; let i = $index) {
+        @for (step of activeSteps; track step.key; let i = $index) {
           <button
             type="button"
             class="mo-step"
@@ -316,7 +316,7 @@
             </span>
             <span class="mo-step-label">{{ step.label }}</span>
           </button>
-          @if (i < steps.length - 1) {
+          @if (i < activeSteps.length - 1) {
             <span class="mo-step-line"></span>
           }
         }
@@ -327,10 +327,212 @@
         class="mo-card mo-form-card"
         (ngSubmit)="submit()"
       >
-        <!-- STEP 0 · Identity -->
-        @if (steps[currentStep].key === "identity") {
+        <!-- STEP 0 · Spec intake (spec-driven flow) -->
+        @if (activeStepKey === "upload-spec") {
           <div class="mo-step-panel">
-            <h2 class="mo-section-title">Identity &amp; access</h2>
+            <div class="mo-step-head-row">
+              <div class="mo-step-head-main">
+                <h2 class="mo-section-title">
+                  Start with a spec &nbsp; &nbsp;<span class="mo-spec-pill"
+                    >Coming soon</span
+                  >
+                </h2>
+                <p class="mo-section-hint mo-section-hint-tight">
+                  Attach a document or paste source content to begin the
+                  spec-driven onboarding flow.
+                </p>
+              </div>
+              <div class="mo-step-head-actions">
+                <button
+                  type="button"
+                  class="mo-btn mo-btn-ghost mo-btn-sm mo-btn-manual"
+                  (click)="enterManualMode()"
+                >
+                  Enter manually
+                </button>
+                <span class="mo-step-head-help"
+                  >Not ready for this flow? switch to manual entry.</span
+                >
+              </div>
+            </div>
+
+            <section class="mo-spec-card" aria-label="Specification intake">
+              <div class="mo-spec-grid">
+                <div class="mo-field">
+                  <label class="mo-label" for="specFile">Attach document</label>
+                  <div
+                    class="mo-spec-dropzone"
+                    [class.mo-spec-dropzone-active]="isSpecDragActive"
+                    (dragover)="onSpecDragOver($event)"
+                    (dragleave)="onSpecDragLeave($event)"
+                    (drop)="onSpecDrop($event)"
+                  >
+                    <input
+                      id="specFile"
+                      class="mo-spec-file-input"
+                      type="file"
+                      accept=".md,.txt,.doc,.docx,.pdf"
+                      (change)="onSpecFileSelected($event)"
+                    />
+                    <label class="mo-spec-dropzone-cta" for="specFile"
+                      >Select file</label
+                    >
+                    <span class="mo-spec-dropzone-or">or</span>
+                    <span class="mo-spec-dropzone-text">
+                      <ng-icon
+                        name="phosphorUploadSimpleBold"
+                        class="mo-spec-drop-icon"
+                      />
+                      drag and drop here
+                    </span>
+                  </div>
+                </div>
+                <div class="mo-field">
+                  <label class="mo-label" for="specText">Paste content</label>
+                  <textarea
+                    id="specText"
+                    class="mo-textarea"
+                    rows="6"
+                    [value]="specDraftText"
+                    placeholder="Paste PRD, runbook, or onboarding spec content..."
+                    (input)="onSpecTextInput($event)"
+                  ></textarea>
+                </div>
+              </div>
+              @if (specFileValidationMessage) {
+                <span class="mo-error mo-spec-file-feedback">{{
+                  specFileValidationMessage
+                }}</span>
+              } @else if (specDraftFileName) {
+                <span class="mo-help mo-spec-file-feedback"
+                  >Selected file: <strong>{{ specDraftFileName }}</strong></span
+                >
+              }
+
+              <div class="mo-spec-actions">
+                <button
+                  type="button"
+                  class="mo-btn mo-btn-ghost mo-btn-sm"
+                  (click)="useSampleSpec()"
+                >
+                  Use sample input
+                </button>
+                <button
+                  type="button"
+                  class="mo-btn mo-btn-ghost mo-btn-sm"
+                  (click)="clearSpecDraft()"
+                >
+                  Clear
+                </button>
+              </div>
+            </section>
+          </div>
+        }
+
+        <!-- STEP 1 · Parsed spec preview (spec-driven flow) -->
+        @if (activeStepKey === "parsed-preview") {
+          <div class="mo-step-panel">
+            <div class="mo-step-head-row">
+              <h2 class="mo-section-title">Parsed spec preview</h2>
+              <div class="mo-step-head-actions">
+                <button
+                  type="button"
+                  class="mo-btn mo-btn-ghost mo-btn-sm mo-btn-manual"
+                  (click)="enterManualMode()"
+                >
+                  Enter manually
+                </button>
+                <span class="mo-step-head-help"
+                  >Spec not ready? click here to enter the data manually.</span
+                >
+              </div>
+            </div>
+
+            <p class="mo-section-hint">
+              We recommend keeping this preview step. It is a standard UX check
+              point before generation and avoids accidental runs.
+            </p>
+
+            <div class="mo-spec-preview" role="status">
+              <div class="mo-spec-preview-title">Mapped fields preview</div>
+              <p class="mo-spec-preview-hint">
+                Preview will be generated here after parser integration is
+                enabled.
+              </p>
+              <ul class="mo-spec-preview-list">
+                <li>Dashboard / Tab name</li>
+                <li>Component name</li>
+                <li>Role name</li>
+                <li>Assignment users key</li>
+                <li>Query templates and filters</li>
+              </ul>
+            </div>
+          </div>
+        }
+
+        <!-- STEP 2 · Review & generate (spec-driven flow) -->
+        @if (activeStepKey === "review-spec") {
+          <div class="mo-step-panel">
+            <div class="mo-step-head-row">
+              <h2 class="mo-section-title">Review &amp; generate</h2>
+              <div class="mo-step-head-actions">
+                <button
+                  type="button"
+                  class="mo-btn mo-btn-ghost mo-btn-sm mo-btn-manual"
+                  (click)="enterManualMode()"
+                >
+                  Enter manually
+                </button>
+                <span class="mo-step-head-help"
+                  >Spec not ready? click here to enter the data manually.</span
+                >
+              </div>
+            </div>
+
+            <p class="mo-section-hint">
+              Spec-driven generation is coming soon. You can still review the
+              upload status now and switch to manual entry to generate today.
+            </p>
+
+            <section class="mo-review-card mo-review-card-full">
+              <div class="mo-review-head">
+                <ng-icon name="phosphorBookOpenBold" size="16" />
+                <h3 class="mo-review-title">Spec intake status</h3>
+              </div>
+              <dl class="mo-kv-grid">
+                <div class="mo-kv-item">
+                  <dt>Pasted content</dt>
+                  <dd>
+                    {{ specDraftText.trim() ? "Provided" : "Not provided" }}
+                  </dd>
+                </div>
+                <div class="mo-kv-item">
+                  <dt>Uploaded file</dt>
+                  <dd>{{ specDraftFileName || "Not provided" }}</dd>
+                </div>
+              </dl>
+            </section>
+          </div>
+        }
+
+        <!-- STEP 0 · Identity (manual flow) -->
+        @if (activeStepKey === "identity") {
+          <div class="mo-step-panel">
+            <div class="mo-step-head-row">
+              <h2 class="mo-section-title">Identity &amp; access</h2>
+              <div class="mo-step-head-actions">
+                <button
+                  type="button"
+                  class="mo-btn mo-btn-ghost mo-btn-sm mo-btn-manual"
+                  (click)="returnToSpecMode()"
+                >
+                  Back to spec intake
+                </button>
+                <span class="mo-step-head-help"
+                  >Prefer spec flow? return to spec intake.</span
+                >
+              </div>
+            </div>
             <p class="mo-section-hint">
               Set the names and access metadata used by generated code and UI
               navigation.
@@ -438,9 +640,23 @@
         }
 
         <!-- STEP 1 · SQL Queries -->
-        @if (steps[currentStep].key === "queries") {
+        @if (activeStepKey === "queries") {
           <div class="mo-step-panel" formGroupName="queries">
-            <h2 class="mo-section-title">SQL queries</h2>
+            <div class="mo-step-head-row">
+              <h2 class="mo-section-title">SQL queries</h2>
+              <div class="mo-step-head-actions">
+                <button
+                  type="button"
+                  class="mo-btn mo-btn-ghost mo-btn-sm"
+                  (click)="returnToSpecMode()"
+                >
+                  Back to spec intake
+                </button>
+                <span class="mo-step-head-help"
+                  >Prefer spec flow? return to spec intake.</span
+                >
+              </div>
+            </div>
             <p class="mo-section-hint">
               Provide the four SQL statements used by the dashboard:
               <strong>summary</strong>, <strong>details</strong>,
@@ -531,9 +747,23 @@
         }
 
         <!-- STEP 2 · Columns & Filters -->
-        @if (steps[currentStep].key === "columns") {
+        @if (activeStepKey === "columns") {
           <div class="mo-step-panel">
-            <h2 class="mo-section-title">Summary columns</h2>
+            <div class="mo-step-head-row">
+              <h2 class="mo-section-title">Summary columns</h2>
+              <div class="mo-step-head-actions">
+                <button
+                  type="button"
+                  class="mo-btn mo-btn-ghost mo-btn-sm"
+                  (click)="returnToSpecMode()"
+                >
+                  Back to spec intake
+                </button>
+                <span class="mo-step-head-help"
+                  >Prefer spec flow? return to spec intake.</span
+                >
+              </div>
+            </div>
             <p class="mo-section-hint">
               Provide at least five summary-table columns in
               <code>snake_case</code> (either <code>UPPER_SNAKE_CASE</code> or
@@ -631,11 +861,25 @@
         }
 
         <!-- STEP 3 · Advanced -->
-        @if (steps[currentStep].key === "advanced") {
+        @if (activeStepKey === "advanced") {
           <div class="mo-step-panel">
-            <h2 class="mo-section-title">
-              Column mapping between summary and update queries
-            </h2>
+            <div class="mo-step-head-row">
+              <h2 class="mo-section-title">
+                Column mapping between summary and update queries
+              </h2>
+              <div class="mo-step-head-actions">
+                <button
+                  type="button"
+                  class="mo-btn mo-btn-ghost mo-btn-sm"
+                  (click)="returnToSpecMode()"
+                >
+                  Back to spec intake
+                </button>
+                <span class="mo-step-head-help"
+                  >Prefer spec flow? return to spec intake.</span
+                >
+              </div>
+            </div>
             <p class="mo-section-hint">
               Optional. Use this only when a column name in the
               <code>summaryUpdate</code> SQL differs from the corresponding
@@ -697,9 +941,23 @@
         }
 
         <!-- STEP 4 · Review -->
-        @if (steps[currentStep].key === "review") {
+        @if (activeStepKey === "review") {
           <div class="mo-step-panel">
-            <h2 class="mo-section-title">Review &amp; generate</h2>
+            <div class="mo-step-head-row">
+              <h2 class="mo-section-title">Review &amp; generate</h2>
+              <div class="mo-step-head-actions">
+                <button
+                  type="button"
+                  class="mo-btn mo-btn-ghost mo-btn-sm"
+                  (click)="returnToSpecMode()"
+                >
+                  Back to spec intake
+                </button>
+                <span class="mo-step-head-help"
+                  >Prefer spec flow? return to spec intake.</span
+                >
+              </div>
+            </div>
             <p class="mo-section-hint">
               Review your onboarding configuration before submitting. This
               request is submitted to Control Tower Support Agent to generate
@@ -993,28 +1251,48 @@
             Back
           </button>
 
-          @if (currentStep < steps.length - 1) {
-            <button
-              type="button"
-              class="mo-btn mo-btn-primary"
-              [disabled]="!canProceedFromCurrent()"
-              (click)="nextStep()"
-            >
-              Next
-              <ng-icon
-                name="phosphorCaretDownBold"
-                size="14"
-                class="mo-rot-right"
-              />
-            </button>
+          @if (currentStep < activeSteps.length - 1) {
+            @if (onboardingMode === "spec") {
+              <button
+                type="button"
+                class="mo-btn mo-btn-primary"
+                disabled
+                aria-disabled="true"
+                title="Parser integration is not available yet"
+              >
+                <ng-icon name="phosphorSparkleBold" size="14" />
+                Parse spec (coming soon)
+              </button>
+            } @else {
+              <button
+                type="button"
+                class="mo-btn mo-btn-primary"
+                [disabled]="!canProceedFromCurrent()"
+                (click)="nextStep()"
+              >
+                Next
+                <ng-icon
+                  name="phosphorCaretDownBold"
+                  size="14"
+                  class="mo-rot-right"
+                />
+              </button>
+            }
           } @else {
             <button
               type="submit"
               class="mo-btn mo-btn-primary"
-              [disabled]="submitting || form.invalid"
+              [disabled]="
+                submitting ||
+                (onboardingMode === 'manual' ? form.invalid : true)
+              "
             >
               <ng-icon name="phosphorSparkleBold" size="15" />
-              Generate code
+              @if (onboardingMode === "manual") {
+                Generate code
+              } @else {
+                Generate code (coming soon)
+              }
             </button>
           }
         </div>
