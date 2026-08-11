@@ -1242,11 +1242,13 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     ];
   }
 
-  /** True when at least one component row in the current quarter has AUTO_RESOLVED or CASES_REOPENED data. */
+  /** True when the selected quarter is Q1FY27 or later — the point at which AUTO_RESOLVED / CASES_REOPENED data starts flowing. */
   hasAutoResolveColumns(): boolean {
-    return this.getSummaryRows().some(
-      (r) => r.autoResolved != null || r.casesReopened != null,
-    );
+    const match = /^Q(\d)FY(\d+)$/i.exec(this.selectedQuarter ?? '');
+    if (!match) return false;
+    const q = Number(match[1]);
+    const fy = Number(match[2]);
+    return fy * 10 + q >= 27 * 10 + 1;
   }
 
   /** Rows shown inside the Active Agents modal — one per non-Finance IT team plus totals. */
@@ -3167,7 +3169,12 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     const series = Array.from(teams)
       .filter((t) => t !== 'UNKNOWN')
-      .sort((a, b) => a.localeCompare(b))
+      .sort((a, b) => {
+        // Draw OM last so it renders on top of the other lines.
+        if (a === 'OM') return 1;
+        if (b === 'OM') return -1;
+        return a.localeCompare(b);
+      })
       .map((team) => {
         const hex = teamColorHex[team] ?? '#555555';
         const r = parseInt(hex.slice(1, 3), 16);

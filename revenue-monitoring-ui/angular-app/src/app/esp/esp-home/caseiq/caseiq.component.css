@@ -246,7 +246,7 @@
   border: none;
 }
 
-/* Negative side margins align the inner div's borders with the tbody's collapsed col 7/9 borders. */
+/* Under border-collapse: separate the umbrella div's borders sit at the same offset as tbody col 7/9 borders — no negative margin needed. */
 .ciq-components-table.has-sr-group thead tr.umbrella-row .sr-umbrella-inner {
   text-align: center;
   font-size: 0.75rem;
@@ -258,7 +258,6 @@
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
   padding: 0.5rem 0.5rem 0.625rem;
-  margin: 0 -1px;
 }
 
 :host(.dark-theme)
@@ -269,6 +268,44 @@
   color: rgb(120, 220, 245);
   background: rgba(0, 188, 235, 0.08);
   border-color: #4a8fa8;
+}
+
+/* border-collapse: separate lets <td> border-radius render natively; scoped to this table state only. */
+.ciq-components-table.has-sr-group {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.ciq-components-table.has-sr-group tbody tr:last-child td:nth-child(7),
+.ciq-components-table.has-sr-group tbody tr:last-child td:nth-child(8),
+.ciq-components-table.has-sr-group tbody tr:last-child td:nth-child(9) {
+  border-bottom: 2px solid #a6e8f8;
+}
+
+.ciq-components-table.has-sr-group tbody tr:last-child td:nth-child(7) {
+  border-bottom-left-radius: 1rem;
+}
+
+.ciq-components-table.has-sr-group tbody tr:last-child td:nth-child(9) {
+  border-bottom-right-radius: 1rem;
+}
+
+:host(.dark-theme)
+  .ciq-components-table.has-sr-group
+  tbody
+  tr:last-child
+  td:nth-child(7),
+:host(.dark-theme)
+  .ciq-components-table.has-sr-group
+  tbody
+  tr:last-child
+  td:nth-child(8),
+:host(.dark-theme)
+  .ciq-components-table.has-sr-group
+  tbody
+  tr:last-child
+  td:nth-child(9) {
+  border-bottom-color: #4a8fa8;
 }
 
 .component-badge {
