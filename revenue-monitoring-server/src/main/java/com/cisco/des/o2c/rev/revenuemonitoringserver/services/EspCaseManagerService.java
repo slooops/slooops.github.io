@@ -88,11 +88,9 @@ public class EspCaseManagerService {
             String xxcaseiqSmCaseDetailsV,
             String xxcaseiqP2pCaseDetailsV,
             String xxcaseiqCapitalCaseDetailsV,
-                                 String xxcaseiqEspCaseAnalyzerTblUpdate, String xxcaseiqI2cCaseDetailsMatchY, String espCaseAnalyzerGlobalSearch,
-                                 String espCaseAnalyzerMetrics, String xxcaseiqEspCaseReopenedMetrics, String xxcaseiqEspCaseReopenedUpdate,
-                                 String xxcaseiqEspCaseReopenedDecisionYesUpdateOlderRuns,
-                                 String xxcaseiqEspCaseReopenedDecisionYesInsertNewCaseDetails,
-                                 String xxcaseiqConvBotChat,
+                                 String xxcaseiqEspCaseAnalyzerTblUpdate, String xxcaseiqI2cCaseDetailsMatchY,
+                                 String espCaseAnalyzerGlobalSearch, String espCaseAnalyzerMetrics, String xxcaseiqEspCaseReopenedMetrics, String xxcaseiqEspCaseReopenedUpdate,
+                                 String xxcaseiqEspCaseReopenedDecisionYesUpdateOlderRuns, String xxcaseiqEspCaseReopenedDecisionYesInsertNewCaseDetails, String xxcaseiqConvBotChat,
                                  String xxcaseiqConvBotSummary) {
         this.jdbcManager = jdbcManager;
         this.espAgingCaseSummary = espAgingCaseSummary;
