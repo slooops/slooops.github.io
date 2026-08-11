@@ -53,7 +53,7 @@ public List<Map<String, Object>> getGhostSuccess(int lookbackHours, String fiscQ
 
 - **Never** string-concatenate a user-supplied value into SQL
 - The only values that may be interpolated are literals the code itself controls
-  (e.g. the percentile in `execMetricsSql("0.9", "p90")`) — and they must never come from a request
+  — and they must never come from a request
 - For a caller-supplied column/table/direction, use a whitelist `Map` and look the value up,
   as `JdbcManager.ALLOWED_FIELD_CLAUSES` does
 - `queryWithNamedParams` takes an empty map (`Collections.emptyMap()`) when the SQL has no binds

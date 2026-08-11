@@ -508,41 +508,28 @@ public class CaseIQMonitoringService {
             "ORDER BY team_name, fisc_qtr";
 
     // ─── Executive Dashboard: p80/p90 metrics, worknotes churn, coverage gap ───
-    // These were originally served by ASK_CASEIQ_METRICS_DSH_80_V / _90_V,
-    // ASK_CASEIQ_WORKNOTES_DATA_V and ASK_CASEIQ_NOT_EXISTS_INC_V, all of which
-    // hardcode FISCAL_QTR = 'Q4FY26'. The statements below reproduce those view
-    // definitions verbatim against the base table with a :fisc_qtr bind so the
-    // executive contexts follow the quarter dropdown. Column names are kept
-    // identical to the views so the Angular layer needs no changes.
+    // The worknotes and coverage-gap statements below reproduce the definitions
+    // of ASK_CASEIQ_WORKNOTES_DATA_V and ASK_CASEIQ_NOT_EXISTS_INC_V (which
+    // hardcode FISCAL_QTR = 'Q4FY26') against the base table with a :fisc_qtr
+    // bind so the executive contexts follow the quarter dropdown. The p80/p90
+    // percentile metrics are pulled directly from the combined DSH_90_80 view,
+    // which is already quarter-parameterized.
 
-    /**
-     * Percentile metrics per component. {@code pctile} is the import/execution
-     * percentile (the views use 0.8 / 0.9); resolution time stays at p60 as in
-     * both views. Only literals we control are interpolated.
-     */
-    private static String execMetricsSql(String pctile, String suffix) {
-        return "WITH base_metrics AS (" +
-                "  SELECT team_name, " +
-                "    ROUND((caseiq_import_date - DECODE(routed_in, 'Y', routed_in_date, opened_at)) * 24 * 60, 1) AS import_time, "
-                +
-                "    ROUND((caseiq_executed_date - caseiq_import_date) * 24 * 60, 1) AS case_iq_execution_time, " +
-                "    ROUND((resolved_at - opened_at) * 24 * 60, 1) AS resolution_time " +
-                "  FROM ARFINRO.ASK_CASE_IQ_DATA_METRICS " +
-                "  WHERE fiscal_qtr = :fisc_qtr AND exists_case_iq = 'Y' AND enabled_flag = 'Y'" +
-                ") " +
-                "SELECT team_name, COUNT(1) AS incident_count, " +
-                "  ROUND(PERCENTILE_CONT(" + pctile + ") WITHIN GROUP (ORDER BY import_time), 2) AS import_time_"
-                + suffix + ", " +
-                "  ROUND(PERCENTILE_CONT(" + pctile
-                + ") WITHIN GROUP (ORDER BY case_iq_execution_time), 2) AS case_iq_execution_time_" + suffix + ", " +
-                "  ROUND(PERCENTILE_CONT(0.6) WITHIN GROUP (ORDER BY resolution_time), 2) AS resolution_time " +
-                "FROM base_metrics WHERE import_time < 500 AND import_time > -500 " +
-                "GROUP BY team_name ORDER BY team_name";
-    }
+    // Combined p80/p90 view: response time (import + execution) and MTTR for
+    // both percentiles in a single row per team.
+    private static final String EXEC_METRICS = "SELECT fiscal_qtr, team_name, incident_count, " +
+            "case_iq_execution_time_p80, mttr_80, case_iq_execution_time_p90, mttr_90 " +
+            "FROM ARFINRO.ASK_CASEIQ_METRICS_DSH_90_80_V " +
+            "WHERE fiscal_qtr = :fisc_qtr " +
+            "ORDER BY team_name";
 
-    private static final String EXEC_METRICS_P80 = execMetricsSql("0.8", "p80");
-
-    private static final String EXEC_METRICS_P90 = execMetricsSql("0.9", "p90");
+    // Global (all-teams) p80/p90 averages for a fiscal quarter. Minutes columns
+    // only; the view exposes _HOUR duplicates that we don't need at the UI layer.
+    private static final String AVG_EXEC_METRICS = "SELECT fiscal_qtr, " +
+            "avg_execution_time_p80_min, mttr_80_min, " +
+            "avg_execution_time_p90_min, mttr_90_min " +
+            "FROM ARFINRO.ASK_CASEIQ_METRICS_AVG_EXEC_V " +
+            "WHERE fiscal_qtr = :fisc_qtr";
 
     private static final String EXEC_WORKNOTES_CHURN = "SELECT team_name, work_notes_count, " +
             "  COUNT(incident_number) AS incident_count " +
@@ -677,8 +664,8 @@ public class CaseIQMonitoringService {
             "FROM times t LEFT JOIN churn c ON c.core_issue = t.core_issue " +
             "ORDER BY t.incident_count DESC, t.core_issue";
 
-    private static final String AUTO_RESOLVE_METRICS = "SELECT team_name, incident_count, " +
-            "import_time, execution_time, resolution_time " +
+    private static final String AUTO_RESOLVE_METRICS = "SELECT team_name, case_count AS incident_count, " +
+            "import_time, case_iq_execution_time AS execution_time, resolution_time " +
             "FROM ARFINRO.ASK_CASEIQ_AUTO_RESOLVE_METRICS_V " +
             "WHERE fiscal_qtr = :fisc_qtr " +
             "ORDER BY team_name";
@@ -1424,19 +1411,20 @@ public class CaseIQMonitoringService {
     // ─── Executive Dashboard Service Methods ────────────────────────────────────
 
     /**
-     * p80 percentile metrics per team: import time, execution time (min) +
-     * resolution time + count, for one fiscal quarter.
+     * Combined p80/p90 percentile metrics per team for one fiscal quarter:
+     * response time (import + execution) at both percentiles plus MTTR at both
+     * percentiles, sourced from ASK_CASEIQ_METRICS_DSH_90_80_V.
      */
-    public List<Map<String, Object>> getExecMetricsP80(String fiscQtr) {
-        return jdbcManager.queryWithNamedParams(EXEC_METRICS_P80, buildParams("fisc_qtr", fiscQtr));
+    public List<Map<String, Object>> getExecMetrics(String fiscQtr) {
+        return jdbcManager.queryWithNamedParams(EXEC_METRICS, buildParams("fisc_qtr", fiscQtr));
     }
 
     /**
-     * p90 percentile metrics per team: import time, execution time (min) +
-     * resolution time + count, for one fiscal quarter.
+     * Global (dashboard-wide) p80/p90 averages for one fiscal quarter, sourced
+     * from ASK_CASEIQ_METRICS_AVG_EXEC_V. Returns a single row per quarter.
      */
-    public List<Map<String, Object>> getExecMetricsP90(String fiscQtr) {
-        return jdbcManager.queryWithNamedParams(EXEC_METRICS_P90, buildParams("fisc_qtr", fiscQtr));
+    public List<Map<String, Object>> getAvgExecMetrics(String fiscQtr) {
+        return jdbcManager.queryWithNamedParams(AVG_EXEC_METRICS, buildParams("fisc_qtr", fiscQtr));
     }
 
     /**

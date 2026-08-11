@@ -143,8 +143,8 @@ export class QbrComponent extends CaseiqComponent implements OnInit {
 
   /** Response time in HOURS (p80 / p90) — slide shows "1.2 / 1.8 hrs". */
   qbrResponseTimeHrs(): { p80: number | null; p90: number | null } {
-    const min80 = this.computeWeightedResponseMinutes(this.execP80Data);
-    const min90 = this.computeWeightedResponseMinutes(this.execP90Data);
+    const min80 = this.computeWeightedResponseMinutes('P80');
+    const min90 = this.computeWeightedResponseMinutes('P90');
     return {
       p80: min80 != null ? min80 / 60 : null,
       p90: min90 != null ? min90 / 60 : null,

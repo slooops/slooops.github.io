@@ -107,6 +107,8 @@ interface CaseIqTableRow {
   inProgress: CaseIqTableMetric;
   routed: CaseIqTableMetric;
   cancelled: CaseIqTableMetric;
+  autoResolved: number | null;
+  casesReopened: number | null;
 }
 
 interface CaseiqKpi {
@@ -117,6 +119,7 @@ interface CaseiqKpi {
   pctText?: string;
   plain?: boolean;
   plainValue?: string;
+  clickable?: boolean;
 }
 
 /** Outcome buckets tracked per component row. */
@@ -141,6 +144,10 @@ interface ResponseTimeRow {
   importTime: number | null;
   executionTime: number | null;
   mttr: number | null;
+  executionTimeP80: number | null;
+  mttrP80: number | null;
+  executionTimeP90: number | null;
+  mttrP90: number | null;
   autoResolved: number;
   touchedLt5: number;
   touchedLt10: number;
@@ -161,6 +168,16 @@ interface AutoResolveRow {
   importTime: number | null;
   executionTime: number | null;
   resolutionTime: number | null;
+}
+
+/** One team row of the DSH_90_80 percentile metrics table. */
+interface ExecMetricsRow {
+  component: string;
+  incidentCount: number;
+  executionTimeP80: number | null;
+  mttrP80: number | null;
+  executionTimeP90: number | null;
+  mttrP90: number | null;
 }
 
 /** One issue-type row of the ctx-4 not-interfaced pivot table. */
@@ -286,6 +303,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     { team: 'CAPITAL', deployed: 38, total: 38 },
   ];
 
+  showActiveAgentsModal = false;
+
   @Input() caseIqMetrics: any;
   @Input() selectedQuarter: string = '';
   @Output() teamNavigate = new EventEmitter<string>();
@@ -307,10 +326,14 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() caseiqView: 1 | 2 | 3 | 4 = 1;
 
   // ── Executive view data (all from new p80/p90/worknotes/coverage-gap views) ──
-  /** p80 metrics per team from ASK_CASEIQ_METRICS_DSH_80_V */
-  execP80Data: any[] = [];
-  /** p90 metrics per team from ASK_CASEIQ_METRICS_DSH_90_V */
-  execP90Data: any[] = [];
+  /**
+   * Combined p80 + p90 metrics per team from ASK_CASEIQ_METRICS_DSH_90_80_V.
+   * Row columns: TEAM_NAME, INCIDENT_COUNT, CASE_IQ_EXECUTION_TIME_P80 (import
+   * + execution summed), MTTR_80, CASE_IQ_EXECUTION_TIME_P90, MTTR_90.
+   */
+  execMetricsData: any[] = [];
+  /** Global (dashboard-wide) p80/p90 averages for the quarter from ASK_CASEIQ_METRICS_AVG_EXEC_V. */
+  avgExecMetricsData: any[] = [];
   /** Case-churn buckets per team from ASK_CASEIQ_WORKNOTES_DATA_V */
   execWorknotesData: any[] = [];
   /** Coverage gap (ESP cases not in CaseIQ) from ASK_CASEIQ_NOT_EXISTS_INC_V */
@@ -365,12 +388,12 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   /** Flip state for middle-bottom card (Weekly Case Volume ↔ Hourly Processing Load) */
   execBottomCardFlipped = false;
   /**
-   * Row labels currently hidden on the P80 → P90 dumbbell chart. Clicking a
-   * y-axis label (e.g. "FPP — Import") toggles membership so users can hide
-   * outlier rows that blow out the shared x-axis scale. FPP Import is hidden
-   * by default because bulk-load spikes skew the axis.
+   * Row labels (team names) currently hidden on the P80 → P90 dumbbell chart.
+   * Clicking a y-axis label toggles membership so users can hide outlier rows
+   * that blow out the shared x-axis scale. FPP is hidden by default because
+   * bulk-load spikes skew the axis.
    */
-  hiddenDumbbellRows = new Set<string>(['FPP — Import']);
+  hiddenDumbbellRows = new Set<string>(['FPP']);
   private themeSub?: Subscription;
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -902,6 +925,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         ops: this.toNumber(teamData.NOT_RECOMMENDED_CANCELLED),
         opsPct: this.toNumber(teamData.NOT_RECOMMENDED_CANCELLED_PERCENTAGE),
       },
+      autoResolved: this.toNumber(teamData.AUTO_RESOLVED),
+      casesReopened: this.toNumber(teamData.CASES_REOPENED),
     };
   }
 
@@ -1126,6 +1151,118 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             : '--',
       },
     ];
+  }
+
+  /**
+   * Secondary KPI strip for ctx-1: global p80/p90 averages (from
+   * ASK_CASEIQ_METRICS_AVG_EXEC_V) plus active-agent coverage from the
+   * component table. Auto Resolved + Cases Reopened are pending queries.
+   */
+  avgExecKpis(): CaseiqKpi[] {
+    const row = this.avgExecMetricsData?.[0] ?? null;
+    const num = (key: string): number | null => {
+      if (!row) return null;
+      const v = Number(row[key] ?? row[key.toUpperCase()]);
+      return Number.isFinite(v) ? v : null;
+    };
+    const mttrText = (min: number | null): string => {
+      if (min == null) return '—';
+      if (Math.abs(min) < 1440) return `${(min / 60).toFixed(1)} h`;
+      return `${(min / 1440).toFixed(1)} days`;
+    };
+
+    const summaryRows = this.getSummaryRows();
+    let deployed = 0;
+    let total = 0;
+    for (const r of summaryRows) {
+      const a = this.getAgentForRow(r);
+      deployed += a.deployed;
+      total += a.total;
+    }
+    const agentPct = total > 0 ? (deployed / total) * 100 : 0;
+
+    const totalCases = summaryRows.reduce(
+      (acc, r) => acc + (r.totalCases ?? 0),
+      0,
+    );
+    const autoResolvedSum = summaryRows.reduce(
+      (acc, r) => acc + (r.autoResolved ?? 0),
+      0,
+    );
+    const casesReopenedSum = summaryRows.reduce(
+      (acc, r) => acc + (r.casesReopened ?? 0),
+      0,
+    );
+    const pillOf = (title: string, color: string, value: number): CaseiqKpi => {
+      const pct = totalCases > 0 ? (value / totalCases) * 100 : 0;
+      return {
+        title,
+        color,
+        pillWidth: pct,
+        pillText: `${value.toLocaleString()} / ${totalCases.toLocaleString()}`,
+        pctText: totalCases > 0 ? `${pct.toFixed(1)}%` : '--',
+      };
+    };
+
+    return [
+      {
+        title: 'Avg Execution P80',
+        color: 'green',
+        plain: true,
+        plainValue: this.formatDuration(num('AVG_EXECUTION_TIME_P80_MIN')),
+      },
+      {
+        title: 'Avg MTTR P80',
+        color: 'cyan',
+        plain: true,
+        plainValue: mttrText(num('MTTR_80_MIN')),
+      },
+      {
+        title: 'Avg Execution P90',
+        color: 'green',
+        plain: true,
+        plainValue: this.formatDuration(num('AVG_EXECUTION_TIME_P90_MIN')),
+      },
+      {
+        title: 'Avg MTTR P90',
+        color: 'cyan',
+        plain: true,
+        plainValue: mttrText(num('MTTR_90_MIN')),
+      },
+      {
+        title: 'Active Agents',
+        color: 'accent',
+        pillWidth: agentPct,
+        pillText: `${deployed.toLocaleString()} / ${total.toLocaleString()}`,
+        pctText: total > 0 ? `${agentPct.toFixed(0)}%` : '--',
+        clickable: true,
+      },
+      pillOf('Auto Resolved', 'green', autoResolvedSum),
+      pillOf('Cases Reopened', 'amber', casesReopenedSum),
+    ];
+  }
+
+  /** True when at least one component row in the current quarter has AUTO_RESOLVED or CASES_REOPENED data. */
+  hasAutoResolveColumns(): boolean {
+    return this.getSummaryRows().some(
+      (r) => r.autoResolved != null || r.casesReopened != null,
+    );
+  }
+
+  /** Rows shown inside the Active Agents modal — one per non-Finance IT team plus totals. */
+  activeAgentsModalRows(): { team: string; deployed: number; total: number }[] {
+    return this.getSummaryRows().map((r) => ({
+      team: r.sectionName,
+      ...this.getAgentForRow(r),
+    }));
+  }
+
+  openActiveAgentsModal(): void {
+    this.showActiveAgentsModal = true;
+  }
+
+  closeActiveAgentsModal(): void {
+    this.showActiveAgentsModal = false;
   }
 
   /** Agent ratio for Finance IT */
@@ -1437,7 +1574,12 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     const series = Array.from(teams)
       .filter((t) => t !== 'UNKNOWN')
-      .sort((a, b) => a.localeCompare(b))
+      .sort((a, b) => {
+        // Draw OM last so it renders on top of the other lines.
+        if (a === 'OM') return 1;
+        if (b === 'OM') return -1;
+        return a.localeCompare(b);
+      })
       .map((team) => {
         const hex = this.teamColors[team] ?? '#555555';
         const match = hex.match(/#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i)!;
@@ -2261,9 +2403,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   // switchView is no longer needed — caseiqView is an @Input from parent
 
   /**
-   * Fetch the four executive-view datasets for the selected quarter
-   * (p80, p90, worknotes churn, coverage gap). Column names in the p80 view
-   * are currently mislabeled `_P90` so we read them by prefix in {@link execCol}.
+   * Fetch the three executive-view datasets for the selected quarter
+   * (combined p80/p90 metrics, worknotes churn, coverage gap).
    */
   private fetchExecViewData(): void {
     const qtr = this.selectedQuarter || 'Q4FY26';
@@ -2271,7 +2412,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     let settled = 0;
     const settle = () => {
       settled += 1;
-      if (settled >= 4) this.execViewLoading = false;
+      if (settled >= 3) this.execViewLoading = false;
     };
     const rebuild = () => {
       settle();
@@ -2294,22 +2435,23 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       }
     };
     this.http
-      .get(`caseiq/exec/metrics-p80?fiscQtr=${qtr}`, this.destroyManager)
+      .get(`caseiq/exec/metrics?fiscQtr=${qtr}`, this.destroyManager)
       .subscribe({
         next: (d: any) => {
-          this.execP80Data = Array.isArray(d) ? d : [];
+          this.execMetricsData = Array.isArray(d) ? d : [];
           rebuild();
         },
         error: () => settle(),
       });
     this.http
-      .get(`caseiq/exec/metrics-p90?fiscQtr=${qtr}`, this.destroyManager)
+      .get(`caseiq/exec/avg-metrics?fiscQtr=${qtr}`, this.destroyManager)
       .subscribe({
         next: (d: any) => {
-          this.execP90Data = Array.isArray(d) ? d : [];
-          rebuild();
+          this.avgExecMetricsData = Array.isArray(d) ? d : [];
         },
-        error: () => settle(),
+        error: () => {
+          this.avgExecMetricsData = [];
+        },
       });
     this.http
       .get(`caseiq/exec/worknotes-churn?fiscQtr=${qtr}`, this.destroyManager)
@@ -2333,7 +2475,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   /** No percentile metrics for the selected quarter (dumbbell + MTTR charts). */
   get execMetricsNoData(): boolean {
-    return !this.execViewLoading && !this.execP90Data.length;
+    return !this.execViewLoading && !this.execMetricsData.length;
   }
 
   /** No post-CaseIQ worknote activity for the selected quarter (churn chart). */
@@ -2342,10 +2484,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   /**
-   * Column-prefix resilient reader for the exec metrics views.
-   * The P80 view currently exposes columns literally named IMPORT_TIME_P90
-   * and CASE_IQ_EXECUTION_TIME_P90 (mislabeled). Reading by prefix lets us
-   * survive column renames by the DB owner.
+   * Column-prefix resilient reader for the exec metrics views. Reading by
+   * prefix lets us survive column renames by the DB owner.
    */
   protected execCol(row: any, prefix: string): number | null {
     if (!row) return null;
@@ -2372,12 +2512,13 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   /** Executive KPIs — Sourced entirely from the new p80/p90/coverage-gap/accuracy views. */
   executiveKpis(): CaseiqKpi[] {
-    // Weighted MTTR (hours) from RESOLUTION_TIME + INCIDENT_COUNT (p90 view; same volumes as p80).
-    const mttrHrs = this.computeWeightedResolutionHours(this.execP90Data);
+    // Weighted MTTR (hours) from MTTR_90 + INCIDENT_COUNT.
+    const mttrHrs = this.computeWeightedResolutionHours('90');
 
-    // Response time P80/P90 (minutes) = IMPORT_TIME + CASE_IQ_EXECUTION_TIME, weighted by INCIDENT_COUNT.
-    const rtP80 = this.computeWeightedResponseMinutes(this.execP80Data);
-    const rtP90 = this.computeWeightedResponseMinutes(this.execP90Data);
+    // Response time P80/P90 (minutes) already summed as import + execution in
+    // the combined view. Weighted by INCIDENT_COUNT.
+    const rtP80 = this.computeWeightedResponseMinutes('P80');
+    const rtP90 = this.computeWeightedResponseMinutes('P90');
 
     // Cases in ESP but not picked by CaseIQ.
     const notPicked = this.execCoverageGapData.reduce(
@@ -2447,32 +2588,41 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   /**
-   * Weighted average of IMPORT_TIME + CASE_IQ_EXECUTION_TIME (both in minutes)
-   * weighted by INCIDENT_COUNT. Reads columns by prefix so a `_P80`/`_P90`
-   * suffix mismatch on the p80 view does not break the calculation.
+   * Weighted mean of the combined "response time" column
+   * (CASE_IQ_EXECUTION_TIME_P80 / _P90 — already includes import + execution)
+   * from ASK_CASEIQ_METRICS_DSH_90_80_V, weighted by INCIDENT_COUNT.
    */
-  protected computeWeightedResponseMinutes(rows: any[]): number | null {
+  protected computeWeightedResponseMinutes(
+    percentile: 'P80' | 'P90',
+  ): number | null {
+    const rows = this.execMetricsData;
     if (!Array.isArray(rows) || !rows.length) return null;
+    const col = `CASE_IQ_EXECUTION_TIME_${percentile}`;
     let weighted = 0;
     let totalWeight = 0;
     for (const row of rows) {
-      const imp = this.execCol(row, 'IMPORT_TIME');
-      const exec = this.execCol(row, 'CASE_IQ_EXECUTION_TIME');
+      const val = this.execCol(row, col);
       const count = this.execCol(row, 'INCIDENT_COUNT') ?? 0;
-      if (imp == null || exec == null || count <= 0) continue;
-      weighted += (imp + exec) * count;
+      if (val == null || count <= 0) continue;
+      weighted += val * count;
       totalWeight += count;
     }
     return totalWeight > 0 ? weighted / totalWeight : null;
   }
 
-  /** Weighted mean of RESOLUTION_TIME (stored in minutes) converted to hours. */
-  protected computeWeightedResolutionHours(rows: any[]): number | null {
+  /**
+   * Weighted mean of MTTR_80 or MTTR_90 (stored in minutes) converted to hours.
+   */
+  protected computeWeightedResolutionHours(
+    percentile: '80' | '90',
+  ): number | null {
+    const rows = this.execMetricsData;
     if (!Array.isArray(rows) || !rows.length) return null;
+    const col = `MTTR_${percentile}`;
     let weighted = 0;
     let totalWeight = 0;
     for (const row of rows) {
-      const rt = this.execCol(row, 'RESOLUTION_TIME');
+      const rt = this.execCol(row, col);
       const count = this.execCol(row, 'INCIDENT_COUNT') ?? 0;
       if (rt == null || count <= 0) continue;
       weighted += rt * count;
@@ -2533,71 +2683,53 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   /**
-   * Build the p80 → p90 dumbbell chart replacing MTTR by Service Offering.
-   * For each component we draw two dumbbells stacked in the same row:
-   *  – Import Time (min): p80 dot → p90 dot with a connector.
-   *  – CaseIQ Execution Time (min): p80 dot → p90 dot with a connector.
-   * The chart also renders the resolution horizontal bar chart via
-   * {@link buildResolutionChart}. Called whenever p80/p90 data changes.
+   * Build the P80 → P90 dumbbell chart of response time (import + execution,
+   * already summed by the DSH_90_80 view) per component. One row per team.
+   * Also drives the sibling MTTR bar chart via {@link buildResolutionChart}.
    */
   private buildMttrChart(): void {
-    // Also build the sibling middle-top resolution chart.
     this.buildResolutionChart();
 
-    if (!this.execP80Data.length || !this.execP90Data.length) return;
+    if (!this.execMetricsData.length) return;
 
     // Preferred display order matches the component table below (OM first, CAPITAL last).
     // ECharts renders yAxis category data bottom-up, so reverse the order so
     // the visual top-to-bottom matches OM → SM → I2C → AIT → FPP → P2P → CAPITAL.
     const teamOrder = ['OM', 'SM', 'I2C', 'AIT', 'FPP', 'P2P', 'CAPITAL'];
 
-    // Build lookup maps by team.
-    const p80ByTeam: Record<string, any> = {};
-    const p90ByTeam: Record<string, any> = {};
-    for (const row of this.execP80Data) {
+    const rowByTeam: Record<string, any> = {};
+    for (const row of this.execMetricsData) {
       const team = this.execTeam(row);
-      if (team) p80ByTeam[team] = row;
-    }
-    for (const row of this.execP90Data) {
-      const team = this.execTeam(row);
-      if (team) p90ByTeam[team] = row;
+      if (team) rowByTeam[team] = row;
     }
 
-    const teams = teamOrder
-      .filter((t) => p80ByTeam[t] && p90ByTeam[t])
-      .reverse();
+    const teams = teamOrder.filter((t) => rowByTeam[t]).reverse();
     if (!teams.length) return;
 
-    // Two rows per team: Import Time and CaseIQ Execution Time.
-    // With teams reversed, first-in-data == bottom-of-axis; the visual reads
-    // OM (top) → CAPITAL (bottom), matching the component table order.
-    // Row order per team: Execution on bottom, Import on top (Import listed
-    // second here because ECharts places later data higher on the axis).
-    // Rows in `hiddenDumbbellRows` are kept on the axis (with a muted /
-    // strikethrough label) so users can click to toggle them back on — data
-    // points and connectors are simply suppressed in `appendDumbbellRow`.
-    const yLabels: string[] = teams.flatMap((t) => [
-      `${t} — Execution`,
-      `${t} — Import`,
-    ]);
+    // yLabels: one row per team. Rows in `hiddenDumbbellRows` stay on the axis
+    // (with a muted / strikethrough label) so users can click to unhide them —
+    // data points and connectors are simply suppressed below.
+    const yLabels: string[] = teams.slice();
 
-    // Both metrics share the same blue family (matches the accent KPI gradient).
-    const importColor = '#00bceb';
-    const execColor = '#0070d2';
+    const dotColor = '#0070d2';
 
     const p80Points: Array<[number, string, string, number, string]> = []; // [x, y-label, kind, count, team]
     const p90Points: Array<[number, string, string, number, string]> = [];
     const connectors: Array<Array<[number, string]>> = [];
 
     for (const team of teams) {
-      this.appendDumbbellRow(
-        team,
-        p80ByTeam[team],
-        p90ByTeam[team],
-        p80Points,
-        p90Points,
-        connectors,
-      );
+      if (this.hiddenDumbbellRows.has(team)) continue;
+      const row = rowByTeam[team];
+      const count = this.execCol(row, 'INCIDENT_COUNT') ?? 0;
+      const rt80 = this.execCol(row, 'CASE_IQ_EXECUTION_TIME_P80');
+      const rt90 = this.execCol(row, 'CASE_IQ_EXECUTION_TIME_P90');
+      if (rt80 == null || rt90 == null) continue;
+      p80Points.push([rt80, team, 'Response Time P80', count, team]);
+      p90Points.push([rt90, team, 'Response Time P90', count, team]);
+      connectors.push([
+        [rt80, team],
+        [rt90, team],
+      ]);
     }
 
     const isDark = this.themeService.isDarkMode;
@@ -2605,13 +2737,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     const mutedColor = isDark ? '#8899a6' : '#666';
     const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
 
-    // Color coded per axis label: Import rows in cyan, CaseIQ rows in purple.
-    // Hidden rows render muted with a prefix so users can click to unhide.
-    const baseAxisLabelColor = (val: string) =>
-      val.endsWith('— Import') ? importColor : execColor;
-
     const axisLabelColor = (val: string) =>
-      this.hiddenDumbbellRows.has(val) ? mutedColor : baseAxisLabelColor(val);
+      this.hiddenDumbbellRows.has(val) ? mutedColor : textColor;
 
     const axisLabelFormatter = (val: string) =>
       this.hiddenDumbbellRows.has(val) ? `✕  ${val}` : val;
@@ -2630,7 +2757,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             string,
           ];
           return (
-            `<div style="font-weight:600;color:${importColor};">${team}</div>` +
+            `<div style="font-weight:600;color:${dotColor};">${team}</div>` +
             `<div>${kind}: <strong>${x.toFixed(1)} min</strong></div>` +
             `<div style="color:${mutedColor};font-size:10px;">n = ${count.toLocaleString()}</div>`
           );
@@ -2640,7 +2767,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         top: 0,
         data: [
           { name: 'P80', icon: 'circle', itemStyle: { color: mutedColor } },
-          { name: 'P90', icon: 'circle', itemStyle: { color: importColor } },
+          { name: 'P90', icon: 'circle', itemStyle: { color: dotColor } },
         ],
         textStyle: { color: textColor, fontSize: 11 },
         itemWidth: 10,
@@ -2665,22 +2792,20 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         data: yLabels,
         triggerEvent: true,
         axisLabel: {
-          fontSize: 10,
+          fontSize: 11,
           color: (val: string) => axisLabelColor(val),
-          fontWeight: 400,
+          fontWeight: 500,
           formatter: axisLabelFormatter,
         },
         axisLine: { show: false },
         axisTick: { show: false },
       },
       series: [
-        // Connectors (line between p80 and p90 for each row).
         {
           type: 'custom',
           renderItem: (_params: any, api: any) => {
             const start = api.coord([api.value(0), api.value(1)]);
             const end = api.coord([api.value(2), api.value(1)]);
-            const isImport = String(api.value(1)).endsWith('— Import');
             return {
               type: 'line',
               shape: {
@@ -2690,7 +2815,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 y2: end[1],
               },
               style: {
-                stroke: isImport ? importColor : execColor,
+                stroke: dotColor,
                 lineWidth: 3,
                 opacity: 0.35,
               },
@@ -2701,7 +2826,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           silent: true,
           z: 1,
         },
-        // P80 dots (hollow ring).
         {
           name: 'P80',
           type: 'scatter',
@@ -2714,17 +2838,13 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           },
           z: 3,
         },
-        // P90 dots (solid, color-coded by row).
         {
           name: 'P90',
           type: 'scatter',
           data: p90Points,
           symbolSize: 13,
           itemStyle: {
-            color: (params: any) => {
-              const label = params.value[1] as string;
-              return label.endsWith('— Import') ? importColor : execColor;
-            },
+            color: dotColor,
             borderColor: '#ffffff',
             borderWidth: 2,
           },
@@ -2735,63 +2855,15 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   /**
-   * Extract one component's p80/p90 pair into dumbbell dots + connector
-   * segments. Mutates the passed accumulators to keep the parent
-   * {@link buildMttrChart} loop simple.
-   */
-  private appendDumbbellRow(
-    team: string,
-    p80Row: any,
-    p90Row: any,
-    p80Points: Array<[number, string, string, number, string]>,
-    p90Points: Array<[number, string, string, number, string]>,
-    connectors: Array<Array<[number, string]>>,
-  ): void {
-    const count = this.execCol(p90Row, 'INCIDENT_COUNT') ?? 0;
-
-    const imp80 = this.execCol(p80Row, 'IMPORT_TIME');
-    const imp90 = this.execCol(p90Row, 'IMPORT_TIME');
-    const importLabel = `${team} — Import`;
-    if (
-      imp80 != null &&
-      imp90 != null &&
-      !this.hiddenDumbbellRows.has(importLabel)
-    ) {
-      p80Points.push([imp80, importLabel, 'Import P80', count, team]);
-      p90Points.push([imp90, importLabel, 'Import P90', count, team]);
-      connectors.push([
-        [imp80, importLabel],
-        [imp90, importLabel],
-      ]);
-    }
-
-    const exec80 = this.execCol(p80Row, 'CASE_IQ_EXECUTION_TIME');
-    const exec90 = this.execCol(p90Row, 'CASE_IQ_EXECUTION_TIME');
-    const execLabel = `${team} — Execution`;
-    if (
-      exec80 != null &&
-      exec90 != null &&
-      !this.hiddenDumbbellRows.has(execLabel)
-    ) {
-      p80Points.push([exec80, execLabel, 'Execution P80', count, team]);
-      p90Points.push([exec90, execLabel, 'Execution P90', count, team]);
-      connectors.push([
-        [exec80, execLabel],
-        [exec90, execLabel],
-      ]);
-    }
-  }
-
-  /**
-   * Middle-top card: Resolution Time (MTTR) by component, horizontal bars.
-   * Uses the P90 view's RESOLUTION_TIME column (stored in minutes; rendered in hours).
+   * Middle-top card: MTTR (P90) by component, horizontal bars. Reads MTTR_90
+   * from the DSH_90_80 view (minutes; rendered in hours).
    */
   private buildResolutionChart(): void {
-    if (!this.execP90Data.length) return;
+    if (!this.execMetricsData.length) return;
 
     const teamOrder = ['OM', 'SM', 'I2C', 'AIT', 'FPP', 'P2P', 'CAPITAL'];
     const rowByTeam: Record<string, any> = {};
-    for (const row of this.execP90Data) {
+    for (const row of this.execMetricsData) {
       const team = this.execTeam(row);
       if (team) rowByTeam[team] = row;
     }
@@ -2799,7 +2871,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     const entries = teamOrder
       .filter((t) => rowByTeam[t])
       .map((team) => {
-        const mins = this.execCol(rowByTeam[team], 'RESOLUTION_TIME') ?? 0;
+        const mins = this.execCol(rowByTeam[team], 'MTTR_90') ?? 0;
         const count = this.execCol(rowByTeam[team], 'INCIDENT_COUNT') ?? 0;
         return { team, hours: Math.round((mins / 60) * 10) / 10, count };
       })
@@ -3869,16 +3941,50 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   /** Rows for the ctx-3 response time table, one per component. */
   responseTimeRows(): ResponseTimeRow[] {
+    const metricsByTeam = this.execMetricsByTeam();
     return this.execResponseTimeData
-      .map((row) => ({
-        component: this.execTeam(row) ?? '—',
-        ...this.mapResponseMetrics(row),
-      }))
+      .map((row) => {
+        const component = this.execTeam(row) ?? '—';
+        const metrics = metricsByTeam[component];
+        return {
+          component,
+          ...this.mapResponseMetrics(row),
+          executionTimeP80: metrics?.executionTimeP80 ?? null,
+          mttrP80: metrics?.mttrP80 ?? null,
+          executionTimeP90: metrics?.executionTimeP90 ?? null,
+          mttrP90: metrics?.mttrP90 ?? null,
+        };
+      })
       .filter((row) => row.component !== 'UNKNOWN')
       .sort(
         (a, b) =>
           this.componentRank(a.component) - this.componentRank(b.component),
       );
+  }
+
+  /** Rows for the ctx-1 team metrics card and ctx-4 auto-resolve table, sorted by component order. */
+  execMetricsRows(): ExecMetricsRow[] {
+    return this.execMetricsData
+      .map((row) => ({
+        component: this.execTeam(row) ?? '—',
+        incidentCount: this.execCol(row, 'INCIDENT_COUNT') ?? 0,
+        executionTimeP80: this.execCol(row, 'CASE_IQ_EXECUTION_TIME_P80'),
+        mttrP80: this.execCol(row, 'MTTR_80'),
+        executionTimeP90: this.execCol(row, 'CASE_IQ_EXECUTION_TIME_P90'),
+        mttrP90: this.execCol(row, 'MTTR_90'),
+      }))
+      .filter((row) => row.component !== 'UNKNOWN' && row.component !== '—')
+      .sort(
+        (a, b) =>
+          this.componentRank(a.component) - this.componentRank(b.component),
+      );
+  }
+
+  /** Percentile metrics keyed by TEAM_NAME for O(1) joins with churn data. */
+  private execMetricsByTeam(): Record<string, ExecMetricsRow> {
+    const out: Record<string, ExecMetricsRow> = {};
+    for (const row of this.execMetricsRows()) out[row.component] = row;
+    return out;
   }
 
   /** Position in the dashboard-wide component order; unknowns sort last. */
@@ -3902,6 +4008,10 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       importTime: num('IMPORT_TIME'),
       executionTime: num('EXECUTION_TIME'),
       mttr: num('RESOLUTION_TIME'),
+      executionTimeP80: null,
+      mttrP80: null,
+      executionTimeP90: null,
+      mttrP90: null,
       autoResolved,
       touchedLt5,
       touchedLt10,
@@ -3939,22 +4049,28 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     return [
       {
-        title: 'Import Time P90',
+        title: 'Execution Time P80',
         color: 'green',
         plain: true,
-        plainValue: this.formatDuration(mean((r) => r.importTime)),
+        plainValue: this.formatDuration(mean((r) => r.executionTimeP80)),
+      },
+      {
+        title: 'MTTR Time P80',
+        color: 'cyan',
+        plain: true,
+        plainValue: this.formatDuration(mean((r) => r.mttrP80)),
       },
       {
         title: 'Execution Time P90',
         color: 'green',
         plain: true,
-        plainValue: this.formatDuration(mean((r) => r.executionTime)),
+        plainValue: this.formatDuration(mean((r) => r.executionTimeP90)),
       },
       {
-        title: 'MTTR Time P60',
+        title: 'MTTR Time P90',
         color: 'cyan',
         plain: true,
-        plainValue: this.formatDuration(mean((r) => r.mttr)),
+        plainValue: this.formatDuration(mean((r) => r.mttrP90)),
       },
       bucket(
         'Auto Resolved',
@@ -3997,6 +4113,14 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (Math.abs(minutes) < 60)
       return { value: minutes.toFixed(1), unit: 'min' };
     return { value: (minutes / 60).toFixed(1), unit: 'h' };
+  }
+
+  /** MTTR rendered in days for the ctx-1 team table; falls back to hours under 1 day. */
+  mttrDaysParts(minutes: number | null): { value: string; unit: string } {
+    if (minutes == null) return { value: '—', unit: '' };
+    if (Math.abs(minutes) < 1440)
+      return { value: (minutes / 60).toFixed(1), unit: 'h' };
+    return { value: (minutes / 1440).toFixed(1), unit: 'days' };
   }
 
   openResponseDetail(component: string): void {
