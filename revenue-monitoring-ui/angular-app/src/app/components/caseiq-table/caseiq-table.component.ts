@@ -422,6 +422,18 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       category: this.getFirstValue(row, ['CATEGORY', 'category']) || '--',
       coreIssue: this.getFirstValue(row, ['CORE_ISSUE', 'core_issue']) || '--',
       outcome,
+      resolveCase:
+        this.getFirstValue(row, [
+          'RESOLVE_CASE',
+          'resolve_case',
+          'resolveCase',
+        ]) || '--',
+      resolutionCompleted:
+        this.getFirstValue(row, [
+          'RESOLUTION_COMPLETED',
+          'resolution_completed',
+          'resolutionCompleted',
+        ]) || '--',
       resolutionPath:
         this.getFirstValue(row, ['RESOLUTION_PATH', 'resolution_path']) || '--',
       processedAt:
@@ -968,6 +980,8 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       category: this.getTimelineCategory(row),
       coreIssue: this.getTimelineCoreIssue(row),
       outcome: normalizedOutcome,
+      resolveCase: '--',
+      resolutionCompleted: '--',
       resolutionPath: this.getTimelineResolutionPath(row),
       processedAt: this.mockProcessedDate,
       processedEpoch: Date.now(),

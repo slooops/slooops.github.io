@@ -29,7 +29,7 @@
       <!-- ──────────────────────────────────────────────────────────────── -->
       <!-- ─── DASHBOARD_CASES (INSERT AI-GENERATED @case BLOCKS BELOW) ──── -->
       <!-- ──────────────────────────────────────────────────────────────── -->
-      <!-- 
+      <!--
         Format for each case:
         @case ("app-<feature-name>") {
           <app-monitoring-dashboard
@@ -44,10 +44,36 @@
             [webexKeysToMap]="[...]"
           ></app-monitoring-dashboard>
         }
+
+        ── Optional: make a column clickable (opt-in, added via edit codegen) ──
+        The exception-details detail panel below is scaffolded ready but stays
+        INERT until a dashboard opts in. To activate it for a tab, add these two
+        bindings to that tab's <app-monitoring-dashboard> (generated on request,
+        NOT at onboarding):
+            [linkColumns]="['<COLUMN_NAME>']"
+            [detailPanel]="exceptionDetailTpl"
       -->
     }
   }
 </div>
+
+<!-- ──────────────────────────────────────────────────────────────────────── -->
+<!-- ─── DETAIL_PANEL (exception-details integration, ready but inert) ─────── -->
+<!-- ──────────────────────────────────────────────────────────────────────── -->
+<!--
+  This template is projected into <app-monitoring-dashboard> only when a tab
+  binds [detailPanel]="exceptionDetailTpl" (see DASHBOARD_CASES note above).
+  `value` is the clicked cell's value (e.g. the TRANSACTION_ID); `close` closes
+  the detail region. Leaving it here unused has no runtime cost.
+-->
+<ng-template #exceptionDetailTpl let-value let-close="close">
+  <app-exception-details
+    [exceptionId]="value"
+    apiEndpoint="by-record"
+    backLabel="Back to Error Details"
+    (back)="close()"
+  ></app-exception-details>
+</ng-template>
 
 <div
   style="display: flex; justify-content: center; align-items: center !important"

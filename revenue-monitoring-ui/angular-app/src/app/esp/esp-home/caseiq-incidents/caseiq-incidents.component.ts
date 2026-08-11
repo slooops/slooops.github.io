@@ -31,6 +31,8 @@ export interface SupervisorIncident {
   category: string;
   coreIssue: string;
   outcome: string;
+  resolveCase: string;
+  resolutionCompleted: string;
   resolutionPath: string;
   processedAt: string;
   processedEpoch: number;
@@ -524,6 +526,13 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
           'issue_type',
         ]) || '--',
       outcome,
+      resolveCase:
+        this.pickString(item, ['resolve_case', 'resolveCase']) || '--',
+      resolutionCompleted:
+        this.pickString(item, [
+          'resolution_completed',
+          'resolutionCompleted',
+        ]) || '--',
       resolutionPath:
         this.pickString(item, [
           'resolution_path',
@@ -632,6 +641,8 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
         existing.category = mapped.category;
         existing.coreIssue = mapped.coreIssue;
         existing.outcome = execution.outcome;
+        existing.resolveCase = mapped.resolveCase;
+        existing.resolutionCompleted = mapped.resolutionCompleted;
         existing.processedAt = execution.processedAt;
         existing.processedEpoch = execution.processedEpoch;
       }

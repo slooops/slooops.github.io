@@ -42,6 +42,8 @@
   @switch (activeTabKey) {
     @case ("i2c") {
       <app-monitoring-dashboard
+        [linkColumns]="[]"
+        [detailPanel]="exceptionDetailTpl"
         [urls]="preInvoicingUrls"
         [keysToMap]="[
           'PERIOD_NAME',
@@ -60,6 +62,8 @@
     }
     @case ("rev") {
       <app-monitoring-dashboard
+        [linkColumns]="[]"
+        [detailPanel]="exceptionDetailTpl"
         [urls]="revControlsUrls"
         [keysToMap]="[
           'PERIOD_NAME',
@@ -78,6 +82,8 @@
     }
     @case ("gtc") {
       <app-monitoring-dashboard
+        [linkColumns]="[]"
+        [detailPanel]="exceptionDetailTpl"
         [urls]="gtcControlsUrls"
         [keysToMap]="['PROCESS_FLOW', 'BOOKING_ENTITY', 'TRANSACTION_DATE']"
         [componentName]="'Gtc Controls'"
@@ -90,3 +96,12 @@
     }
   }
 </div>
+
+<ng-template #exceptionDetailTpl let-value let-close="close">
+  <app-exception-details
+    [exceptionId]="value"
+    apiEndpoint="by-record"
+    backLabel="Back to Error Details"
+    (back)="close()"
+  ></app-exception-details>
+</ng-template>

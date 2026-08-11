@@ -226,6 +226,10 @@ Short explanation: _"This `@case` block wires the shared `<app-monitoring-dashbo
 
 > Copy to: <resolved-featureName>.component.html — add inside the @switch block under the // ─── DASHBOARD_CASES marker
 
+> 🚫 Keep this onboarding `@case` **neutral**: do not add `[linkColumns]` or
+> `[detailPanel]`. Clickable columns are added later via the opt-in edit flow
+> (see "Edit mode: make a column clickable"), not during onboarding.
+
 Use the actual `featureName` value in the `Copy to:` line above (example: `ait-monitoring.component.html`).
 
 Emit the `@case` block in an `html` code fence.
@@ -444,5 +448,88 @@ Example:
 ></app-monitoring-dashboard>
 }
 ```
+
+> 🚫 **Do NOT emit `[linkColumns]` or `[detailPanel]` at onboarding.** Clickable
+> columns (the exception-details detail panel) are an **opt-in edit**, not part of
+> initial generation. The schematic already scaffolds the `exceptionDetailTpl`
+> template and the `ExceptionDetailsComponent` import into the component, so they
+> sit ready-but-inert. A dashboard only becomes clickable when a user explicitly
+> requests it later — see "Edit mode: make a column clickable" below. The
+> onboarding `@case` above must stay neutral (no `linkColumns`, no `detailPanel`).
+
+---
+
+## Edit mode: make a column clickable (opt-in, post-onboarding)
+
+This section applies **only** when a user asks (via an edit request) to make a
+details-table column clickable so it opens the self-healing exception-details
+panel. It is **not** run during initial onboarding.
+
+### What already exists in the scaffold (do NOT regenerate)
+
+The generated component already contains, from the schematic:
+
+- the `ExceptionDetailsComponent` import and its entry in the component `imports` array, and
+- the shared detail-panel template in the `.html`:
+
+  ```html
+  <ng-template #exceptionDetailTpl let-value let-close="close">
+    <app-exception-details
+      [exceptionId]="value"
+      apiEndpoint="by-record"
+      backLabel="Back to Error Details"
+      (back)="close()"
+    ></app-exception-details>
+  </ng-template>
+  ```
+
+Never re-emit the import, the imports-array entry, or the `exceptionDetailTpl`
+template. They are invariant and already present.
+
+### The only thing to generate
+
+Append **two bindings** to the target tab's existing
+`<app-monitoring-dashboard>` element — the clickable column name is the single
+per-consumer variable:
+
+```html
+[linkColumns]="['<CLICKABLE_COLUMN
+  >']" [detailPanel]="exceptionDetailTpl"</CLICKABLE_COLUMN
+>
+```
+
+- `<CLICKABLE_COLUMN>` is the UPPER_SNAKE_CASE column name the user asked to make
+  clickable (e.g. `TRANSACTION_ID` for invoicing / custom-revenue). Keep it exactly
+  as provided — do not lowercase or camelCase it.
+- `[detailPanel]` always references the pre-scaffolded `exceptionDetailTpl`.
+- When the clicked cell is activated, its value is passed to the template's
+  `value` (bound to `[exceptionId]`).
+
+Resulting `@case` after the edit:
+
+```html
+@case ("app-test-tracker") {
+<app-monitoring-dashboard
+  [userContext]="userContextData"
+  [urls]="testTrackerUrls"
+  [keysToMap]="testTrackerKeysToMap"
+  [componentName]="'Test-Tracker'"
+  [columnsToFilter]="testTrackerFilters"
+  [detailsColumnsToHide]="[]"
+  [assignmentDialogFieldConfig]="testTrackerFieldConfig"
+  [submitKeysToMap]="['CTM_FOLDER', 'JOB_NAME']"
+  [webexKeysToMap]="['CTM_FOLDER', 'JOB_NAME']"
+  [linkColumns]="['TRANSACTION_ID']"
+  [detailPanel]="exceptionDetailTpl"
+></app-monitoring-dashboard>
+}
+```
+
+### Idempotency
+
+If the target `<app-monitoring-dashboard>` already has `[linkColumns]` /
+`[detailPanel]`, do **not** add a duplicate. To add another clickable column,
+extend the existing array (e.g. `[linkColumns]="['TRANSACTION_ID', 'ORDER_ID']"`)
+rather than emitting a second binding.
 
 ---

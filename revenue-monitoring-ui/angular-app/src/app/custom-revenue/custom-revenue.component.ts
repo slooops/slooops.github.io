@@ -9,6 +9,7 @@ import { ApiHttpService } from '../providers/http.service';
 import { Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
+import { ExceptionDetailsComponent } from '../self-healing/exception-details/exception-details.component';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import {
   MenuMiniComponent,
@@ -37,6 +38,7 @@ export interface UserContext {
   imports: [
     CommonModule,
     MonitoringDashboardComponent,
+    ExceptionDetailsComponent,
     LoadingSymbolComponent,
     MenuMiniComponent,
   ],

@@ -1,10 +1,16 @@
-@if (selectedTransactionId) {
-  <app-exception-details
-    [exceptionId]="selectedTransactionId"
-    [apiEndpoint]="'by-record'"
-    backLabel="Back to Error Details"
-    (back)="closeExceptionDetails()"
-  ></app-exception-details>
+@if (activeDetail() && detailPanel()) {
+  <ng-container
+    *ngTemplateOutlet="
+      detailPanel();
+      context: {
+        $implicit: activeDetail().value,
+        value: activeDetail().value,
+        column: activeDetail().column,
+        row: activeDetail().row,
+        close: closeDetail,
+      }
+    "
+  ></ng-container>
 } @else {
   @if (isModalOpen()) {
     <app-user-assignment
@@ -346,18 +352,21 @@
                   [class.error-message-cell]="column === 'ERROR_MESSAGE'"
                 >
                   @switch (column) {
-                    @case ("TRANSACTION_ID") {
-                      <span
-                        class="md-link"
-                        (click)="openExceptionDetails(element[column])"
-                        >{{ element[column] }}</span
-                      >
-                    }
                     @case ("PROCESS_FLOW") {
                       <span>{{ element[column] }}</span>
                     }
                     @default {
-                      {{ element[column] }}
+                      @if (isActionColumn(column)) {
+                        <span
+                          class="md-link"
+                          (click)="
+                            onCellAction(column, element[column], element)
+                          "
+                          >{{ element[column] }}</span
+                        >
+                      } @else {
+                        {{ element[column] }}
+                      }
                     }
                   }
                 </td>

@@ -70,6 +70,8 @@
               <th>Category</th>
               <th>Core Issue</th>
               <th>Outcome</th>
+              <th>Resolve Case</th>
+              <th>Resolution Completed</th>
               <!-- <th>Runs</th> -->
               <th>Last Processed</th>
             </tr>
@@ -113,6 +115,8 @@
                     {{ row.outcome }}
                   </span>
                 </td>
+                <td>{{ row.resolveCase }}</td>
+                <td>{{ row.resolutionCompleted }}</td>
                 <!-- <td>
                 <span class="orc__runs-pill">{{ row.runs }} runs</span>
               </td> -->
@@ -121,7 +125,7 @@
             }
             @if (paginatedIncidents.length === 0) {
               <tr class="orc__empty-row">
-                <td colspan="6" class="orc__empty-cell">No data available</td>
+                <td colspan="8" class="orc__empty-cell">No data available</td>
               </tr>
             }
           </tbody>

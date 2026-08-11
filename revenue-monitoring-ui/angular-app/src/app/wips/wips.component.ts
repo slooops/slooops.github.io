@@ -2,6 +2,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
+import { ExceptionDetailsComponent } from '../self-healing/exception-details/exception-details.component';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { SelectionModel } from '@angular/cdk/collections';
 import { AuthenticationService } from '../providers/authentication.service';
@@ -30,7 +31,12 @@ export interface UserContext {
       phosphorSparkleBold,
     }),
   ],
-  imports: [CommonModule, MatTabsModule, MonitoringDashboardComponent],
+  imports: [
+    CommonModule,
+    MatTabsModule,
+    MonitoringDashboardComponent,
+    ExceptionDetailsComponent,
+  ],
   standalone: true,
 })
 export class WipsComponent implements OnInit {

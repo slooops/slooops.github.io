@@ -15,7 +15,7 @@ export class MonitoringDataService implements OnDestroy {
 
   constructor(
     private http: HttpService,
-    private dataFormattingService: DataFormattingService
+    private dataFormattingService: DataFormattingService,
   ) {}
 
   ngOnDestroy(): void {
@@ -43,18 +43,20 @@ export class MonitoringDataService implements OnDestroy {
         console.error(`Error fetching data from ${url}:`, error);
         return of(null);
       }),
-      takeUntil(this.destroy$)
+      takeUntil(this.destroy$),
     );
 
     return data$;
   }
 
-  getMonitoringPeriodStatus(): Observable<any> {
-    return this.fetchWithCache('monitoring-period-status');
+  getMonitoringPeriodStatus(
+    url: string = 'monitoring-period-status',
+  ): Observable<any> {
+    return this.fetchWithCache(url);
   }
 
-  getAssignableUsers() {
-    this.fetchWithCache('summary-assignment-users').subscribe((data) => {
+  getAssignableUsers(url: string = 'summary-assignment-users') {
+    this.fetchWithCache(url).subscribe((data) => {
       this.setAssignmentUsers(data);
     });
   }
@@ -72,7 +74,7 @@ export class MonitoringDataService implements OnDestroy {
 
     return this.assignmentUsers.filter(
       (user: any) =>
-        user.FILTER_KEY === null || user.FILTER_KEY === componentName
+        user.FILTER_KEY === null || user.FILTER_KEY === componentName,
     );
   }
 
@@ -87,7 +89,7 @@ export class MonitoringDataService implements OnDestroy {
   getFilteredDetails(
     url: string,
     data: any,
-    keysForFiltering: any
+    keysForFiltering: any,
   ): Observable<any> {
     const pageRequest = keysForFiltering.reduce((acc, key) => {
       const keyName = this.dataFormattingService.camelCase(key);

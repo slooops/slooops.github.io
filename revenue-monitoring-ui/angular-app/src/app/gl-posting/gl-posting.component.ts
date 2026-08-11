@@ -7,6 +7,7 @@ import { MenuService } from '../providers/menu.service';
 import { Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
+import { ExceptionDetailsComponent } from '../self-healing/exception-details/exception-details.component';
 import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import {
@@ -32,7 +33,12 @@ export interface UserContext {
       phosphorSparkleBold,
     }),
   ],
-  imports: [CommonModule, MonitoringDashboardComponent, MenuMiniComponent],
+  imports: [
+    CommonModule,
+    MonitoringDashboardComponent,
+    ExceptionDetailsComponent,
+    MenuMiniComponent,
+  ],
   standalone: true,
 })
 export class GlPostingComponent implements OnInit {

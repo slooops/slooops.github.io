@@ -41,6 +41,8 @@
     @switch (filteredTabs[selectedIndex]?.component) {
       @case ("app-pre-invoicing") {
         <app-monitoring-dashboard
+          [linkColumns]="['TRANSACTION_ID']"
+          [detailPanel]="exceptionDetailTpl"
           [userContext]="userContextData"
           [urls]="preInvoicingUrls"
           [keysToMap]="preAndAutoInvoiceKeysToMap"
@@ -67,6 +69,8 @@
       }
       @case ("app-auto-invoicing") {
         <app-monitoring-dashboard
+          [linkColumns]="['TRANSACTION_ID']"
+          [detailPanel]="exceptionDetailTpl"
           [userContext]="userContextData"
           [urls]="autoInvoicingUrls"
           [keysToMap]="preAndAutoInvoiceKeysToMap"
@@ -107,6 +111,8 @@
         @switch (postInvoicingSubIndex) {
           @case (0) {
             <app-monitoring-dashboard
+          [linkColumns]="['TRANSACTION_ID']"
+          [detailPanel]="exceptionDetailTpl"
               [userContext]="userContextData"
               [urls]="cmAmortUrls"
               [keysToMap]="preAndAutoInvoiceKeysToMap"
@@ -134,6 +140,8 @@
           }
           @case (1) {
             <app-monitoring-dashboard
+          [linkColumns]="['TRANSACTION_ID']"
+          [detailPanel]="exceptionDetailTpl"
               [userContext]="userContextData"
               [urls]="printUrls"
               [keysToMap]="preAndAutoInvoiceKeysToMap"
@@ -161,6 +169,8 @@
           }
           @case (2) {
             <app-monitoring-dashboard
+          [linkColumns]="['TRANSACTION_ID']"
+          [detailPanel]="exceptionDetailTpl"
               [userContext]="userContextData"
               [urls]="creditCardUrls"
               [keysToMap]="preAndAutoInvoiceKeysToMap"
@@ -174,6 +184,8 @@
           }
           @case (3) {
             <app-monitoring-dashboard
+          [linkColumns]="['TRANSACTION_ID']"
+          [detailPanel]="exceptionDetailTpl"
               [userContext]="userContextData"
               [urls]="srtProcessUrls"
               [keysToMap]="[
@@ -198,6 +210,8 @@
           }
           @case (4) {
             <app-monitoring-dashboard
+          [linkColumns]="['TRANSACTION_ID']"
+          [detailPanel]="exceptionDetailTpl"
               [userContext]="userContextData"
               [urls]="rpoExtractUrls"
               [keysToMap]="preAndAutoInvoiceKeysToMap"
@@ -222,6 +236,8 @@
           }
           @case (5) {
             <app-monitoring-dashboard
+          [linkColumns]="['TRANSACTION_ID']"
+          [detailPanel]="exceptionDetailTpl"
               [userContext]="userContextData"
               [urls]="pcmApplicationUrls"
               [keysToMap]="preAndAutoInvoiceKeysToMap"
@@ -243,6 +259,8 @@
       }
       @case ("app-eInvoicing") {
         <app-monitoring-dashboard
+          [linkColumns]="['TRANSACTION_ID']"
+          [detailPanel]="exceptionDetailTpl"
           [userContext]="userContextData"
           [urls]="eInvoicingUrls"
           [keysToMap]="preAndAutoInvoiceKeysToMap"
@@ -269,6 +287,8 @@
       }
       @case ("app-fusion") {
         <app-monitoring-dashboard
+          [linkColumns]="['TRANSACTION_ID']"
+          [detailPanel]="exceptionDetailTpl"
           [userContext]="userContextData"
           [urls]="fusionUrls"
           [keysToMap]="preAndAutoInvoiceKeysToMap"
@@ -294,6 +314,8 @@
       }
       @case ("app-credit-card-check") {
         <app-monitoring-dashboard
+          [linkColumns]="['TRANSACTION_ID']"
+          [detailPanel]="exceptionDetailTpl"
           [userContext]="userContextData"
           [urls]="creditCardCheckUrls"
           [keysToMap]="[
@@ -328,3 +350,12 @@
     </tr>
   }
 </div>
+
+<ng-template #exceptionDetailTpl let-value let-close="close">
+  <app-exception-details
+    [exceptionId]="value"
+    apiEndpoint="by-record"
+    backLabel="Back to Error Details"
+    (back)="close()"
+  ></app-exception-details>
+</ng-template>

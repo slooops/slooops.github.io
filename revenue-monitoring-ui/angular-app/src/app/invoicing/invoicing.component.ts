@@ -9,6 +9,7 @@ import { Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
+import { ExceptionDetailsComponent } from '../self-healing/exception-details/exception-details.component';
 import { CmsComponent } from '../cms/cms.component';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import {
@@ -32,6 +33,7 @@ export interface UserContext {
     CommonModule,
     MatTabsModule,
     MonitoringDashboardComponent,
+    ExceptionDetailsComponent,
     CmsComponent,
     LoadingSymbolComponent,
     MenuMiniComponent,
