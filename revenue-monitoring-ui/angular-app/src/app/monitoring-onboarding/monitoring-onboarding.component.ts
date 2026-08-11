@@ -235,12 +235,6 @@ export class MonitoringOnboardingComponent implements OnInit {
     return `${normalized}/api/dashboard-codegen`;
   }
 
-  private resolveStreamApiUrl(rawUrl: string): string {
-    const codegenUrl = this.resolveApiUrl(rawUrl);
-    if (!codegenUrl) return '';
-    return `${codegenUrl.replace(/\/+$/, '')}/stream`;
-  }
-
   private resolveApplyApiUrl(rawUrl: string): string {
     const codegenUrl = this.resolveApiUrl(rawUrl);
     if (!codegenUrl) return '';
@@ -793,17 +787,13 @@ export class MonitoringOnboardingComponent implements OnInit {
 
     this.submitting = true;
     this.submitError = null;
-    this.generationStage = 'Starting…';
+    this.generationStage = 'Generating…';
     this.resetApplyState();
     this.docsSaved = false;
     this.leaveWarningDismissed = false;
 
-    const streamUrl = this.resolveStreamApiUrl(
-      this.authService.getControlTowerSupportAgentApiUrl() || '',
-    );
-
     try {
-      const response = await fetch(streamUrl, {
+      const response = await fetch(resolvedUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(this.buildPayload()),
@@ -816,57 +806,9 @@ export class MonitoringOnboardingComponent implements OnInit {
         );
       }
 
-      const reader = response.body!.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-
-        // SSE frames are delimited by double newlines.
-        const frames = buffer.split(/\n\n/);
-        buffer = frames.pop() ?? '';
-
-        for (const frame of frames) {
-          const dataLine = frame.split('\n').find((l) => l.startsWith('data:'));
-          if (!dataLine) continue;
-          const jsonStr = dataLine.slice('data:'.length).trim();
-          if (!jsonStr) continue;
-
-          let event: Record<string, unknown>;
-          try {
-            event = JSON.parse(jsonStr) as Record<string, unknown>;
-          } catch {
-            continue;
-          }
-
-          if (event['type'] === 'progress') {
-            const msg = event['message'];
-            if (typeof msg === 'string') {
-              this.generationStage = msg;
-            }
-          } else if (event['type'] === 'result') {
-            const result = event['result'] as Record<string, unknown>;
-            this.generated = this.mapGeneratedDocsResponse(result);
-            this.isEditingRegeneration = false;
-          } else if (event['type'] === 'error') {
-            const errMsg = event['error'];
-            throw new Error(
-              typeof errMsg === 'string'
-                ? errMsg
-                : 'Code-generation service reported an error.',
-            );
-          }
-        }
-      }
-
-      if (!this.generated) {
-        throw new Error(
-          'Stream ended without a result from the code-generation service.',
-        );
-      }
+      const data = (await response.json()) as Record<string, unknown>;
+      this.generated = this.mapGeneratedDocsResponse(data);
+      this.isEditingRegeneration = false;
     } catch (err) {
       this.submitError =
         err instanceof Error
