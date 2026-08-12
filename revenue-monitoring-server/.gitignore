@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Local Maven repo written by the CI command: mvn -Dmaven.repo.local=.m2/repository
+.m2/
+
 ### STS ###
 .apt_generated
 .classpath
