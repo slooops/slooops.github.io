@@ -298,7 +298,32 @@ def _extract_monitoring_schematic_name(command: str) -> str | None:
     match = re.search(r"monitoring-dashboard\s+([^\s]+)", command)
     if not match:
         return None
-    return match.group(1).strip()
+    return match.group(1).strip().strip("\"'")
+
+
+def _extract_assignment_filter_key(command: str) -> str | None:
+    """Extract --assignmentFilterKey value from schematic command.
+
+    Supports both forms:
+    - --assignmentFilterKey=value
+    - --assignmentFilterKey "value"
+    """
+    if not isinstance(command, str) or not command.strip():
+        return None
+
+    inline = re.search(r"--assignmentFilterKey=(?:\"([^\"]+)\"|'([^']+)'|([^\s]+))", command)
+    if inline:
+        value = inline.group(1) or inline.group(2) or inline.group(3)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+
+    spaced = re.search(r"--assignmentFilterKey\s+(?:\"([^\"]+)\"|'([^']+)'|([^\s]+))", command)
+    if spaced:
+        value = spaced.group(1) or spaced.group(2) or spaced.group(3)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+
+    return None
 
 
 def _monitoring_schematic_paths(feature_name: str, include_tests: bool) -> list[str]:
@@ -321,18 +346,26 @@ def _replace_marker_block(content: str, marker: str, replacement: str, file_path
     marker_patterns = {
         "VISIBLE_TABS": re.compile(r"visibleTabs:\s*\{.*?\}\[\]\s*=\s*\[\];", re.DOTALL),
         "FIELD_CONFIG": re.compile(r"fieldConfig:\s*\{.*?\}\[\]\s*=\s*\[\];", re.DOTALL),
+        "ASSIGNMENT_FILTER_KEY": re.compile(r"assignmentUsersFilterKey:\s*['\"][^'\"]*['\"],?"),
     }
 
     if marker in marker_patterns:
         pattern = marker_patterns[marker]
         if not pattern.search(content):
             raise ValueError(f"Marker block '{marker}' not found in {file_path}")
-        return pattern.sub(replacement, content, count=1)
+        # Use callable replacement so backslashes in code are preserved
+        # literally (no regex backreference expansion like \1).
+        return pattern.sub(lambda _m: replacement, content, count=1)
 
     line_pattern = re.compile(rf"^.*{re.escape(marker)}.*$", re.MULTILINE)
     marker_match = line_pattern.search(content)
     if not marker_match:
         raise ValueError(f"Marker line '{marker}' not found in {file_path}")
+
+    replacement_normalized = replacement.strip()
+    if replacement_normalized and replacement_normalized in content:
+        # Idempotency: if the block is already present, do not insert again.
+        return content
 
     insert_at = marker_match.end()
     snippet = "\n" + replacement.rstrip() + "\n"
@@ -527,14 +560,13 @@ def _validate_grouped_file_operations(file_operations: list[dict[str, Any]]) -> 
                 errors.append("frontend.preSteps[0] must be run_command")
             if pre_steps[1].get("op") != "update_routing_module":
                 errors.append("frontend.preSteps[1] must be update_routing_module")
+            run_command = pre_steps[0].get("command") if isinstance(pre_steps[0], dict) else None
+            if not isinstance(run_command, str) or not _extract_assignment_filter_key(run_command):
+                errors.append("frontend.preSteps[0].command must include --assignmentFilterKey=<value>")
 
         operations = frontend.get("operations") if isinstance(frontend.get("operations"), list) else []
         if not operations:
             errors.append("frontend.operations cannot be empty")
-        else:
-            first_op = operations[0]
-            if first_op.get("op") != "replace_text":
-                errors.append("frontend.operations[0] must set assignmentUsersFilterKey via replace_text")
 
     for group in file_operations:
         if not isinstance(group, dict):
@@ -640,13 +672,16 @@ def _simulate_grouped_file_operations(
             if step_op == "run_command":
                 command = str(pre_step.get("command"))
                 feature_name = _extract_monitoring_schematic_name(command)
+                assignment_filter_key = (
+                    _extract_assignment_filter_key(command) or "FILTER_KEY_PLACEHOLDER"
+                )
                 include_tests = not _command_skips_tests(command)
                 materialized_files: list[str] = []
                 if feature_name:
                     for relative_path in _monitoring_schematic_paths(feature_name, include_tests):
                         content = _render_monitoring_schematic_template(
                             relative_path,
-                            "FILTER_KEY_PLACEHOLDER",
+                            assignment_filter_key,
                         )
                         if content is None:
                             continue
@@ -945,13 +980,16 @@ async def _execute_grouped_file_operations(
             if step_op == "run_command":
                 command = str(pre_step.get("command", ""))
                 feature_name = _extract_monitoring_schematic_name(command)
+                assignment_filter_key = (
+                    _extract_assignment_filter_key(command) or "FILTER_KEY_PLACEHOLDER"
+                )
                 include_tests = not _command_skips_tests(command)
                 materialized_files: list[str] = []
                 if feature_name:
                     for relative_path in _monitoring_schematic_paths(feature_name, include_tests):
                         content = _render_monitoring_schematic_template(
                             relative_path,
-                            "FILTER_KEY_PLACEHOLDER",
+                            assignment_filter_key,
                         )
                         if content is None:
                             continue
@@ -2261,7 +2299,7 @@ def _deterministic_frontend_group(
             "op": "run_command",
             "command": (
                 "ng generate @rev-ops-monitoring/dashboard-schematics:"
-                f"monitoring-dashboard {feature_name}"
+                f"monitoring-dashboard {feature_name} --assignmentFilterKey=\"{assignment_key}\""
             ),
             "description": "Run Angular schematic before applying UI file operations",
         },
@@ -2296,11 +2334,9 @@ def _deterministic_frontend_group(
     operations: list[dict[str, Any]] = [
         {
             "path": component_ts,
-            "op": "replace_text",
-            "content": {
-                "find": "assignmentUsersFilterKey: 'FILTER_KEY_PLACEHOLDER'",
-                "replace": f"assignmentUsersFilterKey: '{assignment_key}'",
-            },
+            "op": "replace_marker_block",
+            "marker": "ASSIGNMENT_FILTER_KEY",
+            "content": f"assignmentUsersFilterKey: {_ts_string_literal(assignment_key)},",
             "description": "Set assignmentUsersFilterKey in generated userContextData",
         }
     ]
@@ -2517,6 +2553,8 @@ async def operations_generation_node(state: DashboardCodegenState) -> DashboardC
     accumulated_ui = state.get("ui_document", "")
 
     if deterministic_ops is not None:
+        if not deterministic_ops:
+            raise ValueError("Generated fileOperations are empty (deterministic path).")
         warnings = _validate_generated_artifacts(deterministic_ops, expected_params, expected_jdbc_suffix)
         warnings.append(
             {
@@ -2564,6 +2602,13 @@ async def operations_generation_node(state: DashboardCodegenState) -> DashboardC
         # Repair the `}\n[] =` split array-type annotation in any .ts content
         # (hard TS ASI compile error) so both paths stay leak-proof.
         repaired_ops = _repair_ts_array_type_splits(repaired_ops)
+        if not repaired_ops:
+            raise ValueError("Generated fileOperations are empty (LLM path).")
+        generated_errors, _generated_warnings = _validate_grouped_file_operations(repaired_ops)
+        if generated_errors:
+            raise ValueError(
+                "Invalid generated fileOperations: " + "; ".join(generated_errors)
+            )
         # Deterministic backstop validation (non-blocking, surfaced to the UI).
         warnings = _validate_generated_artifacts(repaired_ops, expected_params, expected_jdbc_suffix)
     except Exception as exc:

@@ -60,6 +60,7 @@ export class <%= classify(name) %>Component implements OnInit {
       userId: this.authService.getUserID(),
       roles: this.roles,
       apiUrl: this.authService.getHostUrl(),
+      // ASSIGNMENT_FILTER_KEY (set by codegen apply step)
       assignmentUsersFilterKey: '<%= assignmentFilterKey %>',
     };
   }

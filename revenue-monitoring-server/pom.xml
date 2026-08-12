@@ -35,7 +35,8 @@
 			**/CaseIQMonitoringService.java,
 			**/CaseIQMonitoringController.java
 		</sonar.coverage.exclusions>
-		<sonar.newCode.referenceBranch>UI2.0</sonar.newCode.referenceBranch>
+		<!-- Reference branch must never be the branch under analysis; develop is the integration target. -->
+		<sonar.newCode.referenceBranch>develop</sonar.newCode.referenceBranch>
 	</properties>
 
 	<dependencyManagement>

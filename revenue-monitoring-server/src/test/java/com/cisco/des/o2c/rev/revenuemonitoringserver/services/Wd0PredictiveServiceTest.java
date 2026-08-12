@@ -163,10 +163,18 @@ class Wd0PredictiveServiceTest {
     }
 
     @Test
-    void workDayLabel_returnsNull_whenNotInCloseWindow() {
+    void workDayLabel_returnsNull_onAndAfterPeriodEnd() {
         LocalDate pe = LocalDate.of(2026, 5, 23);
-        assertNull(Wd0PredictiveService.workDayLabel(LocalDate.of(2026, 5, 18), pe)); // Monday, too early
-        assertNull(Wd0PredictiveService.workDayLabel(LocalDate.of(2026, 5, 23), pe)); // PE itself
+        assertNull(Wd0PredictiveService.workDayLabel(pe, pe)); // PE itself
+        assertNull(Wd0PredictiveService.workDayLabel(pe.plusDays(1), pe)); // after PE
+    }
+
+    @Test
+    void workDayLabel_labelsEarlierBusinessDaysInCloseWindow() {
+        // Labelling is not capped at WD-3: every business day before PE gets a
+        // label so daily snapshots can be persisted as training data.
+        LocalDate pe = LocalDate.of(2026, 5, 23);
+        assertEquals("WD-5", Wd0PredictiveService.workDayLabel(LocalDate.of(2026, 5, 18), pe));
     }
 
     @Test
@@ -299,10 +307,10 @@ class Wd0PredictiveServiceTest {
 
     @Test
     void dryRun_throwsWhenNotInCloseWindow() {
-        // A date far from any period end should fail
-        LocalDate dateNotInWindow = LocalDate.of(2026, 3, 2);
+        // On the period end itself there is no WD label, so there is nothing to run.
+        LocalDate periodEnd = LocalDate.of(2026, 5, 23);
         assertThrows(IllegalStateException.class,
-                () -> service.dryRun(dateNotInWindow, null));
+                () -> service.dryRun(periodEnd, null));
     }
 
     @Test
