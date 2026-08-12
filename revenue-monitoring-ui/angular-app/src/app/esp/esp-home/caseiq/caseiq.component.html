@@ -324,10 +324,10 @@
                   <tr class="umbrella-row">
                     <th class="umbrella-empty"></th>
                     <th class="mttr-umbrella" colspan="2" scope="colgroup">
-                      Case MTTR
+                      CaseIQ MTTR
                     </th>
                     <th class="mttr-umbrella" colspan="2" scope="colgroup">
-                      CaseIQ MTTR
+                      Case MTTR
                     </th>
                   </tr>
                   <tr>
@@ -349,22 +349,6 @@
                       </td>
                       <td class="pair-r">
                         <span class="summary-total-cases">{{
-                          mttrDaysParts(row.mttrP80).value
-                        }}</span
-                        ><span class="td-sub">
-                          {{ mttrDaysParts(row.mttrP80).unit }}</span
-                        >
-                      </td>
-                      <td class="pair-l">
-                        <span class="summary-total-cases">{{
-                          mttrDaysParts(row.mttrP90).value
-                        }}</span
-                        ><span class="td-sub">
-                          {{ mttrDaysParts(row.mttrP90).unit }}</span
-                        >
-                      </td>
-                      <td class="pair-r">
-                        <span class="summary-total-cases">{{
                           durationParts(row.executionTimeP80).value
                         }}</span
                         ><span class="td-sub">
@@ -377,6 +361,22 @@
                         }}</span
                         ><span class="td-sub">
                           {{ durationParts(row.executionTimeP90).unit }}</span
+                        >
+                      </td>
+                      <td class="pair-r">
+                        <span class="summary-total-cases">{{
+                          mttrDaysParts(row.mttrP80).value
+                        }}</span
+                        ><span class="td-sub">
+                          {{ mttrDaysParts(row.mttrP80).unit }}</span
+                        >
+                      </td>
+                      <td class="pair-l">
+                        <span class="summary-total-cases">{{
+                          mttrDaysParts(row.mttrP90).value
+                        }}</span
+                        ><span class="td-sub">
+                          {{ mttrDaysParts(row.mttrP90).unit }}</span
                         >
                       </td>
                     </tr>

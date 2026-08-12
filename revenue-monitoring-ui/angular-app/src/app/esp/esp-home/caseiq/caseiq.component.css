@@ -209,25 +209,27 @@
   color: var(--ciq-muted);
 }
 
-/* ── Paired-column alignment: pull "80" right and "90 pctl." left so the two
-     columns visually group as one MTTR bucket. Higher specificity than the
-     generic .ciq-table nth-child(2/3) center rule below. ── */
+/* ── Paired-column layout: values centered under their heading. A faint
+     border-right on the p80 column visually separates it from p90 within the
+     same umbrella group. ── */
 .ciq-components-table.mttr-pair-table th.pair-r,
 .ciq-components-table.mttr-pair-table td.pair-r {
-  text-align: right;
-  padding-right: 0.2rem;
-  padding-left: 0.2rem;
+  text-align: center;
+  padding-right: 0.35rem;
+  padding-left: 0.35rem;
+  border-right: 0.5px solid var(--ciq-border);
 }
 
 .ciq-components-table.mttr-pair-table th.pair-l,
 .ciq-components-table.mttr-pair-table td.pair-l {
-  text-align: left;
-  padding-left: 0.2rem;
-  padding-right: 0.2rem;
+  text-align: center;
+  padding-left: 0.35rem;
+  padding-right: 0.35rem;
 }
 
 /* Plain (uncolored) umbrella header for MTTR pair table: centered label over its two columns. */
-.ciq-components-table.mttr-pair-table thead tr.umbrella-row .mttr-umbrella {
+.ciq-components-table.mttr-pair-table thead tr.umbrella-row .mttr-umbrella,
+.ciq-components-table.mttr-pair-table thead tr.umbrella-row .umbrella-empty {
   text-align: center;
   font-size: 0.75rem;
   font-weight: 700;
@@ -235,7 +237,13 @@
   letter-spacing: 0.04em;
   background: transparent;
   border: none;
-  padding: 0.5rem 0.5rem 0.375rem;
+  padding: 0 0.5rem 0.5rem;
+  line-height: 1.1;
+}
+
+/* Pull the sub-header row up close to the umbrella labels. */
+.ciq-components-table.mttr-pair-table thead tr:not(.umbrella-row) th {
+  padding-top: 0.125rem;
 }
 
 /* ── Dual pill inside table cells ── */
