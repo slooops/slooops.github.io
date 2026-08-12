@@ -307,9 +307,9 @@
           } @else {
             <div class="ciq-card-header">
               <span class="ciq-card-title">MTTR by Component</span>
-              <span class="analytics-date-range"
-                >{{ selectedQuarter || "Q4FY26" }} · minutes</span
-              >
+              <span class="analytics-date-range">{{
+                selectedQuarter || ""
+              }}</span>
               <button
                 class="flip-btn"
                 (click)="flipTeamCard()"
@@ -2164,13 +2164,19 @@
               <th>Component</th>
               <th>Deployed</th>
               <th>Total</th>
-              <th>Coverage</th>
-              <th>Link</th>
             </tr>
           </thead>
           <tbody>
             @for (a of activeAgentsModalRows(); track a.team) {
-              <tr>
+              <tr
+                class="ciq-row-clickable"
+                (click)="openResolutionAgents($event)"
+                (keydown.enter)="openResolutionAgents($event)"
+                (keydown.space)="openResolutionAgents($event)"
+                tabindex="0"
+                role="button"
+                [attr.aria-label]="'Open resolution agents for ' + a.team"
+              >
                 <td class="summary-component">
                   <span
                     class="component-badge component-badge--static badge-{{
@@ -2186,30 +2192,6 @@
                 </td>
                 <td>
                   <span class="td-sub">{{ a.total | number }}</span>
-                </td>
-                <td>
-                  <div class="caseiq-pill table-pill">
-                    <div
-                      class="caseiq-pill-fill cyan"
-                      [style.width.%]="
-                        a.total > 0 ? (a.deployed / a.total) * 100 : 0
-                      "
-                    ></div>
-                    <span class="caseiq-pill-text">
-                      {{
-                        a.total > 0
-                          ? ((a.deployed / a.total) * 100 | number: "1.0-0")
-                          : "--"
-                      }}%
-                    </span>
-                  </div>
-                </td>
-                <td>
-                  <a
-                    class="active-agents-link"
-                    (click)="openResolutionAgents($event)"
-                    >Open</a
-                  >
                 </td>
               </tr>
             }
