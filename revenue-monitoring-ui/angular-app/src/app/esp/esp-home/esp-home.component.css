@@ -1548,6 +1548,21 @@ p {
   grid-template-columns: repeat(8, 1fr);
 }
 
+/* Ctx-1 secondary KPI strip — dual-width Exec + MTTR cards followed by Active Agents. */
+.caseiq-kpi-strip--exec-3 {
+  grid-template-columns: 2fr 2fr 1fr;
+}
+
+/* One of Auto Resolved / Cases Reopened present after Active Agents. */
+.caseiq-kpi-strip--exec-4 {
+  grid-template-columns: 2fr 2fr 1fr 1fr;
+}
+
+/* Q1FY27+ adds Auto Resolved + Cases Reopened after Active Agents. */
+.caseiq-kpi-strip--exec-5 {
+  grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
+}
+
 /* ── Individual KPI card ─────────────────────────────── */
 .caseiq-kpi {
   background: var(--ciq-card-bg);

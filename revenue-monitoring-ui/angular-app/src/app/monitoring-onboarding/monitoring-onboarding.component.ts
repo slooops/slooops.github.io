@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostBinding, HostListener, OnInit } from '@angular/core';
+import {
+  Component,
+  HostBinding,
+  HostListener,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -22,6 +28,7 @@ import { AuthenticationService } from '../providers/authentication.service';
 import { ThemeService } from '../providers/theme.service';
 
 interface GeneratedDocs {
+  sessionId?: string | null;
   backendDocument?: string;
   uiDocument?: string;
   backend?: string;
@@ -35,6 +42,13 @@ interface DocumentOutlineItem {
   id: string;
   text: string;
   level: number;
+}
+
+interface PersistedCodegenJobState {
+  sessionId: string;
+  status: 'pending' | 'generated' | 'applied' | 'failed';
+  generated?: GeneratedDocs | null;
+  error?: string | null;
 }
 
 /** Inline formatting fragments within a line of document text. */
@@ -64,6 +78,36 @@ const UPPER_SNAKE_PATTERN = /^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$/;
 const FLEX_SNAKE_PATTERN =
   /^(?:[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*|[a-z][a-z0-9]*(?:_[a-z0-9]+)*)$/;
 
+const CODEGEN_JOB_STORAGE_KEY = 'monitoringOnboarding.codegenJob';
+const CODEGEN_POLL_INTERVAL_MS = 3000;
+const CODEGEN_MAX_NON_200_POLL_RETRIES = 5;
+
+const DEFAULT_MANUAL_FORM_VALUES = {
+  componentName: 'AIT TEST',
+  featureName: 'ait-test',
+  roleName: 'AIT_TEST',
+  assignmentUsersKey: 'AIT_TEST',
+  queries: {
+    summary: 'SELECT * FROM finisro.xxcfi_ait_jobs_summary_v',
+    details: 'SELECT * FROM finisro.xxcfi_ait_jobs_detail_v',
+    detailsFiltered:
+      'SELECT * FROM finisro.xxcfi_ait_jobs_detail_v WHERE job_date=? AND module=? AND ctm_folder=? AND ctm_status=?',
+    summaryUpdate:
+      "UPDATE finisro.xxcfi_ait_jobs_audit SET assigned_to=?, assigned_date=SYSDATE, comments=? WHERE cleared_flag='N' AND job_date=TRUNC(TO_DATE(?, 'MM/DD/YYYY')) AND module=? AND ctm_folder=? AND ctm_status=?",
+  },
+  summaryColumns: [
+    'PERIOD_NAME',
+    'CTM_FOLDER',
+    'JOB_NAME',
+    'JOB_STATUS',
+    'RUN_DATE',
+  ],
+  detailsTableFilters: [
+    { columnName: 'RUN_DATE', type: 'text' as const },
+    { columnName: 'CTM_FOLDER', type: 'select' as const },
+  ],
+};
+
 @Component({
   selector: 'app-monitoring-onboarding',
   standalone: true,
@@ -79,7 +123,7 @@ const FLEX_SNAKE_PATTERN =
   templateUrl: './monitoring-onboarding.component.html',
   styleUrl: './monitoring-onboarding.component.css',
 })
-export class MonitoringOnboardingComponent implements OnInit {
+export class MonitoringOnboardingComponent implements OnInit, OnDestroy {
   @HostBinding('class.dark-theme')
   get darkThemeClass(): boolean {
     return this.themeService.isDarkMode;
@@ -137,7 +181,9 @@ export class MonitoringOnboardingComponent implements OnInit {
 
   submitting = false;
   submitError: string | null = null;
+  generationStage: string = '';
   generated: GeneratedDocs | null = null;
+  isEditingRegeneration = false;
 
   /** Identity-step intake mode (spec placeholder vs manual form). */
   specInputMode: 'spec' | 'manual' = 'manual';
@@ -161,6 +207,8 @@ export class MonitoringOnboardingComponent implements OnInit {
   docsSaved = false;
   /** Whether the in-page "unsaved changes" warning banner is visible. */
   leaveWarningDismissed = false;
+  private pollTimerId: number | null = null;
+  private non200PollFailures = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -217,6 +265,14 @@ export class MonitoringOnboardingComponent implements OnInit {
       detailsTableFilters: this.fb.array([this.createFilterGroup()]),
       paramAliases: this.fb.array([]),
     });
+
+    this.applyManualDefaults();
+
+    this.restorePersistedCodegenState();
+  }
+
+  ngOnDestroy(): void {
+    this.clearPollTimer();
   }
 
   private resolveApiUrl(rawUrl: string): string {
@@ -237,6 +293,18 @@ export class MonitoringOnboardingComponent implements OnInit {
     const codegenUrl = this.resolveApiUrl(rawUrl);
     if (!codegenUrl) return '';
     return `${codegenUrl.replace(/\/+$/, '')}/apply-with-agent`;
+  }
+
+  private resolveJobsApiUrl(rawUrl: string): string {
+    const codegenUrl = this.resolveApiUrl(rawUrl);
+    if (!codegenUrl) return '';
+    return `${codegenUrl.replace(/\/+$/, '')}/jobs`;
+  }
+
+  private resolveJobStatusApiUrl(rawUrl: string, sessionId: string): string {
+    const jobsUrl = this.resolveJobsApiUrl(rawUrl);
+    if (!jobsUrl || !sessionId.trim()) return '';
+    return `${jobsUrl}/${encodeURIComponent(sessionId.trim())}`;
   }
 
   // ── typed getters ──────────────────────────────────────────
@@ -276,6 +344,43 @@ export class MonitoringOnboardingComponent implements OnInit {
       updateColumn: ['', [Validators.required]],
       summaryColumn: ['', [Validators.required]],
     });
+  }
+
+  private applyManualDefaults(): void {
+    this.form.patchValue({
+      componentName: DEFAULT_MANUAL_FORM_VALUES.componentName,
+      featureName: DEFAULT_MANUAL_FORM_VALUES.featureName,
+      roleName: DEFAULT_MANUAL_FORM_VALUES.roleName,
+      assignmentUsersKey: DEFAULT_MANUAL_FORM_VALUES.assignmentUsersKey,
+      queries: {
+        summary: DEFAULT_MANUAL_FORM_VALUES.queries.summary,
+        details: DEFAULT_MANUAL_FORM_VALUES.queries.details,
+        detailsFiltered: DEFAULT_MANUAL_FORM_VALUES.queries.detailsFiltered,
+        summaryUpdate: DEFAULT_MANUAL_FORM_VALUES.queries.summaryUpdate,
+      },
+    });
+
+    this.summaryColumns.clear();
+    DEFAULT_MANUAL_FORM_VALUES.summaryColumns.forEach((value) => {
+      const control = this.createColumnControl();
+      control.setValue(value);
+      this.summaryColumns.push(control);
+    });
+
+    this.detailsTableFilters.clear();
+    DEFAULT_MANUAL_FORM_VALUES.detailsTableFilters.forEach((filter) => {
+      const group = this.createFilterGroup();
+      group.patchValue({
+        columnName: filter.columnName,
+        type: filter.type,
+      });
+      this.detailsTableFilters.push(group);
+    });
+
+    this.paramAliases.clear();
+
+    this.form.markAsPristine();
+    this.form.markAsUntouched();
   }
 
   // ── dynamic row management ─────────────────────────────────
@@ -534,6 +639,10 @@ export class MonitoringOnboardingComponent implements OnInit {
       featureName: (raw.featureName as string).trim(),
       roleName: (raw.roleName as string).trim(),
       assignmentUsersKey: (raw.assignmentUsersKey as string).trim(),
+      userName: this.authService.getUserID() || null,
+      userEmail: this.authService.getUserID()
+        ? `${this.authService.getUserID()}@cisco.com`
+        : null,
       queries: {
         summary: (raw.queries.summary as string).trim(),
         details: (raw.queries.details as string).trim(),
@@ -587,8 +696,13 @@ export class MonitoringOnboardingComponent implements OnInit {
       ? fileOperationsRaw
       : [];
 
+    const sessionIdRaw =
+      data['sessionId'] ?? data['session_id'] ?? backendHandoff['sessionId'];
+    const sessionId = typeof sessionIdRaw === 'string' ? sessionIdRaw : null;
+
     return {
       ...data,
+      sessionId,
       backendDocument: backend,
       uiDocument: ui,
       // Keep old keys for current UI binding/parsers.
@@ -597,6 +711,203 @@ export class MonitoringOnboardingComponent implements OnInit {
       backendHandoff,
       fileOperations,
     };
+  }
+
+  private persistCodegenJobState(state: PersistedCodegenJobState): void {
+    try {
+      localStorage.setItem(CODEGEN_JOB_STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      /* localStorage unavailable */
+    }
+  }
+
+  private readPersistedCodegenJobState(): PersistedCodegenJobState | null {
+    try {
+      const raw = localStorage.getItem(CODEGEN_JOB_STORAGE_KEY);
+      if (!raw) return null;
+
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      const sessionId =
+        typeof parsed['sessionId'] === 'string'
+          ? parsed['sessionId'].trim()
+          : '';
+      const status =
+        typeof parsed['status'] === 'string' ? parsed['status'] : '';
+
+      if (
+        !sessionId ||
+        !['pending', 'generated', 'applied', 'failed'].includes(status)
+      ) {
+        return null;
+      }
+
+      return {
+        sessionId,
+        status: status as PersistedCodegenJobState['status'],
+        generated:
+          parsed['generated'] && typeof parsed['generated'] === 'object'
+            ? (parsed['generated'] as GeneratedDocs)
+            : null,
+        error: typeof parsed['error'] === 'string' ? parsed['error'] : null,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  private clearPersistedCodegenJobState(): void {
+    try {
+      localStorage.removeItem(CODEGEN_JOB_STORAGE_KEY);
+    } catch {
+      /* localStorage unavailable */
+    }
+  }
+
+  private clearPollTimer(): void {
+    if (this.pollTimerId !== null) {
+      window.clearTimeout(this.pollTimerId);
+      this.pollTimerId = null;
+    }
+  }
+
+  private scheduleNextPoll(sessionId: string): void {
+    this.clearPollTimer();
+    this.pollTimerId = window.setTimeout(() => {
+      void this.pollCodegenJob(sessionId);
+    }, CODEGEN_POLL_INTERVAL_MS);
+  }
+
+  private restorePersistedCodegenState(): void {
+    const persisted = this.readPersistedCodegenJobState();
+    if (!persisted) return;
+
+    if (
+      persisted.generated &&
+      (persisted.status === 'generated' || persisted.status === 'applied')
+    ) {
+      this.generated = persisted.generated;
+      this.submitError = null;
+      this.submitting = false;
+      this.generationStage = '';
+      this.isEditingRegeneration = false;
+      return;
+    }
+
+    if (persisted.status === 'pending') {
+      this.non200PollFailures = 0;
+      this.submitting = true;
+      this.submitError = null;
+      this.generationStage = 'Resuming generation from saved job…';
+      void this.pollCodegenJob(persisted.sessionId);
+      return;
+    }
+
+    if (persisted.status === 'failed' && persisted.error) {
+      this.submitError = persisted.error;
+      this.clearPersistedCodegenJobState();
+    }
+  }
+
+  private handleCompletedJob(
+    sessionId: string,
+    data: Record<string, unknown>,
+  ): void {
+    const rawResult =
+      data['result'] && typeof data['result'] === 'object'
+        ? (data['result'] as Record<string, unknown>)
+        : data;
+
+    const generated = this.mapGeneratedDocsResponse({
+      ...rawResult,
+      sessionId,
+    });
+
+    this.generated = generated;
+    this.submitting = false;
+    this.submitError = null;
+    this.generationStage = '';
+    this.isEditingRegeneration = false;
+    this.clearPollTimer();
+    this.clearPersistedCodegenJobState();
+  }
+
+  private async pollCodegenJob(sessionId: string): Promise<void> {
+    const statusUrl = this.resolveJobStatusApiUrl(
+      this.authService.getControlTowerSupportAgentApiUrl() || '',
+      sessionId,
+    );
+
+    if (!statusUrl) {
+      this.submitting = false;
+      this.generationStage = '';
+      this.submitError =
+        'Code-generation status URL is unavailable from user context. Please refresh and try again.';
+      return;
+    }
+
+    try {
+      const response = await fetch(statusUrl, { method: 'GET' });
+      const raw = await response.text();
+      const data = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+
+      if (!response.ok) {
+        this.non200PollFailures += 1;
+        if (this.non200PollFailures > CODEGEN_MAX_NON_200_POLL_RETRIES) {
+          this.submitting = false;
+          this.generationStage = '';
+          this.submitError =
+            'Unable to reconnect to generation status after multiple attempts. Please click Start over and try again.';
+          this.clearPollTimer();
+          this.clearPersistedCodegenJobState();
+          return;
+        }
+
+        const message =
+          (typeof data['detail'] === 'string' && data['detail']) ||
+          `Status request failed (${response.status} ${response.statusText}).`;
+        throw new Error(message);
+      }
+
+      this.non200PollFailures = 0;
+      const status = typeof data['status'] === 'string' ? data['status'] : '';
+
+      if (status === 'generated' || status === 'applied') {
+        this.handleCompletedJob(sessionId, data);
+        return;
+      }
+
+      if (status === 'failed') {
+        const error =
+          (typeof data['error'] === 'string' && data['error']) ||
+          'Dashboard code generation failed.';
+        this.submitting = false;
+        this.generationStage = '';
+        this.submitError = error;
+        this.clearPollTimer();
+        this.persistCodegenJobState({
+          sessionId,
+          status: 'failed',
+          generated: null,
+          error,
+        });
+        return;
+      }
+
+      this.submitting = true;
+      this.submitError = null;
+      this.generationStage = 'Generating your implementation guide…';
+      this.persistCodegenJobState({
+        sessionId,
+        status: 'pending',
+        generated: null,
+        error: null,
+      });
+      this.scheduleNextPoll(sessionId);
+    } catch {
+      this.submitting = true;
+      this.generationStage = 'Still generating… reconnecting to job status…';
+      this.scheduleNextPoll(sessionId);
+    }
   }
 
   get canStartApplyWithAgent(): boolean {
@@ -757,10 +1068,10 @@ export class MonitoringOnboardingComponent implements OnInit {
       return;
     }
 
-    const resolvedUrl = this.resolveApiUrl(
+    const resolvedJobsUrl = this.resolveJobsApiUrl(
       this.authService.getControlTowerSupportAgentApiUrl() || '',
     );
-    if (!resolvedUrl) {
+    if (!resolvedJobsUrl) {
       this.submitError =
         'Code-generation API URL is unavailable from user context. Please refresh and try again.';
       this.currentStep = this.manualSteps.findIndex((s) => s.key === 'review');
@@ -781,16 +1092,20 @@ export class MonitoringOnboardingComponent implements OnInit {
 
     this.submitting = true;
     this.submitError = null;
-    this.generated = null;
+    this.generationStage = 'Queueing generation job…';
+    this.non200PollFailures = 0;
     this.resetApplyState();
     this.docsSaved = false;
     this.leaveWarningDismissed = false;
+    this.clearPollTimer();
+    this.clearPersistedCodegenJobState();
 
     try {
-      const response = await fetch(resolvedUrl, {
+      const payload = this.buildPayload();
+      const response = await fetch(resolvedJobsUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(this.buildPayload()),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -801,14 +1116,31 @@ export class MonitoringOnboardingComponent implements OnInit {
       }
 
       const data = (await response.json()) as Record<string, unknown>;
-      this.generated = this.mapGeneratedDocsResponse(data);
+      const sessionId =
+        typeof data['sessionId'] === 'string' ? data['sessionId'].trim() : '';
+      if (!sessionId) {
+        throw new Error('Code-generation job did not return a session ID.');
+      }
+
+      this.persistCodegenJobState({
+        sessionId,
+        status: 'pending',
+        generated: null,
+        error: null,
+      });
+      this.generationStage = 'Generating your implementation guide…';
+      void this.pollCodegenJob(sessionId);
     } catch (err) {
       this.submitError =
         err instanceof Error
           ? err.message
           : 'Unexpected error while contacting the code-generation service.';
-    } finally {
       this.submitting = false;
+      this.generationStage = '';
+    } finally {
+      if (!this.submitError) {
+        return;
+      }
     }
   }
 
@@ -1444,51 +1776,39 @@ export class MonitoringOnboardingComponent implements OnInit {
   }
 
   editForRegeneration(): void {
-    this.generated = null;
     this.submitError = null;
     this.resetApplyState();
     this.docsSaved = false;
     this.leaveWarningDismissed = false;
+    this.isEditingRegeneration = true;
     this.onboardingMode = 'manual';
     this.currentStep = this.manualSteps.findIndex((s) => s.key === 'review');
   }
 
+  backToGeneratedResult(): void {
+    if (!this.generated) return;
+    this.isEditingRegeneration = false;
+    this.submitError = null;
+  }
+
   resetForm(): void {
+    this.clearPollTimer();
+    this.clearPersistedCodegenJobState();
     this.generated = null;
     this.submitError = null;
+    this.submitting = false;
+    this.generationStage = '';
     this.resetApplyState();
     this.docsSaved = false;
     this.leaveWarningDismissed = false;
+    this.isEditingRegeneration = false;
     this.onboardingMode = 'spec';
     this.currentStep = 0;
     this.specInputMode = 'spec';
+    this.non200PollFailures = 0;
     this.specDraftText = '';
     this.specDraftFileName = '';
 
-    this.form.patchValue({
-      componentName: '',
-      featureName: '',
-      roleName: '',
-      assignmentUsersKey: '',
-      queries: {
-        summary: '',
-        details: '',
-        detailsFiltered: '',
-        summaryUpdate: '',
-      },
-    });
-
-    this.summaryColumns.clear();
-    Array.from({ length: 5 }, () => this.createColumnControl()).forEach((c) =>
-      this.summaryColumns.push(c),
-    );
-
-    this.detailsTableFilters.clear();
-    this.detailsTableFilters.push(this.createFilterGroup());
-
-    this.paramAliases.clear();
-
-    this.form.markAsPristine();
-    this.form.markAsUntouched();
+    this.applyManualDefaults();
   }
 }

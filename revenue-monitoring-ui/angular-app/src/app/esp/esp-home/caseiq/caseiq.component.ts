@@ -1193,6 +1193,14 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       (acc, r) => acc + (r.casesReopened ?? 0),
       0,
     );
+    // Check raw backend rows (not summaryRows) because toNumber() coerces null to 0.
+    const rawMetrics = this.getFilteredMetricsByQuarter() ?? [];
+    const hasAutoResolvedData =
+      Array.isArray(rawMetrics) &&
+      rawMetrics.some((m: any) => m?.AUTO_RESOLVED != null);
+    const hasReopenedData =
+      Array.isArray(rawMetrics) &&
+      rawMetrics.some((m: any) => m?.CASES_REOPENED != null);
     const pillOf = (title: string, color: string, value: number): CaseiqKpi => {
       const pct = totalCases > 0 ? (value / totalCases) * 100 : 0;
       return {
@@ -1206,30 +1214,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     return [
       {
-        title: 'Avg Execution P80',
-        color: 'green',
-        plain: true,
-        plainValue: this.formatDuration(num('AVG_EXECUTION_TIME_P80_MIN')),
-      },
-      {
-        title: 'Avg MTTR P80',
-        color: 'cyan',
-        plain: true,
-        plainValue: mttrText(num('MTTR_80_MIN')),
-      },
-      {
-        title: 'Avg Execution P90',
-        color: 'green',
-        plain: true,
-        plainValue: this.formatDuration(num('AVG_EXECUTION_TIME_P90_MIN')),
-      },
-      {
-        title: 'Avg MTTR P90',
-        color: 'cyan',
-        plain: true,
-        plainValue: mttrText(num('MTTR_90_MIN')),
-      },
-      {
         title: 'Active Agents',
         color: 'accent',
         pillWidth: agentPct,
@@ -1237,8 +1221,63 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         pctText: total > 0 ? `${agentPct.toFixed(0)}%` : '--',
         clickable: true,
       },
-      pillOf('Auto Resolved', 'green', autoResolvedSum),
-      pillOf('Cases Reopened', 'amber', casesReopenedSum),
+      ...(this.hasAutoResolveColumns() && hasAutoResolvedData
+        ? [pillOf('Auto Resolved', 'green', autoResolvedSum)]
+        : []),
+      ...(this.hasAutoResolveColumns() && hasReopenedData
+        ? [pillOf('Cases Reopened', 'amber', casesReopenedSum)]
+        : []),
+    ];
+  }
+
+  /**
+   * Two custom MTTR cards (CaseIQ + Case) rendered at the front of the ctx-1
+   * secondary strip. Each card has a colored label box on the left with a
+   * stacked "CaseIQ / MTTR" or "Case / MTTR" title, and two p80/p90 pair
+   * stacks to the right.
+   */
+  mttrCards(): {
+    label: string;
+    sublabel: string;
+    color: string;
+    pairs: { title: string; value: string }[];
+  }[] {
+    const row = this.avgExecMetricsData?.[0] ?? null;
+    const num = (key: string): number | null => {
+      if (!row) return null;
+      const v = Number(row[key] ?? row[key.toUpperCase()]);
+      return Number.isFinite(v) ? v : null;
+    };
+    const mttrText = (min: number | null): string => {
+      if (min == null) return '—';
+      if (Math.abs(min) < 1440) return `${(min / 60).toFixed(1)} h`;
+      return `${(min / 1440).toFixed(1)} days`;
+    };
+    return [
+      {
+        label: 'CaseIQ',
+        sublabel: 'MTTR',
+        color: 'green',
+        pairs: [
+          {
+            title: '80th percentile',
+            value: this.formatDuration(num('AVG_EXECUTION_TIME_P80_MIN')),
+          },
+          {
+            title: '90th percentile',
+            value: this.formatDuration(num('AVG_EXECUTION_TIME_P90_MIN')),
+          },
+        ],
+      },
+      {
+        label: 'Case',
+        sublabel: 'MTTR',
+        color: 'cyan',
+        pairs: [
+          { title: '80th percentile', value: mttrText(num('MTTR_80_MIN')) },
+          { title: '90th percentile', value: mttrText(num('MTTR_90_MIN')) },
+        ],
+      },
     ];
   }
 
@@ -1590,9 +1629,13 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           parseInt(match[2], 16),
           parseInt(match[3], 16),
         ];
+        const isOm = team === 'OM';
         return {
           name: team,
           type: 'line' as const,
+          // Force OM above every other series (line + symbol + area layers).
+          z: isOm ? 10 : 2,
+          zlevel: isOm ? 1 : 0,
           data: weeks.map((w) => weekMap.get(w)?.get(team) ?? 0),
           smooth: true,
           symbol: 'circle',

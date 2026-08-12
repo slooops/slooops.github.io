@@ -69,7 +69,7 @@
               <th>Routed Out</th>
               <th>Canceled</th>
               @if (hasAutoResolveColumns()) {
-                <th>Requests</th>
+                <th>Resolved</th>
                 <th>Auto Resolved</th>
                 <th>Cases Reopened</th>
               } @else {
@@ -225,8 +225,30 @@
         </div>
       }
 
-      <!-- Secondary KPI strip: quarter-wide p80/p90 averages + active agents + auto-resolve/reopen -->
-      <div class="caseiq-kpi-strip" style="margin-bottom: 1rem">
+      <!-- Secondary KPI strip: quarter-wide p80/p90 MTTR + active agents + auto-resolve/reopen -->
+      <div
+        class="caseiq-kpi-strip"
+        [class.caseiq-kpi-strip--exec-3]="avgExecKpis().length === 1"
+        [class.caseiq-kpi-strip--exec-4]="avgExecKpis().length === 2"
+        [class.caseiq-kpi-strip--exec-5]="avgExecKpis().length === 3"
+        style="margin-bottom: 1rem"
+      >
+        @for (card of mttrCards(); track card.label) {
+          <div class="caseiq-kpi caseiq-kpi--mttr">
+            <div class="caseiq-mttr-label {{ card.color }}">
+              <span>{{ card.label }}</span>
+              <span>{{ card.sublabel }}</span>
+            </div>
+            <div class="caseiq-mttr-pairs">
+              @for (p of card.pairs; track $index) {
+                <div class="caseiq-kpi-dual-pair pair-l">
+                  <span class="caseiq-kpi-dual-value">{{ p.value }}</span>
+                  <span class="caseiq-kpi-title">{{ p.title }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
         @for (kpi of avgExecKpis(); track kpi.title) {
           <div
             class="caseiq-kpi {{ kpi.color }}"
@@ -264,7 +286,7 @@
               <button
                 class="flip-btn"
                 (click)="flipTeamCard()"
-                title="Show Response Time & MTTR by Component"
+                title="Show MTTR by Component"
               >
                 <ng-icon name="phosphorArrowsClockwiseBold" size="14"></ng-icon>
               </button>
@@ -284,12 +306,10 @@
             </div>
           } @else {
             <div class="ciq-card-header">
-              <span class="ciq-card-title"
-                >Response Time & MTTR by Component</span
-              >
-              <span class="analytics-date-range"
-                >{{ selectedQuarter || "Q4FY26" }} · minutes</span
-              >
+              <span class="ciq-card-title">MTTR by Component</span>
+              <span class="analytics-date-range">{{
+                selectedQuarter || ""
+              }}</span>
               <button
                 class="flip-btn"
                 (click)="flipTeamCard()"
@@ -299,14 +319,23 @@
               </button>
             </div>
             <div class="ciq-table-scroll ciq-table-scroll--no-max">
-              <table class="ciq-table ciq-components-table">
+              <table class="ciq-table ciq-components-table mttr-pair-table">
                 <thead>
+                  <tr class="umbrella-row">
+                    <th class="umbrella-empty"></th>
+                    <th class="mttr-umbrella" colspan="2" scope="colgroup">
+                      CaseIQ MTTR
+                    </th>
+                    <th class="mttr-umbrella" colspan="2" scope="colgroup">
+                      Case MTTR
+                    </th>
+                  </tr>
                   <tr>
                     <th scope="col">Component</th>
-                    <th scope="col">P80 Execution</th>
-                    <th scope="col">P80 MTTR</th>
-                    <th scope="col">P90 Execution</th>
-                    <th scope="col">P90 MTTR</th>
+                    <th scope="col" class="pair-r">80th percentile</th>
+                    <th scope="col" class="pair-l">90th percentile</th>
+                    <th scope="col" class="pair-r">80th percentile</th>
+                    <th scope="col" class="pair-l">90th percentile</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -318,7 +347,7 @@
                           >{{ row.component }}</span
                         >
                       </td>
-                      <td>
+                      <td class="pair-r">
                         <span class="summary-total-cases">{{
                           durationParts(row.executionTimeP80).value
                         }}</span
@@ -326,15 +355,7 @@
                           {{ durationParts(row.executionTimeP80).unit }}</span
                         >
                       </td>
-                      <td>
-                        <span class="summary-total-cases">{{
-                          mttrDaysParts(row.mttrP80).value
-                        }}</span
-                        ><span class="td-sub">
-                          {{ mttrDaysParts(row.mttrP80).unit }}</span
-                        >
-                      </td>
-                      <td>
+                      <td class="pair-l">
                         <span class="summary-total-cases">{{
                           durationParts(row.executionTimeP90).value
                         }}</span
@@ -342,7 +363,15 @@
                           {{ durationParts(row.executionTimeP90).unit }}</span
                         >
                       </td>
-                      <td>
+                      <td class="pair-r">
+                        <span class="summary-total-cases">{{
+                          mttrDaysParts(row.mttrP80).value
+                        }}</span
+                        ><span class="td-sub">
+                          {{ mttrDaysParts(row.mttrP80).unit }}</span
+                        >
+                      </td>
+                      <td class="pair-l">
                         <span class="summary-total-cases">{{
                           mttrDaysParts(row.mttrP90).value
                         }}</span
@@ -2135,13 +2164,19 @@
               <th>Component</th>
               <th>Deployed</th>
               <th>Total</th>
-              <th>Coverage</th>
-              <th>Link</th>
             </tr>
           </thead>
           <tbody>
             @for (a of activeAgentsModalRows(); track a.team) {
-              <tr>
+              <tr
+                class="ciq-row-clickable"
+                (click)="openResolutionAgents($event)"
+                (keydown.enter)="openResolutionAgents($event)"
+                (keydown.space)="openResolutionAgents($event)"
+                tabindex="0"
+                role="button"
+                [attr.aria-label]="'Open resolution agents for ' + a.team"
+              >
                 <td class="summary-component">
                   <span
                     class="component-badge component-badge--static badge-{{
@@ -2157,30 +2192,6 @@
                 </td>
                 <td>
                   <span class="td-sub">{{ a.total | number }}</span>
-                </td>
-                <td>
-                  <div class="caseiq-pill table-pill">
-                    <div
-                      class="caseiq-pill-fill cyan"
-                      [style.width.%]="
-                        a.total > 0 ? (a.deployed / a.total) * 100 : 0
-                      "
-                    ></div>
-                    <span class="caseiq-pill-text">
-                      {{
-                        a.total > 0
-                          ? ((a.deployed / a.total) * 100 | number: "1.0-0")
-                          : "--"
-                      }}%
-                    </span>
-                  </div>
-                </td>
-                <td>
-                  <a
-                    class="active-agents-link"
-                    (click)="openResolutionAgents($event)"
-                    >Open</a
-                  >
                 </td>
               </tr>
             }

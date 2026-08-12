@@ -4,7 +4,8 @@ import asyncio
 import base64
 import traceback
 import requests
-from fastapi import FastAPI, HTTPException
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel, Field
@@ -13,11 +14,21 @@ from langchain_openai import AzureChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 import uvicorn
 from dotenv import load_dotenv
+import db
 
 # Load environment variables from .env file
 load_dotenv()
 
-app = FastAPI(title="Control Tower AI Agent API", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage application startup / shutdown resources."""
+    await db.init_db()
+    yield
+    await db.close_db()
+
+
+app = FastAPI(title="Control Tower AI Agent API", version="1.0.0", lifespan=lifespan)
 
 # Register the Webex webhook router from control_tower_admin_agent
 from control_tower_admin_agent import router as webhook_router
@@ -724,6 +735,85 @@ async def dashboard_codegen_stream(request: DashboardCodegenRequest):
             yield f"data: {_json.dumps({'type': 'error', 'error': str(e)})}\n\n"
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
+# ============== Onboarding Persistence Read Endpoints ==============
+
+@app.get("/api/onboarding/sessions")
+async def list_onboarding_sessions(
+    userId: Optional[str] = Query(default=None),
+    userName: Optional[str] = Query(default=None),
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+):
+    """List onboarding sessions for a user (most recent first)."""
+    lookup_user = (userId or userName or "").strip()
+    if not lookup_user:
+        raise HTTPException(
+            status_code=400,
+            detail="Provide userId (or userName) query parameter.",
+        )
+
+    try:
+        import onboarding_repo
+
+        sessions = await onboarding_repo.list_sessions_for_user(
+            lookup_user,
+            limit=limit,
+            offset=offset,
+        )
+        return {
+            "ok": True,
+            "userId": lookup_user,
+            "count": len(sessions),
+            "limit": limit,
+            "offset": offset,
+            "items": sessions,
+        }
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    except Exception as exc:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to list sessions: {exc}")
+
+
+@app.get("/api/onboarding/sessions/{session_id}")
+async def get_onboarding_session(session_id: str):
+    """Get one onboarding session by session ID."""
+    try:
+        import onboarding_repo
+
+        row = await onboarding_repo.get_session(session_id)
+        if not row:
+            raise HTTPException(status_code=404, detail="Session not found")
+        return {"ok": True, "session": row}
+    except HTTPException:
+        raise
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    except Exception as exc:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to fetch session: {exc}")
+
+
+@app.get("/api/onboarding/sessions/{session_id}/events")
+async def get_onboarding_session_events(session_id: str):
+    """Get chronological event log for one onboarding session."""
+    try:
+        import onboarding_repo
+
+        events = await onboarding_repo.list_events_for_session(session_id)
+        return {
+            "ok": True,
+            "sessionId": session_id,
+            "count": len(events),
+            "events": events,
+        }
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    except Exception as exc:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to fetch session events: {exc}")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

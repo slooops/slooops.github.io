@@ -83,3 +83,5 @@ api-gateway/__pycache__/webex_bot_handler.cpython-313.pyc
 .codesight/scan_configs/revops_server_Black_Duck_SCA.json
 .codesight/scan_results/black-duck-sca.json
 .github/agents/full-stack-developer.agent.md
+revenue-monitoring-ui/angular-app/src/app/monitoring-onboarding/onboarding_agent_tables
+api-gateway/.env.example

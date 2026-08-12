@@ -8,6 +8,74 @@
   line-height: 1.2;
 }
 
+/* ═══════ CTX-1 MTTR CARDS (custom, non-generic) ═══════
+   Two cards at the front of the secondary KPI strip. Each has a colored
+   label box on the left with a stacked category title (e.g. "Case / MTTR"),
+   and two p80/p90 pair stacks to the right, all left-aligned. */
+.caseiq-kpi--mttr {
+  flex-direction: row;
+  align-items: stretch;
+  padding: 0;
+  gap: 0;
+}
+
+.caseiq-mttr-label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0.625rem 0.875rem;
+  min-width: 4.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-align: center;
+  background: transparent;
+  border: 3px solid currentColor;
+  border-radius: 1rem;
+  box-sizing: border-box;
+}
+
+.caseiq-mttr-label.green {
+  color: #16a34a;
+}
+.caseiq-mttr-label.cyan {
+  color: #00a3d9;
+}
+:host(.dark-theme) .caseiq-mttr-label.green {
+  color: #4ade80;
+}
+:host(.dark-theme) .caseiq-mttr-label.cyan {
+  color: #00d4ff;
+}
+
+.caseiq-mttr-pairs {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 2rem;
+  justify-content: space-around;
+  padding: 0.625rem 1.5rem;
+}
+
+.caseiq-kpi-dual-pair {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.caseiq-kpi-dual-value {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--ciq-text);
+  line-height: 1.2;
+}
+
 /* ═══════ LOADING ═══════ */
 /* Uses .loading-overlay + .loading-cloud from esp-home.component.css */
 
@@ -141,6 +209,43 @@
 .td-sub {
   font-size: 0.6rem;
   color: var(--ciq-muted);
+}
+
+/* ── Paired-column layout: values centered under their heading. A faint
+     border-right on the p80 column visually separates it from p90 within the
+     same umbrella group. ── */
+.ciq-components-table.mttr-pair-table th.pair-r,
+.ciq-components-table.mttr-pair-table td.pair-r {
+  text-align: center;
+  padding-right: 0.35rem;
+  padding-left: 0.35rem;
+  border-right: 0.5px solid var(--ciq-border);
+}
+
+.ciq-components-table.mttr-pair-table th.pair-l,
+.ciq-components-table.mttr-pair-table td.pair-l {
+  text-align: center;
+  padding-left: 0.35rem;
+  padding-right: 0.35rem;
+}
+
+/* Plain (uncolored) umbrella header for MTTR pair table: centered label over its two columns. */
+.ciq-components-table.mttr-pair-table thead tr.umbrella-row .mttr-umbrella,
+.ciq-components-table.mttr-pair-table thead tr.umbrella-row .umbrella-empty {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ciq-text);
+  letter-spacing: 0.04em;
+  background: transparent;
+  border: none;
+  padding: 0 0.5rem 0.5rem;
+  line-height: 1.1;
+}
+
+/* Pull the sub-header row up close to the umbrella labels. */
+.ciq-components-table.mttr-pair-table thead tr:not(.umbrella-row) th {
+  padding-top: 0.125rem;
 }
 
 /* ── Dual pill inside table cells ── */

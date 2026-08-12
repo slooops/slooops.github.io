@@ -16,7 +16,7 @@
   </header>
 
   <!-- ── Result view ── -->
-  @if (generated) {
+  @if (generated && !isEditingRegeneration) {
     <section class="mo-body">
       <div class="mo-card mo-result-card">
         <div class="mo-result-head">
@@ -31,7 +31,16 @@
               (click)="editForRegeneration()"
             >
               <ng-icon name="phosphorSlidersHorizontalBold" size="16" />
-              Edit &amp; regenerate
+              Edit inputs &amp; regenerate all
+            </button>
+            <button
+              class="mo-btn mo-btn-ghost"
+              type="button"
+              disabled
+              aria-disabled="true"
+              title="Coming soon: targeted updates to selected generated lines/sections"
+            >
+              Edit with Agent (coming soon)
             </button>
             <button
               class="mo-btn mo-btn-ghost"
@@ -58,13 +67,12 @@
             <div class="mo-leave-warning-text">
               @if (docsSaved) {
                 <strong>Saved.</strong> Your documents are copied or downloaded.
-                These results are not stored — if you leave or refresh this
-                page, you will need to regenerate them.
+                They can also be restored from this browser session, but keep a
+                copy for handoff.
               } @else {
-                <strong>Don’t lose your work.</strong> These documents are not
-                saved anywhere. Copy or download both files before you leave —
-                if you navigate back, refresh, or close this tab, the generated
-                content will be lost.
+                <strong>Don’t lose your work.</strong> The current generation
+                can be restored in this browser, but you should still copy or
+                download both files before you leave.
               }
             </div>
             <button
@@ -78,28 +86,31 @@
           </div>
         }
 
-        <div class="mo-apply-guide" role="note">
-          <div class="mo-apply-guide-text">
-            <span class="mo-apply-guide-title">Ready to implement?</span>
-            <p>
-              After reviewing both onboarding documents, you can ask the agent
-              to apply the generated file operations to the repository, and open
-              a pull request.
-            </p>
+        @if (!applySucceeded) {
+          <div class="mo-apply-guide" role="note">
+            <div class="mo-apply-guide-text">
+              <span class="mo-apply-guide-title">Ready to implement?</span>
+              <p>
+                After reviewing both onboarding documents, you can ask the agent
+                to apply the generated file operations to the repository, and
+                open a pull request. For small line-level changes, use Edit with
+                Agent when it becomes available.
+              </p>
+            </div>
+            <button
+              class="mo-btn mo-btn-primary"
+              type="button"
+              [disabled]="!canStartApplyWithAgent || applyInProgress"
+              (click)="openApplyConfirmation()"
+            >
+              @if (applyInProgress) {
+                Applying...
+              } @else {
+                Apply with Agent
+              }
+            </button>
           </div>
-          <button
-            class="mo-btn mo-btn-primary"
-            type="button"
-            [disabled]="!canStartApplyWithAgent || applyInProgress"
-            (click)="openApplyConfirmation()"
-          >
-            @if (applyInProgress) {
-              Applying...
-            } @else {
-              Apply with Agent
-            }
-          </button>
-        </div>
+        }
 
         @if (!canStartApplyWithAgent) {
           <div class="mo-apply-inline-note" role="status">
@@ -165,7 +176,7 @@
 
         @if (applyResult && applySucceeded) {
           <div class="mo-apply-status mo-apply-status-success" role="status">
-            <strong>Apply completed.</strong>
+            <strong>Code changes applied.</strong>
             <span>
               Branch
               <code>{{ applyBranch || "codegen branch" }}</code> was created
@@ -300,6 +311,19 @@
   } @else {
     <!-- ── Form view ── -->
     <section class="mo-body">
+      @if (isEditingRegeneration && generated) {
+        <div class="mo-result-actions mo-edit-return-bar">
+          <button
+            class="mo-btn mo-btn-ghost"
+            type="button"
+            (click)="backToGeneratedResult()"
+          >
+            <ng-icon name="phosphorArrowClockwiseBold" size="16" />
+            Back to generated result
+          </button>
+        </div>
+      }
+
       <!-- Stepper -->
       <nav class="mo-stepper" aria-label="Progress">
         @for (step of activeSteps; track step.key; let i = $index) {
@@ -1301,8 +1325,10 @@
           <div class="mo-generate-progress" aria-live="polite">
             <app-loading-symbol></app-loading-symbol>
             <p class="mo-generate-progress__text">
-              Generating your implementation guide… This can take a minute or
-              two.
+              {{
+                generationStage ||
+                  "Generating your implementation guide… This can take a minute or two."
+              }}
             </p>
           </div>
         }
