@@ -147,19 +147,24 @@ pipeline {
             steps {
                 dir("revenue-monitoring-server") {
                 // Run your unit tests and prepare SonarQube output
-                    withDockerContainer(
-                        image: 'maven:3-eclipse-temurin-25',
-                        args: '--user 0:0 -e HOME=/tmp -e MAVEN_CONFIG=/tmp/.m2'
-                    ) {
-                        sh "mvn -Dmaven.repo.local=.m2/repository test"
+                    script {
+                        // The container runs as root, so target/ comes back root-owned.
+                        // sonarScan runs on the agent and must be able to write target/sonar.
+                        def agentUid = sh(script: 'id -u', returnStdout: true).trim()
+                        def agentGid = sh(script: 'id -g', returnStdout: true).trim()
+                        withDockerContainer(
+                            image: 'maven:3-eclipse-temurin-25',
+                            args: '--user 0:0 -e HOME=/tmp -e MAVEN_CONFIG=/tmp/.m2'
+                        ) {
+                            sh "mvn -Dmaven.repo.local=.m2/repository test"
+                            sh "chown -R ${agentUid}:${agentGid} target .m2"
+                        }
                     }
                     sonarScan('Sonar')
                 }
-                // Run SonarQube scan for UI codebase as well
-                dir("revenue-monitoring-ui") {
-                    echo "Running SonarQube scan for UI project"
-                    sonarScan('Sonar')
-                }
+                // TODO: restore UI analysis once revenue-monitoring-ui has its own
+                // Sonar project, a test run producing lcov, and a scanner that
+                // doesn't require a POM. sonarScan() invokes sonar-maven-plugin.
             }
 
             post {
