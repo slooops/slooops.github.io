@@ -1,13 +1,7 @@
 // Minimal Cypress pipeline (develop branch only) using specified Docker image and hardcoded generic credentials.
 
 pipeline {
-  agent {
-    docker {
-      image 'containers.cisco.com/epit/cypress:v1.0.0'
-      // Run as root to avoid permission issues in cached Cypress binary
-      args '-u root:root -e HOME=/root'
-    }
-  }
+  agent none
 
   environment {
     TEST_BASE_URL = 'https://operations-control-tower-stg.cisco.com'
@@ -21,14 +15,34 @@ pipeline {
 
   stages {
     stage('Checkout') {
-      when { branch '__never__' }
+      when {
+        beforeAgent true
+        branch 'develop'
+      }
+      agent {
+        docker {
+          image 'containers.cisco.com/epit/cypress:v1.0.0'
+          // Run as root to avoid permission issues in cached Cypress binary
+          args '-u root:root -e HOME=/root'
+        }
+      }
       steps {
         checkout scm
       }
     }
 
     stage('Install TypeScript Support') {
-      when { branch '__never__' }
+      when {
+        beforeAgent true
+        branch 'develop'
+      }
+      agent {
+        docker {
+          image 'containers.cisco.com/epit/cypress:v1.0.0'
+          // Run as root to avoid permission issues in cached Cypress binary
+          args '-u root:root -e HOME=/root'
+        }
+      }
       steps {
         dir('revenue-monitoring-ui/angular-app') {
           script {
@@ -49,7 +63,17 @@ pipeline {
     }
 
     stage('Run Cypress Tests') {
-      when { branch '__never__' }
+      when {
+        beforeAgent true
+        branch 'develop'
+      }
+      agent {
+        docker {
+          image 'containers.cisco.com/epit/cypress:v1.0.0'
+          // Run as root to avoid permission issues in cached Cypress binary
+          args '-u root:root -e HOME=/root'
+        }
+      }
       steps {
         dir('revenue-monitoring-ui/angular-app') {
           script {
@@ -79,12 +103,12 @@ pipeline {
   post {
     always {
       script {
-        if (env.BRANCH_NAME == '__never__') {
+        if (env.BRANCH_NAME == 'develop') {
           // Archive screenshots/videos if produced
           archiveArtifacts artifacts: 'revenue-monitoring-ui/angular-app/cypress/screenshots/**/*.png', allowEmptyArchive: true
           archiveArtifacts artifacts: 'revenue-monitoring-ui/angular-app/cypress/videos/**/*.mp4', allowEmptyArchive: true
         } else {
-          echo "Skipping artifact archive: pipeline is disabled for all branches (current: ${env.BRANCH_NAME})"
+          echo "Skipping Cypress pipeline on non-develop branch: ${env.BRANCH_NAME}"
         }
       }
     }
