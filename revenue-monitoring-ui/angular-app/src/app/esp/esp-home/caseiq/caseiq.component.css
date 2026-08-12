@@ -29,8 +29,8 @@
   min-width: 4.5rem;
   font-size: 1.125rem;
   font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: 0.02em;
+  line-height: 1;
+  letter-spacing: 0.05em;
   text-align: center;
   background: transparent;
   border: 3px solid currentColor;
@@ -55,6 +55,7 @@
   flex: 1;
   align-items: center;
   gap: 2rem;
+  justify-content: space-around;
   padding: 0.625rem 1.5rem;
 }
 
