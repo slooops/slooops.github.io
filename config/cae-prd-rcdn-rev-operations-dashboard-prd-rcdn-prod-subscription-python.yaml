@@ -16,8 +16,8 @@ metadata:
     # Increase proxy timeouts for long-running AI agent requests (LLM + tool calls)
     # dashboard-codegen runs 3 serial LLM stages; prod model can be slow.
     # Use /api/dashboard-codegen/stream (SSE) to avoid holding a silent connection.
-    cae.cisco.com/proxy-read-timeout: "600"
-    cae.cisco.com/proxy-send-timeout: "600"
+    cae.cisco.com/proxy-read-timeout: "900"
+    cae.cisco.com/proxy-send-timeout: "900"
     cae.cisco.com/proxy-connect-timeout: "60"
 spec:
   ports:

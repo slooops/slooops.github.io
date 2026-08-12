@@ -372,3 +372,71 @@
 .orc__pd-full-link:hover {
   text-decoration: underline;
 }
+
+/* ── Chart expand modal ────────────────────────────────────── */
+.ciq-expand-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.ciq-expand-modal {
+  width: min(95vw, 78rem);
+  max-height: 90vh;
+  overflow: auto;
+  background: #ffffff;
+  border: 1px solid #d8dde6;
+  border-radius: 8px;
+  box-shadow: none;
+  padding: 1rem;
+}
+
+.ciq-expand-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.ciq-expand-title-wrap {
+  min-width: 0;
+}
+
+.ciq-expand-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ciq-text, #1b1c1d);
+}
+
+.ciq-expand-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  color: var(--ciq-muted, #555);
+}
+
+.ciq-expand-close {
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--ciq-muted, #555);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.35rem 0.45rem;
+  cursor: pointer;
+}
+
+.ciq-expand-close:hover {
+  background: #f3f4f6;
+  color: #1b1c1d;
+}
+
+.ciq-expand-chart-wrap {
+  min-height: 18rem;
+}

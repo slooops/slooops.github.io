@@ -569,7 +569,9 @@
         [displayedColumns]="tableColumns"
         [exportFileName]="teamConfig.exportFileName"
         [tableTitle]="tableTitle"
-        [tableTitleTooltip]="'Use the Upload button to submit and validate the data for accuracy. Default filter applied to display for category match or core issue match is N or NULL.'"
+        [tableTitleTooltip]="
+          'Use the Upload button to submit and validate the data for accuracy. Default filter applied to display for category match or core issue match is N or NULL.'
+        "
         [extraWideColumns]="['Case Summary - Description']"
         [enablePagination]="true"
         [pageSize]="10"
@@ -586,6 +588,71 @@
         (timelineDetailOpen)="onTimelineDetailOpen($event)"
       >
       </app-caseiq-table>
+    }
+
+    @if (expandedChart) {
+      <div class="ciq-expand-backdrop" (click)="closeExpandModal()">
+        <section
+          class="ciq-expand-modal"
+          role="dialog"
+          aria-modal="true"
+          [attr.aria-label]="
+            expandedChart.type === 'CATEGORY'
+              ? 'Expanded category accuracy chart'
+              : 'Expanded core issue accuracy chart'
+          "
+          (click)="$event.stopPropagation()"
+        >
+          <header class="ciq-expand-header">
+            <div class="ciq-expand-title-wrap">
+              <h3 class="ciq-expand-title">
+                @if (expandedChart.type === "CATEGORY") {
+                  Category Accuracy — Full View
+                } @else {
+                  Core Issue Accuracy — Full View
+                }
+              </h3>
+              <p class="ciq-expand-subtitle">
+                @if (expandedChart.type === "CATEGORY") {
+                  {{ expandedCategoryData.length }} categories •
+                  {{ expandedCategoryTotal }} total cases
+                } @else {
+                  {{ expandedCoreIssueData.length }} core issues •
+                  {{ expandedCoreIssueTotal }} total cases
+                }
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="ciq-expand-close"
+              (click)="closeExpandModal()"
+              aria-label="Close expanded chart"
+            >
+              &#x2715;
+            </button>
+          </header>
+
+          <div class="ciq-expand-chart-wrap">
+            <app-bar-chart
+              [data]="
+                expandedChart.type === 'CATEGORY'
+                  ? expandedCategoryData
+                  : expandedCoreIssueData
+              "
+              [stacked]="true"
+              [isLoading]="false"
+              [chartHeight]="420"
+              [canvasId]="
+                expandedChart.type === 'CATEGORY'
+                  ? expandCanvasPrefix + 'Category'
+                  : expandCanvasPrefix + 'CoreIssue'
+              "
+            >
+            </app-bar-chart>
+          </div>
+        </section>
+      </div>
     }
   }
 }

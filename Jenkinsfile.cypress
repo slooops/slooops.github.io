@@ -1,4 +1,4 @@
-// Minimal Cypress pipeline (UI2.0 branch only) using specified Docker image and hardcoded generic credentials.
+// Minimal Cypress pipeline (develop branch only) using specified Docker image and hardcoded generic credentials.
 
 pipeline {
   agent {
@@ -21,23 +21,23 @@ pipeline {
 
   stages {
     stage('Branch Validation') {
-      when { not { branch 'UI2.0' } }
+      when { not { branch 'develop' } }
       steps {
         script {
-          echo "Skipping - only runs on UI2.0 branch (current: ${env.BRANCH_NAME})"
+          echo "Skipping - only runs on develop branch (current: ${env.BRANCH_NAME})"
           currentBuild.result = 'ABORTED'
         }
       }
     }
     stage('Checkout') {
-      when { branch 'UI2.0' }
+      when { branch 'develop' }
       steps {
         checkout scm
       }
     }
 
     stage('Install TypeScript Support') {
-      when { branch 'UI2.0' }
+      when { branch 'develop' }
       steps {
         dir('revenue-monitoring-ui/angular-app') {
           script {
@@ -58,7 +58,7 @@ pipeline {
     }
 
     stage('Run Cypress Tests') {
-      when { branch 'UI2.0' }
+      when { branch 'develop' }
       steps {
         dir('revenue-monitoring-ui/angular-app') {
           script {
