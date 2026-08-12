@@ -7,6 +7,10 @@ describe('MonitoringOnboardingComponent', () => {
   let component: MonitoringOnboardingComponent;
   let fixture: ComponentFixture<MonitoringOnboardingComponent>;
 
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [MonitoringOnboardingComponent],
@@ -14,6 +18,7 @@ describe('MonitoringOnboardingComponent', () => {
         {
           provide: AuthenticationService,
           useValue: {
+            getUserID: () => 'testuser',
             getControlTowerSupportAgentApiUrl: () => '',
             getHostUrl: () => '',
           },

@@ -10,11 +10,13 @@ import time
 import hmac
 import hashlib
 import functools
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, AsyncGenerator, Literal, TypedDict
+from uuid import uuid4
 
 import httpx
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.tools import tool
 from langgraph.graph import END, START, StateGraph
@@ -32,6 +34,10 @@ SCHEMATICS_ROOT = REPO_ROOT / "revenue-monitoring-ui" / "angular-app" / "schemat
 router = APIRouter()
 
 _http_client = httpx.AsyncClient(timeout=30.0)
+
+# ── Demo in-memory job store (DB-free polling) ─────────────────────────────
+_demo_jobs: dict[str, dict[str, Any]] = {}
+_demo_jobs_lock = asyncio.Lock()
 
 # ── GitHub App configuration ───────────────────────────────────────
 GITHUB_APP_ID: str = os.getenv("GITHUB_APP_ID", "").strip()
@@ -76,6 +82,7 @@ class DashboardCodegenRequest(BaseModel):
 
 
 class DashboardCodegenResult(BaseModel):
+    sessionId: str | None = None
     backendDocument: str
     uiDocument: str
     backendHandoff: dict[str, Any]
@@ -107,11 +114,131 @@ class DashboardApplyTriggerRequest(BaseModel):
 
 class DashboardCodegenState(TypedDict, total=False):
     input: dict[str, Any]
+    session_id: str | None
     backend_document: str
     backend_handoff: dict[str, Any]
     ui_document: str
     file_operations: list[dict[str, Any]]
     warnings: list[dict[str, Any]]
+
+
+def _session_id_from_handoff(handoff: dict[str, Any] | None) -> str | None:
+    if not isinstance(handoff, dict):
+        return None
+    raw = handoff.get("sessionId")
+    if not isinstance(raw, str):
+        return None
+    value = raw.strip()
+    return value or None
+
+
+async def _persist_generation_failure(
+    state: DashboardCodegenState,
+    *,
+    error: Exception,
+    error_code: str,
+) -> None:
+    """Demo mode: DB persistence disabled for generation failures."""
+    # DB persistence intentionally disabled for demo.
+    session_id = state.get("session_id")
+    if session_id:
+        print(
+            f"[codegen] Demo mode generation failure (session={session_id}, code={error_code}): {error}"
+        )
+
+
+async def _persist_apply_failure(
+    *,
+    session_id: str | None,
+    user_id: str | None,
+    component_name: str | None,
+    stage: str,
+    error: str,
+    model_version: str | None = DEFAULT_CODEGEN_MODEL,
+) -> None:
+    """Demo mode: DB persistence disabled for apply failures."""
+    # DB persistence intentionally disabled for demo.
+    if session_id:
+        print(
+            f"[codegen] Demo mode apply failure (session={session_id}, stage={stage}): {error}"
+        )
+
+
+async def _resolve_codegen_user_email(
+    *,
+    session_id: str | None,
+    backend_handoff: dict[str, Any],
+) -> str | None:
+    """Resolve the codegen requester's email for post-apply notifications."""
+    raw_email = backend_handoff.get("userEmail")
+    if isinstance(raw_email, str) and raw_email.strip():
+        return raw_email.strip()
+
+    raw_user_name = backend_handoff.get("userName")
+    if isinstance(raw_user_name, str) and raw_user_name.strip():
+        return f"{raw_user_name.strip().lower()}@cisco.com"
+
+    if session_id:
+        async with _demo_jobs_lock:
+            job = _demo_jobs.get(session_id)
+        if isinstance(job, dict):
+            payload = job.get("payload")
+            if isinstance(payload, dict):
+                payload_email = payload.get("userEmail")
+                if isinstance(payload_email, str) and payload_email.strip():
+                    return payload_email.strip()
+                payload_user = payload.get("userName")
+                if isinstance(payload_user, str) and payload_user.strip():
+                    return f"{payload_user.strip().lower()}@cisco.com"
+
+    return None
+
+
+async def _notify_codegen_pr_created(
+    *,
+    session_id: str | None,
+    backend_handoff: dict[str, Any],
+    owner: str,
+    repo: str,
+    base_branch: str,
+    generated_branch: str,
+    pr_url: str,
+    changed_file_count: int,
+) -> bool:
+    """Send a Webex DM after a successful PR creation (best effort)."""
+    recipient_email = await _resolve_codegen_user_email(
+        session_id=session_id,
+        backend_handoff=backend_handoff,
+    )
+    if not recipient_email:
+        print("[codegen] Webex notify skipped: requester email unavailable")
+        return False
+
+    component_name = str(backend_handoff.get("componentName") or "Dashboard")
+    feature_name = str(backend_handoff.get("featureName") or "dashboard")
+    message = (
+        f"🎉 Great news! Your **{component_name}** dashboard code has been generated and is ready for onboarding onto the Control Tower.\n\n"
+        f"A pull request has been created with {changed_file_count} file(s) generated:\n"
+        f"📋 **PR:** {pr_url}\n"
+        f"🌿 **Branch:** {generated_branch}\n\n"
+        f"Next steps:\n"
+        f"1. Review the generated code in the PR\n"
+        f"2. Get it approved by your team\n"
+        f"3. Merge to trigger deployment to dev environment\n\n"
+        f"Once deployed, access your dashboard at:\n"
+        f"🔗 https://operations-control-tower-dev.cisco.com/{feature_name}\n\n"
+        f"Questions or issues? Reach out to the Control Tower team!"
+    )
+
+    try:
+        from control_tower_admin_agent import send_webex_dm
+
+        await send_webex_dm(recipient_email, message)
+        print(f"[codegen] Webex notify sent to {recipient_email}")
+        return True
+    except Exception as exc:
+        print(f"[codegen] Webex notify failed for {recipient_email}: {exc}")
+        return False
 
 
 def _title_case_kebab(value: str) -> str:
@@ -1093,9 +1220,20 @@ async def github_webhook(request: Request) -> dict[str, Any]:
 @router.post("/api/dashboard-codegen/apply-with-agent")
 async def dashboard_codegen_apply_with_agent(payload: DashboardApplyTriggerRequest) -> dict[str, Any]:
     """Endpoint triggered by UI button click to start/preview automated apply flow."""
+    session_id = _session_id_from_handoff(payload.backendHandoff)
+    component_name = payload.backendHandoff.get("componentName")
+    user_id = payload.backendHandoff.get("userName")
+
     try:
         installation_token = await _get_github_installation_token()
     except Exception as exc:
+        await _persist_apply_failure(
+            session_id=session_id,
+            user_id=user_id if isinstance(user_id, str) else None,
+            component_name=component_name if isinstance(component_name, str) else None,
+            stage="token_exchange",
+            error=str(exc),
+        )
         return {"ok": False, "stage": "token_exchange", "error": str(exc)}
 
     repo_url = f"{GITHUB_API_BASE_URL}/repos/{payload.owner}/{payload.repo}"
@@ -1111,9 +1249,23 @@ async def dashboard_codegen_apply_with_agent(payload: DashboardApplyTriggerReque
         repo_resp.raise_for_status()
         repo_data = repo_resp.json()
     except Exception as exc:
+        await _persist_apply_failure(
+            session_id=session_id,
+            user_id=user_id if isinstance(user_id, str) else None,
+            component_name=component_name if isinstance(component_name, str) else None,
+            stage="repo_read",
+            error=str(exc),
+        )
         return {"ok": False, "stage": "repo_read", "error": str(exc)}
 
     if not payload.fileOperations:
+        await _persist_apply_failure(
+            session_id=session_id,
+            user_id=user_id if isinstance(user_id, str) else None,
+            component_name=component_name if isinstance(component_name, str) else None,
+            stage="validate_payload",
+            error="fileOperations is required",
+        )
         return {
             "ok": False,
             "stage": "validate_payload",
@@ -1125,6 +1277,13 @@ async def dashboard_codegen_apply_with_agent(payload: DashboardApplyTriggerReque
         normalized_file_operations
     )
     if validation_errors:
+        await _persist_apply_failure(
+            session_id=session_id,
+            user_id=user_id if isinstance(user_id, str) else None,
+            component_name=component_name if isinstance(component_name, str) else None,
+            stage="validate_payload",
+            error="; ".join(validation_errors),
+        )
         return {
             "ok": False,
             "stage": "validate_payload",
@@ -1187,12 +1346,26 @@ async def dashboard_codegen_apply_with_agent(payload: DashboardApplyTriggerReque
             payload.owner, payload.repo, payload.baseBranch, installation_token
         )
     except Exception as exc:
+        await _persist_apply_failure(
+            session_id=session_id,
+            user_id=user_id if isinstance(user_id, str) else None,
+            component_name=component_name if isinstance(component_name, str) else None,
+            stage="get_base_sha",
+            error=str(exc),
+        )
         return {"ok": False, "stage": "get_base_sha", "error": str(exc)}
 
     try:
         if await _github_branch_exists(
             payload.owner, payload.repo, new_branch, installation_token
         ):
+            await _persist_apply_failure(
+                session_id=session_id,
+                user_id=user_id if isinstance(user_id, str) else None,
+                component_name=component_name if isinstance(component_name, str) else None,
+                stage="branch_collision",
+                error=f"Branch '{new_branch}' already exists.",
+            )
             return {
                 "ok": False,
                 "stage": "branch_collision",
@@ -1201,6 +1374,13 @@ async def dashboard_codegen_apply_with_agent(payload: DashboardApplyTriggerReque
                 "resolution": "Use a different featureName or enable branch suffix strategy.",
             }
     except Exception as exc:
+        await _persist_apply_failure(
+            session_id=session_id,
+            user_id=user_id if isinstance(user_id, str) else None,
+            component_name=component_name if isinstance(component_name, str) else None,
+            stage="check_branch_exists",
+            error=str(exc),
+        )
         return {"ok": False, "stage": "check_branch_exists", "error": str(exc), "branch": new_branch}
 
     try:
@@ -1208,6 +1388,13 @@ async def dashboard_codegen_apply_with_agent(payload: DashboardApplyTriggerReque
             payload.owner, payload.repo, new_branch, base_sha, installation_token
         )
     except Exception as exc:
+        await _persist_apply_failure(
+            session_id=session_id,
+            user_id=user_id if isinstance(user_id, str) else None,
+            component_name=component_name if isinstance(component_name, str) else None,
+            stage="create_branch",
+            error=str(exc),
+        )
         return {"ok": False, "stage": "create_branch", "error": str(exc), "branch": new_branch}
 
     try:
@@ -1220,6 +1407,13 @@ async def dashboard_codegen_apply_with_agent(payload: DashboardApplyTriggerReque
             installation_token,
         )
     except Exception as exc:
+        await _persist_apply_failure(
+            session_id=session_id,
+            user_id=user_id if isinstance(user_id, str) else None,
+            component_name=component_name if isinstance(component_name, str) else None,
+            stage="execute_operations",
+            error=str(exc),
+        )
         return {"ok": False, "stage": "execute_operations", "error": str(exc), "branch": new_branch}
 
     try:
@@ -1238,6 +1432,13 @@ async def dashboard_codegen_apply_with_agent(payload: DashboardApplyTriggerReque
             payload.owner, payload.repo, base_sha, tree_entries, installation_token
         )
     except Exception as exc:
+        await _persist_apply_failure(
+            session_id=session_id,
+            user_id=user_id if isinstance(user_id, str) else None,
+            component_name=component_name if isinstance(component_name, str) else None,
+            stage="create_tree",
+            error=str(exc),
+        )
         return {"ok": False, "stage": "create_tree", "error": str(exc), "branch": new_branch}
 
     commit_sha: str = ""
@@ -1254,6 +1455,13 @@ async def dashboard_codegen_apply_with_agent(payload: DashboardApplyTriggerReque
             payload.owner, payload.repo, new_branch, commit_sha, installation_token
         )
     except Exception as exc:
+        await _persist_apply_failure(
+            session_id=session_id,
+            user_id=user_id if isinstance(user_id, str) else None,
+            component_name=component_name if isinstance(component_name, str) else None,
+            stage="create_commit",
+            error=str(exc),
+        )
         return {"ok": False, "stage": "create_commit", "error": str(exc), "branch": new_branch}
 
     try:
@@ -1273,6 +1481,13 @@ async def dashboard_codegen_apply_with_agent(payload: DashboardApplyTriggerReque
             installation_token,
         )
     except Exception as exc:
+        await _persist_apply_failure(
+            session_id=session_id,
+            user_id=user_id if isinstance(user_id, str) else None,
+            component_name=component_name if isinstance(component_name, str) else None,
+            stage="create_pr",
+            error=str(exc),
+        )
         return {
             "ok": False,
             "stage": "create_pr",
@@ -1280,6 +1495,19 @@ async def dashboard_codegen_apply_with_agent(payload: DashboardApplyTriggerReque
             "branch": new_branch,
             "commitSha": commit_sha,
         }
+
+    # Demo mode: DB persistence intentionally disabled.
+
+    webex_notified = await _notify_codegen_pr_created(
+        session_id=session_id,
+        backend_handoff=payload.backendHandoff,
+        owner=payload.owner,
+        repo=payload.repo,
+        base_branch=payload.baseBranch,
+        generated_branch=new_branch,
+        pr_url=pr_url,
+        changed_file_count=len(changed_files),
+    )
 
     return {
         "ok": True,
@@ -1294,6 +1522,7 @@ async def dashboard_codegen_apply_with_agent(payload: DashboardApplyTriggerReque
         "changedFiles": list(changed_files.keys()),
         "changedFileCount": len(changed_files),
         "steps": apply_steps,
+        "webexNotificationSent": webex_notified,
     }
 
 
@@ -2156,6 +2385,8 @@ def build_backend_handoff(payload: dict[str, Any]) -> dict[str, Any]:
         "componentName": component_name,
         "featureName": payload["featureName"],
         "roleName": payload["roleName"],
+        "userName": payload.get("userName"),
+        "userEmail": payload.get("userEmail"),
         "assignmentUsersKey": payload["assignmentUsersKey"],
         "summaryColumns": payload["summaryColumns"],
         "detailsTableFilters": payload["detailsTableFilters"],
@@ -2174,6 +2405,15 @@ def build_backend_handoff(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
     return handoff
+
+
+async def create_session_node(state: DashboardCodegenState) -> DashboardCodegenState:
+    """Create a demo session id when one is not already provided."""
+    existing_session_id = state.get("session_id")
+    if existing_session_id:
+        return {"session_id": existing_session_id}
+
+    return {"session_id": str(uuid4())}
 
 
 async def backend_generation_node(state: DashboardCodegenState) -> DashboardCodegenState:
@@ -2200,18 +2440,30 @@ async def backend_generation_node(state: DashboardCodegenState) -> DashboardCode
     except Exception:
         pass
 
-    response = await llm.ainvoke(
-        [
-            SystemMessage(content=backend_prompt),
-            HumanMessage(content=json.dumps(payload)),
-        ]
-    )
+    try:
+        response = await llm.ainvoke(
+            [
+                SystemMessage(content=backend_prompt),
+                HumanMessage(content=json.dumps(payload)),
+            ]
+        )
+    except Exception as exc:
+        await _persist_generation_failure(
+            state,
+            error=exc,
+            error_code="backend_generation_failed",
+        )
+        raise
 
     return {"backend_document": _content_to_text(response.content)}
 
 
 async def compute_handoff_node(state: DashboardCodegenState) -> DashboardCodegenState:
-    return {"backend_handoff": build_backend_handoff.func(state["input"])}
+    handoff = build_backend_handoff.func(state["input"])
+    session_id = state.get("session_id")
+    if session_id:
+        handoff["sessionId"] = session_id
+    return {"backend_handoff": handoff}
 
 
 async def ui_generation_node(state: DashboardCodegenState) -> DashboardCodegenState:
@@ -2221,12 +2473,20 @@ async def ui_generation_node(state: DashboardCodegenState) -> DashboardCodegenSt
     payload = state["input"].copy()
     payload["backendHandoff"] = state["backend_handoff"]
 
-    response = await llm.ainvoke(
-        [
-            SystemMessage(content=ui_prompt),
-            HumanMessage(content=json.dumps(payload)),
-        ]
-    )
+    try:
+        response = await llm.ainvoke(
+            [
+                SystemMessage(content=ui_prompt),
+                HumanMessage(content=json.dumps(payload)),
+            ]
+        )
+    except Exception as exc:
+        await _persist_generation_failure(
+            state,
+            error=exc,
+            error_code="ui_generation_failed",
+        )
+        raise
 
     return {"ui_document": _content_to_text(response.content)}
 
@@ -2239,12 +2499,23 @@ async def operations_generation_node(state: DashboardCodegenState) -> DashboardC
     # already-generated markdown. When this succeeds the stage-3 LLM is skipped
     # entirely, which eliminates the whole class of re-transcription bugs
     # (double-escaped newlines, dropped Java semicolons, mis-pluralized params).
-    deterministic_ops = _deterministic_file_operations(
-        state["input"],
-        state["backend_handoff"],
-        state["backend_document"],
-        state["ui_document"],
-    )
+    try:
+        deterministic_ops = _deterministic_file_operations(
+            state["input"],
+            state["backend_handoff"],
+            state["backend_document"],
+            state["ui_document"],
+        )
+    except Exception as exc:
+        await _persist_generation_failure(
+            state,
+            error=exc,
+            error_code="operations_deterministic_failed",
+        )
+        raise
+    accumulated_backend = state.get("backend_document", "")
+    accumulated_ui = state.get("ui_document", "")
+
     if deterministic_ops is not None:
         warnings = _validate_generated_artifacts(deterministic_ops, expected_params, expected_jdbc_suffix)
         warnings.append(
@@ -2254,6 +2525,9 @@ async def operations_generation_node(state: DashboardCodegenState) -> DashboardC
                 "message": "fileOperations assembled deterministically (stage-3 LLM skipped)",
             }
         )
+
+        # Demo mode: DB persistence intentionally disabled.
+
         return {"file_operations": deterministic_ops, "warnings": warnings}
 
     llm = await _get_codegen_llm()
@@ -2272,40 +2546,51 @@ async def operations_generation_node(state: DashboardCodegenState) -> DashboardC
         "uiDocument": state["ui_document"],
     }
 
-    response = await llm.ainvoke(
-        [
-            SystemMessage(content=operations_prompt),
-            HumanMessage(content=json.dumps(payload)),
-        ]
-    )
+    try:
+        response = await llm.ainvoke(
+            [
+                SystemMessage(content=operations_prompt),
+                HumanMessage(content=json.dumps(payload)),
+            ]
+        )
 
-    raw = _content_to_text(response.content)
-    parsed = _extract_json_object(raw)
-    ops = parsed.get("fileOperations", []) if isinstance(parsed, dict) else []
-    normalized_ops = _normalize_file_operations(ops)
-    # Safety net: repair any residual double-escaped content before it is
-    # written verbatim to files by the apply layer.
-    repaired_ops = [_deep_repair_escaped(group) for group in normalized_ops]
-    # Repair the `}\n[] =` split array-type annotation in any .ts content
-    # (hard TS ASI compile error) so both paths stay leak-proof.
-    repaired_ops = _repair_ts_array_type_splits(repaired_ops)
-    # Deterministic backstop validation (non-blocking, surfaced to the UI).
-    warnings = _validate_generated_artifacts(repaired_ops, expected_params, expected_jdbc_suffix)
+        raw = _content_to_text(response.content)
+        parsed = _extract_json_object(raw)
+        ops = parsed.get("fileOperations", []) if isinstance(parsed, dict) else []
+        normalized_ops = _normalize_file_operations(ops)
+        # Safety net: repair any residual double-escaped content before it is
+        # written verbatim to files by the apply layer.
+        repaired_ops = [_deep_repair_escaped(group) for group in normalized_ops]
+        # Repair the `}\n[] =` split array-type annotation in any .ts content
+        # (hard TS ASI compile error) so both paths stay leak-proof.
+        repaired_ops = _repair_ts_array_type_splits(repaired_ops)
+        # Deterministic backstop validation (non-blocking, surfaced to the UI).
+        warnings = _validate_generated_artifacts(repaired_ops, expected_params, expected_jdbc_suffix)
+    except Exception as exc:
+        await _persist_generation_failure(
+            state,
+            error=exc,
+            error_code="operations_generation_failed",
+        )
+        raise
+
+    # Demo mode: DB persistence intentionally disabled.
+
     return {"file_operations": repaired_ops, "warnings": warnings}
 
 
 def _build_graph():
     graph = StateGraph(DashboardCodegenState)
+    graph.add_node("create_session_node", create_session_node)
     graph.add_node("backend_generation_node", backend_generation_node)
     graph.add_node("compute_handoff_node", compute_handoff_node)
     graph.add_node("ui_generation_node", ui_generation_node)
     graph.add_node("operations_generation_node", operations_generation_node)
 
-    # The Python handoff only reads state["input"], so it runs first. Backend
-    # generation (needs input) and UI generation (needs input + handoff) have no
-    # data dependency on each other, so they fan out and run concurrently. Both
-    # fan back in to the operations node, which consumes all prior outputs.
-    graph.add_edge(START, "compute_handoff_node")
+    # create_session runs first (ensures a session id before any LLM work).
+    # compute_handoff and backend/ui generation fan out from there.
+    graph.add_edge(START, "create_session_node")
+    graph.add_edge("create_session_node", "compute_handoff_node")
     graph.add_edge("compute_handoff_node", "backend_generation_node")
     graph.add_edge("compute_handoff_node", "ui_generation_node")
     graph.add_edge("backend_generation_node", "operations_generation_node")
@@ -2323,10 +2608,15 @@ async def run_dashboard_codegen(payload: DashboardCodegenRequest) -> DashboardCo
         {"input": payload.model_dump(mode="json")}
     )
 
+    backend_handoff = dict(final_state.get("backend_handoff", {}) or {})
+    if final_state.get("session_id") and "sessionId" not in backend_handoff:
+        backend_handoff["sessionId"] = final_state.get("session_id")
+
     return DashboardCodegenResult(
+        sessionId=final_state.get("session_id"),
         backendDocument=final_state.get("backend_document", ""),
         uiDocument=final_state.get("ui_document", ""),
-        backendHandoff=final_state.get("backend_handoff", {}),
+        backendHandoff=backend_handoff,
         fileOperations=final_state.get("file_operations", []) or [],
         warnings=final_state.get("warnings", []) or [],
     )
@@ -2335,6 +2625,7 @@ async def run_dashboard_codegen(payload: DashboardCodegenRequest) -> DashboardCo
 # Human-readable stage labels for the streaming progress feed. Keys are graph
 # node names; values are (short stage id, user-facing message).
 _CODEGEN_STAGE_LABELS: dict[str, tuple[str, str]] = {
+    "create_session_node": ("session", "Session recorded"),
     "compute_handoff_node": ("handoff", "Computed backend handoff contract"),
     "backend_generation_node": ("backend", "Generated backend design"),
     "ui_generation_node": ("ui", "Generated UI design"),
@@ -2426,3 +2717,126 @@ async def stream_dashboard_codegen(
         warnings=accumulated.get("warnings", []) or [],
     )
     yield {"type": "result", "result": result.model_dump()}
+
+
+def _job_result_from_state(job_state: dict[str, Any]) -> DashboardCodegenResult | None:
+    result_raw = job_state.get("result")
+    if not isinstance(result_raw, dict):
+        return None
+    try:
+        return DashboardCodegenResult.model_validate(result_raw)
+    except Exception:
+        return None
+
+
+async def _run_dashboard_codegen_job(
+    payload_data: dict[str, Any],
+    session_id: str,
+) -> None:
+    state: DashboardCodegenState = {
+        "input": payload_data,
+        "session_id": session_id,
+    }
+    try:
+        payload = DashboardCodegenRequest.model_validate(payload_data)
+        graph_result = await _dashboard_codegen_graph.ainvoke(
+            {
+                "input": payload.model_dump(mode="json"),
+                "session_id": session_id,
+            }
+        )
+        backend_handoff = dict(graph_result.get("backend_handoff", {}) or {})
+        if "sessionId" not in backend_handoff:
+            backend_handoff["sessionId"] = session_id
+
+        final_result = DashboardCodegenResult(
+            sessionId=session_id,
+            backendDocument=graph_result.get("backend_document", ""),
+            uiDocument=graph_result.get("ui_document", ""),
+            backendHandoff=backend_handoff,
+            fileOperations=graph_result.get("file_operations", []) or [],
+            warnings=graph_result.get("warnings", []) or [],
+        ).model_dump(mode="json")
+
+        async with _demo_jobs_lock:
+            job = _demo_jobs.get(session_id)
+            if job is not None:
+                job["status"] = "generated"
+                job["updatedAt"] = datetime.now(timezone.utc).isoformat()
+                job["result"] = final_result
+                job["error"] = None
+    except Exception as exc:
+        async with _demo_jobs_lock:
+            job = _demo_jobs.get(session_id)
+            if job is not None:
+                job["status"] = "failed"
+                job["updatedAt"] = datetime.now(timezone.utc).isoformat()
+                job["error"] = str(exc)
+        try:
+            await _persist_generation_failure(
+                state,
+                error=exc,
+                error_code="background_job_failed",
+            )
+        except Exception:
+            pass
+        print(f"[codegen] Background job failed for session {session_id}: {exc}")
+
+
+@router.post("/api/dashboard-codegen/jobs")
+async def start_dashboard_codegen_job(
+    payload: DashboardCodegenRequest,
+) -> dict[str, Any]:
+    """Create a session/job id and run codegen asynchronously in-process."""
+    payload_data = payload.model_dump(mode="json")
+
+    session_id = str(uuid4())
+    now_iso = datetime.now(timezone.utc).isoformat()
+    async with _demo_jobs_lock:
+        _demo_jobs[session_id] = {
+            "sessionId": session_id,
+            "status": "pending",
+            "createdAt": now_iso,
+            "updatedAt": now_iso,
+            "payload": payload_data,
+            "result": None,
+            "error": None,
+        }
+
+    asyncio.create_task(_run_dashboard_codegen_job(payload_data, session_id))
+
+    return {
+        "ok": True,
+        "sessionId": session_id,
+        "status": "pending",
+    }
+
+
+@router.get("/api/dashboard-codegen/jobs/{session_id}")
+async def get_dashboard_codegen_job(session_id: str) -> dict[str, Any]:
+    """Poll dashboard codegen status and fetch result when available."""
+    async with _demo_jobs_lock:
+        row = _demo_jobs.get(session_id)
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    status = str(row.get("status") or "pending").strip().lower() or "pending"
+    response: dict[str, Any] = {
+        "ok": True,
+        "sessionId": session_id,
+        "status": status,
+        "createdAt": row.get("createdAt"),
+        "updatedAt": row.get("updatedAt"),
+    }
+
+    error_message = row.get("error")
+    if isinstance(error_message, str) and error_message.strip():
+        response["error"] = error_message.strip()
+
+    if status in {"generated", "applied"}:
+        result = _job_result_from_state(row)
+        if result is not None:
+            response["result"] = result.model_dump(mode="json")
+
+    return response

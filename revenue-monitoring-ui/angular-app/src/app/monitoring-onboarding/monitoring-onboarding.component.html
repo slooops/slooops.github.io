@@ -67,13 +67,12 @@
             <div class="mo-leave-warning-text">
               @if (docsSaved) {
                 <strong>Saved.</strong> Your documents are copied or downloaded.
-                These results are not stored — if you leave or refresh this
-                page, you will need to regenerate them.
+                They can also be restored from this browser session, but keep a
+                copy for handoff.
               } @else {
-                <strong>Don’t lose your work.</strong> These documents are not
-                saved anywhere. Copy or download both files before you leave —
-                if you navigate back, refresh, or close this tab, the generated
-                content will be lost.
+                <strong>Don’t lose your work.</strong> The current generation
+                can be restored in this browser, but you should still copy or
+                download both files before you leave.
               }
             </div>
             <button
@@ -1326,8 +1325,10 @@
           <div class="mo-generate-progress" aria-live="polite">
             <app-loading-symbol></app-loading-symbol>
             <p class="mo-generate-progress__text">
-              Generating your implementation guide… This can take a minute or
-              two.
+              {{
+                generationStage ||
+                  "Generating your implementation guide… This can take a minute or two."
+              }}
             </p>
           </div>
         }
