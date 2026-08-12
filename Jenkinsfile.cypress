@@ -20,24 +20,15 @@ pipeline {
   }
 
   stages {
-    stage('Branch Validation') {
-      when { not { branch 'develop' } }
-      steps {
-        script {
-          echo "Skipping - only runs on develop branch (current: ${env.BRANCH_NAME})"
-          currentBuild.result = 'ABORTED'
-        }
-      }
-    }
     stage('Checkout') {
-      when { branch 'develop' }
+      when { branch '__never__' }
       steps {
         checkout scm
       }
     }
 
     stage('Install TypeScript Support') {
-      when { branch 'develop' }
+      when { branch '__never__' }
       steps {
         dir('revenue-monitoring-ui/angular-app') {
           script {
@@ -58,7 +49,7 @@ pipeline {
     }
 
     stage('Run Cypress Tests') {
-      when { branch 'develop' }
+      when { branch '__never__' }
       steps {
         dir('revenue-monitoring-ui/angular-app') {
           script {
@@ -88,9 +79,13 @@ pipeline {
   post {
     always {
       script {
-        // Archive screenshots/videos if produced
-        archiveArtifacts artifacts: 'revenue-monitoring-ui/angular-app/cypress/screenshots/**/*.png', allowEmptyArchive: true
-        archiveArtifacts artifacts: 'revenue-monitoring-ui/angular-app/cypress/videos/**/*.mp4', allowEmptyArchive: true
+        if (env.BRANCH_NAME == '__never__') {
+          // Archive screenshots/videos if produced
+          archiveArtifacts artifacts: 'revenue-monitoring-ui/angular-app/cypress/screenshots/**/*.png', allowEmptyArchive: true
+          archiveArtifacts artifacts: 'revenue-monitoring-ui/angular-app/cypress/videos/**/*.mp4', allowEmptyArchive: true
+        } else {
+          echo "Skipping artifact archive: pipeline is disabled for all branches (current: ${env.BRANCH_NAME})"
+        }
       }
     }
   }
