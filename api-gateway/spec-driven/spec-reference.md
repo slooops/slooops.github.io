@@ -19,19 +19,16 @@ I want to create a dashboard called {{ feature: ait-test }} that belongs to the
 component {{ component: AIT Jobs }}, protected by the role {{ role: AIT_TEST }},
 and using the assignment users key {{ assignmentUsersKey: AIT_TEST }}.
 
-This dashboard reads its data from a {{ dataStore: sql }} data source.
-
 > **Value rules for this section**
 >
 > - `feature` — lowercase kebab-case (letters, numbers, dashes), e.g. `ait-test`, `revenue-recon`.
 > - `component` — the human-friendly display name, any spacing/casing, e.g. `AIT Jobs`.
 > - `role` — UPPER_SNAKE_CASE, e.g. `AIT_TEST`.
 > - `assignmentUsersKey` — the key the UI uses to load the assignment-user list, e.g. `AIT_TEST`.
-> - `dataStore` — either `sql` or `mongo`. Leave as `sql` unless told otherwise.
 
 ---
 
-## 2. Summary Columns (exactly five)
+## 2. Summary Columns (at least five)
 
 The summary table shows these five columns, in this order:
 
@@ -43,8 +40,8 @@ The summary table shows these five columns, in this order:
 
 > **Value rules**
 >
-> - Provide **exactly five** `summaryColumn` markers.
-> - Each value is UPPER_SNAKE_CASE, matching the column name as it appears in your summary query.
+> - Provide at least five `summaryColumn` markers.
+> - Each value is UPPER_SNAKE_CASE or lower_snake_case, matching the column name as it appears in your summary query.
 
 ---
 
@@ -61,26 +58,12 @@ column and how it should appear — `select` for a dropdown, `text` for a free-t
 > - One `filter` marker per filter column. Provide at least one.
 > - Format is `COLUMN_NAME | type`, separated by a single pipe (`|`).
 > - `COLUMN_NAME` is UPPER_SNAKE_CASE; `type` is either `select` or `text`.
-> - The filter columns must line up, in order, with the `?` placeholders in your
->   **filtered-details** query below.
+> - These markers configure UI controls in the details table. They do not define
+>   the parameters in the **filtered-details** query.
 
 ---
 
-## 4. Column Aliases (optional)
-
-Only fill this in if a column has a **different name in the update query** than it
-has in the summary table. If not, leave this section empty (delete the sample line).
-
-{{ alias: entity_name = org_name }}
-
-> **Value rules**
->
-> - Format is `updateColumn = summaryColumn`.
-> - Optional — most dashboards need none. Delete the sample marker if unused.
-
----
-
-## 5. Queries
+## 4. Queries
 
 Paste each raw SQL query into its code block, exactly as it should run. The small
 `{{query: ...}}` line directly **above** each block tells us which query it is —
@@ -102,7 +85,7 @@ The details query:
 SELECT * FROM ARFINRO.XXCFI_DETAILS_V
 ```
 
-The filtered-details query (its `?` placeholders must match the filters in Section 3, in order):
+The filtered-details query:
 
 {{ query: detailsFiltered }}
 

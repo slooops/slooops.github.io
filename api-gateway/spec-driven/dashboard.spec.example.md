@@ -12,10 +12,9 @@
 
 This spec creates a dashboard called {{ feature: ait-jobs }} under the component
 {{ component: AIT Jobs }}, guarded by role {{ role: AIT_JOBS }}, using the
-assignment users key {{ assignmentUsersKey: AIT }}. It reads from a
-{{ dataStore: sql }} data source.
+assignment users key {{ assignmentUsersKey: AIT }}.
 
-## Summary columns (exactly 5)
+## Summary columns (at least 5)
 
 {{ summaryColumn: RUN_DATE }}
 {{ summaryColumn: CTM_FOLDER }}
@@ -23,16 +22,10 @@ assignment users key {{ assignmentUsersKey: AIT }}. It reads from a
 {{ summaryColumn: STATUS }}
 {{ summaryColumn: OWNER }}
 
-## Filters (1 or more) format: COLUMN | select (or) text
+## Details-table filters (1 or more) format: COLUMN | select (or) text
 
 {{ filter: RUN_DATE | text }}
 {{ filter: CTM_FOLDER | select }}
-
-## Aliases (optional) format: updateColumn = summaryColumn
-
-<!-- This example needs no aliases. If a column is named differently in the
-     update query than in the summary table, add a line like:
-     {{ alias: entity_name = org_name }} -->
 
 ## Queries (paste real SQL, verbatim)
 
