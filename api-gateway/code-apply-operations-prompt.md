@@ -167,21 +167,26 @@ Return a single JSON object with this exact top-level shape:
 ng generate @rev-ops-monitoring/dashboard-schematics:monitoring-dashboard <featureName>
 ```
 
-- Because the CLI option may be unsupported in some environments, set the assignment key via a **frontend code operation** immediately after scaffolding:
+- The schematic template already contains the assignment key line under an `// ASSIGNMENT_FILTER_KEY` marker comment:
+
+```ts
+// ASSIGNMENT_FILTER_KEY (set by codegen apply step)
+assignmentUsersFilterKey: '<%= assignmentFilterKey %>',
+```
+
+Set the assignment key via a **frontend code operation** immediately after scaffolding, using `replace_marker_block` with the `ASSIGNMENT_FILTER_KEY` marker (do **NOT** use `replace_text` with a `FILTER_KEY_PLACEHOLDER` find-string — that literal is never present in the rendered file):
 
 ```json
 {
   "path": "src/app/<featureName>/<featureName>.component.ts",
-  "op": "replace_text",
-  "content": {
-    "find": "assignmentUsersFilterKey: 'FILTER_KEY_PLACEHOLDER'",
-    "replace": "assignmentUsersFilterKey: '<assignmentUsersKey>'"
-  },
+  "op": "replace_marker_block",
+  "marker": "ASSIGNMENT_FILTER_KEY",
+  "content": "assignmentUsersFilterKey: '<assignmentUsersKey>',",
   "description": "Set assignmentUsersFilterKey in generated userContextData"
 }
 ```
 
-- Emit this `replace_text` operation as the **first frontend operation** before marker replacements.
+- Emit this `replace_marker_block` operation as the **first frontend operation** before the other marker replacements.
 
 Use `featureName` from `input` for file names:
 
@@ -198,6 +203,7 @@ Use `featureName` from `input` for file names:
 
 Supported markers are exactly:
 
+- `ASSIGNMENT_FILTER_KEY`
 - `VISIBLE_TABS`
 - `FIELD_CONFIG`
 - `FILTER_CONFIGS`
@@ -217,4 +223,4 @@ Supported markers are exactly:
   1. schematic generation command, and
   2. routing-module update step (with a `routeData` block), and
   3. menu-component update step (side-nav entry).
-- Ensure frontend `operations` includes a code change that sets `assignmentUsersFilterKey` to input `assignmentUsersKey`.
+- Ensure frontend `operations` includes a `replace_marker_block` with `marker: "ASSIGNMENT_FILTER_KEY"` that sets `assignmentUsersFilterKey` to input `assignmentUsersKey` (emitted as the first frontend operation).

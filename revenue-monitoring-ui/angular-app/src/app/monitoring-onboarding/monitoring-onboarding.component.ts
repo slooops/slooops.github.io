@@ -895,7 +895,8 @@ export class MonitoringOnboardingComponent implements OnInit, OnDestroy {
 
       this.submitting = true;
       this.submitError = null;
-      this.generationStage = 'Generating your implementation guide…';
+      this.generationStage =
+        'Generating your implementation guide… This can take a minute or two.';
       this.persistCodegenJobState({
         sessionId,
         status: 'pending',
