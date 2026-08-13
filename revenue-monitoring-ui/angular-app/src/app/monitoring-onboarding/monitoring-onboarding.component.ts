@@ -79,7 +79,7 @@ const FLEX_SNAKE_PATTERN =
   /^(?:[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*|[a-z][a-z0-9]*(?:_[a-z0-9]+)*)$/;
 
 const CODEGEN_JOB_STORAGE_KEY = 'monitoringOnboarding.codegenJob';
-const CODEGEN_POLL_INTERVAL_MS = 3000;
+const CODEGEN_POLL_INTERVAL_MS = 6000;
 const CODEGEN_MAX_NON_200_POLL_RETRIES = 5;
 
 const DEFAULT_MANUAL_FORM_VALUES = {
@@ -158,11 +158,6 @@ export class MonitoringOnboardingComponent implements OnInit, OnDestroy {
       icon: 'phosphorFolderOpenBold',
     },
     {
-      key: 'parsed-preview',
-      label: 'Parsed Spec Preview',
-      icon: 'phosphorEyeBold',
-    },
-    {
       key: 'review-spec',
       label: 'Review & Generate',
       icon: 'phosphorSparkleBold',
@@ -189,9 +184,17 @@ export class MonitoringOnboardingComponent implements OnInit, OnDestroy {
   specInputMode: 'spec' | 'manual' = 'manual';
   specDraftText = '';
   specDraftFileName = '';
+  specFile: File | null = null;
   isSpecDragActive = false;
   specFileValidationMessage: string | null = null;
-  readonly specAcceptedExtensions = ['md', 'txt', 'doc', 'docx', 'pdf'];
+  readonly specAcceptedExtensions = ['md', 'txt'];
+
+  /** Spec compile (AI parse) state. */
+  specParsing = false;
+  specParseError: string | null = null;
+  parsedSpecPayload: Record<string, unknown> | null = null;
+  private specPollTimerId: number | null = null;
+  private specNon200PollFailures = 0;
 
   /** Apply-with-agent UX state (post-generation). */
   applyConfirmationOpen = false;
@@ -273,6 +276,7 @@ export class MonitoringOnboardingComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearPollTimer();
+    this.clearSpecPollTimer();
   }
 
   private resolveApiUrl(rawUrl: string): string {
@@ -303,6 +307,28 @@ export class MonitoringOnboardingComponent implements OnInit, OnDestroy {
 
   private resolveJobStatusApiUrl(rawUrl: string, sessionId: string): string {
     const jobsUrl = this.resolveJobsApiUrl(rawUrl);
+    if (!jobsUrl || !sessionId.trim()) return '';
+    return `${jobsUrl}/${encodeURIComponent(sessionId.trim())}`;
+  }
+
+  private resolveSpecCompileApiUrl(rawUrl: string): string {
+    const codegenUrl = this.resolveApiUrl(rawUrl);
+    if (!codegenUrl) return '';
+    // Sibling of /api/dashboard-codegen -> /api/dashboard-spec/compile
+    return `${codegenUrl.replace(/\/dashboard-codegen$/i, '')}/dashboard-spec/compile`;
+  }
+
+  private resolveSpecCompileJobsApiUrl(rawUrl: string): string {
+    const compileUrl = this.resolveSpecCompileApiUrl(rawUrl);
+    if (!compileUrl) return '';
+    return `${compileUrl.replace(/\/+$/, '')}/jobs`;
+  }
+
+  private resolveSpecCompileJobStatusApiUrl(
+    rawUrl: string,
+    sessionId: string,
+  ): string {
+    const jobsUrl = this.resolveSpecCompileJobsApiUrl(rawUrl);
     if (!jobsUrl || !sessionId.trim()) return '';
     return `${jobsUrl}/${encodeURIComponent(sessionId.trim())}`;
   }
@@ -450,7 +476,6 @@ export class MonitoringOnboardingComponent implements OnInit, OnDestroy {
     switch (key) {
       case 'upload-spec':
         return this.hasSpecDraft;
-      case 'parsed-preview':
       case 'review-spec':
         return true;
       case 'identity':
@@ -555,9 +580,263 @@ export class MonitoringOnboardingComponent implements OnInit, OnDestroy {
   }
 
   clearSpecDraft(): void {
+    this.clearSpecPollTimer();
+    this.specParsing = false;
     this.specDraftText = '';
     this.specDraftFileName = '';
+    this.specFile = null;
     this.specFileValidationMessage = null;
+    this.specParseError = null;
+    this.parsedSpecPayload = null;
+  }
+
+  get hasParsedSpec(): boolean {
+    return !!this.parsedSpecPayload;
+  }
+
+  /**
+   * Uploads the spec (attached file or pasted content) to the AI compile
+   * job endpoint, receives a session id, and polls for the extracted payload.
+   * On success the reactive form is populated and the wizard advances to the
+   * review-spec step for human verification.
+   */
+  async parseSpec(): Promise<void> {
+    if (this.specParsing) return;
+
+    const jobsUrl = this.resolveSpecCompileJobsApiUrl(
+      this.authService.getControlTowerSupportAgentApiUrl() || '',
+    );
+    if (!jobsUrl) {
+      this.specParseError =
+        'Spec compile API URL is unavailable from user context. Please refresh and try again.';
+      return;
+    }
+
+    let sourceBlob: Blob;
+    if (this.specFile) {
+      sourceBlob = this.specFile;
+    } else if (this.specDraftText.trim()) {
+      sourceBlob = new Blob([this.specDraftText], { type: 'text/markdown' });
+    } else {
+      this.specParseError =
+        'Attach a document or paste spec content before parsing.';
+      return;
+    }
+
+    // The compile endpoint requires a Markdown (.md) filename; wrap non-.md
+    // sources (pasted text or a .txt upload) into a spec.md payload.
+    const originalName = this.specFile?.name || 'spec.md';
+    const uploadName = originalName.toLowerCase().endsWith('.md')
+      ? originalName
+      : 'spec.md';
+
+    const formData = new FormData();
+    formData.append('file', sourceBlob, uploadName);
+
+    this.specParsing = true;
+    this.specParseError = null;
+    this.specNon200PollFailures = 0;
+    this.clearSpecPollTimer();
+
+    try {
+      const response = await fetch(jobsUrl, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(await this.extractSpecCompileError(response));
+      }
+
+      const data = (await response.json()) as Record<string, unknown>;
+      const sessionId =
+        typeof data['sessionId'] === 'string' ? data['sessionId'].trim() : '';
+      if (!sessionId) {
+        throw new Error('Spec compile job did not return a session ID.');
+      }
+
+      void this.pollSpecCompileJob(sessionId);
+    } catch (err) {
+      this.specParsing = false;
+      this.specParseError =
+        err instanceof Error
+          ? err.message
+          : 'Failed to parse the specification. Please try again.';
+    }
+  }
+
+  private clearSpecPollTimer(): void {
+    if (this.specPollTimerId !== null) {
+      window.clearTimeout(this.specPollTimerId);
+      this.specPollTimerId = null;
+    }
+  }
+
+  private scheduleNextSpecPoll(sessionId: string): void {
+    this.clearSpecPollTimer();
+    this.specPollTimerId = window.setTimeout(() => {
+      void this.pollSpecCompileJob(sessionId);
+    }, CODEGEN_POLL_INTERVAL_MS);
+  }
+
+  /** Polls the spec-compile job until it is parsed or fails. */
+  private async pollSpecCompileJob(sessionId: string): Promise<void> {
+    const statusUrl = this.resolveSpecCompileJobStatusApiUrl(
+      this.authService.getControlTowerSupportAgentApiUrl() || '',
+      sessionId,
+    );
+    if (!statusUrl) {
+      this.specParsing = false;
+      this.specParseError =
+        'Spec compile status URL is unavailable from user context. Please refresh and try again.';
+      return;
+    }
+
+    try {
+      const response = await fetch(statusUrl, { method: 'GET' });
+      const raw = await response.text();
+      const data = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+
+      if (!response.ok) {
+        this.specNon200PollFailures += 1;
+        if (this.specNon200PollFailures > CODEGEN_MAX_NON_200_POLL_RETRIES) {
+          this.specParsing = false;
+          this.clearSpecPollTimer();
+          this.specParseError =
+            'Unable to reconnect to spec parse status after multiple attempts. Please try again.';
+          return;
+        }
+        throw new Error(
+          (typeof data['detail'] === 'string' && data['detail']) ||
+            `Status request failed (${response.status} ${response.statusText}).`,
+        );
+      }
+
+      this.specNon200PollFailures = 0;
+      const status = typeof data['status'] === 'string' ? data['status'] : '';
+
+      if (status === 'parsed') {
+        const payload =
+          data['result'] && typeof data['result'] === 'object'
+            ? (data['result'] as Record<string, unknown>)
+            : null;
+        this.clearSpecPollTimer();
+        this.specParsing = false;
+        if (!payload) {
+          this.specParseError =
+            'Spec parse completed but returned no payload. Please try again.';
+          return;
+        }
+        this.parsedSpecPayload = payload;
+        this.applyParsedSpecToForm(payload);
+        this.currentStep = this.specSteps.findIndex(
+          (s) => s.key === 'review-spec',
+        );
+        return;
+      }
+
+      if (status === 'failed') {
+        this.clearSpecPollTimer();
+        this.specParsing = false;
+        this.specParseError = this.formatSpecJobError(data['error']);
+        return;
+      }
+
+      // Still pending — keep polling.
+      this.specParsing = true;
+      this.scheduleNextSpecPoll(sessionId);
+    } catch {
+      // Transient error — keep the spinner and retry.
+      this.specParsing = true;
+      this.scheduleNextSpecPoll(sessionId);
+    }
+  }
+
+  /** Normalizes a spec job error (plain string or serialized detail object). */
+  private formatSpecJobError(error: unknown): string {
+    if (typeof error !== 'string' || !error.trim()) {
+      return 'Failed to parse the specification. Please try again.';
+    }
+    try {
+      const parsed = JSON.parse(error) as Record<string, unknown>;
+      const message = [parsed['message'], parsed['error']]
+        .filter((part) => typeof part === 'string')
+        .join(' ');
+      if (message.trim()) return message;
+    } catch {
+      // not JSON — use as-is
+    }
+    return error;
+  }
+
+  private async extractSpecCompileError(response: Response): Promise<string> {
+    try {
+      const body = await response.json();
+      const detail = (body as Record<string, unknown>)?.['detail'];
+      if (typeof detail === 'string') return detail;
+      if (detail && typeof detail === 'object') {
+        const d = detail as Record<string, unknown>;
+        const message = [d['message'], d['error']]
+          .filter((part) => typeof part === 'string')
+          .join(' ');
+        if (message.trim()) return message;
+      }
+    } catch {
+      // fall through to status text
+    }
+    return `Spec parse failed (${response.status} ${response.statusText}).`;
+  }
+
+  /** Populates the reactive form from an AI-parsed onboarding payload. */
+  private applyParsedSpecToForm(payload: Record<string, unknown>): void {
+    const queries = (payload['queries'] as Record<string, string>) || {};
+
+    this.form.patchValue({
+      componentName: (payload['componentName'] as string) || '',
+      featureName: (payload['featureName'] as string) || '',
+      roleName: (payload['roleName'] as string) || '',
+      assignmentUsersKey: (payload['assignmentUsersKey'] as string) || '',
+      queries: {
+        summary: queries['summary'] || '',
+        details: queries['details'] || '',
+        detailsFiltered: queries['detailsFiltered'] || '',
+        summaryUpdate: queries['summaryUpdate'] || '',
+      },
+    });
+
+    const cols = Array.isArray(payload['summaryColumns'])
+      ? (payload['summaryColumns'] as string[])
+      : [];
+    this.summaryColumns.clear();
+    const colCount = Math.max(cols.length, 5);
+    for (let i = 0; i < colCount; i++) {
+      const ctrl = this.createColumnControl();
+      ctrl.setValue(cols[i] ?? '');
+      this.summaryColumns.push(ctrl);
+    }
+
+    const filters = Array.isArray(payload['detailsTableFilters'])
+      ? (payload['detailsTableFilters'] as {
+          columnName: string;
+          type: string;
+        }[])
+      : [];
+    this.detailsTableFilters.clear();
+    if (filters.length === 0) {
+      this.detailsTableFilters.push(this.createFilterGroup());
+    } else {
+      filters.forEach((f) => {
+        const group = this.createFilterGroup();
+        group.patchValue({
+          columnName: f.columnName ?? '',
+          type: f.type === 'text' ? 'text' : 'select',
+        });
+        this.detailsTableFilters.push(group);
+      });
+    }
+
+    this.form.markAsPristine();
+    this.form.markAsUntouched();
   }
 
   useSampleSpec(): void {
@@ -593,6 +872,7 @@ export class MonitoringOnboardingComponent implements OnInit, OnDestroy {
   private assignSpecFile(file: File | null): void {
     if (!file) {
       this.specDraftFileName = '';
+      this.specFile = null;
       this.specFileValidationMessage = null;
       return;
     }
@@ -600,13 +880,16 @@ export class MonitoringOnboardingComponent implements OnInit, OnDestroy {
     const extension = this.getFileExtension(file.name);
     if (!this.specAcceptedExtensions.includes(extension)) {
       this.specDraftFileName = '';
+      this.specFile = null;
       this.specFileValidationMessage =
-        'Unsupported file type. Use .md, .txt, .doc, .docx, or .pdf.';
+        'Unsupported file type. Use .md or .txt.';
       return;
     }
 
     this.specDraftFileName = file.name;
+    this.specFile = file;
     this.specFileValidationMessage = null;
+    this.specParseError = null;
   }
 
   private getFileExtension(fileName: string): string {
@@ -1063,9 +1346,9 @@ export class MonitoringOnboardingComponent implements OnInit, OnDestroy {
 
   // ── submit ─────────────────────────────────────────────────
   async submit(): Promise<void> {
-    if (this.onboardingMode === 'spec') {
+    if (this.onboardingMode === 'spec' && !this.parsedSpecPayload) {
       this.submitError =
-        'Spec-driven generation is not available yet. Click Enter manually to continue.';
+        'Parse a spec first, or click Enter manually to continue.';
       return;
     }
 
@@ -1782,8 +2065,9 @@ export class MonitoringOnboardingComponent implements OnInit, OnDestroy {
     this.docsSaved = false;
     this.leaveWarningDismissed = false;
     this.isEditingRegeneration = true;
-    this.onboardingMode = 'manual';
-    this.currentStep = this.manualSteps.findIndex((s) => s.key === 'review');
+    // Return to the review step of whichever flow produced the generation.
+    const reviewKey = this.onboardingMode === 'spec' ? 'review-spec' : 'review';
+    this.currentStep = this.activeSteps.findIndex((s) => s.key === reviewKey);
   }
 
   backToGeneratedResult(): void {
@@ -1794,6 +2078,7 @@ export class MonitoringOnboardingComponent implements OnInit, OnDestroy {
 
   resetForm(): void {
     this.clearPollTimer();
+    this.clearSpecPollTimer();
     this.clearPersistedCodegenJobState();
     this.generated = null;
     this.submitError = null;
@@ -1807,6 +2092,12 @@ export class MonitoringOnboardingComponent implements OnInit, OnDestroy {
     this.currentStep = 0;
     this.specInputMode = 'spec';
     this.non200PollFailures = 0;
+    this.specNon200PollFailures = 0;
+    this.specParsing = false;
+    this.specParseError = null;
+    this.parsedSpecPayload = null;
+    this.specFile = null;
+    this.specFileValidationMessage = null;
     this.specDraftText = '';
     this.specDraftFileName = '';
 

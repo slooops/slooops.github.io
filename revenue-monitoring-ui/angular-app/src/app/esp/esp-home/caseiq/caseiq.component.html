@@ -234,7 +234,7 @@
         style="margin-bottom: 1rem"
       >
         @for (card of mttrCards(); track card.label) {
-          <div class="caseiq-kpi caseiq-kpi--mttr">
+          <div class="caseiq-kpi caseiq-kpi--mttr {{ card.color }}">
             <div class="caseiq-mttr-label {{ card.color }}">
               <span>{{ card.label }}</span>
               <span>{{ card.sublabel }}</span>

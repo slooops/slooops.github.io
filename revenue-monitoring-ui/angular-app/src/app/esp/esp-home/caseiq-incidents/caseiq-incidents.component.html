@@ -12,6 +12,7 @@
           [customDateRangeStart]="customDateRangeStart"
           [customDateRangeEnd]="customDateRangeEnd"
           [actions]="[]"
+          [panelColumns]="3"
           [totalCount]="incidents.length"
           [filteredCount]="filteredIncidents.length"
           [showFilterToggle]="true"
@@ -70,8 +71,8 @@
               <th>Category</th>
               <th>Core Issue</th>
               <th>Outcome</th>
-              <th>Resolve Case</th>
-              <th>Resolution Completed</th>
+              <th>Case resolution (Agent)</th>
+              <th>Esp closure successful</th>
               <!-- <th>Runs</th> -->
               <th>Last Processed</th>
             </tr>
@@ -115,8 +116,24 @@
                     {{ row.outcome }}
                   </span>
                 </td>
-                <td>{{ row.resolveCase }}</td>
-                <td>{{ row.resolutionCompleted }}</td>
+                <td>
+                  {{
+                    row.resolveCase === "Y"
+                      ? "Yes"
+                      : row.resolveCase === "N"
+                        ? "No"
+                        : row.resolveCase
+                  }}
+                </td>
+                <td>
+                  {{
+                    row.resolutionCompleted === "Y"
+                      ? "Yes"
+                      : row.resolutionCompleted === "N"
+                        ? "No"
+                        : row.resolutionCompleted
+                  }}
+                </td>
                 <!-- <td>
                 <span class="orc__runs-pill">{{ row.runs }} runs</span>
               </td> -->

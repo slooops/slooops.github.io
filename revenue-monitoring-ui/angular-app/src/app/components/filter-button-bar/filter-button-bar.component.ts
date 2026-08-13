@@ -19,7 +19,7 @@ import {
 export interface FilterConfig {
   id: string;
   label: string;
-  type: 'multi-select' | 'text';
+  type: 'multi-select' | 'text' | 'radio';
   placeholder?: string;
   options?: SelectOption[];
   singleSelect?: boolean;
@@ -68,6 +68,7 @@ export class FilterButtonBarComponent {
   @Input() filteredCount: number = 0;
   @Input() showFilterToggle: boolean = true;
   @Input() countLabel: string = 'results';
+  @Input() panelColumns: number = 2;
   @Input() customDateRangeFilterId: string | null = null;
   @Input() customDateRangeTriggerValue: string = 'Date range';
   @Input() customDateRangeStart: string = '';
@@ -146,6 +147,20 @@ export class FilterButtonBarComponent {
 
   onSelectChange(filterId: string, values: string[]): void {
     const updated = { ...this.filterValues, [filterId]: values };
+    this.filterValues = updated;
+    this.filterChange.emit(updated);
+  }
+
+  isRadioSelected(filterId: string, value: string): boolean {
+    return this.getSelectedValues(filterId).includes(value);
+  }
+
+  onRadioChange(filterId: string, value: string): void {
+    // Toggle: clicking the active option clears it (acts like an optional
+    // single-select). Stored as an array for parity with multi-select values.
+    const current = this.getSelectedValues(filterId);
+    const next = current.includes(value) ? [] : [value];
+    const updated = { ...this.filterValues, [filterId]: next };
     this.filterValues = updated;
     this.filterChange.emit(updated);
   }

@@ -1,62 +1,111 @@
-# Dashboard Spec
+# Team Dashboard Onboarding Specification
 
-<!--
-  HOW TO USE
-  • Change only the value after each colon inside {{ }}, and the SQL inside ```sql blocks.
-  • Everything else can stay exactly as-is.
-  • New here? Copy dashboard.spec.example.md instead — it's fully filled in.
-  • Need the rules for a field? See spec-reference.md.
--->
+Complete this file and upload it from the **Onboard Exception Monitoring**
+screen. It contains the same information collected by the step-by-step form.
 
-## Identity
+## How to complete this specification
 
-{{ feature: my-feature }} <!-- kebab-case, e.g. ait-test -->
-{{ component: My Component }} <!-- display name, e.g. AIT Jobs -->
-{{ role: MY_ROLE }} <!-- UPPER_SNAKE, e.g. AIT_TEST -->
-{{ assignmentUsersKey: MY_KEY }} <!-- assignment-users key -->
-{{ dataStore: sql }} <!-- sql or mongo -->
+1. Replace each sample value inside `{{ ... }}`.
+2. Replace the sample SQL inside all four `sql` blocks.
+3. Keep marker names such as `feature`, `component`, and `query` unchanged.
+4. Add or remove repeated summary-column and filter markers as needed.
+5. Do not include passwords, tokens, connection strings, or other secrets.
 
-## Summary columns (exactly 5)
+## 1. Identity and access
 
-{{ summaryColumn: COLUMN_1 }}
-{{ summaryColumn: COLUMN_2 }}
-{{ summaryColumn: COLUMN_3 }}
-{{ summaryColumn: COLUMN_4 }}
-{{ summaryColumn: COLUMN_5 }}
+Provide the dashboard label, generated component name, access role, and the key
+used to load assignable users.
 
-## Filters (1 or more) format: COLUMN | select (or) text
+{{ component: AIT Jobs }}
+{{ feature: ait-monitoring }}
+{{ role: AIT_JOBS }}
+{{ assignmentUsersKey: AIT_USERS }}
 
-{{ filter: COLUMN_1 | text }}
-{{ filter: COLUMN_2 | select }}
+Rules:
 
-## Aliases (optional) format: updateColumn = summaryColumn
+- `component` is the human-readable dashboard or tab name and may be up to 60 characters.
+- `feature` must use lowercase kebab-case, such as `ait-monitoring`.
+- `role` must use UPPER_SNAKE_CASE, such as `AIT_JOBS`.
+- `assignmentUsersKey` is the existing lookup key for assignable users.
 
-<!-- delete the next line if you have none -->
+## 2. SQL queries
 
-{{ alias: update_col = summary_col }}
+Provide all four SQL statements. Use `?` only for values that the generated
+backend will bind as parameters.
 
-## Queries (paste real SQL, verbatim)
+### Summary query
+
+Returns the top-level rows displayed in the summary table.
 
 {{ query: summary }}
 
 ```sql
--- summary SQL here
+SELECT *
+FROM ARFINRO.REPLACE_WITH_SUMMARY_SOURCE
 ```
+
+### Details query
+
+Returns the detail rows before filtering.
 
 {{ query: details }}
 
 ```sql
--- details SQL here
+SELECT *
+FROM ARFINRO.REPLACE_WITH_DETAILS_SOURCE
 ```
+
+### Filtered details query
+
+Returns detail rows for the values represented by its `?` placeholders.
 
 {{ query: detailsFiltered }}
 
 ```sql
--- filtered SQL here; the ? placeholders match the filters above, in order
+SELECT *
+FROM ARFINRO.REPLACE_WITH_DETAILS_SOURCE
+WHERE REPLACE_WITH_KEY_COLUMN = ?
 ```
+
+### Summary update query
+
+Updates assignment or comment information from the summary table.
 
 {{ query: summaryUpdate }}
 
 ```sql
--- update SQL here
+UPDATE ARFINRO.REPLACE_WITH_SUMMARY_SOURCE
+SET ASSIGNED_TO = ?, COMMENTS = ?
+WHERE REPLACE_WITH_KEY_COLUMN = ?
 ```
+
+## 3. Summary columns
+
+List at least five columns to display in the summary table. Add more markers if
+needed. Column names may use UPPER_SNAKE_CASE or lower_snake_case.
+
+{{ summaryColumn: RUN_DATE }}
+{{ summaryColumn: CTM_FOLDER }}
+{{ summaryColumn: JOB_NAME }}
+{{ summaryColumn: STATUS }}
+{{ summaryColumn: OWNER }}
+
+## 4. Details-table filters
+
+Provide at least one UI filter. Each filter uses `COLUMN_NAME | type`, where
+`type` is either `select` or `text`. These configure controls in the details
+table and do not define the SQL parameters in the filtered-details query.
+
+{{ filter: RUN_DATE | text }}
+{{ filter: CTM_FOLDER | select }}
+
+## 5. Team review
+
+Before uploading this specification, confirm that:
+
+- All sample identity values have been replaced.
+- All four SQL blocks contain executable SQL for the intended environment.
+- SQL uses bind placeholders instead of embedding user-provided values.
+- At least five summary columns and one details-table filter are present.
+- Every filter type is either `select` or `text`.
+- No credentials or secrets are included.

@@ -29,7 +29,47 @@ UI_PROMPT_FILE = PROMPT_DIR / "ui-code-generation-prompt.md"
 OPERATIONS_PROMPT_FILE = PROMPT_DIR / "code-apply-operations-prompt.md"
 DEFAULT_CODEGEN_MODEL = os.getenv("DASHBOARD_CODEGEN_MODEL", "gpt-5-nano")
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SCHEMATICS_ROOT = REPO_ROOT / "revenue-monitoring-ui" / "angular-app" / "schematics" / "monitoring-dashboard" / "files"
+
+
+def _resolve_schematics_root() -> Path:
+    """Locate the monitoring-dashboard schematic `.template` files at runtime.
+
+    CRITICAL: the api-gateway Docker image is built with the `api-gateway/`
+    directory as the build context (see Jenkinsfile `dir("api-gateway")`), so
+    the sibling `revenue-monitoring-ui/…/schematics` tree is NOT shipped to the
+    pod. In the pod `REPO_ROOT` resolves to `/`, so the repo-relative path does
+    not exist and template seeding silently no-ops — which surfaced only as a
+    downstream "Marker block 'VISIBLE_TABS' not found" during apply (the empty,
+    un-seeded component has nothing to replace). To make the pod behave like
+    localhost we ship a VENDORED copy of the templates inside `api-gateway/`
+    and prefer it, falling back to the repo location for local development.
+
+    An explicit `DASHBOARD_SCHEMATICS_ROOT` env override wins over both.
+    """
+    candidates: list[Path] = []
+    override = os.getenv("DASHBOARD_SCHEMATICS_ROOT", "").strip()
+    if override:
+        candidates.append(Path(override))
+    # Vendored copy bundled into the api-gateway image (ships to the pod).
+    candidates.append(PROMPT_DIR / "schematics" / "monitoring-dashboard" / "files")
+    # Repo layout for local development / running from the monorepo root.
+    candidates.append(
+        REPO_ROOT
+        / "revenue-monitoring-ui"
+        / "angular-app"
+        / "schematics"
+        / "monitoring-dashboard"
+        / "files"
+    )
+    for candidate in candidates:
+        if candidate.is_dir():
+            return candidate
+    # None exist: return the vendored path so error messages point at the copy
+    # that is SUPPOSED to be present in the image.
+    return candidates[-2] if len(candidates) >= 2 else candidates[0]
+
+
+SCHEMATICS_ROOT = _resolve_schematics_root()
 
 router = APIRouter()
 
@@ -326,6 +366,46 @@ def _extract_assignment_filter_key(command: str) -> str | None:
     return None
 
 
+def _resolve_seed_feature_name(
+    file_operations: list[dict[str, Any]],
+    backend_handoff: dict[str, Any],
+) -> str | None:
+    """Determine the single generated feature whose component files may be seeded.
+
+    Only `src/app/<feature>/<feature>.component.*` for THIS feature is a schematic
+    scaffold we may force-seed. Other `<x>/<x>.component.ts` files (menu,
+    monitoring-dashboard, loading-symbol, …) coincidentally match the schematic
+    path shape but are real, hand-written components that must be fetched from the
+    repo — never overwritten with the dashboard template. We therefore resolve the
+    feature name explicitly (from the frontend run_command, else backendHandoff)
+    and seed ONLY that component.
+    """
+    for group in file_operations or []:
+        if not isinstance(group, dict) or group.get("target") != "frontend":
+            continue
+        for pre_step in group.get("preSteps", []) or []:
+            if isinstance(pre_step, dict) and pre_step.get("op") == "run_command":
+                name = _extract_monitoring_schematic_name(str(pre_step.get("command", "")))
+                if name:
+                    return name
+    raw = backend_handoff.get("featureName") if isinstance(backend_handoff, dict) else None
+    if isinstance(raw, str) and raw.strip():
+        return raw.strip()
+    return None
+
+
+def _is_seedable_feature_component(relative_path: str, feature_name: str | None) -> bool:
+    """True only for `src/app/<feature>/<feature>.component.(ts|html|css|spec.ts)`."""
+    if not feature_name:
+        return False
+    return bool(
+        re.match(
+            rf"src/app/{re.escape(feature_name)}/{re.escape(feature_name)}\.component\.(ts|html|css|spec\.ts)$",
+            relative_path,
+        )
+    )
+
+
 def _monitoring_schematic_paths(feature_name: str, include_tests: bool) -> list[str]:
     base = f"src/app/{feature_name}/{feature_name}.component"
     paths = [
@@ -343,10 +423,27 @@ def _command_skips_tests(command: str) -> bool:
 
 
 def _replace_marker_block(content: str, marker: str, replacement: str, file_path: str) -> str:
+    # The array-body pattern is `\[[\s\S]*?\];` (non-greedy to the FIRST `];`),
+    # so it matches BOTH the empty scaffold `[] = [];` AND an already-populated
+    # `[] = [ ... ];` block. The previous `\[\];`-only pattern matched only the
+    # empty scaffold, so a re-apply against a component whose markers were
+    # already filled found no empty `[];` and hard-failed with "Marker block not
+    # found". Matching the filled block too makes re-apply idempotent and, being
+    # non-greedy, stops the match at the first `];` so VISIBLE_TABS can never
+    # swallow the following FIELD_CONFIG declaration.
     marker_patterns = {
-        "VISIBLE_TABS": re.compile(r"visibleTabs:\s*\{.*?\}\[\]\s*=\s*\[\];", re.DOTALL),
-        "FIELD_CONFIG": re.compile(r"fieldConfig:\s*\{.*?\}\[\]\s*=\s*\[\];", re.DOTALL),
+        "VISIBLE_TABS": re.compile(r"visibleTabs:\s*\{.*?\}\[\]\s*=\s*\[[\s\S]*?\];", re.DOTALL),
+        "FIELD_CONFIG": re.compile(r"fieldConfig:\s*\{.*?\}\[\]\s*=\s*\[[\s\S]*?\];", re.DOTALL),
         "ASSIGNMENT_FILTER_KEY": re.compile(r"assignmentUsersFilterKey:\s*['\"][^'\"]*['\"],?"),
+    }
+
+    # Comment-banner fallbacks for the array-backed markers. The schematic
+    # template carries an `// ─── <MARKER> (...)` banner line immediately above
+    # each declaration, so if the declaration itself can't be located we insert
+    # the generated block after the banner instead of aborting the whole apply.
+    array_marker_comment = {
+        "VISIBLE_TABS": re.compile(r"^[ \t]*//.*VISIBLE_TABS.*$", re.MULTILINE),
+        "FIELD_CONFIG": re.compile(r"^[ \t]*//.*FIELD_CONFIG.*$", re.MULTILINE),
     }
 
     # ASSIGNMENT_FILTER_KEY is self-healing and never hard-fails: the schematic
@@ -380,11 +477,30 @@ def _replace_marker_block(content: str, marker: str, replacement: str, file_path
 
     if marker in marker_patterns:
         pattern = marker_patterns[marker]
-        if not pattern.search(content):
-            raise ValueError(f"Marker block '{marker}' not found in {file_path}")
-        # Use callable replacement so backslashes in code are preserved
-        # literally (no regex backreference expansion like \1).
-        return pattern.sub(lambda _m: replacement, content, count=1)
+        match = pattern.search(content)
+        if match:
+            # Use callable replacement so backslashes in code are preserved
+            # literally (no regex backreference expansion like \1).
+            return pattern.sub(lambda _m: replacement, content, count=1)
+
+        # Declaration not found. For the array-backed markers this is
+        # self-healing: if the generated block is already present, no-op;
+        # otherwise insert it after the `// ─── <MARKER>` banner comment. Only
+        # if neither the declaration nor the banner exists do we hard-fail.
+        comment_pattern = array_marker_comment.get(marker)
+        if comment_pattern is not None:
+            replacement_normalized = replacement.strip()
+            if replacement_normalized and replacement_normalized in content:
+                return content
+            comment_match = comment_pattern.search(content)
+            if comment_match:
+                indent_match = re.match(r"^([ \t]*)", comment_match.group(0))
+                indent = indent_match.group(1) if indent_match else "  "
+                insert_at = comment_match.end()
+                snippet = "\n" + indent + replacement.lstrip("\n").rstrip()
+                return content[:insert_at] + snippet + content[insert_at:]
+
+        raise ValueError(f"Marker block '{marker}' not found in {file_path}")
 
     line_pattern = re.compile(rf"^.*{re.escape(marker)}.*$", re.MULTILINE)
     marker_match = line_pattern.search(content)
@@ -672,17 +788,32 @@ def _simulate_grouped_file_operations(
     warnings: list[str] = []
 
     assignment_users_key = str(backend_handoff.get("assignmentUsersKey") or "FILTER_KEY_PLACEHOLDER")
+    # The ONE feature whose component files we may seed (never menu/dashboard/etc).
+    seed_feature_name = _resolve_seed_feature_name(file_operations, backend_handoff)
 
     def read_or_seed(root_path: str, relative_path: str) -> str:
         absolute_path = _resolve_group_file(root_path, relative_path, repo_root)
         if absolute_path in simulated_files:
             return simulated_files[absolute_path]
+        # Schematic-owned component files are scaffolds filled by the marker
+        # operations — ALWAYS seed them fresh from the template (mirrors the
+        # execute path) so a pre-existing on-disk copy with populated markers
+        # never causes a "Marker block not found" failure during simulation. The
+        # seed uses the real assignmentUsersKey so the preview matches the
+        # committed result. Gated on the resolved feature name so other
+        # `<x>/<x>.component.ts` files (menu, monitoring-dashboard, …) are read
+        # from disk, never overwritten with the dashboard template.
+        if _is_seedable_feature_component(relative_path, seed_feature_name):
+            seeded_template = _render_monitoring_schematic_template(
+                relative_path, assignment_users_key
+            )
+            if seeded_template is not None:
+                simulated_files[absolute_path] = seeded_template
+                return seeded_template
         if absolute_path.exists():
             content = absolute_path.read_text(encoding="utf-8")
         else:
-            content = _render_monitoring_schematic_template(relative_path, "FILTER_KEY_PLACEHOLDER")
-            if content is None:
-                content = ""
+            content = ""
         simulated_files[absolute_path] = content
         return content
 
@@ -977,10 +1108,40 @@ async def _execute_grouped_file_operations(
     changed_files: dict[str, str] = {}
     steps: list[dict[str, Any]] = []
 
+    # Real assignment key used when force-seeding schematic component files, so
+    # the scaffold is correct even if the ASSIGNMENT_FILTER_KEY op is dropped.
+    seed_assignment_key = str(
+        backend_handoff.get("assignmentUsersKey") or "FILTER_KEY_PLACEHOLDER"
+    )
+    # The ONE feature whose component files we may seed (never menu/dashboard/etc).
+    seed_feature_name = _resolve_seed_feature_name(file_operations, backend_handoff)
+
     async def fetch_or_seed(root_path: str, relative_path: str) -> str:
         repo_relative = f"{root_path}/{relative_path}"
         if repo_relative in file_cache:
             return file_cache[repo_relative]
+        # Schematic-owned component files (src/app/<feature>/<feature>.component.*)
+        # are scaffolds whose empty markers are filled by the frontend
+        # operations. ALWAYS seed them from the fresh template rather than the
+        # base-branch copy: marker ops require the pristine `[] = [];` scaffold,
+        # and pulling a pre-existing (already-filled) copy from develop makes the
+        # array-marker ops fail. Seeding fresh also makes apply robust when the
+        # `run_command` preStep is absent or malformed. When `run_command` IS
+        # present it runs first (preSteps precede operations) and writes the
+        # correctly-keyed template into file_cache, so that version wins via the
+        # cache hit above. The seed uses the real assignmentUsersKey so the
+        # component is correct even if the ASSIGNMENT_FILTER_KEY op is dropped.
+        # CRITICAL: gate on the resolved feature name so we NEVER overwrite other
+        # `<x>/<x>.component.ts` files (menu, monitoring-dashboard, …) that only
+        # coincidentally match the schematic path shape.
+        is_seedable = _is_seedable_feature_component(relative_path, seed_feature_name)
+        if is_seedable:
+            seeded_template = _render_monitoring_schematic_template(
+                relative_path, seed_assignment_key
+            )
+            if seeded_template is not None:
+                file_cache[repo_relative] = seeded_template
+                return seeded_template
         url = f"{GITHUB_API_BASE_URL}/repos/{owner}/{repo}/contents/{repo_relative}"
         try:
             resp = await _http_client.get(
@@ -997,8 +1158,26 @@ async def _execute_grouped_file_operations(
                 return content
         except Exception:
             pass
-        # New file — seed from schematic template
-        content = _render_monitoring_schematic_template(relative_path, "FILTER_KEY_PLACEHOLDER") or ""
+        # A seedable component that could neither be rendered from a template nor
+        # fetched from the base branch is UNRECOVERABLE: the marker ops that
+        # follow have no scaffold to operate on and would fail with an opaque
+        # "Marker block not found". Fail loudly here so the real cause (missing
+        # bundled schematic templates in the image) is unmistakable. This is the
+        # exact failure that presents as VISIBLE_TABS-not-found only in the pod.
+        if is_seedable:
+            raise HTTPException(
+                status_code=500,
+                detail=(
+                    f"Unable to seed schematic component '{repo_relative}': the "
+                    f"bundled schematic templates were not found at '{SCHEMATICS_ROOT}' "
+                    f"and no copy exists on branch '{base_branch}'. Ensure the "
+                    f"api-gateway image bundles "
+                    f"schematics/monitoring-dashboard/files/*.template "
+                    f"(they must ship with the api-gateway build context)."
+                ),
+            )
+        # New non-component file with no base-branch copy — nothing to seed.
+        content = ""
         file_cache[repo_relative] = content
         return content
 

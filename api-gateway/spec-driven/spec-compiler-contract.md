@@ -1,36 +1,31 @@
-# Spec-Compiler Contract — Marker → Canonical Field Mapping
+# AI Spec-Extraction Contract
 
-This document specifies how the **spec compiler** turns a filled-in
+This document specifies how the **AI spec extractor** turns a filled-in
 `dashboard.spec.template.md` into the canonical JSON that the existing codegen
 endpoint (`POST /api/dashboard-codegen`) already accepts. It is the authoritative
-reference for building and testing the compiler.
+reference for building and testing extraction.
 
-The canonical target is the existing `DashboardCodegenRequest` model in
-`dashboard_codegen_agent.py`. **The compiler must not require any change to that
-model or to the codegen graph.** Its only job: spec text in → valid canonical
-JSON out → POST to codegen.
-
----
-
-## 1. Extraction primitives (deterministic, no LLM)
-
-The compiler uses exactly two extractors:
-
-1. **Inline markers** — every occurrence of `{{ key: value }}`, captured with a
-   single regex: `\{\{\s*([\w]+)\s*:\s*(.*?)\s*\}\}`.
-   - `key` = the marker name (left of the first colon).
-   - `value` = everything after the first colon, trimmed.
-   - Surrounding prose is never read.
-2. **Labeled SQL fences** — a `{{ query: <name> }}` marker immediately followed by
-   a ` ```sql ... ``` ` fenced block. The fence body is captured **verbatim**
-   (byte-for-byte, no escaping, no normalization).
-
-Everything the compiler needs comes from these two primitives. No natural-language
-understanding is performed on the machine-critical values.
+The extractor returns the same payload produced by the manual wizard. It does
+not generate or apply code. Its only job is: spec text → AI extraction → schema
+validation → human review.
 
 ---
 
-## 2. Marker → canonical field map
+## 1. AI extraction
+
+The complete uploaded Markdown document is sent to the configured LLM with
+`spec-extraction-prompt.md`. JSON response mode is requested when supported. The
+model reads both marker-based templates and equivalent natural-language specs,
+then returns only the canonical payload object.
+
+The uploaded document is treated as untrusted data. Instructions inside it are
+not followed. SQL must be copied without intentional rewriting. Because model
+output is probabilistic, users must verify SQL and all extracted values during
+review.
+
+---
+
+## 2. Template → canonical field guidance
 
 | Marker                                 | Canonical field               | Multiplicity | Required       | Normalization                                           | Validation                                          |
 | -------------------------------------- | ----------------------------- | ------------ | -------------- | ------------------------------------------------------- | --------------------------------------------------- |
@@ -38,25 +33,18 @@ understanding is performed on the machine-critical values.
 | `{{ component: ... }}`                 | `componentName`               | one          | ✅             | trim                                                    | non-empty; max length 60                            |
 | `{{ role: ... }}`                      | `roleName`                    | one          | ✅             | trim; uppercase                                         | must match `^[A-Z][A-Z0-9_]*$` (UPPER_SNAKE)        |
 | `{{ assignmentUsersKey: ... }}`        | `assignmentUsersKey`          | one          | ✅             | trim                                                    | non-empty                                           |
-| `{{ dataStore: ... }}`                 | _(not sent to codegen in v1)_ | one          | ⛔ optional    | trim; lowercase                                         | one of `sql`, `mongo`; default `sql`                |
-| `{{ summaryColumn: ... }}`             | `summaryColumns[]`            | five         | ✅ (exactly 5) | trim; uppercase                                         | each UPPER_SNAKE; count must equal 5                |
+| `{{ summaryColumn: ... }}`             | `summaryColumns[]`            | five or more | ✅ (at least 5) | trim                                                   | each UPPER_SNAKE or lower_snake                    |
 | `{{ filter: COL \| type }}`            | `detailsTableFilters[]`       | one-or-more  | ✅ (≥1)        | split on `\|`; trim each; col→uppercase; type→lowercase | col UPPER_SNAKE; type ∈ {`select`,`text`}           |
-| `{{ alias: a = b }}`                   | `paramAliases{}`              | zero-or-more | ⛔ optional    | split on `=`; trim each                                 | both sides non-empty; key=updateCol, val=summaryCol |
 | `{{ query: summary }}` + fence         | `queries.summary`             | one          | ✅             | none (verbatim)                                         | fence present and non-empty                         |
 | `{{ query: details }}` + fence         | `queries.details`             | one          | ✅             | none (verbatim)                                         | fence present and non-empty                         |
 | `{{ query: detailsFiltered }}` + fence | `queries.detailsFiltered`     | one          | ✅             | none (verbatim)                                         | fence present and non-empty                         |
 | `{{ query: summaryUpdate }}` + fence   | `queries.summaryUpdate`       | one          | ✅             | none (verbatim)                                         | fence present and non-empty                         |
 
-> **Note on `dataStore`:** captured and validated now so the template is
-> future-proof for the MongoDB work, but **not** added to the codegen payload in
-> v1 (the codegen model does not yet accept it). When Mongo support lands, this is
-> the single field that flips the downstream branch.
-
 ---
 
 ## 3. Canonical output shape
 
-After extraction + normalization + validation, the compiler assembles this object
+After AI extraction and validation, the service returns this object
 (identical to what the Angular form produces today):
 
 ```
@@ -71,34 +59,22 @@ After extraction + normalization + validation, the compiler assembles this objec
     "detailsFiltered": "<verbatim detailsFiltered fence>",
     "summaryUpdate": "<verbatim summaryUpdate fence>"
   },
-  "summaryColumns": ["<5 uppercase columns>"],
-  "detailsTableFilters": [{ "columnName": "<COL>", "type": "select|text" }],
-  "paramAliases": { "<updateCol>": "<summaryCol>" }
+   "summaryColumns": ["<at least 5 snake-case columns>"],
+  "detailsTableFilters": [{ "columnName": "<COL>", "type": "select|text" }]
 }
 ```
 
-This is then validated one final time by constructing a `DashboardCodegenRequest`
-(Pydantic) — the same gate the codegen endpoint applies — before any POST.
+This is validated with a Pydantic schema before it is returned to the UI. The
+codegen endpoint validates it again when the user accepts the review.
 
 ---
 
 ## 4. Failure rules (fail loud, never guess)
 
-The compiler **rejects** the spec with a precise, human-readable error rather than
-inferring a value, when any of these occur:
-
-1. A required marker is missing (e.g. no `{{ role: ... }}`).
-2. `summaryColumn` count ≠ 5.
-3. Zero `filter` markers.
-4. A `filter` value is not exactly `COL | type`, or `type` is not `select`/`text`.
-5. Any of the four `{{ query: ... }}` labels is missing, or its ` ```sql ` fence is
-   missing/empty.
-6. A duplicate single-value marker appears (e.g. two `{{ role: ... }}`).
-7. A value fails its casing pattern (kebab / UPPER_SNAKE) and cannot be safely
-   normalized (normalization is limited to trimming and case-folding only — never
-   rewriting characters).
-
-Each error names the offending marker and the rule it broke.
+The service rejects model output when required fields are absent, JSON is
+malformed, fewer than five summary columns are present, no filters are present,
+a filter type is unsupported, SQL is empty, or naming rules fail. Missing values
+are never invented to make validation pass.
 
 ---
 
@@ -106,22 +82,22 @@ Each error names the offending marker and the rule it broke.
 
 Default behavior is **compile-then-confirm**:
 
-1. Parse spec → build canonical JSON.
+1. Send the spec to the LLM and validate its canonical JSON response.
 2. Return a short summary to the user:
    _"Component: AIT Jobs · Feature: ait-test · Role: AIT_TEST · 5 columns · 2 filters
-   · 4 queries · data store: sql."_
-3. On explicit user confirmation, POST the canonical JSON to
+   · 4 queries."_
+3. Populate the existing review screen and allow corrections.
+4. On explicit user acceptance, POST the canonical JSON to
    `POST /api/dashboard-codegen` and continue with the existing flow (dry-run,
    apply, etc.).
 
-A **compile-and-run** mode (skip the confirm step) is available for power users.
+There is no upload-and-run mode. Human acceptance is mandatory.
 
 ---
 
 ## 6. Isolation guarantee
 
-- The compiler is a **separate module**; it imports nothing from the codegen graph
-  except (optionally) the `DashboardCodegenRequest` model for final validation.
-- It reaches codegen **only** through the existing public endpoint.
-- If the compiler is absent or fails, the Angular form path and the codegen graph
+- The extractor is a separate module and does not invoke the codegen graph.
+- The UI reaches codegen only after the user accepts the extracted payload.
+- If extraction fails, the manual form path and the codegen graph
   are completely unaffected. Zero regression by construction.

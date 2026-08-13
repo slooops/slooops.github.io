@@ -100,64 +100,86 @@
 
 @if (showFilterToggle && filtersExpanded) {
   <div class="fbb__panel" (click)="$event.stopPropagation()">
-    <div class="fbb__panel-grid">
-      @for (filter of selectFilters; track filter.id) {
+    <div
+      class="fbb__panel-grid"
+      [style.grid-template-columns]="'repeat(' + panelColumns + ', auto)'"
+    >
+      @for (filter of filters; track filter.id) {
         <div class="fbb__panel-section">
           <div class="fbb__panel-label">{{ filter.label }}</div>
-          <app-multi-select-dropdown
-            [options]="filter.options || []"
-            [selected]="getSelectedValues(filter.id)"
-            [placeholder]="filter.placeholder || 'Select...'"
-            [showSearch]="true"
-            [singleSelect]="!!filter.singleSelect"
-            (selectionChange)="onSelectChange(filter.id, $event)"
-          ></app-multi-select-dropdown>
 
-          @if (shouldShowCustomDateRange(filter.id)) {
-            <div class="fbb__date-range-inline">
-              <label class="fbb__date-range-field">
-                <span class="fbb__date-range-label">From</span>
-                <input
-                  type="date"
-                  class="fbb__date-range-input"
-                  [value]="customDateRangeStart"
-                  (input)="
-                    onCustomDateRangeStartInput(
-                      filter.id,
-                      $any($event.target).value
-                    )
-                  "
-                />
-              </label>
+          @switch (filter.type) {
+            @case ("text") {
+              <input
+                type="text"
+                class="fbb__text-input"
+                [placeholder]="filter.placeholder || ''"
+                [value]="textInputValues[filter.id] || ''"
+                (input)="onTextChange(filter.id, $any($event.target).value)"
+              />
+            }
+            @case ("radio") {
+              <div class="fbb__radio-group">
+                @for (option of filter.options || []; track option.value) {
+                  <button
+                    type="button"
+                    class="fbb__radio-option"
+                    [class.fbb__radio-option--active]="
+                      isRadioSelected(filter.id, option.value)
+                    "
+                    (click)="onRadioChange(filter.id, option.value)"
+                  >
+                    <span class="fbb__radio-circle"></span>
+                    <span class="fbb__radio-text">{{ option.label }}</span>
+                  </button>
+                }
+              </div>
+            }
+            @default {
+              <app-multi-select-dropdown
+                [options]="filter.options || []"
+                [selected]="getSelectedValues(filter.id)"
+                [placeholder]="filter.placeholder || 'Select...'"
+                [showSearch]="true"
+                [singleSelect]="!!filter.singleSelect"
+                (selectionChange)="onSelectChange(filter.id, $event)"
+              ></app-multi-select-dropdown>
 
-              <label class="fbb__date-range-field">
-                <span class="fbb__date-range-label">To</span>
-                <input
-                  type="date"
-                  class="fbb__date-range-input"
-                  [value]="customDateRangeEnd"
-                  (input)="
-                    onCustomDateRangeEndInput(
-                      filter.id,
-                      $any($event.target).value
-                    )
-                  "
-                />
-              </label>
-            </div>
+              @if (shouldShowCustomDateRange(filter.id)) {
+                <div class="fbb__date-range-inline">
+                  <label class="fbb__date-range-field">
+                    <span class="fbb__date-range-label">From</span>
+                    <input
+                      type="date"
+                      class="fbb__date-range-input"
+                      [value]="customDateRangeStart"
+                      (input)="
+                        onCustomDateRangeStartInput(
+                          filter.id,
+                          $any($event.target).value
+                        )
+                      "
+                    />
+                  </label>
+
+                  <label class="fbb__date-range-field">
+                    <span class="fbb__date-range-label">To</span>
+                    <input
+                      type="date"
+                      class="fbb__date-range-input"
+                      [value]="customDateRangeEnd"
+                      (input)="
+                        onCustomDateRangeEndInput(
+                          filter.id,
+                          $any($event.target).value
+                        )
+                      "
+                    />
+                  </label>
+                </div>
+              }
+            }
           }
-        </div>
-      }
-      @for (filter of textFilters; track filter.id) {
-        <div class="fbb__panel-section">
-          <div class="fbb__panel-label">{{ filter.label }}</div>
-          <input
-            type="text"
-            class="fbb__text-input"
-            [placeholder]="filter.placeholder || ''"
-            [value]="textInputValues[filter.id] || ''"
-            (input)="onTextChange(filter.id, $any($event.target).value)"
-          />
         </div>
       }
     </div>

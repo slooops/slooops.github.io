@@ -97,6 +97,7 @@ interface SupervisorMetricsSummary {
 interface ExecutionSummaryTeam {
   team_name: string;
   unique_incidents: number;
+  total_executions: number;
   success: number;
   failed: number;
   delegated: number;
@@ -230,6 +231,15 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
       options: [],
     },
     {
+      id: 'resolveCase',
+      label: 'Case resolution (Agent)',
+      type: 'radio',
+      options: [
+        { label: 'Yes', value: 'Y' },
+        { label: 'No', value: 'N' },
+      ],
+    },
+    {
       id: 'date',
       label: 'Date',
       type: 'multi-select',
@@ -246,6 +256,15 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
       type: 'multi-select',
       placeholder: 'All core issues',
       options: [],
+    },
+    {
+      id: 'resolutionCompleted',
+      label: 'Esp closure successful',
+      type: 'radio',
+      options: [
+        { label: 'Yes', value: 'Y' },
+        { label: 'No', value: 'N' },
+      ],
     },
   ];
 
@@ -753,6 +772,7 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
 
     const totals: Record<string, number> = {
       unique_incidents: 0,
+      total_executions: 0,
       success: 0,
       failed: 0,
       delegated: 0,
@@ -788,6 +808,7 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
         }
 
         totals['unique_incidents'] += teamEntry.unique_incidents ?? 0;
+        totals['total_executions'] += teamEntry.total_executions ?? 0;
         totals['success'] += teamEntry.success ?? 0;
         totals['failed'] += teamEntry.failed ?? 0;
         totals['delegated'] += teamEntry.delegated ?? 0;
@@ -798,6 +819,7 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
     this.metricsSummary = totals;
     this.kpiConfig = [
       { key: 'unique_incidents', label: 'Unique Incidents' },
+      { key: 'total_executions', label: 'Total Executions' },
       { key: 'success', label: 'Success' },
       { key: 'failed', label: 'Failed' },
       { key: 'delegated', label: 'Delegated' },
@@ -880,6 +902,32 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
     const selectedOutcomes = this.getSelectedFilterValues('outcome');
     if (selectedOutcomes.length > 0) {
       result = result.filter((row) => selectedOutcomes.includes(row.outcome));
+    }
+
+    const selectedResolveCase = this.getSelectedFilterValues('resolveCase');
+    if (selectedResolveCase.length > 0) {
+      const wanted = selectedResolveCase.map((v) => v.toUpperCase());
+      result = result.filter((item) =>
+        wanted.includes(
+          String(item.resolveCase ?? '')
+            .trim()
+            .toUpperCase(),
+        ),
+      );
+    }
+
+    const selectedResolutionCompleted = this.getSelectedFilterValues(
+      'resolutionCompleted',
+    );
+    if (selectedResolutionCompleted.length > 0) {
+      const wanted = selectedResolutionCompleted.map((v) => v.toUpperCase());
+      result = result.filter((item) =>
+        wanted.includes(
+          String(item.resolutionCompleted ?? '')
+            .trim()
+            .toUpperCase(),
+        ),
+      );
     }
 
     const selectedTeams = this.getSelectedFilterValues('team');
@@ -1321,7 +1369,14 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
   }
 
   onTopFilterClear(): void {
-    this.topFilterValues = { outcome: [], team: [], date: [], coreIssue: [] };
+    this.topFilterValues = {
+      outcome: [],
+      team: [],
+      resolveCase: [],
+      date: [],
+      coreIssue: [],
+      resolutionCompleted: [],
+    };
     this.selectedRange = '';
     this.customDateRangeStart = '';
     this.customDateRangeEnd = '';
@@ -1372,12 +1427,22 @@ export class CaseiqIncidentsComponent implements OnInit, OnChanges {
     const coreIssueValues = Array.isArray(values['coreIssue'])
       ? values['coreIssue']
       : [];
+    const resolveCaseValues = Array.isArray(values['resolveCase'])
+      ? values['resolveCase']
+      : [];
+    const resolutionCompletedValues = Array.isArray(
+      values['resolutionCompleted'],
+    )
+      ? values['resolutionCompleted']
+      : [];
 
     return {
       outcome: outcomeValues,
       team: teamValues,
+      resolveCase: resolveCaseValues,
       date: dateValues.length > 0 ? [dateValues[dateValues.length - 1]] : [],
       coreIssue: coreIssueValues,
+      resolutionCompleted: resolutionCompletedValues,
     };
   }
 
