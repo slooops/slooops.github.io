@@ -29,7 +29,47 @@ UI_PROMPT_FILE = PROMPT_DIR / "ui-code-generation-prompt.md"
 OPERATIONS_PROMPT_FILE = PROMPT_DIR / "code-apply-operations-prompt.md"
 DEFAULT_CODEGEN_MODEL = os.getenv("DASHBOARD_CODEGEN_MODEL", "gpt-5-nano")
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SCHEMATICS_ROOT = REPO_ROOT / "revenue-monitoring-ui" / "angular-app" / "schematics" / "monitoring-dashboard" / "files"
+
+
+def _resolve_schematics_root() -> Path:
+    """Locate the monitoring-dashboard schematic `.template` files at runtime.
+
+    CRITICAL: the api-gateway Docker image is built with the `api-gateway/`
+    directory as the build context (see Jenkinsfile `dir("api-gateway")`), so
+    the sibling `revenue-monitoring-ui/…/schematics` tree is NOT shipped to the
+    pod. In the pod `REPO_ROOT` resolves to `/`, so the repo-relative path does
+    not exist and template seeding silently no-ops — which surfaced only as a
+    downstream "Marker block 'VISIBLE_TABS' not found" during apply (the empty,
+    un-seeded component has nothing to replace). To make the pod behave like
+    localhost we ship a VENDORED copy of the templates inside `api-gateway/`
+    and prefer it, falling back to the repo location for local development.
+
+    An explicit `DASHBOARD_SCHEMATICS_ROOT` env override wins over both.
+    """
+    candidates: list[Path] = []
+    override = os.getenv("DASHBOARD_SCHEMATICS_ROOT", "").strip()
+    if override:
+        candidates.append(Path(override))
+    # Vendored copy bundled into the api-gateway image (ships to the pod).
+    candidates.append(PROMPT_DIR / "schematics" / "monitoring-dashboard" / "files")
+    # Repo layout for local development / running from the monorepo root.
+    candidates.append(
+        REPO_ROOT
+        / "revenue-monitoring-ui"
+        / "angular-app"
+        / "schematics"
+        / "monitoring-dashboard"
+        / "files"
+    )
+    for candidate in candidates:
+        if candidate.is_dir():
+            return candidate
+    # None exist: return the vendored path so error messages point at the copy
+    # that is SUPPOSED to be present in the image.
+    return candidates[-2] if len(candidates) >= 2 else candidates[0]
+
+
+SCHEMATICS_ROOT = _resolve_schematics_root()
 
 router = APIRouter()
 
@@ -1094,7 +1134,8 @@ async def _execute_grouped_file_operations(
         # CRITICAL: gate on the resolved feature name so we NEVER overwrite other
         # `<x>/<x>.component.ts` files (menu, monitoring-dashboard, …) that only
         # coincidentally match the schematic path shape.
-        if _is_seedable_feature_component(relative_path, seed_feature_name):
+        is_seedable = _is_seedable_feature_component(relative_path, seed_feature_name)
+        if is_seedable:
             seeded_template = _render_monitoring_schematic_template(
                 relative_path, seed_assignment_key
             )
@@ -1117,6 +1158,24 @@ async def _execute_grouped_file_operations(
                 return content
         except Exception:
             pass
+        # A seedable component that could neither be rendered from a template nor
+        # fetched from the base branch is UNRECOVERABLE: the marker ops that
+        # follow have no scaffold to operate on and would fail with an opaque
+        # "Marker block not found". Fail loudly here so the real cause (missing
+        # bundled schematic templates in the image) is unmistakable. This is the
+        # exact failure that presents as VISIBLE_TABS-not-found only in the pod.
+        if is_seedable:
+            raise HTTPException(
+                status_code=500,
+                detail=(
+                    f"Unable to seed schematic component '{repo_relative}': the "
+                    f"bundled schematic templates were not found at '{SCHEMATICS_ROOT}' "
+                    f"and no copy exists on branch '{base_branch}'. Ensure the "
+                    f"api-gateway image bundles "
+                    f"schematics/monitoring-dashboard/files/*.template "
+                    f"(they must ship with the api-gateway build context)."
+                ),
+            )
         # New non-component file with no base-branch copy — nothing to seed.
         content = ""
         file_cache[repo_relative] = content
