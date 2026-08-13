@@ -356,11 +356,7 @@
           <div class="mo-step-panel">
             <div class="mo-step-head-row">
               <div class="mo-step-head-main">
-                <h2 class="mo-section-title">
-                  Start with a spec &nbsp; &nbsp;<span class="mo-spec-pill"
-                    >Coming soon</span
-                  >
-                </h2>
+                <h2 class="mo-section-title">Start with a spec</h2>
                 <p class="mo-section-hint mo-section-hint-tight">
                   Attach a document or paste source content to begin the
                   spec-driven onboarding flow.
@@ -395,7 +391,7 @@
                       id="specFile"
                       class="mo-spec-file-input"
                       type="file"
-                      accept=".md,.txt,.doc,.docx,.pdf"
+                      accept=".md,.txt"
                       (change)="onSpecFileSelected($event)"
                     />
                     <label class="mo-spec-dropzone-cta" for="specFile"
@@ -449,52 +445,18 @@
                   Clear
                 </button>
               </div>
+
+              @if (specParseError) {
+                <div class="mo-alert mo-alert-error">
+                  <ng-icon name="phosphorWarningBold" size="16" />
+                  <span>{{ specParseError }}</span>
+                </div>
+              }
             </section>
           </div>
         }
 
-        <!-- STEP 1 · Parsed spec preview (spec-driven flow) -->
-        @if (activeStepKey === "parsed-preview") {
-          <div class="mo-step-panel">
-            <div class="mo-step-head-row">
-              <h2 class="mo-section-title">Parsed spec preview</h2>
-              <div class="mo-step-head-actions">
-                <button
-                  type="button"
-                  class="mo-btn mo-btn-ghost mo-btn-sm mo-btn-manual"
-                  (click)="enterManualMode()"
-                >
-                  Enter manually
-                </button>
-                <span class="mo-step-head-help"
-                  >Spec not ready? click here to enter the data manually.</span
-                >
-              </div>
-            </div>
-
-            <p class="mo-section-hint">
-              We recommend keeping this preview step. It is a standard UX check
-              point before generation and avoids accidental runs.
-            </p>
-
-            <div class="mo-spec-preview" role="status">
-              <div class="mo-spec-preview-title">Mapped fields preview</div>
-              <p class="mo-spec-preview-hint">
-                Preview will be generated here after parser integration is
-                enabled.
-              </p>
-              <ul class="mo-spec-preview-list">
-                <li>Dashboard / Tab name</li>
-                <li>Component name</li>
-                <li>Role name</li>
-                <li>Assignment users key</li>
-                <li>Query templates and filters</li>
-              </ul>
-            </div>
-          </div>
-        }
-
-        <!-- STEP 2 · Review & generate (spec-driven flow) -->
+        <!-- STEP 1 · Review & generate (spec-driven flow) -->
         @if (activeStepKey === "review-spec") {
           <div class="mo-step-panel">
             <div class="mo-step-head-row">
@@ -514,28 +476,277 @@
             </div>
 
             <p class="mo-section-hint">
-              Spec-driven generation is coming soon. You can still review the
-              upload status now and switch to manual entry to generate today.
+              Review the configuration our AI extracted from your spec, then
+              click Generate code to run the codegen pipeline. Switch to manual
+              entry to fine-tune any value first.
             </p>
 
-            <section class="mo-review-card mo-review-card-full">
-              <div class="mo-review-head">
-                <ng-icon name="phosphorBookOpenBold" size="16" />
-                <h3 class="mo-review-title">Spec intake status</h3>
+            <div class="mo-review-grid">
+              <section
+                class="mo-review-card mo-review-card-full mo-review-card-identity"
+              >
+                <div class="mo-review-head">
+                  <ng-icon name="phosphorIdentificationCardBold" size="16" />
+                  <h3 class="mo-review-title">Identity &amp; access</h3>
+                </div>
+                <dl class="mo-kv-grid mo-kv-grid-inline">
+                  <div class="mo-kv-item">
+                    <dt>Dashboard / Tab name</dt>
+                    <dd>{{ form.get("componentName")?.value || "—" }}</dd>
+                  </div>
+                  <div class="mo-kv-item">
+                    <dt>Component name</dt>
+                    <dd>{{ form.get("featureName")?.value || "—" }}</dd>
+                  </div>
+                  <div class="mo-kv-item">
+                    <dt>Role name</dt>
+                    <dd>{{ form.get("roleName")?.value || "—" }}</dd>
+                  </div>
+                  <div class="mo-kv-item">
+                    <dt>Assignment users key</dt>
+                    <dd>{{ form.get("assignmentUsersKey")?.value || "—" }}</dd>
+                  </div>
+                </dl>
+              </section>
+
+              <section class="mo-review-card mo-review-card-full">
+                <div class="mo-review-head">
+                  <ng-icon name="phosphorBookOpenBold" size="16" />
+                  <h3 class="mo-review-title">SQL queries</h3>
+                  <span class="mo-status-pill mo-status-pill-success"
+                    >4 required queries configured</span
+                  >
+                </div>
+
+                <div class="mo-review-stack">
+                  <details class="mo-query-accordion" open>
+                    <summary class="mo-query-summary">
+                      <span class="mo-query-left">
+                        <span class="mo-query-number">01</span>
+                        <span class="mo-query-name">Summary query</span>
+                      </span>
+                      <span class="mo-query-right">
+                        <span class="mo-query-metric"
+                          >{{
+                            (queries.get("summary")?.value || "").split("?")
+                              .length - 1
+                          }}
+                          params</span
+                        >
+                        <span class="mo-query-state">Configured</span>
+                      </span>
+                    </summary>
+                    <div class="mo-query-body">
+                      <textarea
+                        class="mo-textarea mo-mono mo-review-textarea"
+                        [value]="queries.get('summary')?.value || ''"
+                        readonly
+                      ></textarea>
+                    </div>
+                  </details>
+
+                  <details class="mo-query-accordion">
+                    <summary class="mo-query-summary">
+                      <span class="mo-query-left">
+                        <span class="mo-query-number">02</span>
+                        <span class="mo-query-name">Details query</span>
+                      </span>
+                      <span class="mo-query-right">
+                        <span class="mo-query-metric"
+                          >{{
+                            (queries.get("details")?.value || "").split("?")
+                              .length - 1
+                          }}
+                          params</span
+                        >
+                        <span class="mo-query-state">Configured</span>
+                      </span>
+                    </summary>
+                    <div class="mo-query-body">
+                      <textarea
+                        class="mo-textarea mo-mono mo-review-textarea"
+                        [value]="queries.get('details')?.value || ''"
+                        readonly
+                      ></textarea>
+                    </div>
+                  </details>
+
+                  <details class="mo-query-accordion">
+                    <summary class="mo-query-summary">
+                      <span class="mo-query-left">
+                        <span class="mo-query-number">03</span>
+                        <span class="mo-query-name"
+                          >Details (filtered) query</span
+                        >
+                      </span>
+                      <span class="mo-query-right">
+                        <span class="mo-query-metric"
+                          >{{
+                            (queries.get("detailsFiltered")?.value || "").split(
+                              "?"
+                            ).length - 1
+                          }}
+                          params</span
+                        >
+                        <span class="mo-query-state">Configured</span>
+                      </span>
+                    </summary>
+                    <div class="mo-query-body">
+                      <textarea
+                        class="mo-textarea mo-mono mo-review-textarea"
+                        [value]="queries.get('detailsFiltered')?.value || ''"
+                        readonly
+                      ></textarea>
+                    </div>
+                  </details>
+
+                  <details class="mo-query-accordion">
+                    <summary class="mo-query-summary">
+                      <span class="mo-query-left">
+                        <span class="mo-query-number">04</span>
+                        <span class="mo-query-name">Summary update query</span>
+                      </span>
+                      <span class="mo-query-right">
+                        <span class="mo-query-metric"
+                          >{{
+                            (queries.get("summaryUpdate")?.value || "").split(
+                              "?"
+                            ).length - 1
+                          }}
+                          params</span
+                        >
+                        <span class="mo-query-state">Configured</span>
+                      </span>
+                    </summary>
+                    <div class="mo-query-body">
+                      <textarea
+                        class="mo-textarea mo-mono mo-review-textarea"
+                        [value]="queries.get('summaryUpdate')?.value || ''"
+                        readonly
+                      ></textarea>
+                    </div>
+                  </details>
+                </div>
+              </section>
+
+              <section class="mo-review-card">
+                <div class="mo-review-head">
+                  <ng-icon name="phosphorSlidersHorizontalBold" size="16" />
+                  <h3 class="mo-review-title">Summary columns</h3>
+                  <span class="mo-status-pill"
+                    >{{ summaryColumns.length }} columns</span
+                  >
+                </div>
+
+                @if (summaryColumns.length === 0) {
+                  <p class="mo-empty">No summary columns configured.</p>
+                } @else {
+                  <div class="mo-chip-wrap mo-chip-wrap-rich">
+                    @for (col of summaryColumns.controls; track $index) {
+                      @if ((col.value ?? "").toString().trim()) {
+                        <span class="mo-chip">
+                          <span class="mo-chip-index">{{ $index + 1 }}</span>
+                          {{ col.value }}
+                        </span>
+                      }
+                    }
+                  </div>
+                }
+              </section>
+
+              <section class="mo-review-card">
+                <div class="mo-review-head">
+                  <ng-icon name="phosphorSlidersHorizontalBold" size="16" />
+                  <h3 class="mo-review-title">Details table filters</h3>
+                  <span class="mo-status-pill"
+                    >{{ detailsTableFilters.length }} filters</span
+                  >
+                </div>
+
+                <div class="mo-chip-wrap mo-chip-wrap-rich">
+                  @for (
+                    filter of detailsTableFilters.controls;
+                    track $index;
+                    let i = $index
+                  ) {
+                    <div class="mo-filter-chip">
+                      <span class="mo-chip-index">{{ i + 1 }}</span>
+                      <span class="mo-filter-chip-name">{{
+                        filter.get("columnName")?.value || "—"
+                      }}</span>
+                      <span class="mo-filter-chip-type">{{
+                        filter.get("type")?.value || "—"
+                      }}</span>
+                    </div>
+                  }
+                </div>
+              </section>
+
+              <section
+                class="mo-review-card mo-review-card-full mo-review-card-aliases"
+              >
+                <div class="mo-review-head">
+                  <ng-icon name="phosphorCrosshairBold" size="16" />
+                  <h3 class="mo-review-title">Advanced aliases</h3>
+                  <span class="mo-status-pill"
+                    >{{ paramAliases.length }} mappings</span
+                  >
+                </div>
+
+                @if (paramAliases.length === 0) {
+                  <p class="mo-empty">No aliases configured.</p>
+                } @else {
+                  <div class="mo-review-stack mo-review-list">
+                    @for (
+                      alias of paramAliases.controls;
+                      track $index;
+                      let i = $index
+                    ) {
+                      <div class="mo-filter-row">
+                        <span class="mo-filter-index">{{ i + 1 }}</span>
+                        <span class="mo-filter-col">{{
+                          alias.get("updateColumn")?.value || "—"
+                        }}</span>
+                        <ng-icon
+                          name="phosphorCaretRightBold"
+                          size="14"
+                          class="mo-arrow"
+                        />
+                        <span class="mo-filter-col">{{
+                          alias.get("summaryColumn")?.value || "—"
+                        }}</span>
+                      </div>
+                    }
+                  </div>
+                }
+              </section>
+
+              <section class="mo-review-card mo-review-card-full">
+                <div class="mo-review-head">
+                  <ng-icon name="phosphorClipboardTextBold" size="16" />
+                  <h3 class="mo-review-title">Technical payload (optional)</h3>
+                  <button
+                    class="mo-btn mo-btn-ghost mo-btn-sm"
+                    type="button"
+                    (click)="copyToClipboard(payloadPreview)"
+                  >
+                    <ng-icon name="phosphorClipboardTextBold" size="14" />
+                    Copy JSON
+                  </button>
+                </div>
+                <details class="mo-json-details">
+                  <summary>Show request JSON</summary>
+                  <pre class="mo-doc-pre mo-mono">{{ payloadPreview }}</pre>
+                </details>
+              </section>
+            </div>
+
+            @if (submitError) {
+              <div class="mo-alert mo-alert-error">
+                <ng-icon name="phosphorWarningBold" size="16" />
+                <span>{{ submitError }}</span>
               </div>
-              <dl class="mo-kv-grid">
-                <div class="mo-kv-item">
-                  <dt>Pasted content</dt>
-                  <dd>
-                    {{ specDraftText.trim() ? "Provided" : "Not provided" }}
-                  </dd>
-                </div>
-                <div class="mo-kv-item">
-                  <dt>Uploaded file</dt>
-                  <dd>{{ specDraftFileName || "Not provided" }}</dd>
-                </div>
-              </dl>
-            </section>
+            }
           </div>
         }
 
@@ -1277,16 +1488,35 @@
 
           @if (currentStep < activeSteps.length - 1) {
             @if (onboardingMode === "spec") {
-              <button
-                type="button"
-                class="mo-btn mo-btn-primary"
-                disabled
-                aria-disabled="true"
-                title="Parser integration is not available yet"
-              >
-                <ng-icon name="phosphorSparkleBold" size="14" />
-                Parse spec (coming soon)
-              </button>
+              @if (activeStepKey === "upload-spec") {
+                <button
+                  type="button"
+                  class="mo-btn mo-btn-primary"
+                  [disabled]="!hasSpecDraft || specParsing"
+                  (click)="parseSpec()"
+                >
+                  <ng-icon name="phosphorSparkleBold" size="14" />
+                  @if (specParsing) {
+                    Parsing spec…
+                  } @else {
+                    Parse spec
+                  }
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="mo-btn mo-btn-primary"
+                  [disabled]="!canProceedFromCurrent()"
+                  (click)="nextStep()"
+                >
+                  Next
+                  <ng-icon
+                    name="phosphorCaretDownBold"
+                    size="14"
+                    class="mo-rot-right"
+                  />
+                </button>
+              }
             } @else {
               <button
                 type="button"
@@ -1306,17 +1536,10 @@
             <button
               type="submit"
               class="mo-btn mo-btn-primary"
-              [disabled]="
-                submitting ||
-                (onboardingMode === 'manual' ? form.invalid : true)
-              "
+              [disabled]="submitting || form.invalid"
             >
               <ng-icon name="phosphorSparkleBold" size="15" />
-              @if (onboardingMode === "manual") {
-                Generate code
-              } @else {
-                Generate code (coming soon)
-              }
+              Generate code
             </button>
           }
         </div>

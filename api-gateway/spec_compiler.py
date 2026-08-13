@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import re
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Awaitable, Callable, Literal
+from uuid import uuid4
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -20,6 +23,10 @@ EXTRACTION_PROMPT_FILE = (
 )
 SpecLlmFactory = Callable[[], Awaitable[Any]]
 _spec_llm_factory: SpecLlmFactory | None = None
+
+# In-process spec-compile job store (mirrors the dashboard-codegen job pattern).
+_spec_jobs: dict[str, dict[str, Any]] = {}
+_spec_jobs_lock = asyncio.Lock()
 
 
 def configure_spec_llm_factory(factory: SpecLlmFactory) -> None:
@@ -100,18 +107,6 @@ def _extract_json_object(content: Any) -> dict[str, Any]:
 
 def _validate_payload(raw_payload: dict[str, Any]) -> dict[str, Any]:
     payload = DashboardSpecPayload.model_validate(raw_payload)
-    errors: list[str] = []
-
-    if len(payload.summaryColumns) < 5:
-        errors.append("Provide at least five summary columns.")
-    if not payload.detailsTableFilters:
-        errors.append("Provide at least one details-table filter.")
-    for query_name, sql in payload.queries.model_dump().items():
-        if not sql.strip():
-            errors.append(f"The '{query_name}' query cannot be empty.")
-
-    if errors:
-        raise ValueError(" ".join(errors))
     return payload.model_dump(exclude_none=True)
 
 
@@ -155,8 +150,8 @@ async def extract_dashboard_spec_with_ai(
     return payload
 
 
-@router.post("/api/dashboard-spec/compile")
-async def compile_dashboard_spec_upload(file: UploadFile = File(...)) -> dict[str, Any]:
+async def _read_spec_upload(file: UploadFile) -> str:
+    """Validate an uploaded spec file and return its UTF-8 text."""
     filename = file.filename or ""
     if not filename.lower().endswith(".md"):
         raise HTTPException(status_code=415, detail="Upload a Markdown (.md) specification.")
@@ -166,25 +161,117 @@ async def compile_dashboard_spec_upload(file: UploadFile = File(...)) -> dict[st
     if len(content) > MAX_SPEC_BYTES:
         raise HTTPException(status_code=413, detail="Specification exceeds the 1 MB limit.")
     try:
-        spec_text = content.decode("utf-8")
+        return content.decode("utf-8")
     except UnicodeDecodeError as exc:
         raise HTTPException(status_code=400, detail="Specification must be UTF-8 encoded.") from exc
+
+
+def _compile_error_detail(exc: Exception) -> tuple[int, Any]:
+    """Map an extraction exception to an HTTP status and detail body."""
+    if isinstance(exc, (ValidationError, ValueError)):
+        logger.warning("AI extraction validation failed (%s)", type(exc).__name__)
+        return 422, {
+            "message": "AI extraction could not produce a valid onboarding payload.",
+            "error": str(exc),
+        }
+    logger.exception("AI extraction service failed")
+    return 502, "AI extraction service failed."
+
+
+@router.post("/api/dashboard-spec/compile")
+async def compile_dashboard_spec_upload(file: UploadFile = File(...)) -> dict[str, Any]:
+    spec_text = await _read_spec_upload(file)
 
     try:
         payload = await extract_dashboard_spec_with_ai(spec_text)
     except HTTPException:
         raise
-    except (ValidationError, ValueError) as exc:
-        logger.warning("AI extraction validation failed (%s)", type(exc).__name__)
-        raise HTTPException(
-            status_code=422,
-            detail={
-                "message": "AI extraction could not produce a valid onboarding payload.",
-                "error": str(exc),
-            },
-        ) from exc
     except Exception as exc:
-        logger.exception("AI extraction service failed")
-        raise HTTPException(status_code=502, detail="AI extraction service failed.") from exc
+        status_code, detail = _compile_error_detail(exc)
+        raise HTTPException(status_code=status_code, detail=detail) from exc
 
     return payload
+
+
+async def _run_spec_compile_job(spec_text: str, session_id: str) -> None:
+    """Extract the dashboard payload in the background and record the result."""
+    try:
+        payload = await extract_dashboard_spec_with_ai(spec_text)
+    except Exception as exc:  # noqa: BLE001 - surfaced via job status
+        _status_code, detail = _compile_error_detail(exc)
+        error = detail if isinstance(detail, str) else json.dumps(detail)
+        async with _spec_jobs_lock:
+            job = _spec_jobs.get(session_id)
+            if job is not None:
+                job.update(
+                    status="failed",
+                    error=error,
+                    updatedAt=datetime.now(timezone.utc).isoformat(),
+                )
+        logger.warning("Spec compile job failed (session=%s)", session_id)
+        return
+
+    async with _spec_jobs_lock:
+        job = _spec_jobs.get(session_id)
+        if job is not None:
+            job.update(
+                status="parsed",
+                result=payload,
+                error=None,
+                updatedAt=datetime.now(timezone.utc).isoformat(),
+            )
+    logger.info("Spec compile job completed (session=%s)", session_id)
+
+
+@router.post("/api/dashboard-spec/compile/jobs")
+async def start_spec_compile_job(file: UploadFile = File(...)) -> dict[str, Any]:
+    """Create a session/job id and run spec extraction asynchronously in-process."""
+    spec_text = await _read_spec_upload(file)
+
+    session_id = str(uuid4())
+    now_iso = datetime.now(timezone.utc).isoformat()
+    async with _spec_jobs_lock:
+        _spec_jobs[session_id] = {
+            "sessionId": session_id,
+            "status": "pending",
+            "createdAt": now_iso,
+            "updatedAt": now_iso,
+            "result": None,
+            "error": None,
+        }
+
+    asyncio.create_task(_run_spec_compile_job(spec_text, session_id))
+
+    return {
+        "ok": True,
+        "sessionId": session_id,
+        "status": "pending",
+    }
+
+
+@router.get("/api/dashboard-spec/compile/jobs/{session_id}")
+async def get_spec_compile_job(session_id: str) -> dict[str, Any]:
+    """Poll spec-compile status and fetch the extracted payload when available."""
+    async with _spec_jobs_lock:
+        row = _spec_jobs.get(session_id)
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    status = str(row.get("status") or "pending").strip().lower() or "pending"
+    response: dict[str, Any] = {
+        "ok": True,
+        "sessionId": session_id,
+        "status": status,
+        "createdAt": row.get("createdAt"),
+        "updatedAt": row.get("updatedAt"),
+    }
+
+    error_message = row.get("error")
+    if isinstance(error_message, str) and error_message.strip():
+        response["error"] = error_message.strip()
+
+    if status == "parsed" and isinstance(row.get("result"), dict):
+        response["result"] = row["result"]
+
+    return response

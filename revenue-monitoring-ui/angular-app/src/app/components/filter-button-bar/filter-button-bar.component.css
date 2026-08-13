@@ -408,6 +408,64 @@
   white-space: nowrap;
 }
 
+/* Inline Yes/No radio-style filter */
+.fbb__radio-group {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.25rem 0;
+}
+
+.fbb__radio-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #333;
+}
+
+.fbb__radio-circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid #b0b8c0;
+  box-sizing: border-box;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  flex-shrink: 0;
+}
+
+.fbb__radio-option:hover .fbb__radio-circle {
+  border-color: #0070d2;
+}
+
+.fbb__radio-option--active .fbb__radio-circle {
+  border-color: #0070d2;
+  border-width: 5px;
+}
+
+.fbb__radio-text {
+  line-height: 1;
+}
+
+:host-context(body.dark-theme) .fbb__radio-option {
+  color: #e0e6ed;
+}
+
+:host-context(body.dark-theme) .fbb__radio-circle {
+  border-color: #4a5a6a;
+}
+
+:host-context(body.dark-theme) .fbb__radio-option:hover .fbb__radio-circle,
+:host-context(body.dark-theme) .fbb__radio-option--active .fbb__radio-circle {
+  border-color: #00bceb;
+}
+
 /* Text input in panel */
 .fbb__text-input {
   width: 100%;
