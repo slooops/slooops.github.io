@@ -121,6 +121,7 @@
 .mo-stepper {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.25rem;
   margin-bottom: 0.85rem;
   overflow-x: auto;
@@ -141,6 +142,18 @@
   font-weight: 600;
   white-space: nowrap;
   transition: color var(--fit-transition-fast, 150ms) ease;
+  animation: mo-step-pop 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes mo-step-pop {
+  from {
+    opacity: 0;
+    transform: translateX(-6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
 }
 
 .mo-step:hover {
@@ -181,11 +194,26 @@
 }
 
 .mo-step-line {
-  flex: 1;
-  min-width: 12px;
+  flex: 0 1 auto;
+  width: 100%;
+  min-width: 24px;
+  max-width: 160px;
   height: 1.5px;
   background: var(--mo-border);
   border-radius: 999px;
+  animation: mo-line-grow 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: left center;
+}
+
+@keyframes mo-line-grow {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
 }
 
 /* ── Card ── */
@@ -204,17 +232,26 @@
 }
 
 .mo-step-panel {
-  animation: mo-fade 200ms ease;
+  animation: mo-step-expand 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: top center;
 }
 
-@keyframes mo-fade {
+@keyframes mo-step-expand {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: scaleY(0.96) translateY(-8px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: scaleY(1) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mo-step-panel,
+  .mo-step,
+  .mo-step-line {
+    animation: none;
   }
 }
 
