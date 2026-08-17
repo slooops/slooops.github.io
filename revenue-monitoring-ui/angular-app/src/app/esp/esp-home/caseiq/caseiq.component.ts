@@ -4164,12 +4164,10 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     return { value: (minutes / 60).toFixed(1), unit: 'h' };
   }
 
-  /** MTTR rendered in days for the ctx-1 team table; falls back to hours under 1 day. */
-  mttrDaysParts(minutes: number | null): { value: string; unit: string } {
-    if (minutes == null) return { value: '—', unit: '' };
-    if (Math.abs(minutes) < 1440)
-      return { value: (minutes / 60).toFixed(1), unit: 'h' };
-    return { value: (minutes / 1440).toFixed(1), unit: 'days' };
+  /** Case MTTR values are supplied in days and displayed without conversion. */
+  mttrDaysParts(days: number | null): { value: string; unit: string } {
+    if (days == null) return { value: '—', unit: '' };
+    return { value: days.toFixed(1), unit: 'days' };
   }
 
   openResponseDetail(component: string): void {
