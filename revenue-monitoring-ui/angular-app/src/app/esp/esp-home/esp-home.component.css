@@ -25,6 +25,12 @@
     0 4px 20px rgba(0, 0, 0, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
   --ciq-card-radius: 1rem;
   --ciq-kpi-bg: #f4f5f6;
+  --ciq-scope-bg: rgba(255, 255, 255, 0.72);
+  --ciq-scope-border: rgba(0, 112, 210, 0.25);
+  --ciq-scope-text: var(--fit-color-text-muted);
+  --ciq-scope-hover-bg: rgba(0, 188, 235, 0.12);
+  --ciq-scope-active-text: #ffffff;
+  --ciq-scope-shadow: 0 2px 8px rgba(0, 112, 210, 0.3);
   display: block;
   background: var(--ciq-bg);
   min-height: 100vh;
@@ -49,6 +55,11 @@
   --ciq-hover-bg: var(--fit-dark-hover-bg);
   --ciq-card-shadow: var(--fit-dark-card-shadow);
   --ciq-kpi-bg: rgba(26, 39, 51, 0.8);
+  --ciq-scope-bg: rgba(28, 44, 58, 0.72);
+  --ciq-scope-border: rgba(0, 188, 235, 0.3);
+  --ciq-scope-text: var(--fit-color-text-muted);
+  --ciq-scope-hover-bg: rgba(0, 188, 235, 0.15);
+  --ciq-scope-shadow: 0 2px 8px rgba(0, 188, 235, 0.2);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -480,6 +491,73 @@
   align-items: center;
   font-size: 0.8rem;
   color: var(--ciq-text);
+}
+
+.metric-scope-toggle {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 2.75rem);
+  flex: 0 0 auto;
+  overflow: hidden;
+  padding: 2px;
+  border: 1px solid var(--ciq-scope-border);
+  border-radius: var(--fit-radius-pill);
+  background: var(--ciq-scope-bg);
+}
+
+.metric-scope-indicator {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 2.75rem;
+  height: 1.5rem;
+  border-radius: var(--fit-radius-pill);
+  background: linear-gradient(135deg, #0070d2, #00bceb);
+  box-shadow: var(--ciq-scope-shadow);
+  transform: translateX(0);
+  transition: transform var(--fit-transition-normal) ease;
+}
+
+.metric-scope-indicator--it {
+  transform: translateX(100%);
+}
+
+.metric-scope-indicator--biz {
+  transform: translateX(200%);
+}
+
+.metric-scope-button {
+  position: relative;
+  z-index: 1;
+  width: 2.75rem;
+  height: 1.5rem;
+  padding: 0 var(--fit-space-sm);
+  border: 0;
+  border-radius: var(--fit-radius-pill);
+  background: transparent;
+  color: var(--ciq-scope-text);
+  font-family: inherit;
+  font-size: var(--fit-font-size-xs);
+  font-weight: var(--fit-font-weight-semibold);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    color var(--fit-transition-fast),
+    background var(--fit-transition-fast);
+}
+
+.metric-scope-button:hover:not(.metric-scope-button--active) {
+  background: var(--ciq-scope-hover-bg);
+  color: var(--fit-color-primary);
+}
+
+.metric-scope-button:focus-visible {
+  outline: 2px solid var(--fit-color-primary);
+  outline-offset: -2px;
+}
+
+.metric-scope-button--active {
+  color: var(--ciq-scope-active-text);
 }
 
 /* ── Responsive header ──────────────────────────────────── */

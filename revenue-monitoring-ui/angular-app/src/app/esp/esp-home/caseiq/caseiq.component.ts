@@ -124,8 +124,6 @@ interface CaseiqKpi {
 
 /** Outcome buckets tracked per component row. */
 type OutcomeKey = 'inProgress' | 'routed' | 'cancelled' | 'service';
-type MetricScope = 'All' | 'IT' | 'Biz';
-
 /** Resolution Status buckets shared by the team roll-up and core-issue drilldown. */
 type ResolutionMixKey =
   'success' | 'notSupported' | 'error' | 'warning' | 'unknown';
@@ -325,8 +323,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   // ── Context Switcher: 1 = Operations, 2 = Executive, 3 = Executive (redux) ──
   @Input() caseiqView: 1 | 2 | 3 | 4 = 1;
-  readonly metricScopes: MetricScope[] = ['All', 'IT', 'Biz'];
-  selectedMetricScope: MetricScope = 'All';
 
   // ── Executive view data (all from new p80/p90/worknotes/coverage-gap views) ──
   /**

@@ -56,32 +56,10 @@
                 <th class="sr-umbrella" colspan="3">
                   <div class="sr-umbrella-inner">Service Requests</div>
                 </th>
+                <th class="umbrella-empty" colspan="2"></th>
+              } @else {
+                <th class="umbrella-empty" colspan="5"></th>
               }
-              <th
-                class="umbrella-empty umbrella-actions-cell"
-                [attr.colspan]="hasAutoResolveColumns() ? 2 : 5"
-              >
-                <div
-                  class="metric-scope-toggle"
-                  role="radiogroup"
-                  aria-label="Performance metric scope"
-                >
-                  @for (scope of metricScopes; track scope) {
-                    <button
-                      type="button"
-                      class="metric-scope-button"
-                      role="radio"
-                      [class.metric-scope-button--active]="
-                        selectedMetricScope === scope
-                      "
-                      [attr.aria-checked]="selectedMetricScope === scope"
-                      (click)="selectedMetricScope = scope"
-                    >
-                      {{ scope }}
-                    </button>
-                  }
-                </div>
-              </th>
             </tr>
             <tr>
               <th>Component</th>

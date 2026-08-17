@@ -111,6 +111,8 @@ export class EspHomeComponent implements OnInit {
   // CaseIQ context switcher (1 = Operations, 2 = Executive, 3 = Executive redux, 4 = Ops variant)
   caseiqView: 1 | 2 | 3 | 4 = 1;
   readonly caseiqContexts: (1 | 2 | 3 | 4)[] = [1, 2, 3, 4];
+  readonly metricScopes = ['All', 'IT', 'Biz'] as const;
+  selectedMetricScope: (typeof this.metricScopes)[number] = 'All';
 
   // Quarter filter properties
   selectedQuarter: string = '';
